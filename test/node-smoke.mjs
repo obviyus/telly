@@ -56,6 +56,20 @@ const fileBytes = await Effect.runPromise(
 if (!(fileBytes instanceof Uint8Array) || fileBytes.join(",") !== "2,7,1,8") {
   throw new Error("downloadFile failed under Node.js");
 }
+fake.enqueue(testing.FakeBotApiReply.ok({
+  chat: { id: 61, type: "private" },
+  date: 1_700_000_000,
+  message_id: 109,
+}));
+const photoMessage = await Effect.runPromise(
+  root.sendPhoto({
+    chatId: 61,
+    photo: new File([new Uint8Array([1, 0, 9])], "node.png", { type: "image/png" }),
+  }).pipe(Effect.provide(bot)),
+);
+if (photoMessage.messageId !== 109 || fake.requests.at(-1)?.contentType !== "multipart/form-data") {
+  throw new Error("sendPhoto multipart failed under Node.js");
+}
 
 const invalidFake = testing.FakeBotApi.make({
   replies: [testing.FakeBotApiReply.ok({ message_id: "invalid" })],

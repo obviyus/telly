@@ -1,0 +1,28 @@
+{
+  "method": "sendPhoto",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:50:05.765Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788112193,
+    "senderBotApiMessageId": 767,
+    "text": "telly-sendPhoto-2646dcf4-7088-43a3-b492-0087543c4df0"
+  },
+  "timeline": [
+    {
+      "contentType": "messagePhoto",
+      "elapsedMs": 130,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3145,
+      "text": "telly-sendPhoto-2646dcf4-7088-43a3-b492-0087543c4df0"
+    },
+    {
+      "elapsedMs": 163,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3145
+    }
+  ]
+}

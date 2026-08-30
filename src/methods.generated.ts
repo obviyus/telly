@@ -893,6 +893,82 @@ export const sendMessage = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to send photos. On success, the sent Message is returned. */
+export interface SendPhotoParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files » */
+  readonly photo: Types.InputFile | string;
+  /** Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the photo caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Pass True if the photo needs to be covered with a spoiler animation */
+  readonly hasSpoiler?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendPhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendPhotoParamsWireKeys = invertKeys(_SendPhotoParamsPublicKeys);
+const _SendPhotoParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  has_spoiler: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendPhotoParamsDecoded = Schema.declare<SendPhotoParams>((input): input is SendPhotoParams => Predicate.isObject(input));
+export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<string, unknown>>> = _SendPhotoParamsEncoded.pipe(
+  Schema.decodeTo(_SendPhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendPhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendPhotoParamsWireKeys)),
+  }),
+);
+
+export const sendPhoto = callMethod({
+  method: "sendPhoto",
+  params: SendPhotoParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success. */
 export interface SetMyCommandsParams {
   /** A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */

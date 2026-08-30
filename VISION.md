@@ -39,6 +39,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Telly uses the fewest concepts that express its behavior without hiding a contract.
 - Names use Telegram domain words. Generic names such as `manager`, `helper`, and `util` stay out of the public interface.
 - Known public fields use `camelCase`. Schema codecs translate them to Telegram's `snake_case` wire keys. Unknown day-zero fields keep their wire names until Telly types them.
+- Uploads are Web `Blob` values, or `File` values when the name matters. Telly chooses JSON or multipart from the value; no public parameter names a transport or an `attach://` reference.
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
 - A method whose Telegram schema has no fields takes zero arguments. A method with fields takes exactly one options object, even when every field is optional.
 - Options objects with named fields replace positional variants and overloads.

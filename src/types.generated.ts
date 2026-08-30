@@ -4573,13 +4573,8 @@ export const InputContactMessageContent: Schema.Codec<InputContactMessageContent
 );
 
 /** This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser. */
-export interface InputFile {
-  readonly [key: string]: unknown;
-}
-export const InputFile: Schema.Codec<InputFile, unknown> = Schema.StructWithRest(
-  Schema.Struct({}),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-);
+export type InputFile = Blob;
+export const InputFile: Schema.Codec<InputFile> = Schema.instanceOf(Blob);
 
 /** Represents the content of an invoice message to be sent as the result of an inline query. */
 export interface InputInvoiceMessageContent {
@@ -4706,9 +4701,9 @@ export interface InputMediaAnimation {
   /** Type of the media, must be animation */
   readonly type: "animation";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly thumbnail?: string;
+  readonly thumbnail?: InputFile;
   /** Optional. Caption of the animation to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the animation caption. See formatting options for more details. */
@@ -4732,8 +4727,8 @@ const _InputMediaAnimationWireKeys = invertKeys(_InputMediaAnimationPublicKeys);
 const _InputMediaAnimationEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("animation"),
-    media: Schema.String,
-    thumbnail: Schema.optionalKey(Schema.String),
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    thumbnail: Schema.optionalKey(Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile)),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -4758,9 +4753,9 @@ export interface InputMediaAudio {
   /** Type of the media, must be audio */
   readonly type: "audio";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly thumbnail?: string;
+  readonly thumbnail?: InputFile;
   /** Optional. Caption of the audio to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the audio caption. See formatting options for more details. */
@@ -4780,8 +4775,8 @@ const _InputMediaAudioWireKeys = invertKeys(_InputMediaAudioPublicKeys);
 const _InputMediaAudioEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("audio"),
-    media: Schema.String,
-    thumbnail: Schema.optionalKey(Schema.String),
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    thumbnail: Schema.optionalKey(Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile)),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -4804,9 +4799,9 @@ export interface InputMediaDocument {
   /** Type of the media, must be document */
   readonly type: "document";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly thumbnail?: string;
+  readonly thumbnail?: InputFile;
   /** Optional. Caption of the document to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the document caption. See formatting options for more details. */
@@ -4822,8 +4817,8 @@ const _InputMediaDocumentWireKeys = invertKeys(_InputMediaDocumentPublicKeys);
 const _InputMediaDocumentEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("document"),
-    media: Schema.String,
-    thumbnail: Schema.optionalKey(Schema.String),
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    thumbnail: Schema.optionalKey(Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile)),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -4860,9 +4855,9 @@ export interface InputMediaLivePhoto {
   /** Type of the media, must be live_photo */
   readonly type: "live_photo";
   /** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
-  readonly photo: string;
+  readonly photo: InputFile | string;
   /** Optional. Caption of the live photo to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the live photo caption. See formatting options for more details. */
@@ -4880,8 +4875,8 @@ const _InputMediaLivePhotoWireKeys = invertKeys(_InputMediaLivePhotoPublicKeys);
 const _InputMediaLivePhotoEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("live_photo"),
-    media: Schema.String,
-    photo: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    photo: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -4934,7 +4929,7 @@ export interface InputMediaPhoto {
   /** Type of the media, must be photo */
   readonly type: "photo";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the photo caption. See formatting options for more details. */
@@ -4952,7 +4947,7 @@ const _InputMediaPhotoWireKeys = invertKeys(_InputMediaPhotoPublicKeys);
 const _InputMediaPhotoEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("photo"),
-    media: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -4974,7 +4969,7 @@ export interface InputMediaSticker {
   /** Type of the media, must be sticker */
   readonly type: "sticker";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass “attach://<file_attach_name>” to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Emoji associated with the sticker; only for just uploaded stickers */
   readonly emoji?: string;
   readonly [key: string]: unknown;
@@ -4982,7 +4977,7 @@ export interface InputMediaSticker {
 export const InputMediaSticker: Schema.Codec<InputMediaSticker, unknown> = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("sticker"),
-    media: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
     emoji: Schema.optionalKey(Schema.String),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -5039,11 +5034,11 @@ export interface InputMediaVideo {
   /** Type of the media, must be video */
   readonly type: "video";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly thumbnail?: string;
+  readonly thumbnail?: InputFile;
   /** Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly cover?: string;
+  readonly cover?: InputFile | string;
   /** Optional. Start timestamp for the video in the message */
   readonly startTimestamp?: number;
   /** Optional. Caption of the video to be sent, 0-1024 characters after entities parsing */
@@ -5071,9 +5066,9 @@ const _InputMediaVideoWireKeys = invertKeys(_InputMediaVideoPublicKeys);
 const _InputMediaVideoEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("video"),
-    media: Schema.String,
-    thumbnail: Schema.optionalKey(Schema.String),
-    cover: Schema.optionalKey(Schema.String),
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    thumbnail: Schema.optionalKey(Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile)),
+    cover: Schema.optionalKey(Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String])),
     start_timestamp: Schema.optionalKey(Schema.Int),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
@@ -5100,7 +5095,7 @@ export interface InputMediaVoiceNote {
   /** Type of the media, must be voice_note */
   readonly type: string;
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Caption of the voice message to be sent, 0-1024 characters after entities parsing */
   readonly caption?: string;
   /** Optional. Mode for parsing entities in the voice message caption. See formatting options for more details. */
@@ -5116,7 +5111,7 @@ const _InputMediaVoiceNoteWireKeys = invertKeys(_InputMediaVoiceNotePublicKeys);
 const _InputMediaVoiceNoteEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.String,
-    media: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode, unknown> => ParseMode)),
     caption_entities: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<MessageEntity, unknown> => MessageEntity))),
@@ -5145,16 +5140,16 @@ export interface InputPaidMediaLivePhoto {
   /** Type of the media, must be live_photo */
   readonly type: "live_photo";
   /** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
-  readonly photo: string;
+  readonly photo: InputFile | string;
   readonly [key: string]: unknown;
 }
 export const InputPaidMediaLivePhoto: Schema.Codec<InputPaidMediaLivePhoto, unknown> = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("live_photo"),
-    media: Schema.String,
-    photo: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    photo: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5164,13 +5159,13 @@ export interface InputPaidMediaPhoto {
   /** Type of the media, must be photo */
   readonly type: "photo";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   readonly [key: string]: unknown;
 }
 export const InputPaidMediaPhoto: Schema.Codec<InputPaidMediaPhoto, unknown> = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("photo"),
-    media: Schema.String,
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5180,11 +5175,11 @@ export interface InputPaidMediaVideo {
   /** Type of the media, must be video */
   readonly type: "video";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly media: string;
+  readonly media: InputFile | string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly thumbnail?: string;
+  readonly thumbnail?: InputFile;
   /** Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
-  readonly cover?: string;
+  readonly cover?: InputFile | string;
   /** Optional. Start timestamp for the video in the message */
   readonly startTimestamp?: number;
   /** Optional. Video width */
@@ -5202,9 +5197,9 @@ const _InputPaidMediaVideoWireKeys = invertKeys(_InputPaidMediaVideoPublicKeys);
 const _InputPaidMediaVideoEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("video"),
-    media: Schema.String,
-    thumbnail: Schema.optionalKey(Schema.String),
-    cover: Schema.optionalKey(Schema.String),
+    media: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
+    thumbnail: Schema.optionalKey(Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile)),
+    cover: Schema.optionalKey(Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String])),
     start_timestamp: Schema.optionalKey(Schema.Int),
     width: Schema.optionalKey(Schema.Int),
     height: Schema.optionalKey(Schema.Int),
@@ -5269,7 +5264,7 @@ export interface InputProfilePhotoAnimated {
   /** Type of the profile photo, must be animated */
   readonly type: "animated";
   /** The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly animation: string;
+  readonly animation: InputFile;
   /** Optional. Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0. */
   readonly mainFrameTimestamp?: number;
   readonly [key: string]: unknown;
@@ -5279,7 +5274,7 @@ const _InputProfilePhotoAnimatedWireKeys = invertKeys(_InputProfilePhotoAnimated
 const _InputProfilePhotoAnimatedEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("animated"),
-    animation: Schema.String,
+    animation: Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile),
     main_frame_timestamp: Schema.optionalKey(Schema.Number),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -5297,13 +5292,13 @@ export interface InputProfilePhotoStatic {
   /** Type of the profile photo, must be static */
   readonly type: "static";
   /** The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly photo: string;
+  readonly photo: InputFile;
   readonly [key: string]: unknown;
 }
 export const InputProfilePhotoStatic: Schema.Codec<InputProfilePhotoStatic, unknown> = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("static"),
-    photo: Schema.String,
+    photo: Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5904,7 +5899,7 @@ export const InputRichMessageMedia: Schema.Codec<InputRichMessageMedia, unknown>
 /** This object describes a sticker to be added to a sticker set. */
 export interface InputSticker {
   /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new file using multipart/form-data under <file_attach_name> name. Animated and video stickers can't be uploaded via HTTP URL. More information on Sending Files » */
-  readonly sticker: string;
+  readonly sticker: InputFile | string;
   /** Format of the added sticker, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, “video” for a .WEBM video */
   readonly format: StickerFormat;
   /** List of 1-20 emoji associated with the sticker */
@@ -5919,7 +5914,7 @@ const _InputStickerPublicKeys = { emoji_list: "emojiList", mask_position: "maskP
 const _InputStickerWireKeys = invertKeys(_InputStickerPublicKeys);
 const _InputStickerEncoded = Schema.StructWithRest(
   Schema.Struct({
-    sticker: Schema.String,
+    sticker: Schema.Union([Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile), Schema.String]),
     format: Schema.suspend((): Schema.Codec<StickerFormat, unknown> => StickerFormat),
     emoji_list: Schema.Array(Schema.String),
     mask_position: Schema.optionalKey(Schema.suspend((): Schema.Codec<MaskPosition, unknown> => MaskPosition)),
@@ -5944,13 +5939,13 @@ export interface InputStoryContentPhoto {
   /** Type of the content, must be photo */
   readonly type: "photo";
   /** The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly photo: string;
+  readonly photo: InputFile;
   readonly [key: string]: unknown;
 }
 export const InputStoryContentPhoto: Schema.Codec<InputStoryContentPhoto, unknown> = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("photo"),
-    photo: Schema.String,
+    photo: Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5960,7 +5955,7 @@ export interface InputStoryContentVideo {
   /** Type of the content, must be video */
   readonly type: "video";
   /** The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the video was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
-  readonly video: string;
+  readonly video: InputFile;
   /** Optional. Precise duration of the video in seconds; 0-60 */
   readonly duration?: number;
   /** Optional. Timestamp in seconds of the frame that will be used as the static cover for the story. Defaults to 0.0. */
@@ -5974,7 +5969,7 @@ const _InputStoryContentVideoWireKeys = invertKeys(_InputStoryContentVideoPublic
 const _InputStoryContentVideoEncoded = Schema.StructWithRest(
   Schema.Struct({
     type: Schema.Literal("video"),
-    video: Schema.String,
+    video: Schema.suspend((): Schema.Codec<InputFile, unknown> => InputFile),
     duration: Schema.optionalKey(Schema.Number),
     cover_frame_timestamp: Schema.optionalKey(Schema.Number),
     is_animation: Schema.optionalKey(Schema.Boolean),

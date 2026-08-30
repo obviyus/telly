@@ -12,7 +12,12 @@ const MethodOverride = Schema.Struct({
   retrySafe: Schema.Boolean,
 });
 
+const FieldOverride = Schema.Struct({
+  types: Schema.Array(Schema.String),
+});
+
 export const GeneratorOverrides = Schema.Struct({
+  fields: Schema.Record(Schema.String, FieldOverride),
   methods: Schema.Record(Schema.String, MethodOverride),
   types: Schema.Record(Schema.String, TypeOverride),
 });
@@ -197,23 +202,25 @@ function fieldExpressions(
   owner: string,
   field: NonNullable<BotApiSpec["types"][string]["fields"]>[number],
   targets: ReadonlyMap<string, FieldTarget>,
+  overrides: GeneratorOverrides,
   qualifier = "",
 ) {
   const target = targets.get(`${owner}.${field.name}`);
+  const references = overrides.fields[`${owner}.${field.name}`]?.types ?? field.types;
   if (target === undefined) {
     return {
-      schema: unionSchema(field.types, (reference) => schemaExpression(reference, qualifier)),
-      type: unionExpression(field.types, (reference) => typeExpression(reference, qualifier)),
+      schema: unionSchema(references, (reference) => schemaExpression(reference, qualifier)),
+      type: unionExpression(references, (reference) => typeExpression(reference, qualifier)),
     };
   }
   if (target._tag === "Literal") {
     const literal = JSON.stringify(target.value);
     return { schema: `Schema.Literal(${literal})`, type: literal };
   }
-  const references = field.types.map((reference) => enumReference(reference, target.name));
+  const enumReferences = references.map((reference) => enumReference(reference, target.name));
   return {
-    schema: unionSchema(references, (reference) => schemaExpression(reference, qualifier)),
-    type: unionExpression(references, (reference) => typeExpression(reference, qualifier)),
+    schema: unionSchema(enumReferences, (reference) => schemaExpression(reference, qualifier)),
+    type: unionExpression(enumReferences, (reference) => typeExpression(reference, qualifier)),
   };
 }
 
@@ -253,10 +260,11 @@ function renderObjectType(
   name: string,
   definition: BotApiSpec["types"][string],
   targets: ReadonlyMap<string, FieldTarget>,
+  overrides: GeneratorOverrides,
 ): string {
   const fields = definition.fields ?? [];
   const rendered = fields.map((field) => {
-    const expressions = fieldExpressions(name, field, targets);
+    const expressions = fieldExpressions(name, field, targets, overrides);
     const schema = field.required
       ? expressions.schema
       : `Schema.optionalKey(${expressions.schema})`;
@@ -309,7 +317,7 @@ function renderTypes(
       if (definition.subtypes !== undefined) {
         return `${docComment(definition.description)}export type ${name} = ${unionExpression(definition.subtypes, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = ${unionSchema(definition.subtypes, schemaExpression)};\n`;
       }
-      return renderObjectType(name, definition, targets);
+      return renderObjectType(name, definition, targets, overrides);
     });
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { invertKeys } from "./internal/SchemaKeys.js";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
 }
@@ -329,7 +337,7 @@ function renderMethods(
       const paramsName = `${name.charAt(0).toUpperCase()}${name.slice(1)}Params`;
       const fields = method.fields ?? [];
       const rendered = fields.map((field) => {
-        const expressions = fieldExpressions(name, field, targets, "Types.");
+        const expressions = fieldExpressions(name, field, targets, overrides, "Types.");
         const schema = field.required
           ? expressions.schema
           : `Schema.optional(${expressions.schema})`;
@@ -398,6 +406,44 @@ export function generateSources(
   overrides: GeneratorOverrides,
   evidence: MethodEvidence,
 ): GeneratedSources {
+  const declaredTypes = new Set([...Object.keys(spec.types), ...Object.keys(primitiveTypes)]);
+  for (const [ownerName, definition] of Object.entries(spec.types)) {
+    for (const field of definition.fields ?? []) {
+      const path = `${ownerName}.${field.name}`;
+      const sourceHasInputFile = field.types.some((reference) => reference === "InputFile");
+      if (
+        field.description.includes("attach://") &&
+        !sourceHasInputFile &&
+        overrides.fields[path] === undefined
+      ) {
+        throw new Error(`Nested upload field ${path} needs a field override`);
+      }
+    }
+  }
+  for (const [path, override] of Object.entries(overrides.fields)) {
+    const separator = path.indexOf(".");
+    const ownerName = separator === -1 ? path : path.slice(0, separator);
+    const fieldName = separator === -1 ? "" : path.slice(separator + 1);
+    const owner = spec.types[ownerName] ?? spec.methods[ownerName];
+    const field = owner?.fields?.find((candidate) => candidate.name === fieldName);
+    if (field === undefined) {
+      throw new Error(`Field override ${path} is missing from the schema`);
+    }
+    if (JSON.stringify(override.types) === JSON.stringify(field.types)) {
+      throw new Error(`Field override ${path} duplicates the schema`);
+    }
+    for (const reference of override.types) {
+      let typeName = reference;
+      for (;;) {
+        const item = arrayItem(typeName);
+        if (item === undefined) break;
+        typeName = item;
+      }
+      if (!declaredTypes.has(typeName)) {
+        throw new Error(`Field override ${path} refers to missing type ${typeName}`);
+      }
+    }
+  }
   for (const name of Object.keys(overrides.types)) {
     if (spec.types[name] === undefined) {
       throw new Error(`Override type ${name} is missing from the schema`);
