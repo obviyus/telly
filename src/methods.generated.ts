@@ -366,6 +366,173 @@ export const getStarTransactions = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
+export interface GetUserChatBoostsParams {
+  /** Unique identifier for the chat or username of the channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+}
+const _GetUserChatBoostsParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+const _GetUserChatBoostsParamsWireKeys = invertKeys(_GetUserChatBoostsParamsPublicKeys);
+const _GetUserChatBoostsParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+});
+const _GetUserChatBoostsParamsDecoded = Schema.declare<GetUserChatBoostsParams>((input): input is GetUserChatBoostsParams => Predicate.isObject(input));
+export const GetUserChatBoostsParams: Schema.Codec<GetUserChatBoostsParams, Readonly<Record<string, unknown>>> = _GetUserChatBoostsParamsEncoded.pipe(
+  Schema.decodeTo(_GetUserChatBoostsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserChatBoostsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserChatBoostsParamsWireKeys)),
+  }),
+);
+
+export const getUserChatBoosts = callMethod({
+  method: "getUserChatBoosts",
+  params: GetUserChatBoostsParams,
+  result: Schema.suspend((): Schema.Codec<Types.UserChatBoosts, unknown> => Types.UserChatBoosts),
+  retrySafe: true,
+});
+
+/** Returns the gifts owned and hosted by a user. Returns OwnedGifts on success. */
+export interface GetUserGiftsParams {
+  /** Unique identifier of the user */
+  readonly userId: number;
+  /** Pass True to exclude gifts that can be purchased an unlimited number of times */
+  readonly excludeUnlimited?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+  readonly excludeLimitedUpgradable?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+  readonly excludeLimitedNonUpgradable?: boolean | undefined;
+  /** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+  readonly excludeFromBlockchain?: boolean | undefined;
+  /** Pass True to exclude unique gifts */
+  readonly excludeUnique?: boolean | undefined;
+  /** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
+  readonly sortByPrice?: boolean | undefined;
+  /** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
+  readonly offset?: string | undefined;
+  /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+const _GetUserGiftsParamsPublicKeys = { user_id: "userId", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
+const _GetUserGiftsParamsWireKeys = invertKeys(_GetUserGiftsParamsPublicKeys);
+const _GetUserGiftsParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  exclude_unlimited: Schema.optional(Schema.Boolean),
+  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+  exclude_from_blockchain: Schema.optional(Schema.Boolean),
+  exclude_unique: Schema.optional(Schema.Boolean),
+  sort_by_price: Schema.optional(Schema.Boolean),
+  offset: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Int),
+});
+const _GetUserGiftsParamsDecoded = Schema.declare<GetUserGiftsParams>((input): input is GetUserGiftsParams => Predicate.isObject(input));
+export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Record<string, unknown>>> = _GetUserGiftsParamsEncoded.pipe(
+  Schema.decodeTo(_GetUserGiftsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserGiftsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserGiftsParamsWireKeys)),
+  }),
+);
+
+export const getUserGifts = callMethod({
+  method: "getUserGifts",
+  params: GetUserGiftsParams,
+  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  retrySafe: true,
+});
+
+/** Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of Message objects is returned. */
+export interface GetUserPersonalChatMessagesParams {
+  /** Unique identifier for the target user */
+  readonly userId: number;
+  /** The maximum number of messages to return; 1-20 */
+  readonly limit: number;
+}
+const _GetUserPersonalChatMessagesParamsPublicKeys = { user_id: "userId" } as const;
+const _GetUserPersonalChatMessagesParamsWireKeys = invertKeys(_GetUserPersonalChatMessagesParamsPublicKeys);
+const _GetUserPersonalChatMessagesParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  limit: Schema.Int,
+});
+const _GetUserPersonalChatMessagesParamsDecoded = Schema.declare<GetUserPersonalChatMessagesParams>((input): input is GetUserPersonalChatMessagesParams => Predicate.isObject(input));
+export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChatMessagesParams, Readonly<Record<string, unknown>>> = _GetUserPersonalChatMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_GetUserPersonalChatMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserPersonalChatMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserPersonalChatMessagesParamsWireKeys)),
+  }),
+);
+
+export const getUserPersonalChatMessages = callMethod({
+  method: "getUserPersonalChatMessages",
+  params: GetUserPersonalChatMessagesParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
+  retrySafe: true,
+});
+
+/** Use this method to get a list of profile audios for a user. Returns a UserProfileAudios object. */
+export interface GetUserProfileAudiosParams {
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Sequential number of the first audio to be returned. By default, all audios are returned. */
+  readonly offset?: number | undefined;
+  /** Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+const _GetUserProfileAudiosParamsPublicKeys = { user_id: "userId" } as const;
+const _GetUserProfileAudiosParamsWireKeys = invertKeys(_GetUserProfileAudiosParamsPublicKeys);
+const _GetUserProfileAudiosParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  offset: Schema.optional(Schema.Int),
+  limit: Schema.optional(Schema.Int),
+});
+const _GetUserProfileAudiosParamsDecoded = Schema.declare<GetUserProfileAudiosParams>((input): input is GetUserProfileAudiosParams => Predicate.isObject(input));
+export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams, Readonly<Record<string, unknown>>> = _GetUserProfileAudiosParamsEncoded.pipe(
+  Schema.decodeTo(_GetUserProfileAudiosParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfileAudiosParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfileAudiosParamsWireKeys)),
+  }),
+);
+
+export const getUserProfileAudios = callMethod({
+  method: "getUserProfileAudios",
+  params: GetUserProfileAudiosParams,
+  result: Schema.suspend((): Schema.Codec<Types.UserProfileAudios, unknown> => Types.UserProfileAudios),
+  retrySafe: true,
+});
+
+/** Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object. */
+export interface GetUserProfilePhotosParams {
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Sequential number of the first photo to be returned. By default, all photos are returned. */
+  readonly offset?: number | undefined;
+  /** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+const _GetUserProfilePhotosParamsPublicKeys = { user_id: "userId" } as const;
+const _GetUserProfilePhotosParamsWireKeys = invertKeys(_GetUserProfilePhotosParamsPublicKeys);
+const _GetUserProfilePhotosParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  offset: Schema.optional(Schema.Int),
+  limit: Schema.optional(Schema.Int),
+});
+const _GetUserProfilePhotosParamsDecoded = Schema.declare<GetUserProfilePhotosParams>((input): input is GetUserProfilePhotosParams => Predicate.isObject(input));
+export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams, Readonly<Record<string, unknown>>> = _GetUserProfilePhotosParamsEncoded.pipe(
+  Schema.decodeTo(_GetUserProfilePhotosParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfilePhotosParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfilePhotosParamsWireKeys)),
+  }),
+);
+
+export const getUserProfilePhotos = callMethod({
+  method: "getUserProfilePhotos",
+  params: GetUserProfilePhotosParams,
+  result: Schema.suspend((): Schema.Codec<Types.UserProfilePhotos, unknown> => Types.UserProfilePhotos),
+  retrySafe: true,
+});
+
 /** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
 export const getWebhookInfo = callMethod({
   method: "getWebhookInfo",

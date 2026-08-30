@@ -1,0 +1,16 @@
+{
+  "method": "getUserProfileAudios",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:09:11.272Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 61,
+      "kind": "bot_api_result",
+      "observation": {
+        "audioCount": 0,
+        "totalCount": 0
+      }
+    }
+  ]
+}

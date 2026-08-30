@@ -422,29 +422,29 @@
       "status": "blocked"
     },
     "getUserChatBoosts": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'; credential pool repair is owner-only",
       "status": "blocked"
     },
     "getUserGifts": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getUserGifts/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:09:04.639Z",
+      "status": "proven"
     },
     "getUserPersonalChatMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased user fixture has no personal channel: Telegram returned 'USER_PERSONAL_CHANNEL_MISSING'; credential pool repair is owner-only",
       "status": "blocked"
     },
     "getUserProfileAudios": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getUserProfileAudios/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:09:11.272Z",
+      "status": "proven"
     },
     "getUserProfilePhotos": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getUserProfilePhotos/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:09:11.295Z",
+      "status": "proven"
     },
     "getWebhookInfo": {
       "artifact": "bot-api/proofs/getWebhookInfo/2026-08-30.json",

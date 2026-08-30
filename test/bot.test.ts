@@ -7,6 +7,7 @@ import {
   getChatMemberCount,
   getMe,
   getStarTransactions,
+  getUserProfilePhotos,
   sendMessage,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
@@ -252,4 +253,21 @@ test("getChatMemberCount sends the required chat identifier", async () => {
 
   expect(count).toBe(17);
   expect(fake.requests[0]?.params).toEqual({ chat_id: -10073 });
+});
+
+test("getUserProfilePhotos decodes its nested result", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok({ photos: [], total_count: 0 })],
+    token,
+  });
+
+  const photos = await Effect.runPromise(
+    getUserProfilePhotos({ limit: 4, offset: 2, userId: 73 }).pipe(
+      Effect.provide(botLayer(fake)),
+    ),
+  );
+
+  expect(photos.totalCount).toBe(0);
+  expect(photos.photos).toEqual([]);
+  expect(fake.requests[0]?.params).toEqual({ limit: 4, offset: 2, user_id: 73 });
 });
