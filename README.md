@@ -34,7 +34,7 @@ Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer
 
 Development uses Bun 1.4. Published packages run on supported Node.js versions without Bun.
 
-The repository pins the complete Telegram Bot API 10.3 source snapshot and its provenance under `schema/sources`.
+The repository pins the complete Telegram Bot API 10.3 source snapshot and its provenance under `bot-api/schema/sources`.
 
 ```bash
 bun run schema:check
