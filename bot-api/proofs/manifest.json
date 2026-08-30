@@ -159,6 +159,26 @@
     "recorded_time": "2026-08-30T16:49:46.814Z",
     "status": "proven"
   },
+  "sendChatAction": {
+    "artifact": "bot-api/proofs/sendChatAction/2026-08-30.json",
+    "recorded_time": "2026-08-30T18:02:29.569Z",
+    "status": "proven"
+  },
+  "sendContact": {
+    "artifact": "bot-api/proofs/sendContact/2026-08-30.json",
+    "recorded_time": "2026-08-30T18:01:16.695Z",
+    "status": "proven"
+  },
+  "sendDice": {
+    "expires_on": "2026-09-13",
+    "reason": "live message cannot be cleaned up immediately: Telegram returned 'message can't be deleted for everyone'; private-chat dice messages must be more than 24 hours old before deletion",
+    "status": "blocked"
+  },
+  "sendLocation": {
+    "artifact": "bot-api/proofs/sendLocation/2026-08-30.json",
+    "recorded_time": "2026-08-30T18:02:00.946Z",
+    "status": "proven"
+  },
   "sendMessage": {
     "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
     "recorded_time": "2026-08-30T13:55:04.034Z",
@@ -167,6 +187,11 @@
   "sendPhoto": {
     "artifact": "bot-api/proofs/sendPhoto/2026-08-30.json",
     "recorded_time": "2026-08-30T17:50:05.765Z",
+    "status": "proven"
+  },
+  "sendVenue": {
+    "artifact": "bot-api/proofs/sendVenue/2026-08-30.json",
+    "recorded_time": "2026-08-30T18:02:15.299Z",
     "status": "proven"
   },
   "setMyCommands": {

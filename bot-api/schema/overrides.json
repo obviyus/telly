@@ -174,10 +174,25 @@
     "getWebhookInfo": {
       "retrySafe": true
     },
+    "sendChatAction": {
+      "retrySafe": true
+    },
+    "sendContact": {
+      "retrySafe": false
+    },
+    "sendDice": {
+      "retrySafe": false
+    },
+    "sendLocation": {
+      "retrySafe": false
+    },
     "sendMessage": {
       "retrySafe": false
     },
     "sendPhoto": {
+      "retrySafe": false
+    },
+    "sendVenue": {
       "retrySafe": false
     },
     "setMyCommands": {

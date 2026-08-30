@@ -823,6 +823,244 @@ export const getWebhookInfo = callMethod({
   retrySafe: true,
 });
 
+/** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success. We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
+export interface SendChatActionParams {
+  /** Unique identifier of the business connection on behalf of which the action will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot or supergroup in the format @username. Channel chats and channel direct messages chats aren't supported. */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
+  readonly action: Types.ChatAction;
+}
+const _SendChatActionParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+const _SendChatActionParamsWireKeys = invertKeys(_SendChatActionParamsPublicKeys);
+const _SendChatActionParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  action: Schema.suspend((): Schema.Codec<Types.ChatAction, unknown> => Types.ChatAction),
+});
+const _SendChatActionParamsDecoded = Schema.declare<SendChatActionParams>((input): input is SendChatActionParams => Predicate.isObject(input));
+export const SendChatActionParams: Schema.Codec<SendChatActionParams, Readonly<Record<string, unknown>>> = _SendChatActionParamsEncoded.pipe(
+  Schema.decodeTo(_SendChatActionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendChatActionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendChatActionParamsWireKeys)),
+  }),
+);
+
+export const sendChatAction = callMethod({
+  method: "sendChatAction",
+  params: SendChatActionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to send phone contacts. On success, the sent Message is returned. */
+export interface SendContactParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Contact's phone number */
+  readonly phoneNumber: string;
+  /** Contact's first name */
+  readonly firstName: string;
+  /** Contact's last name */
+  readonly lastName?: string | undefined;
+  /** Additional data about the contact in the form of a vCard, 0-2048 bytes */
+  readonly vcard?: string | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendContactParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", phone_number: "phoneNumber", first_name: "firstName", last_name: "lastName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendContactParamsWireKeys = invertKeys(_SendContactParamsPublicKeys);
+const _SendContactParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  phone_number: Schema.String,
+  first_name: Schema.String,
+  last_name: Schema.optional(Schema.String),
+  vcard: Schema.optional(Schema.String),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendContactParamsDecoded = Schema.declare<SendContactParams>((input): input is SendContactParams => Predicate.isObject(input));
+export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<string, unknown>>> = _SendContactParamsEncoded.pipe(
+  Schema.decodeTo(_SendContactParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendContactParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendContactParamsWireKeys)),
+  }),
+);
+
+export const sendContact = callMethod({
+  method: "sendContact",
+  params: SendContactParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned. */
+export interface SendDiceParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Emoji on which the dice throw animation is based. Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”. Dice can have values 1-6 for “🎲”, “🎯” and “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”. */
+  readonly emoji?: Types.DiceEmoji | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendDiceParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendDiceParamsWireKeys = invertKeys(_SendDiceParamsPublicKeys);
+const _SendDiceParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  emoji: Schema.optional(Schema.suspend((): Schema.Codec<Types.DiceEmoji, unknown> => Types.DiceEmoji)),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendDiceParamsDecoded = Schema.declare<SendDiceParams>((input): input is SendDiceParams => Predicate.isObject(input));
+export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string, unknown>>> = _SendDiceParamsEncoded.pipe(
+  Schema.decodeTo(_SendDiceParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendDiceParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendDiceParamsWireKeys)),
+  }),
+);
+
+export const sendDice = callMethod({
+  method: "sendDice",
+  params: SendDiceParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send point on the map. On success, the sent Message is returned. */
+export interface SendLocationParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Latitude of the location */
+  readonly latitude: number;
+  /** Longitude of the location */
+  readonly longitude: number;
+  /** The radius of uncertainty for the location, measured in meters; 0-1500 */
+  readonly horizontalAccuracy?: number | undefined;
+  /** Period in seconds during which the location will be updated (see Live Locations), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
+  readonly livePeriod?: number | undefined;
+  /** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
+  readonly heading?: number | undefined;
+  /** For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified. */
+  readonly proximityAlertRadius?: number | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", horizontal_accuracy: "horizontalAccuracy", live_period: "livePeriod", proximity_alert_radius: "proximityAlertRadius", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendLocationParamsWireKeys = invertKeys(_SendLocationParamsPublicKeys);
+const _SendLocationParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  latitude: Schema.Number,
+  longitude: Schema.Number,
+  horizontal_accuracy: Schema.optional(Schema.Number),
+  live_period: Schema.optional(Schema.Int),
+  heading: Schema.optional(Schema.Int),
+  proximity_alert_radius: Schema.optional(Schema.Int),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendLocationParamsDecoded = Schema.declare<SendLocationParams>((input): input is SendLocationParams => Predicate.isObject(input));
+export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Record<string, unknown>>> = _SendLocationParamsEncoded.pipe(
+  Schema.decodeTo(_SendLocationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendLocationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendLocationParamsWireKeys)),
+  }),
+);
+
+export const sendLocation = callMethod({
+  method: "sendLocation",
+  params: SendLocationParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method to send text messages. On success, the sent Message is returned. */
 export interface SendMessageParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -965,6 +1203,88 @@ export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<stri
 export const sendPhoto = callMethod({
   method: "sendPhoto",
   params: SendPhotoParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send information about a venue. On success, the sent Message is returned. */
+export interface SendVenueParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Latitude of the venue */
+  readonly latitude: number;
+  /** Longitude of the venue */
+  readonly longitude: number;
+  /** Name of the venue */
+  readonly title: string;
+  /** Address of the venue */
+  readonly address: string;
+  /** Foursquare identifier of the venue */
+  readonly foursquareId?: string | undefined;
+  /** Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.) */
+  readonly foursquareType?: string | undefined;
+  /** Google Places identifier of the venue */
+  readonly googlePlaceId?: string | undefined;
+  /** Google Places type of the venue. (See supported types.) */
+  readonly googlePlaceType?: string | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendVenueParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", foursquare_id: "foursquareId", foursquare_type: "foursquareType", google_place_id: "googlePlaceId", google_place_type: "googlePlaceType", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendVenueParamsWireKeys = invertKeys(_SendVenueParamsPublicKeys);
+const _SendVenueParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  latitude: Schema.Number,
+  longitude: Schema.Number,
+  title: Schema.String,
+  address: Schema.String,
+  foursquare_id: Schema.optional(Schema.String),
+  foursquare_type: Schema.optional(Schema.String),
+  google_place_id: Schema.optional(Schema.String),
+  google_place_type: Schema.optional(Schema.String),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendVenueParamsDecoded = Schema.declare<SendVenueParams>((input): input is SendVenueParams => Predicate.isObject(input));
+export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<string, unknown>>> = _SendVenueParamsEncoded.pipe(
+  Schema.decodeTo(_SendVenueParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendVenueParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendVenueParamsWireKeys)),
+  }),
+);
+
+export const sendVenue = callMethod({
+  method: "sendVenue",
+  params: SendVenueParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });

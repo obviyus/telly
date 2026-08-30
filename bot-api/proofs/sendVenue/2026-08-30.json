@@ -1,0 +1,27 @@
+{
+  "method": "sendVenue",
+  "passed": true,
+  "recorded_time": "2026-08-30T18:02:15.299Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788112923,
+    "senderBotApiMessageId": 719
+  },
+  "timeline": [
+    {
+      "contentType": "messageVenue",
+      "elapsedMs": 81,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3153,
+      "text": ""
+    },
+    {
+      "elapsedMs": 120,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3153
+    }
+  ]
+}
