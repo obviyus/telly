@@ -13,18 +13,25 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "bun build ./index.ts --outdir ./dist --target node --format esm --packages external && tsc --project ./tsconfig.build.json",
+    "build": "bun run ./scripts/build.ts && tsc --project ./tsconfig.build.json",
     "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
+    "e2e:send-message": "bun run ./scripts/e2e/send-message.mjs",
     "schema:check": "bun run ./schema/check.ts",
+    "schema:generate": "bun run ./schema/generate.ts",
     "test": "bun test --pass-with-no-tests",
-    "test:node": "bun run build && node --input-type=module --eval \"await import('./dist/index.js')\"",
+    "test:node": "bun run build && node ./test/node-smoke.mjs",
     "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json"
   },
   "dependencies": {

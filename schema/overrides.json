@@ -1,0 +1,8 @@
+{
+  "methods": {
+    "sendMessage": {
+      "retry_safe": false
+    }
+  },
+  "types": {}
+}

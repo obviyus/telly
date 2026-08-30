@@ -6,4 +6,9 @@
 
 `spec.ts` is the single check interface. It preserves unknown fields and verifies provenance, version, names, and type references.
 
-Run `bun run schema:check` to validate the checked-in snapshot without network access.
+`generator.ts` converts the checked source, `overrides.json`, and `proofs.json` into the public type Schemas, enabled methods, and method coverage.
+
+`overrides.json` records type corrections and explicit retry safety metadata for every enabled method. Method `retry_safe` states whether retrying after an unknown outcome is guaranteed not to duplicate a side effect.
+
+- Run `bun run schema:generate` after a schema, override, enabled-method, or proof change.
+- Run `bun run schema:check` to validate the source and confirm every generated file is current.

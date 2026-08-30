@@ -7,5 +7,5 @@
     "noEmit": false,
     "outDir": "./dist"
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "testing.ts", "src/**/*.ts"]
 }
