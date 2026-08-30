@@ -104,7 +104,7 @@ Day-zero access:
 Done when:
 
 - Every method and type in the current published Bot API exists in the generated interface. The drift check reports zero unexplained differences.
-- A new Bot API release reaches a Telly release with edits only to the override file, or with none.
+- A new Bot API release reaches a Telly release with edits only to the override file and evidence manifest, or with none.
 
 ## Runtime correctness
 

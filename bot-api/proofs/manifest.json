@@ -59,6 +59,11 @@
     "reason": "leased group and sender-chat fixtures unavailable after migration; credential pool repair is owner-only",
     "status": "blocked"
   },
+  "close": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for close: execution disrupts the leased cloud bot and starts a 10-minute cooldown",
+    "status": "blocked"
+  },
   "closeForumTopic": {
     "expires_on": "2026-09-13",
     "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
@@ -67,6 +72,11 @@
   "closeGeneralForumTopic": {
     "expires_on": "2026-09-13",
     "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "convertGiftToStars": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for convertGiftToStars: the leased bot has no isolated gift or payment fixture",
     "status": "blocked"
   },
   "copyMessage": {
@@ -99,6 +109,11 @@
     "reason": "unsafe live scenario: retry mints another payable invoice link, and no isolated payment fixture is available",
     "status": "blocked"
   },
+  "createNewStickerSet": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for createNewStickerSet: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
   "declineChatJoinRequest": {
     "expires_on": "2026-09-13",
     "reason": "join-request group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'",
@@ -107,6 +122,16 @@
   "declineSuggestedPost": {
     "expires_on": "2026-09-13",
     "reason": "active suggested-post fixture unavailable: Telegram returned 'suggested post not found'",
+    "status": "blocked"
+  },
+  "deleteAllMessageReactions": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteAllMessageReactions: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "deleteBusinessMessages": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteBusinessMessages: the leased bot has no business connection or story fixture",
     "status": "blocked"
   },
   "deleteChatPhoto": {
@@ -119,15 +144,55 @@
     "reason": "leased supergroup sticker-set fixture unavailable after migration; credential pool repair is owner-only",
     "status": "blocked"
   },
+  "deleteEphemeralMessage": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteEphemeralMessage: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
   "deleteForumTopic": {
     "expires_on": "2026-09-13",
     "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "deleteMessage": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteMessage: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "deleteMessageReaction": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteMessageReaction: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "deleteMessages": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteMessages: a matching restorable message-state fixture is not active",
     "status": "blocked"
   },
   "deleteMyCommands": {
     "artifact": "bot-api/proofs/deleteMyCommands/2026-08-30.json",
     "recorded_time": "2026-08-30T17:33:36.326Z",
     "status": "proven"
+  },
+  "deleteStickerFromSet": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteStickerFromSet: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "deleteStickerSet": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteStickerSet: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "deleteStory": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteStory: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
+  "deleteWebhook": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for deleteWebhook: an isolated HTTPS webhook endpoint and restorable webhook snapshot are not active",
+    "status": "blocked"
   },
   "editChatInviteLink": {
     "expires_on": "2026-09-13",
@@ -139,6 +204,26 @@
     "reason": "channel and subscription invite-link fixtures are unavailable",
     "status": "blocked"
   },
+  "editEphemeralMessageCaption": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editEphemeralMessageCaption: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editEphemeralMessageMedia": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editEphemeralMessageMedia: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editEphemeralMessageReplyMarkup": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editEphemeralMessageReplyMarkup: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editEphemeralMessageText": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editEphemeralMessageText: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
   "editForumTopic": {
     "expires_on": "2026-09-13",
     "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
@@ -147,6 +232,46 @@
   "editGeneralForumTopic": {
     "expires_on": "2026-09-13",
     "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "editMessageCaption": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageCaption: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editMessageChecklist": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageChecklist: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editMessageLiveLocation": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageLiveLocation: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editMessageMedia": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageMedia: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editMessageReplyMarkup": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageReplyMarkup: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editMessageText": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editMessageText: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "editStory": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editStory: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
+  "editUserStarSubscription": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for editUserStarSubscription: the leased bot has no isolated gift or payment fixture",
     "status": "blocked"
   },
   "exportChatInviteLink": {
@@ -289,6 +414,11 @@
     "recorded_time": "2026-08-30T17:18:19.857Z",
     "status": "proven"
   },
+  "getUpdates": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for getUpdates: polling behavior is outside the active project scope",
+    "status": "blocked"
+  },
   "getUserChatBoosts": {
     "expires_on": "2026-09-13",
     "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'; credential pool repair is owner-only",
@@ -334,6 +464,11 @@
     "reason": "live execution would remove the leased bot from shared state that only the credential owner can repair",
     "status": "blocked"
   },
+  "logOut": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for logOut: execution disrupts the leased cloud bot and starts a 10-minute cooldown",
+    "status": "blocked"
+  },
   "pinChatMessage": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can repeat a member notification, and the leased group fixture is unavailable",
@@ -349,9 +484,34 @@
     "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
     "status": "blocked"
   },
+  "readBusinessMessage": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for readBusinessMessage: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
+  "refundStarPayment": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for refundStarPayment: the leased bot has no isolated gift or payment fixture",
+    "status": "blocked"
+  },
+  "removeBusinessAccountProfilePhoto": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for removeBusinessAccountProfilePhoto: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
   "removeChatVerification": {
     "expires_on": "2026-09-13",
     "reason": "verified chat and verification-rights fixtures are unavailable",
+    "status": "blocked"
+  },
+  "removeMyProfilePhoto": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for removeMyProfilePhoto: the leased bot has no restorable profile-photo fixture",
+    "status": "blocked"
+  },
+  "removeUserVerification": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for removeUserVerification: the leased bot has no verified-user fixture or verification rights",
     "status": "blocked"
   },
   "reopenForumTopic": {
@@ -367,6 +527,11 @@
   "replaceManagedBotToken": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry rotates the credential again, and no isolated managed-bot fixture is available",
+    "status": "blocked"
+  },
+  "replaceStickerInSet": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for replaceStickerInSet: the leased bot has no owned sticker-set fixture",
     "status": "blocked"
   },
   "repostStory": {
@@ -469,6 +634,11 @@
     "recorded_time": "2026-08-30T13:55:04.034Z",
     "status": "proven"
   },
+  "sendMessageDraft": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for sendMessageDraft: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
   "sendPaidMedia": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can send another monetized message, and no isolated paid-media fixture is available",
@@ -487,6 +657,11 @@
   "sendRichMessage": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can send another rich message, and no isolated rich-message fixture is available",
+    "status": "blocked"
+  },
+  "sendRichMessageDraft": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for sendRichMessageDraft: a matching restorable message-state fixture is not active",
     "status": "blocked"
   },
   "sendSticker": {
@@ -514,9 +689,29 @@
     "reason": "format-valid OGG/OPUS voice fixture is unavailable in the leased Test Server harness",
     "status": "blocked"
   },
+  "setBusinessAccountBio": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setBusinessAccountBio: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
+  "setBusinessAccountGiftSettings": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setBusinessAccountGiftSettings: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
+  "setBusinessAccountName": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setBusinessAccountName: the leased bot has no business connection or story fixture",
+    "status": "blocked"
+  },
   "setBusinessAccountProfilePhoto": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can append another profile-photo history entry, and no business connection fixture is available",
+    "status": "blocked"
+  },
+  "setBusinessAccountUsername": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setBusinessAccountUsername: the leased bot has no business connection or story fixture",
     "status": "blocked"
   },
   "setChatAdministratorCustomTitle": {
@@ -532,6 +727,11 @@
   "setChatMemberTag": {
     "expires_on": "2026-09-13",
     "reason": "leased tagged-member group fixture unavailable after migration; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "setChatMenuButton": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setChatMenuButton: the default menu-button snapshot scenario is not active",
     "status": "blocked"
   },
   "setChatPermissions": {
@@ -552,6 +752,26 @@
   "setChatTitle": {
     "expires_on": "2026-09-13",
     "reason": "leased administrator chat fixture unavailable after migration; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "setCustomEmojiStickerSetThumbnail": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setCustomEmojiStickerSetThumbnail: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setGameScore": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setGameScore: the leased bot has no BotFather game message fixture",
+    "status": "blocked"
+  },
+  "setManagedBotAccessSettings": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setManagedBotAccessSettings: the leased account has no managed-bot fixture",
+    "status": "blocked"
+  },
+  "setMessageReaction": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setMessageReaction: a matching restorable message-state fixture is not active",
     "status": "blocked"
   },
   "setMyCommands": {
@@ -584,9 +804,69 @@
     "recorded_time": "2026-08-30T17:33:35.969Z",
     "status": "proven"
   },
+  "setPassportDataErrors": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setPassportDataErrors: the leased bot has no Telegram Passport data fixture",
+    "status": "blocked"
+  },
+  "setStickerEmojiList": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerEmojiList: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setStickerKeywords": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerKeywords: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setStickerMaskPosition": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerMaskPosition: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setStickerPositionInSet": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerPositionInSet: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setStickerSetThumbnail": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerSetThumbnail: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setStickerSetTitle": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setStickerSetTitle: the leased bot has no owned sticker-set fixture",
+    "status": "blocked"
+  },
+  "setUserEmojiStatus": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setUserEmojiStatus: the leased bot has no isolated gift or payment fixture",
+    "status": "blocked"
+  },
+  "setWebhook": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for setWebhook: an isolated HTTPS webhook endpoint and restorable webhook snapshot are not active",
+    "status": "blocked"
+  },
+  "stopMessageLiveLocation": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for stopMessageLiveLocation: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
+  "stopPoll": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for stopPoll: a matching restorable message-state fixture is not active",
+    "status": "blocked"
+  },
   "transferBusinessAccountStars": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can transfer Stars twice, and no isolated business balance fixture is available",
+    "status": "blocked"
+  },
+  "transferGift": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for transferGift: the leased bot has no isolated gift or payment fixture",
     "status": "blocked"
   },
   "unbanChatMember": {
@@ -622,6 +902,11 @@
   "unpinChatMessage": {
     "expires_on": "2026-09-13",
     "reason": "leased administrator chat with a pinned-message fixture is unavailable after group migration",
+    "status": "blocked"
+  },
+  "upgradeGift": {
+    "expires_on": "2026-09-13",
+    "reason": "live proof unavailable for upgradeGift: the leased bot has no isolated gift or payment fixture",
     "status": "blocked"
   },
   "uploadStickerFile": {

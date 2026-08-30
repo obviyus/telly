@@ -379,25 +379,8 @@ function renderMethods(
 }
 
 function renderCoverage(spec: BotApiSpec, evidence: MethodEvidence): string {
-  const releaseTime = Date.parse(`${spec.release_date}T00:00:00Z`);
-  if (!Number.isFinite(releaseTime)) {
-    throw new Error(`Invalid Bot API release date ${spec.release_date}`);
-  }
-  const blockedExpiry = new Date(releaseTime + 30 * 24 * 60 * 60 * 1_000)
-    .toISOString()
-    .slice(0, 10);
   const methods = Object.fromEntries(
-    Object.keys(spec.methods)
-      .sort()
-      .map((method) => {
-        const methodEvidence = evidence[method];
-        return [
-          method,
-          methodEvidence === undefined
-            ? { expires_on: blockedExpiry, reason: "no live scenario", status: "blocked" }
-            : methodEvidence,
-        ];
-      }),
+    Object.entries(evidence).sort(([left], [right]) => left.localeCompare(right)),
   );
   return `${JSON.stringify({ botApiVersion: spec.version, methods }, null, 2)}\n`;
 }
@@ -407,6 +390,15 @@ export function generateSources(
   overrides: GeneratorOverrides,
   evidence: MethodEvidence,
 ): GeneratedSources {
+  const schemaMethods = Object.keys(spec.methods).sort();
+  const missingOverrides = schemaMethods.filter((name) => overrides.methods[name] === undefined);
+  if (missingOverrides.length > 0) {
+    throw new Error(`Methods missing retry metadata: ${missingOverrides.join(", ")}`);
+  }
+  const missingEvidence = schemaMethods.filter((name) => evidence[name] === undefined);
+  if (missingEvidence.length > 0) {
+    throw new Error(`Methods missing evidence: ${missingEvidence.join(", ")}`);
+  }
   const declaredTypes = new Set([...Object.keys(spec.types), ...Object.keys(primitiveTypes)]);
   for (const [ownerName, definition] of Object.entries(spec.types)) {
     for (const field of definition.fields ?? []) {
