@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { Effect, Schema } from "effect";
 
-import { InputFile, MessageOrigin } from "../index.ts";
+import { InputFile, MessageOrigin, WebhookInfo } from "../index.ts";
 
 test("InputFile does not claim Telegram file references are upload bodies", async () => {
   const upload = { bytes: new Uint8Array([3, 1, 4]) };
@@ -53,4 +53,22 @@ test("MessageOrigin uses its type field as a discriminator", async () => {
   });
   expect(invalidPublicValue._tag).toBe("Failure");
   expect(wrongType._tag).toBe("Failure");
+});
+
+test("WebhookInfo keeps the array around its UpdateType enum", async () => {
+  const webhook = await Effect.runPromise(Schema.decodeUnknownEffect(WebhookInfo)({
+    allowed_updates: ["message", "callback_query"],
+    has_custom_certificate: false,
+    pending_update_count: 3,
+    url: "",
+  }));
+  const invalid = await Effect.runPromiseExit(Schema.decodeUnknownEffect(WebhookInfo)({
+    allowed_updates: ["not_an_update"],
+    has_custom_certificate: false,
+    pending_update_count: 3,
+    url: "",
+  }));
+
+  expect(webhook.allowedUpdates).toEqual(["message", "callback_query"]);
+  expect(invalid._tag).toBe("Failure");
 });

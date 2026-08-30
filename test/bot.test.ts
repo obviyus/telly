@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Effect, Layer, Predicate, Redacted, Tracer } from "effect";
 
-import { Bot, sendMessage } from "../index.ts";
+import { Bot, getMe, sendMessage } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
 const token = "123456:fake-token-for-tests";
@@ -156,5 +156,49 @@ describe("sendMessage", () => {
 
     expect(Predicate.isObject(result) && result["message_id"]).toBe(41);
     expect(fake.requests[0]?.params).toEqual({ chat_id: 31, text: "raw-call" });
+  });
+});
+
+describe("getMe", () => {
+  test("sends an empty Telegram object and decodes the User", async () => {
+    const fake = FakeBotApi.make({
+      replies: [FakeBotApiReply.ok({
+        first_name: "Telly Test",
+        future_field: "kept",
+        id: 73,
+        is_bot: true,
+        username: "telly_test_bot",
+      })],
+      token,
+    });
+
+    const user = await Effect.runPromise(getMe().pipe(Effect.provide(botLayer(fake))));
+
+    expect(user.id).toBe(73);
+    expect(user.isBot).toBe(true);
+    expect(user.firstName).toBe("Telly Test");
+    expect(user["future_field"]).toBe("kept");
+    expect(fake.requests).toEqual([
+      {
+        contentType: "application/json",
+        method: "getMe",
+        params: {},
+        tracingDisabled: true,
+      },
+    ]);
+  });
+
+  test("marks a transport failure as safe to retry", async () => {
+    const fake = FakeBotApi.make({
+      replies: [FakeBotApiReply.transportFailure("connection reset")],
+      token,
+    });
+
+    const error = await Effect.runPromise(
+      Effect.flip(getMe().pipe(Effect.provide(botLayer(fake)))),
+    );
+
+    expect(error.reason._tag).toBe("Transport");
+    expect(error.retrySafe).toBe(true);
   });
 });

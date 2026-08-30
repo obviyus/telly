@@ -1,0 +1,16 @@
+{
+  "method": "getMyStarBalance",
+  "passed": true,
+  "recorded_time": "2026-08-30T16:47:23.977Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 23,
+      "kind": "bot_api_result",
+      "observation": {
+        "amount": 0,
+        "nanostarAmount": 0
+      }
+    }
+  ]
+}

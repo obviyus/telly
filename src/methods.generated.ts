@@ -5,6 +5,41 @@ import { callMethod } from "./internal/CallMethod.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
 import * as Types from "./types.generated.js";
 
+/** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
+export const getAvailableGifts = callMethod({
+  method: "getAvailableGifts",
+  result: Schema.suspend((): Schema.Codec<Types.Gifts, unknown> => Types.Gifts),
+  retrySafe: true,
+});
+
+/** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
+export const getForumTopicIconStickers = callMethod({
+  method: "getForumTopicIconStickers",
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
+  retrySafe: true,
+});
+
+/** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object. */
+export const getMe = callMethod({
+  method: "getMe",
+  result: Schema.suspend((): Schema.Codec<Types.User, unknown> => Types.User),
+  retrySafe: true,
+});
+
+/** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
+export const getMyStarBalance = callMethod({
+  method: "getMyStarBalance",
+  result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
+  retrySafe: true,
+});
+
+/** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
+export const getWebhookInfo = callMethod({
+  method: "getWebhookInfo",
+  result: Schema.suspend((): Schema.Codec<Types.WebhookInfo, unknown> => Types.WebhookInfo),
+  retrySafe: true,
+});
+
 /** Use this method to send text messages. On success, the sent Message is returned. */
 export interface SendMessageParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */

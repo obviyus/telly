@@ -1,5 +1,20 @@
 {
   "methods": {
+    "getAvailableGifts": {
+      "retrySafe": true
+    },
+    "getForumTopicIconStickers": {
+      "retrySafe": true
+    },
+    "getMe": {
+      "retrySafe": true
+    },
+    "getMyStarBalance": {
+      "retrySafe": true
+    },
+    "getWebhookInfo": {
+      "retrySafe": true
+    },
     "sendMessage": {
       "retrySafe": false
     }

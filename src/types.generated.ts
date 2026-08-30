@@ -11788,7 +11788,7 @@ export interface WebhookInfo {
   /** Optional. The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery */
   readonly maxConnections?: number;
   /** Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member, message_reaction, and message_reaction_count. */
-  readonly allowedUpdates?: UpdateType;
+  readonly allowedUpdates?: ReadonlyArray<UpdateType>;
   readonly [key: string]: unknown;
 }
 const _WebhookInfoPublicKeys = { has_custom_certificate: "hasCustomCertificate", pending_update_count: "pendingUpdateCount", ip_address: "ipAddress", last_error_date: "lastErrorDate", last_error_message: "lastErrorMessage", last_synchronization_error_date: "lastSynchronizationErrorDate", max_connections: "maxConnections", allowed_updates: "allowedUpdates" } as const;
@@ -11803,7 +11803,7 @@ const _WebhookInfoEncoded = Schema.StructWithRest(
     last_error_message: Schema.optionalKey(Schema.String),
     last_synchronization_error_date: Schema.optionalKey(Schema.Int),
     max_connections: Schema.optionalKey(Schema.Int),
-    allowed_updates: Schema.optionalKey(Schema.suspend((): Schema.Codec<UpdateType, unknown> => UpdateType)),
+    allowed_updates: Schema.optionalKey(Schema.Array(Schema.suspend((): Schema.Codec<UpdateType, unknown> => UpdateType))),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );

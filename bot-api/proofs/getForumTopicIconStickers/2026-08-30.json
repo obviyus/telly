@@ -1,0 +1,15 @@
+{
+  "method": "getForumTopicIconStickers",
+  "passed": true,
+  "recorded_time": "2026-08-30T16:47:23.935Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 26,
+      "kind": "bot_api_result",
+      "observation": {
+        "stickerCount": 7
+      }
+    }
+  ]
+}

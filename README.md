@@ -4,12 +4,12 @@ Telly will be an Effect-native Telegram Bot API framework designed primarily for
 
 Read [VISION.md](./VISION.md) for the product direction.
 
-## First method
+## First methods
 
-`sendMessage` is the first generated Bot API method.
+Bot API methods are generated from the checked-in Telegram schema. Methods with no parameters take no arguments.
 
 ```ts
-import { Application, sendMessage } from "telly";
+import { Application, getMe, sendMessage } from "telly";
 
 const token = process.env.BOT_TOKEN;
 if (token === undefined) throw new Error("Set BOT_TOKEN");
@@ -17,10 +17,11 @@ if (token === undefined) throw new Error("Set BOT_TOKEN");
 const app = Application.make({ token });
 
 try {
+  const bot = await app.run(getMe());
   const message = await app.run(
     sendMessage({ chatId: 123, text: "Hello from Telly" }),
   );
-  console.log(message.messageId);
+  console.log(bot.firstName, message.messageId);
 } finally {
   await app.close();
 }

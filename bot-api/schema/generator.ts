@@ -26,7 +26,6 @@ export const MethodProofs = Schema.Record(Schema.String, MethodProof);
 export type GeneratorOverrides = typeof GeneratorOverrides.Type;
 export type MethodProofs = typeof MethodProofs.Type;
 
-const enabledMethods = new Set(["sendMessage"]);
 const primitiveSchemas: Readonly<Record<string, string>> = {
   Boolean: "Schema.Boolean",
   Float: "Schema.Number",
@@ -59,6 +58,17 @@ function docComment(lines: ReadonlyArray<string>, indentation = ""): string {
 
 function arrayItem(reference: string): string | undefined {
   return reference.startsWith("Array of ") ? reference.slice("Array of ".length) : undefined;
+}
+
+function enumReference(reference: string, enumName: string): string {
+  const item = arrayItem(reference);
+  if (item !== undefined) {
+    return `Array of ${enumReference(item, enumName)}`;
+  }
+  if (reference !== "String") {
+    throw new Error(`Enum ${enumName} must refine a String leaf, found ${reference}`);
+  }
+  return enumName;
 }
 
 function typeExpression(reference: string, qualifier = ""): string {
@@ -115,6 +125,18 @@ function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
   const targets = new Map<string, FieldTarget>();
   for (const [enumName, definition] of Object.entries(spec.enums)) {
     for (const target of definition.applies_to ?? []) {
+      const [ownerName, fieldName] = target.split(".");
+      const owner = ownerName === undefined
+        ? undefined
+        : spec.types[ownerName] ?? spec.methods[ownerName];
+      const field = owner?.fields?.find((candidate) => candidate.name === fieldName);
+      if (ownerName === undefined || fieldName === undefined || field === undefined) {
+        throw new Error(`Enum ${enumName} targets missing field ${target}`);
+      }
+      // Enums refine the String leaf so Array of String targets keep their container.
+      for (const reference of field.types) {
+        enumReference(reference, enumName);
+      }
       addFieldTarget(targets, target, { _tag: "Enum", name: enumName });
     }
   }
@@ -172,9 +194,10 @@ function fieldExpressions(
     const literal = JSON.stringify(target.value);
     return { schema: `Schema.Literal(${literal})`, type: literal };
   }
+  const references = field.types.map((reference) => enumReference(reference, target.name));
   return {
-    schema: `Schema.suspend((): Schema.Codec<${qualifier}${target.name}, unknown> => ${qualifier}${target.name})`,
-    type: `${qualifier}${target.name}`,
+    schema: unionSchema(references, (reference) => schemaExpression(reference, qualifier)),
+    type: unionExpression(references, (reference) => typeExpression(reference, qualifier)),
   };
 }
 
@@ -255,8 +278,11 @@ function renderObjectType(
   return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nconst _${name}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${name}WireKeys = invertKeys(_${name}PublicKeys);\nconst _${name}Encoded = Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\nconst _${name}Decoded = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\nexport const ${name}: Schema.Codec<${name}, unknown> = _${name}Encoded.pipe(\n  Schema.decodeTo(_${name}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${name}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${name}WireKeys)),\n  }),\n);\n`;
 }
 
-function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
-  const targets = fieldTargets(spec);
+function renderTypes(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  targets: ReadonlyMap<string, FieldTarget>,
+): string {
   const sections = Object.entries(spec.types)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, definition]) => {
@@ -272,18 +298,17 @@ function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { invertKeys } from "./internal/SchemaKeys.js";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
 }
 
-function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string {
-  const targets = fieldTargets(spec);
-  const sections = [...enabledMethods]
-    .sort()
-    .map((name) => {
+function renderMethods(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  targets: ReadonlyMap<string, FieldTarget>,
+): string {
+  const sections = Object.entries(overrides.methods)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, override]) => {
       const method = spec.methods[name];
       if (method === undefined) {
         throw new Error(`Enabled method ${name} is missing from the schema`);
-      }
-      const override = overrides.methods[name];
-      if (override === undefined) {
-        throw new Error(`Enabled method ${name} is missing retry safety metadata`);
       }
       const paramsName = `${name.charAt(0).toUpperCase()}${name.slice(1)}Params`;
       const fields = method.fields ?? [];
@@ -318,7 +343,11 @@ function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string 
         ? `export const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${encodedFields}\n});`
         : `const _${paramsName}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${paramsName}WireKeys = invertKeys(_${paramsName}PublicKeys);\nconst _${paramsName}Encoded = Schema.Struct({\n${encodedFields}\n});\nconst _${paramsName}Decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\nexport const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = _${paramsName}Encoded.pipe(\n  Schema.decodeTo(_${paramsName}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}WireKeys)),\n  }),\n);`;
       const result = unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
-      return `${docComment(method.description)}export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\nexport const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n  params: ${paramsName},\n  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
+      const parameterDeclaration = fields.length === 0
+        ? ""
+        : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
+      const descriptorParams = fields.length === 0 ? "" : `  params: ${paramsName},\n`;
+      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
@@ -367,9 +396,10 @@ export function generateSources(
       throw new Error(`Proof method ${name} is missing from the schema`);
     }
   }
+  const targets = fieldTargets(spec);
   return {
     coverage: renderCoverage(spec, proofs),
-    methods: renderMethods(spec, overrides),
-    types: renderTypes(spec, overrides),
+    methods: renderMethods(spec, overrides, targets),
+    types: renderTypes(spec, overrides, targets),
   };
 }
