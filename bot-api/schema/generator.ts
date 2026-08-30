@@ -87,14 +87,69 @@ function unionSchema(references: ReadonlyArray<string>, render: (reference: stri
   return members.length === 1 ? members[0] : `Schema.Union([${members.join(", ")}])`;
 }
 
-function enumTargets(spec: BotApiSpec): ReadonlyMap<string, string> {
-  const targets = new Map<string, string>();
+type FieldTarget =
+  | { readonly _tag: "Enum"; readonly name: string }
+  | { readonly _tag: "Literal"; readonly value: string };
+
+function addFieldTarget(targets: Map<string, FieldTarget>, path: string, target: FieldTarget) {
+  const existing = targets.get(path);
+  if (existing !== undefined) {
+    const same = existing._tag === "Enum" && target._tag === "Enum"
+      ? existing.name === target.name
+      : existing._tag === "Literal" && target._tag === "Literal" &&
+        existing.value === target.value;
+    if (same) {
+      return;
+    }
+    throw new Error(`Conflicting field targets apply to ${path}`);
+  }
+  targets.set(path, target);
+}
+
+function discriminatorValue(description: string): string | undefined {
+  const match = description.match(/(?:always “([^”]+)”|must be ([a-z0-9_]+))$/u);
+  return match?.[1] ?? match?.[2];
+}
+
+function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
+  const targets = new Map<string, FieldTarget>();
   for (const [enumName, definition] of Object.entries(spec.enums)) {
     for (const target of definition.applies_to ?? []) {
-      if (targets.has(target)) {
-        throw new Error(`Multiple enums apply to ${target}`);
+      addFieldTarget(targets, target, { _tag: "Enum", name: enumName });
+    }
+  }
+
+  for (const [parentName, definition] of Object.entries(spec.types)) {
+    if (definition.subtypes === undefined) continue;
+    const discriminators = definition.subtypes.map((subtypeName) => {
+      const fields = (spec.types[subtypeName]?.fields ?? []).flatMap((field) => {
+        const value = discriminatorValue(field.description);
+        return field.required && field.types.length === 1 && field.types[0] === "String" && value !== undefined
+          ? [{ fieldName: field.name, subtypeName, value }]
+          : [];
+      });
+      if (fields.length > 1) {
+        throw new Error(`Subtype ${subtypeName} has multiple discriminator fields`);
       }
-      targets.set(target, enumName);
+      return fields[0];
+    });
+    const present = discriminators.filter((item) => item !== undefined);
+    if (present.length === 0) continue;
+    if (present.length !== definition.subtypes.length) {
+      throw new Error(`Only some ${parentName} subtypes have discriminator fields`);
+    }
+    const fieldName = present[0]?.fieldName;
+    if (fieldName === undefined || present.some((item) => item.fieldName !== fieldName)) {
+      throw new Error(`${parentName} subtypes use different discriminator fields`);
+    }
+    for (const item of present) {
+      if (item === undefined) {
+        throw new Error(`${parentName} has an incomplete discriminator`);
+      }
+      addFieldTarget(targets, `${item.subtypeName}.${item.fieldName}`, {
+        _tag: "Literal",
+        value: item.value,
+      });
     }
   }
   return targets;
@@ -103,19 +158,24 @@ function enumTargets(spec: BotApiSpec): ReadonlyMap<string, string> {
 function fieldExpressions(
   owner: string,
   field: NonNullable<BotApiSpec["types"][string]["fields"]>[number],
-  targets: ReadonlyMap<string, string>,
+  targets: ReadonlyMap<string, FieldTarget>,
   qualifier = "",
 ) {
-  const enumName = targets.get(`${owner}.${field.name}`);
-  return enumName === undefined
-    ? {
-        schema: unionSchema(field.types, (reference) => schemaExpression(reference, qualifier)),
-        type: unionExpression(field.types, (reference) => typeExpression(reference, qualifier)),
-      }
-    : {
-        schema: `Schema.suspend((): Schema.Codec<${qualifier}${enumName}> => ${qualifier}${enumName})`,
-        type: `${qualifier}${enumName}`,
-      };
+  const target = targets.get(`${owner}.${field.name}`);
+  if (target === undefined) {
+    return {
+      schema: unionSchema(field.types, (reference) => schemaExpression(reference, qualifier)),
+      type: unionExpression(field.types, (reference) => typeExpression(reference, qualifier)),
+    };
+  }
+  if (target._tag === "Literal") {
+    const literal = JSON.stringify(target.value);
+    return { schema: `Schema.Literal(${literal})`, type: literal };
+  }
+  return {
+    schema: `Schema.suspend((): Schema.Codec<${qualifier}${target.name}> => ${qualifier}${target.name})`,
+    type: `${qualifier}${target.name}`,
+  };
 }
 
 function renderEnums(spec: BotApiSpec): string {
@@ -131,7 +191,7 @@ function renderEnums(spec: BotApiSpec): string {
 function renderObjectType(
   name: string,
   definition: BotApiSpec["types"][string],
-  targets: ReadonlyMap<string, string>,
+  targets: ReadonlyMap<string, FieldTarget>,
 ): string {
   const fields = definition.fields ?? [];
   const interfaceFields = fields
@@ -158,7 +218,7 @@ function renderObjectType(
 }
 
 function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
-  const targets = enumTargets(spec);
+  const targets = fieldTargets(spec);
   const sections = Object.entries(spec.types)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, definition]) => {
@@ -175,7 +235,7 @@ function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
 }
 
 function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string {
-  const targets = enumTargets(spec);
+  const targets = fieldTargets(spec);
   const sections = [...enabledMethods]
     .sort()
     .map((name) => {

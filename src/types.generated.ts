@@ -280,14 +280,14 @@ export const BackgroundFill: Schema.Codec<BackgroundFill> = Schema.Union([Schema
 /** The background is a freeform gradient that rotates after every message in the chat. */
 export interface BackgroundFillFreeformGradient {
   /** Type of the background fill, always “freeform_gradient” */
-  readonly type: string;
+  readonly type: "freeform_gradient";
   /** A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format */
   readonly colors: ReadonlyArray<number>;
   readonly [key: string]: unknown;
 }
 export const BackgroundFillFreeformGradient: Schema.Codec<BackgroundFillFreeformGradient> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("freeform_gradient"),
     colors: Schema.Array(Schema.Int),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -296,7 +296,7 @@ export const BackgroundFillFreeformGradient: Schema.Codec<BackgroundFillFreeform
 /** The background is a gradient fill. */
 export interface BackgroundFillGradient {
   /** Type of the background fill, always “gradient” */
-  readonly type: string;
+  readonly type: "gradient";
   /** Top color of the gradient in the RGB24 format */
   readonly top_color: number;
   /** Bottom color of the gradient in the RGB24 format */
@@ -307,7 +307,7 @@ export interface BackgroundFillGradient {
 }
 export const BackgroundFillGradient: Schema.Codec<BackgroundFillGradient> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("gradient"),
     top_color: Schema.Int,
     bottom_color: Schema.Int,
     rotation_angle: Schema.Int,
@@ -318,14 +318,14 @@ export const BackgroundFillGradient: Schema.Codec<BackgroundFillGradient> = Sche
 /** The background is filled using the selected color. */
 export interface BackgroundFillSolid {
   /** Type of the background fill, always “solid” */
-  readonly type: string;
+  readonly type: "solid";
   /** The color of the background fill in the RGB24 format */
   readonly color: number;
   readonly [key: string]: unknown;
 }
 export const BackgroundFillSolid: Schema.Codec<BackgroundFillSolid> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("solid"),
     color: Schema.Int,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -338,14 +338,14 @@ export const BackgroundType: Schema.Codec<BackgroundType> = Schema.Union([Schema
 /** The background is taken directly from a built-in chat theme. */
 export interface BackgroundTypeChatTheme {
   /** Type of the background, always “chat_theme” */
-  readonly type: string;
+  readonly type: "chat_theme";
   /** Name of the chat theme, which is usually an emoji */
   readonly theme_name: string;
   readonly [key: string]: unknown;
 }
 export const BackgroundTypeChatTheme: Schema.Codec<BackgroundTypeChatTheme> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat_theme"),
     theme_name: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -354,7 +354,7 @@ export const BackgroundTypeChatTheme: Schema.Codec<BackgroundTypeChatTheme> = Sc
 /** The background is automatically filled based on the selected colors. */
 export interface BackgroundTypeFill {
   /** Type of the background, always “fill” */
-  readonly type: string;
+  readonly type: "fill";
   /** The background fill */
   readonly fill: BackgroundFill;
   /** Dimming of the background in dark themes, as a percentage; 0-100 */
@@ -363,7 +363,7 @@ export interface BackgroundTypeFill {
 }
 export const BackgroundTypeFill: Schema.Codec<BackgroundTypeFill> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("fill"),
     fill: Schema.suspend((): Schema.Codec<BackgroundFill> => BackgroundFill),
     dark_theme_dimming: Schema.Int,
   }),
@@ -373,7 +373,7 @@ export const BackgroundTypeFill: Schema.Codec<BackgroundTypeFill> = Schema.Struc
 /** The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user. */
 export interface BackgroundTypePattern {
   /** Type of the background, always “pattern” */
-  readonly type: string;
+  readonly type: "pattern";
   /** Document with the pattern */
   readonly document: Document;
   /** The background fill that is combined with the pattern */
@@ -388,7 +388,7 @@ export interface BackgroundTypePattern {
 }
 export const BackgroundTypePattern: Schema.Codec<BackgroundTypePattern> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pattern"),
     document: Schema.suspend((): Schema.Codec<Document> => Document),
     fill: Schema.suspend((): Schema.Codec<BackgroundFill> => BackgroundFill),
     intensity: Schema.Int,
@@ -401,7 +401,7 @@ export const BackgroundTypePattern: Schema.Codec<BackgroundTypePattern> = Schema
 /** The background is a wallpaper in the JPEG format. */
 export interface BackgroundTypeWallpaper {
   /** Type of the background, always “wallpaper” */
-  readonly type: string;
+  readonly type: "wallpaper";
   /** Document with the wallpaper */
   readonly document: Document;
   /** Dimming of the background in dark themes, as a percentage; 0-100 */
@@ -414,7 +414,7 @@ export interface BackgroundTypeWallpaper {
 }
 export const BackgroundTypeWallpaper: Schema.Codec<BackgroundTypeWallpaper> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("wallpaper"),
     document: Schema.suspend((): Schema.Codec<Document> => Document),
     dark_theme_dimming: Schema.Int,
     is_blurred: Schema.optionalKey(Schema.Literal(true)),
@@ -484,12 +484,12 @@ export const BotCommandScope: Schema.Codec<BotCommandScope> = Schema.Union([Sche
 /** Represents the scope of bot commands, covering all group and supergroup chat administrators. */
 export interface BotCommandScopeAllChatAdministrators {
   /** Scope type, must be all_chat_administrators */
-  readonly type: string;
+  readonly type: "all_chat_administrators";
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeAllChatAdministrators: Schema.Codec<BotCommandScopeAllChatAdministrators> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("all_chat_administrators"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -497,12 +497,12 @@ export const BotCommandScopeAllChatAdministrators: Schema.Codec<BotCommandScopeA
 /** Represents the scope of bot commands, covering all group and supergroup chats. */
 export interface BotCommandScopeAllGroupChats {
   /** Scope type, must be all_group_chats */
-  readonly type: string;
+  readonly type: "all_group_chats";
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeAllGroupChats: Schema.Codec<BotCommandScopeAllGroupChats> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("all_group_chats"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -510,12 +510,12 @@ export const BotCommandScopeAllGroupChats: Schema.Codec<BotCommandScopeAllGroupC
 /** Represents the scope of bot commands, covering all private chats. */
 export interface BotCommandScopeAllPrivateChats {
   /** Scope type, must be all_private_chats */
-  readonly type: string;
+  readonly type: "all_private_chats";
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeAllPrivateChats: Schema.Codec<BotCommandScopeAllPrivateChats> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("all_private_chats"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -523,14 +523,14 @@ export const BotCommandScopeAllPrivateChats: Schema.Codec<BotCommandScopeAllPriv
 /** Represents the scope of bot commands, covering a specific chat. */
 export interface BotCommandScopeChat {
   /** Scope type, must be chat */
-  readonly type: string;
+  readonly type: "chat";
   /** Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported. */
   readonly chat_id: number | string;
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeChat: Schema.Codec<BotCommandScopeChat> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat"),
     chat_id: Schema.Union([Schema.Int, Schema.String]),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -539,14 +539,14 @@ export const BotCommandScopeChat: Schema.Codec<BotCommandScopeChat> = Schema.Str
 /** Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat. */
 export interface BotCommandScopeChatAdministrators {
   /** Scope type, must be chat_administrators */
-  readonly type: string;
+  readonly type: "chat_administrators";
   /** Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported. */
   readonly chat_id: number | string;
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeChatAdministrators: Schema.Codec<BotCommandScopeChatAdministrators> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat_administrators"),
     chat_id: Schema.Union([Schema.Int, Schema.String]),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -555,7 +555,7 @@ export const BotCommandScopeChatAdministrators: Schema.Codec<BotCommandScopeChat
 /** Represents the scope of bot commands, covering a specific member of a group or supergroup chat. */
 export interface BotCommandScopeChatMember {
   /** Scope type, must be chat_member */
-  readonly type: string;
+  readonly type: "chat_member";
   /** Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported. */
   readonly chat_id: number | string;
   /** Unique identifier of the target user */
@@ -564,7 +564,7 @@ export interface BotCommandScopeChatMember {
 }
 export const BotCommandScopeChatMember: Schema.Codec<BotCommandScopeChatMember> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat_member"),
     chat_id: Schema.Union([Schema.Int, Schema.String]),
     user_id: Schema.Int,
   }),
@@ -574,12 +574,12 @@ export const BotCommandScopeChatMember: Schema.Codec<BotCommandScopeChatMember> 
 /** Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user. */
 export interface BotCommandScopeDefault {
   /** Scope type, must be default */
-  readonly type: string;
+  readonly type: "default";
   readonly [key: string]: unknown;
 }
 export const BotCommandScopeDefault: Schema.Codec<BotCommandScopeDefault> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("default"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -1023,14 +1023,14 @@ export const ChatBoostSource: Schema.Codec<ChatBoostSource> = Schema.Union([Sche
 /** The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription. */
 export interface ChatBoostSourceGiftCode {
   /** Source of the boost, always “gift_code” */
-  readonly source: string;
+  readonly source: "gift_code";
   /** User for which the gift code was created */
   readonly user: User;
   readonly [key: string]: unknown;
 }
 export const ChatBoostSourceGiftCode: Schema.Codec<ChatBoostSourceGiftCode> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("gift_code"),
     user: Schema.suspend((): Schema.Codec<User> => User),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -1039,7 +1039,7 @@ export const ChatBoostSourceGiftCode: Schema.Codec<ChatBoostSourceGiftCode> = Sc
 /** The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways. */
 export interface ChatBoostSourceGiveaway {
   /** Source of the boost, always “giveaway” */
-  readonly source: string;
+  readonly source: "giveaway";
   /** Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet. */
   readonly giveaway_message_id: number;
   /** Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only */
@@ -1052,7 +1052,7 @@ export interface ChatBoostSourceGiveaway {
 }
 export const ChatBoostSourceGiveaway: Schema.Codec<ChatBoostSourceGiveaway> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("giveaway"),
     giveaway_message_id: Schema.Int,
     user: Schema.optionalKey(Schema.suspend((): Schema.Codec<User> => User)),
     prize_star_count: Schema.optionalKey(Schema.Int),
@@ -1064,14 +1064,14 @@ export const ChatBoostSourceGiveaway: Schema.Codec<ChatBoostSourceGiveaway> = Sc
 /** The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user. */
 export interface ChatBoostSourcePremium {
   /** Source of the boost, always “premium” */
-  readonly source: string;
+  readonly source: "premium";
   /** User that boosted the chat */
   readonly user: User;
   readonly [key: string]: unknown;
 }
 export const ChatBoostSourcePremium: Schema.Codec<ChatBoostSourcePremium> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("premium"),
     user: Schema.suspend((): Schema.Codec<User> => User),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -1359,7 +1359,7 @@ export const ChatMember: Schema.Codec<ChatMember> = Schema.Union([Schema.suspend
 /** Represents a chat member that has some additional privileges. */
 export interface ChatMemberAdministrator {
   /** The member's status in the chat, always “administrator” */
-  readonly status: string;
+  readonly status: "administrator";
   /** Information about the user */
   readonly user: User;
   /** True, if the bot is allowed to edit administrator privileges of that user */
@@ -1406,7 +1406,7 @@ export interface ChatMemberAdministrator {
 }
 export const ChatMemberAdministrator: Schema.Codec<ChatMemberAdministrator> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("administrator"),
     user: Schema.suspend((): Schema.Codec<User> => User),
     can_be_edited: Schema.Boolean,
     is_anonymous: Schema.Boolean,
@@ -1435,7 +1435,7 @@ export const ChatMemberAdministrator: Schema.Codec<ChatMemberAdministrator> = Sc
 /** Represents a chat member that was banned in the chat and can't return to the chat or view chat messages. */
 export interface ChatMemberBanned {
   /** The member's status in the chat, always “kicked” */
-  readonly status: string;
+  readonly status: "kicked";
   /** Information about the user */
   readonly user: User;
   /** Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever. */
@@ -1444,7 +1444,7 @@ export interface ChatMemberBanned {
 }
 export const ChatMemberBanned: Schema.Codec<ChatMemberBanned> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("kicked"),
     user: Schema.suspend((): Schema.Codec<User> => User),
     until_date: Schema.Int,
   }),
@@ -1454,14 +1454,14 @@ export const ChatMemberBanned: Schema.Codec<ChatMemberBanned> = Schema.StructWit
 /** Represents a chat member that isn't currently a member of the chat, but may join it themselves. */
 export interface ChatMemberLeft {
   /** The member's status in the chat, always “left” */
-  readonly status: string;
+  readonly status: "left";
   /** Information about the user */
   readonly user: User;
   readonly [key: string]: unknown;
 }
 export const ChatMemberLeft: Schema.Codec<ChatMemberLeft> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("left"),
     user: Schema.suspend((): Schema.Codec<User> => User),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -1470,7 +1470,7 @@ export const ChatMemberLeft: Schema.Codec<ChatMemberLeft> = Schema.StructWithRes
 /** Represents a chat member that has no additional privileges or restrictions. */
 export interface ChatMemberMember {
   /** The member's status in the chat, always “member” */
-  readonly status: string;
+  readonly status: "member";
   /** Optional. Tag of the member */
   readonly tag?: string;
   /** Information about the user */
@@ -1481,7 +1481,7 @@ export interface ChatMemberMember {
 }
 export const ChatMemberMember: Schema.Codec<ChatMemberMember> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("member"),
     tag: Schema.optionalKey(Schema.String),
     user: Schema.suspend((): Schema.Codec<User> => User),
     until_date: Schema.optionalKey(Schema.Int),
@@ -1492,7 +1492,7 @@ export const ChatMemberMember: Schema.Codec<ChatMemberMember> = Schema.StructWit
 /** Represents a chat member that owns the chat and has all administrator privileges. */
 export interface ChatMemberOwner {
   /** The member's status in the chat, always “creator” */
-  readonly status: string;
+  readonly status: "creator";
   /** Information about the user */
   readonly user: User;
   /** True, if the user's presence in the chat is hidden */
@@ -1503,7 +1503,7 @@ export interface ChatMemberOwner {
 }
 export const ChatMemberOwner: Schema.Codec<ChatMemberOwner> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("creator"),
     user: Schema.suspend((): Schema.Codec<User> => User),
     is_anonymous: Schema.Boolean,
     custom_title: Schema.optionalKey(Schema.String),
@@ -1514,7 +1514,7 @@ export const ChatMemberOwner: Schema.Codec<ChatMemberOwner> = Schema.StructWithR
 /** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
 export interface ChatMemberRestricted {
   /** The member's status in the chat, always “restricted” */
-  readonly status: string;
+  readonly status: "restricted";
   /** Optional. Tag of the member */
   readonly tag?: string;
   /** Information about the user */
@@ -1559,7 +1559,7 @@ export interface ChatMemberRestricted {
 }
 export const ChatMemberRestricted: Schema.Codec<ChatMemberRestricted> = Schema.StructWithRest(
   Schema.Struct({
-    status: Schema.String,
+    status: Schema.Literal("restricted"),
     tag: Schema.optionalKey(Schema.String),
     user: Schema.suspend((): Schema.Codec<User> => User),
     is_member: Schema.Boolean,
@@ -2756,7 +2756,7 @@ export const InlineQueryResult: Schema.Codec<InlineQueryResult> = Schema.Union([
 /** Represents a link to an article or web page. */
 export interface InlineQueryResultArticle {
   /** Type of the result, must be article */
-  readonly type: string;
+  readonly type: "article";
   /** Unique identifier for this result, 1-64 Bytes */
   readonly id: string;
   /** Title of the result */
@@ -2779,7 +2779,7 @@ export interface InlineQueryResultArticle {
 }
 export const InlineQueryResultArticle: Schema.Codec<InlineQueryResultArticle> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("article"),
     id: Schema.String,
     title: Schema.String,
     input_message_content: Schema.suspend((): Schema.Codec<InputMessageContent> => InputMessageContent),
@@ -2796,7 +2796,7 @@ export const InlineQueryResultArticle: Schema.Codec<InlineQueryResultArticle> = 
 /** Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultAudio {
   /** Type of the result, must be audio */
-  readonly type: string;
+  readonly type: "audio";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL for the audio file */
@@ -2821,7 +2821,7 @@ export interface InlineQueryResultAudio {
 }
 export const InlineQueryResultAudio: Schema.Codec<InlineQueryResultAudio> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("audio"),
     id: Schema.String,
     audio_url: Schema.String,
     title: Schema.String,
@@ -2839,7 +2839,7 @@ export const InlineQueryResultAudio: Schema.Codec<InlineQueryResultAudio> = Sche
 /** Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultCachedAudio {
   /** Type of the result, must be audio */
-  readonly type: string;
+  readonly type: "audio";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier for the audio file */
@@ -2858,7 +2858,7 @@ export interface InlineQueryResultCachedAudio {
 }
 export const InlineQueryResultCachedAudio: Schema.Codec<InlineQueryResultCachedAudio> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("audio"),
     id: Schema.String,
     audio_file_id: Schema.String,
     caption: Schema.optionalKey(Schema.String),
@@ -2873,7 +2873,7 @@ export const InlineQueryResultCachedAudio: Schema.Codec<InlineQueryResultCachedA
 /** Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. */
 export interface InlineQueryResultCachedDocument {
   /** Type of the result, must be document */
-  readonly type: string;
+  readonly type: "document";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** Title for the result */
@@ -2896,7 +2896,7 @@ export interface InlineQueryResultCachedDocument {
 }
 export const InlineQueryResultCachedDocument: Schema.Codec<InlineQueryResultCachedDocument> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("document"),
     id: Schema.String,
     title: Schema.String,
     document_file_id: Schema.String,
@@ -2913,7 +2913,7 @@ export const InlineQueryResultCachedDocument: Schema.Codec<InlineQueryResultCach
 /** Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation. */
 export interface InlineQueryResultCachedGif {
   /** Type of the result, must be gif */
-  readonly type: string;
+  readonly type: "gif";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier for the GIF file */
@@ -2936,7 +2936,7 @@ export interface InlineQueryResultCachedGif {
 }
 export const InlineQueryResultCachedGif: Schema.Codec<InlineQueryResultCachedGif> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("gif"),
     id: Schema.String,
     gif_file_id: Schema.String,
     title: Schema.optionalKey(Schema.String),
@@ -2953,7 +2953,7 @@ export const InlineQueryResultCachedGif: Schema.Codec<InlineQueryResultCachedGif
 /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultCachedMpeg4Gif {
   /** Type of the result, must be mpeg4_gif */
-  readonly type: string;
+  readonly type: "mpeg4_gif";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier for the MPEG4 file */
@@ -2976,7 +2976,7 @@ export interface InlineQueryResultCachedMpeg4Gif {
 }
 export const InlineQueryResultCachedMpeg4Gif: Schema.Codec<InlineQueryResultCachedMpeg4Gif> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mpeg4_gif"),
     id: Schema.String,
     mpeg4_file_id: Schema.String,
     title: Schema.optionalKey(Schema.String),
@@ -2993,7 +2993,7 @@ export const InlineQueryResultCachedMpeg4Gif: Schema.Codec<InlineQueryResultCach
 /** Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo. */
 export interface InlineQueryResultCachedPhoto {
   /** Type of the result, must be photo */
-  readonly type: string;
+  readonly type: "photo";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier of the photo */
@@ -3018,7 +3018,7 @@ export interface InlineQueryResultCachedPhoto {
 }
 export const InlineQueryResultCachedPhoto: Schema.Codec<InlineQueryResultCachedPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     id: Schema.String,
     photo_file_id: Schema.String,
     title: Schema.optionalKey(Schema.String),
@@ -3036,7 +3036,7 @@ export const InlineQueryResultCachedPhoto: Schema.Codec<InlineQueryResultCachedP
 /** Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker. */
 export interface InlineQueryResultCachedSticker {
   /** Type of the result, must be sticker */
-  readonly type: string;
+  readonly type: "sticker";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier of the sticker */
@@ -3049,7 +3049,7 @@ export interface InlineQueryResultCachedSticker {
 }
 export const InlineQueryResultCachedSticker: Schema.Codec<InlineQueryResultCachedSticker> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("sticker"),
     id: Schema.String,
     sticker_file_id: Schema.String,
     reply_markup: Schema.optionalKey(Schema.suspend((): Schema.Codec<InlineKeyboardMarkup> => InlineKeyboardMarkup)),
@@ -3061,7 +3061,7 @@ export const InlineQueryResultCachedSticker: Schema.Codec<InlineQueryResultCache
 /** Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video. */
 export interface InlineQueryResultCachedVideo {
   /** Type of the result, must be video */
-  readonly type: string;
+  readonly type: "video";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier for the video file */
@@ -3086,7 +3086,7 @@ export interface InlineQueryResultCachedVideo {
 }
 export const InlineQueryResultCachedVideo: Schema.Codec<InlineQueryResultCachedVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     id: Schema.String,
     video_file_id: Schema.String,
     title: Schema.String,
@@ -3104,7 +3104,7 @@ export const InlineQueryResultCachedVideo: Schema.Codec<InlineQueryResultCachedV
 /** Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message. */
 export interface InlineQueryResultCachedVoice {
   /** Type of the result, must be voice */
-  readonly type: string;
+  readonly type: "voice";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid file identifier for the voice message */
@@ -3125,7 +3125,7 @@ export interface InlineQueryResultCachedVoice {
 }
 export const InlineQueryResultCachedVoice: Schema.Codec<InlineQueryResultCachedVoice> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("voice"),
     id: Schema.String,
     voice_file_id: Schema.String,
     title: Schema.String,
@@ -3141,7 +3141,7 @@ export const InlineQueryResultCachedVoice: Schema.Codec<InlineQueryResultCachedV
 /** Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact. */
 export interface InlineQueryResultContact {
   /** Type of the result, must be contact */
-  readonly type: string;
+  readonly type: "contact";
   /** Unique identifier for this result, 1-64 Bytes */
   readonly id: string;
   /** Contact's phone number */
@@ -3166,7 +3166,7 @@ export interface InlineQueryResultContact {
 }
 export const InlineQueryResultContact: Schema.Codec<InlineQueryResultContact> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("contact"),
     id: Schema.String,
     phone_number: Schema.String,
     first_name: Schema.String,
@@ -3184,7 +3184,7 @@ export const InlineQueryResultContact: Schema.Codec<InlineQueryResultContact> = 
 /** Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method. */
 export interface InlineQueryResultDocument {
   /** Type of the result, must be document */
-  readonly type: string;
+  readonly type: "document";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** Title for the result */
@@ -3215,7 +3215,7 @@ export interface InlineQueryResultDocument {
 }
 export const InlineQueryResultDocument: Schema.Codec<InlineQueryResultDocument> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("document"),
     id: Schema.String,
     title: Schema.String,
     caption: Schema.optionalKey(Schema.String),
@@ -3236,7 +3236,7 @@ export const InlineQueryResultDocument: Schema.Codec<InlineQueryResultDocument> 
 /** Represents a Game. */
 export interface InlineQueryResultGame {
   /** Type of the result, must be game */
-  readonly type: string;
+  readonly type: "game";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** Short name of the game */
@@ -3247,7 +3247,7 @@ export interface InlineQueryResultGame {
 }
 export const InlineQueryResultGame: Schema.Codec<InlineQueryResultGame> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("game"),
     id: Schema.String,
     game_short_name: Schema.String,
     reply_markup: Schema.optionalKey(Schema.suspend((): Schema.Codec<InlineKeyboardMarkup> => InlineKeyboardMarkup)),
@@ -3258,7 +3258,7 @@ export const InlineQueryResultGame: Schema.Codec<InlineQueryResultGame> = Schema
 /** Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultGif {
   /** Type of the result, must be gif */
-  readonly type: string;
+  readonly type: "gif";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL for the GIF file */
@@ -3291,7 +3291,7 @@ export interface InlineQueryResultGif {
 }
 export const InlineQueryResultGif: Schema.Codec<InlineQueryResultGif> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("gif"),
     id: Schema.String,
     gif_url: Schema.String,
     gif_width: Schema.optionalKey(Schema.Int),
@@ -3313,7 +3313,7 @@ export const InlineQueryResultGif: Schema.Codec<InlineQueryResultGif> = Schema.S
 /** Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location. */
 export interface InlineQueryResultLocation {
   /** Type of the result, must be location */
-  readonly type: string;
+  readonly type: "location";
   /** Unique identifier for this result, 1-64 Bytes */
   readonly id: string;
   /** Location latitude in degrees */
@@ -3344,7 +3344,7 @@ export interface InlineQueryResultLocation {
 }
 export const InlineQueryResultLocation: Schema.Codec<InlineQueryResultLocation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("location"),
     id: Schema.String,
     latitude: Schema.Number,
     longitude: Schema.Number,
@@ -3365,7 +3365,7 @@ export const InlineQueryResultLocation: Schema.Codec<InlineQueryResultLocation> 
 /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultMpeg4Gif {
   /** Type of the result, must be mpeg4_gif */
-  readonly type: string;
+  readonly type: "mpeg4_gif";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL for the MPEG4 file */
@@ -3398,7 +3398,7 @@ export interface InlineQueryResultMpeg4Gif {
 }
 export const InlineQueryResultMpeg4Gif: Schema.Codec<InlineQueryResultMpeg4Gif> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mpeg4_gif"),
     id: Schema.String,
     mpeg4_url: Schema.String,
     mpeg4_width: Schema.optionalKey(Schema.Int),
@@ -3420,7 +3420,7 @@ export const InlineQueryResultMpeg4Gif: Schema.Codec<InlineQueryResultMpeg4Gif> 
 /** Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo. */
 export interface InlineQueryResultPhoto {
   /** Type of the result, must be photo */
-  readonly type: string;
+  readonly type: "photo";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB. */
@@ -3451,7 +3451,7 @@ export interface InlineQueryResultPhoto {
 }
 export const InlineQueryResultPhoto: Schema.Codec<InlineQueryResultPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     id: Schema.String,
     photo_url: Schema.String,
     thumbnail_url: Schema.String,
@@ -3493,7 +3493,7 @@ export const InlineQueryResultsButton: Schema.Codec<InlineQueryResultsButton> = 
 /** Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue. */
 export interface InlineQueryResultVenue {
   /** Type of the result, must be venue */
-  readonly type: string;
+  readonly type: "venue";
   /** Unique identifier for this result, 1-64 Bytes */
   readonly id: string;
   /** Latitude of the venue location in degrees */
@@ -3526,7 +3526,7 @@ export interface InlineQueryResultVenue {
 }
 export const InlineQueryResultVenue: Schema.Codec<InlineQueryResultVenue> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("venue"),
     id: Schema.String,
     latitude: Schema.Number,
     longitude: Schema.Number,
@@ -3548,7 +3548,7 @@ export const InlineQueryResultVenue: Schema.Codec<InlineQueryResultVenue> = Sche
 /** Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video. */
 export interface InlineQueryResultVideo {
   /** Type of the result, must be video */
-  readonly type: string;
+  readonly type: "video";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL for the embedded video player or video file */
@@ -3583,7 +3583,7 @@ export interface InlineQueryResultVideo {
 }
 export const InlineQueryResultVideo: Schema.Codec<InlineQueryResultVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     id: Schema.String,
     video_url: Schema.String,
     mime_type: Schema.String,
@@ -3606,7 +3606,7 @@ export const InlineQueryResultVideo: Schema.Codec<InlineQueryResultVideo> = Sche
 /** Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message. */
 export interface InlineQueryResultVoice {
   /** Type of the result, must be voice */
-  readonly type: string;
+  readonly type: "voice";
   /** Unique identifier for this result, 1-64 bytes */
   readonly id: string;
   /** A valid URL for the voice recording */
@@ -3629,7 +3629,7 @@ export interface InlineQueryResultVoice {
 }
 export const InlineQueryResultVoice: Schema.Codec<InlineQueryResultVoice> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("voice"),
     id: Schema.String,
     voice_url: Schema.String,
     title: Schema.String,
@@ -3829,7 +3829,7 @@ export const InputMedia: Schema.Codec<InputMedia> = Schema.Union([Schema.suspend
 /** Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent. */
 export interface InputMediaAnimation {
   /** Type of the media, must be animation */
-  readonly type: string;
+  readonly type: "animation";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
@@ -3854,7 +3854,7 @@ export interface InputMediaAnimation {
 }
 export const InputMediaAnimation: Schema.Codec<InputMediaAnimation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("animation"),
     media: Schema.String,
     thumbnail: Schema.optionalKey(Schema.String),
     caption: Schema.optionalKey(Schema.String),
@@ -3872,7 +3872,7 @@ export const InputMediaAnimation: Schema.Codec<InputMediaAnimation> = Schema.Str
 /** Represents an audio file to be treated as music to be sent. */
 export interface InputMediaAudio {
   /** Type of the media, must be audio */
-  readonly type: string;
+  readonly type: "audio";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
@@ -3893,7 +3893,7 @@ export interface InputMediaAudio {
 }
 export const InputMediaAudio: Schema.Codec<InputMediaAudio> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("audio"),
     media: Schema.String,
     thumbnail: Schema.optionalKey(Schema.String),
     caption: Schema.optionalKey(Schema.String),
@@ -3909,7 +3909,7 @@ export const InputMediaAudio: Schema.Codec<InputMediaAudio> = Schema.StructWithR
 /** Represents a general file to be sent. */
 export interface InputMediaDocument {
   /** Type of the media, must be document */
-  readonly type: string;
+  readonly type: "document";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
@@ -3926,7 +3926,7 @@ export interface InputMediaDocument {
 }
 export const InputMediaDocument: Schema.Codec<InputMediaDocument> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("document"),
     media: Schema.String,
     thumbnail: Schema.optionalKey(Schema.String),
     caption: Schema.optionalKey(Schema.String),
@@ -3940,14 +3940,14 @@ export const InputMediaDocument: Schema.Codec<InputMediaDocument> = Schema.Struc
 /** Represents an HTTP link to be sent. */
 export interface InputMediaLink {
   /** Type of the media, must be link */
-  readonly type: string;
+  readonly type: "link";
   /** HTTP URL of the link */
   readonly url: string;
   readonly [key: string]: unknown;
 }
 export const InputMediaLink: Schema.Codec<InputMediaLink> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("link"),
     url: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -3956,7 +3956,7 @@ export const InputMediaLink: Schema.Codec<InputMediaLink> = Schema.StructWithRes
 /** Represents a live photo to be sent. */
 export interface InputMediaLivePhoto {
   /** Type of the media, must be live_photo */
-  readonly type: string;
+  readonly type: "live_photo";
   /** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
   readonly media: string;
   /** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
@@ -3975,7 +3975,7 @@ export interface InputMediaLivePhoto {
 }
 export const InputMediaLivePhoto: Schema.Codec<InputMediaLivePhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("live_photo"),
     media: Schema.String,
     photo: Schema.String,
     caption: Schema.optionalKey(Schema.String),
@@ -3990,7 +3990,7 @@ export const InputMediaLivePhoto: Schema.Codec<InputMediaLivePhoto> = Schema.Str
 /** Represents a location to be sent. */
 export interface InputMediaLocation {
   /** Type of the media, must be location */
-  readonly type: string;
+  readonly type: "location";
   /** Latitude of the location */
   readonly latitude: number;
   /** Longitude of the location */
@@ -4001,7 +4001,7 @@ export interface InputMediaLocation {
 }
 export const InputMediaLocation: Schema.Codec<InputMediaLocation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("location"),
     latitude: Schema.Number,
     longitude: Schema.Number,
     horizontal_accuracy: Schema.optionalKey(Schema.Number),
@@ -4012,7 +4012,7 @@ export const InputMediaLocation: Schema.Codec<InputMediaLocation> = Schema.Struc
 /** Represents a photo to be sent. */
 export interface InputMediaPhoto {
   /** Type of the media, must be photo */
-  readonly type: string;
+  readonly type: "photo";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing */
@@ -4029,7 +4029,7 @@ export interface InputMediaPhoto {
 }
 export const InputMediaPhoto: Schema.Codec<InputMediaPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     media: Schema.String,
     caption: Schema.optionalKey(Schema.String),
     parse_mode: Schema.optionalKey(Schema.suspend((): Schema.Codec<ParseMode> => ParseMode)),
@@ -4043,7 +4043,7 @@ export const InputMediaPhoto: Schema.Codec<InputMediaPhoto> = Schema.StructWithR
 /** Represents a sticker file to be sent. */
 export interface InputMediaSticker {
   /** Type of the media, must be sticker */
-  readonly type: string;
+  readonly type: "sticker";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass “attach://<file_attach_name>” to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Emoji associated with the sticker; only for just uploaded stickers */
@@ -4052,7 +4052,7 @@ export interface InputMediaSticker {
 }
 export const InputMediaSticker: Schema.Codec<InputMediaSticker> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("sticker"),
     media: Schema.String,
     emoji: Schema.optionalKey(Schema.String),
   }),
@@ -4062,7 +4062,7 @@ export const InputMediaSticker: Schema.Codec<InputMediaSticker> = Schema.StructW
 /** Represents a venue to be sent. */
 export interface InputMediaVenue {
   /** Type of the media, must be venue */
-  readonly type: string;
+  readonly type: "venue";
   /** Latitude of the location */
   readonly latitude: number;
   /** Longitude of the location */
@@ -4083,7 +4083,7 @@ export interface InputMediaVenue {
 }
 export const InputMediaVenue: Schema.Codec<InputMediaVenue> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("venue"),
     latitude: Schema.Number,
     longitude: Schema.Number,
     title: Schema.String,
@@ -4099,7 +4099,7 @@ export const InputMediaVenue: Schema.Codec<InputMediaVenue> = Schema.StructWithR
 /** Represents a video to be sent. */
 export interface InputMediaVideo {
   /** Type of the media, must be video */
-  readonly type: string;
+  readonly type: "video";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
@@ -4130,7 +4130,7 @@ export interface InputMediaVideo {
 }
 export const InputMediaVideo: Schema.Codec<InputMediaVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     media: Schema.String,
     thumbnail: Schema.optionalKey(Schema.String),
     cover: Schema.optionalKey(Schema.String),
@@ -4187,7 +4187,7 @@ export const InputPaidMedia: Schema.Codec<InputPaidMedia> = Schema.Union([Schema
 /** The paid media to send is a live photo. */
 export interface InputPaidMediaLivePhoto {
   /** Type of the media, must be live_photo */
-  readonly type: string;
+  readonly type: "live_photo";
   /** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
   readonly media: string;
   /** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
@@ -4196,7 +4196,7 @@ export interface InputPaidMediaLivePhoto {
 }
 export const InputPaidMediaLivePhoto: Schema.Codec<InputPaidMediaLivePhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("live_photo"),
     media: Schema.String,
     photo: Schema.String,
   }),
@@ -4206,14 +4206,14 @@ export const InputPaidMediaLivePhoto: Schema.Codec<InputPaidMediaLivePhoto> = Sc
 /** The paid media to send is a photo. */
 export interface InputPaidMediaPhoto {
   /** Type of the media, must be photo */
-  readonly type: string;
+  readonly type: "photo";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   readonly [key: string]: unknown;
 }
 export const InputPaidMediaPhoto: Schema.Codec<InputPaidMediaPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     media: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4222,7 +4222,7 @@ export const InputPaidMediaPhoto: Schema.Codec<InputPaidMediaPhoto> = Schema.Str
 /** The paid media to send is a video. */
 export interface InputPaidMediaVideo {
   /** Type of the media, must be video */
-  readonly type: string;
+  readonly type: "video";
   /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
   readonly media: string;
   /** Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
@@ -4243,7 +4243,7 @@ export interface InputPaidMediaVideo {
 }
 export const InputPaidMediaVideo: Schema.Codec<InputPaidMediaVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     media: Schema.String,
     thumbnail: Schema.optionalKey(Schema.String),
     cover: Schema.optionalKey(Schema.String),
@@ -4293,7 +4293,7 @@ export const InputProfilePhoto: Schema.Codec<InputProfilePhoto> = Schema.Union([
 /** An animated profile photo in the MPEG4 format. */
 export interface InputProfilePhotoAnimated {
   /** Type of the profile photo, must be animated */
-  readonly type: string;
+  readonly type: "animated";
   /** The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
   readonly animation: string;
   /** Optional. Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0. */
@@ -4302,7 +4302,7 @@ export interface InputProfilePhotoAnimated {
 }
 export const InputProfilePhotoAnimated: Schema.Codec<InputProfilePhotoAnimated> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("animated"),
     animation: Schema.String,
     main_frame_timestamp: Schema.optionalKey(Schema.Number),
   }),
@@ -4312,14 +4312,14 @@ export const InputProfilePhotoAnimated: Schema.Codec<InputProfilePhotoAnimated> 
 /** A static profile photo in the .JPG format. */
 export interface InputProfilePhotoStatic {
   /** Type of the profile photo, must be static */
-  readonly type: string;
+  readonly type: "static";
   /** The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
   readonly photo: string;
   readonly [key: string]: unknown;
 }
 export const InputProfilePhotoStatic: Schema.Codec<InputProfilePhotoStatic> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("static"),
     photo: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4332,14 +4332,14 @@ export const InputRichBlock: Schema.Codec<InputRichBlock> = Schema.Union([Schema
 /** A block with an anchor, corresponding to the HTML tag <a> with the attribute name. */
 export interface InputRichBlockAnchor {
   /** Type of the block, always “anchor” */
-  readonly type: string;
+  readonly type: "anchor";
   /** The name of the anchor */
   readonly name: string;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockAnchor: Schema.Codec<InputRichBlockAnchor> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("anchor"),
     name: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4348,7 +4348,7 @@ export const InputRichBlockAnchor: Schema.Codec<InputRichBlockAnchor> = Schema.S
 /** A block with an animation, corresponding to the HTML tag <video>. */
 export interface InputRichBlockAnimation {
   /** Type of the block, always “animation” */
-  readonly type: string;
+  readonly type: "animation";
   /** The animation. Caption is ignored. */
   readonly animation: InputMediaAnimation;
   /** Optional. Caption of the block */
@@ -4357,7 +4357,7 @@ export interface InputRichBlockAnimation {
 }
 export const InputRichBlockAnimation: Schema.Codec<InputRichBlockAnimation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("animation"),
     animation: Schema.suspend((): Schema.Codec<InputMediaAnimation> => InputMediaAnimation),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4367,7 +4367,7 @@ export const InputRichBlockAnimation: Schema.Codec<InputRichBlockAnimation> = Sc
 /** A block with a music file, corresponding to the HTML tag <audio>. */
 export interface InputRichBlockAudio {
   /** Type of the block, always “audio” */
-  readonly type: string;
+  readonly type: "audio";
   /** The audio. Caption is ignored. */
   readonly audio: InputMediaAudio;
   /** Optional. Caption of the block */
@@ -4376,7 +4376,7 @@ export interface InputRichBlockAudio {
 }
 export const InputRichBlockAudio: Schema.Codec<InputRichBlockAudio> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("audio"),
     audio: Schema.suspend((): Schema.Codec<InputMediaAudio> => InputMediaAudio),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4386,7 +4386,7 @@ export const InputRichBlockAudio: Schema.Codec<InputRichBlockAudio> = Schema.Str
 /** A block quotation, corresponding to the HTML tag <blockquote>. */
 export interface InputRichBlockBlockQuotation {
   /** Type of the block, always “blockquote” */
-  readonly type: string;
+  readonly type: "blockquote";
   /** Content of the block */
   readonly blocks: ReadonlyArray<InputRichBlock>;
   /** Optional. Credit of the block */
@@ -4395,7 +4395,7 @@ export interface InputRichBlockBlockQuotation {
 }
 export const InputRichBlockBlockQuotation: Schema.Codec<InputRichBlockBlockQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("blockquote"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<InputRichBlock> => InputRichBlock)),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -4405,7 +4405,7 @@ export const InputRichBlockBlockQuotation: Schema.Codec<InputRichBlockBlockQuota
 /** A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>. */
 export interface InputRichBlockButtons {
   /** Type of the block, always “buttons” */
-  readonly type: string;
+  readonly type: "buttons";
   /** List of 1-8 buttons to send */
   readonly buttons: ReadonlyArray<RichMessageButton>;
   /** Optional. Horizontal alignment of the buttons. Currently, must be one of “left”, “center”, or “right”. */
@@ -4414,7 +4414,7 @@ export interface InputRichBlockButtons {
 }
 export const InputRichBlockButtons: Schema.Codec<InputRichBlockButtons> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("buttons"),
     buttons: Schema.Array(Schema.suspend((): Schema.Codec<RichMessageButton> => RichMessageButton)),
     align: Schema.optionalKey(Schema.String),
   }),
@@ -4424,7 +4424,7 @@ export const InputRichBlockButtons: Schema.Codec<InputRichBlockButtons> = Schema
 /** A collage, corresponding to the custom HTML tag <tg-collage>. */
 export interface InputRichBlockCollage {
   /** Type of the block, always “collage” */
-  readonly type: string;
+  readonly type: "collage";
   /** Elements of the collage */
   readonly blocks: ReadonlyArray<InputRichBlock>;
   /** Optional. Caption of the block */
@@ -4433,7 +4433,7 @@ export interface InputRichBlockCollage {
 }
 export const InputRichBlockCollage: Schema.Codec<InputRichBlockCollage> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("collage"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<InputRichBlock> => InputRichBlock)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4443,7 +4443,7 @@ export const InputRichBlockCollage: Schema.Codec<InputRichBlockCollage> = Schema
 /** An expandable block for details disclosure, corresponding to the HTML tag <details>. */
 export interface InputRichBlockDetails {
   /** Type of the block, always “details” */
-  readonly type: string;
+  readonly type: "details";
   /** Always shown summary of the block */
   readonly summary: RichText;
   /** Content of the block */
@@ -4454,7 +4454,7 @@ export interface InputRichBlockDetails {
 }
 export const InputRichBlockDetails: Schema.Codec<InputRichBlockDetails> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("details"),
     summary: Schema.suspend((): Schema.Codec<RichText> => RichText),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<InputRichBlock> => InputRichBlock)),
     is_open: Schema.optionalKey(Schema.Literal(true)),
@@ -4465,12 +4465,12 @@ export const InputRichBlockDetails: Schema.Codec<InputRichBlockDetails> = Schema
 /** A divider, corresponding to the HTML tag <hr/>. */
 export interface InputRichBlockDivider {
   /** Type of the block, always “divider” */
-  readonly type: string;
+  readonly type: "divider";
   readonly [key: string]: unknown;
 }
 export const InputRichBlockDivider: Schema.Codec<InputRichBlockDivider> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("divider"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -4478,7 +4478,7 @@ export const InputRichBlockDivider: Schema.Codec<InputRichBlockDivider> = Schema
 /** A block with a general file, corresponding to the custom HTML tag <tg-document>. */
 export interface InputRichBlockDocument {
   /** Type of the block, always “document” */
-  readonly type: string;
+  readonly type: "document";
   /** The document. Caption is ignored. */
   readonly document: InputMediaDocument;
   /** Optional. Caption of the block */
@@ -4487,7 +4487,7 @@ export interface InputRichBlockDocument {
 }
 export const InputRichBlockDocument: Schema.Codec<InputRichBlockDocument> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("document"),
     document: Schema.suspend((): Schema.Codec<InputMediaDocument> => InputMediaDocument),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4497,7 +4497,7 @@ export const InputRichBlockDocument: Schema.Codec<InputRichBlockDocument> = Sche
 /** A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable". */
 export interface InputRichBlockExpandableBlockQuotation {
   /** Type of the block, always “expandable_blockquote” */
-  readonly type: string;
+  readonly type: "expandable_blockquote";
   /** Content of the block */
   readonly text: RichText;
   /** Optional. Credit of the block */
@@ -4506,7 +4506,7 @@ export interface InputRichBlockExpandableBlockQuotation {
 }
 export const InputRichBlockExpandableBlockQuotation: Schema.Codec<InputRichBlockExpandableBlockQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("expandable_blockquote"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -4516,14 +4516,14 @@ export const InputRichBlockExpandableBlockQuotation: Schema.Codec<InputRichBlock
 /** A footer, corresponding to the HTML tag <footer>. */
 export interface InputRichBlockFooter {
   /** Type of the block, always “footer” */
-  readonly type: string;
+  readonly type: "footer";
   /** Text of the block */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockFooter: Schema.Codec<InputRichBlockFooter> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("footer"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4532,14 +4532,14 @@ export const InputRichBlockFooter: Schema.Codec<InputRichBlockFooter> = Schema.S
 /** A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>. */
 export interface InputRichBlockList {
   /** Type of the block, always “list” */
-  readonly type: string;
+  readonly type: "list";
   /** Items of the list */
   readonly items: ReadonlyArray<InputRichBlockListItem>;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockList: Schema.Codec<InputRichBlockList> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("list"),
     items: Schema.Array(Schema.suspend((): Schema.Codec<InputRichBlockListItem> => InputRichBlockListItem)),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4573,7 +4573,7 @@ export const InputRichBlockListItem: Schema.Codec<InputRichBlockListItem> = Sche
 /** A block with a map, corresponding to the custom HTML tag <tg-map>. The map's width and height must not exceed 10000 in total. The width and height ratio must be at most 20. */
 export interface InputRichBlockMap {
   /** Type of the block, always “map” */
-  readonly type: string;
+  readonly type: "map";
   /** Location of the center of the map */
   readonly location: Location;
   /** Optional. Map zoom level; 0-24 */
@@ -4588,7 +4588,7 @@ export interface InputRichBlockMap {
 }
 export const InputRichBlockMap: Schema.Codec<InputRichBlockMap> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("map"),
     location: Schema.suspend((): Schema.Codec<Location> => Location),
     zoom: Schema.optionalKey(Schema.Int),
     width: Schema.optionalKey(Schema.Int),
@@ -4601,14 +4601,14 @@ export const InputRichBlockMap: Schema.Codec<InputRichBlockMap> = Schema.StructW
 /** A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>. */
 export interface InputRichBlockMathematicalExpression {
   /** Type of the block, always “mathematical_expression” */
-  readonly type: string;
+  readonly type: "mathematical_expression";
   /** The mathematical expression in LaTeX format */
   readonly expression: string;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockMathematicalExpression: Schema.Codec<InputRichBlockMathematicalExpression> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mathematical_expression"),
     expression: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4617,14 +4617,14 @@ export const InputRichBlockMathematicalExpression: Schema.Codec<InputRichBlockMa
 /** A text paragraph, corresponding to the HTML tag <p>. */
 export interface InputRichBlockParagraph {
   /** Type of the block, always “paragraph” */
-  readonly type: string;
+  readonly type: "paragraph";
   /** Text of the block */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockParagraph: Schema.Codec<InputRichBlockParagraph> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("paragraph"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4633,7 +4633,7 @@ export const InputRichBlockParagraph: Schema.Codec<InputRichBlockParagraph> = Sc
 /** A block with a photo, corresponding to the HTML tag <img>. */
 export interface InputRichBlockPhoto {
   /** Type of the block, always “photo” */
-  readonly type: string;
+  readonly type: "photo";
   /** The photo. Caption is ignored. */
   readonly photo: InputMediaPhoto;
   /** Optional. Caption of the block */
@@ -4642,7 +4642,7 @@ export interface InputRichBlockPhoto {
 }
 export const InputRichBlockPhoto: Schema.Codec<InputRichBlockPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     photo: Schema.suspend((): Schema.Codec<InputMediaPhoto> => InputMediaPhoto),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4652,7 +4652,7 @@ export const InputRichBlockPhoto: Schema.Codec<InputRichBlockPhoto> = Schema.Str
 /** A preformatted text block, corresponding to the nested HTML tags <pre> and <code>. */
 export interface InputRichBlockPreformatted {
   /** Type of the block, always “pre” */
-  readonly type: string;
+  readonly type: "pre";
   /** Text of the block */
   readonly text: RichText;
   /** Optional. The programming language of the text */
@@ -4661,7 +4661,7 @@ export interface InputRichBlockPreformatted {
 }
 export const InputRichBlockPreformatted: Schema.Codec<InputRichBlockPreformatted> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pre"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     language: Schema.optionalKey(Schema.String),
   }),
@@ -4671,7 +4671,7 @@ export const InputRichBlockPreformatted: Schema.Codec<InputRichBlockPreformatted
 /** A quotation with centered text, loosely corresponding to the HTML tag <aside>. */
 export interface InputRichBlockPullQuotation {
   /** Type of the block, always “pullquote” */
-  readonly type: string;
+  readonly type: "pullquote";
   /** Text of the block */
   readonly text: RichText;
   /** Optional. Credit of the block */
@@ -4680,7 +4680,7 @@ export interface InputRichBlockPullQuotation {
 }
 export const InputRichBlockPullQuotation: Schema.Codec<InputRichBlockPullQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pullquote"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -4690,7 +4690,7 @@ export const InputRichBlockPullQuotation: Schema.Codec<InputRichBlockPullQuotati
 /** A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>. */
 export interface InputRichBlockSectionHeading {
   /** Type of the block, always “heading” */
-  readonly type: string;
+  readonly type: "heading";
   /** Text of the block */
   readonly text: RichText;
   /** Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest */
@@ -4699,7 +4699,7 @@ export interface InputRichBlockSectionHeading {
 }
 export const InputRichBlockSectionHeading: Schema.Codec<InputRichBlockSectionHeading> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("heading"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     size: Schema.Int,
   }),
@@ -4709,7 +4709,7 @@ export const InputRichBlockSectionHeading: Schema.Codec<InputRichBlockSectionHea
 /** A slideshow, corresponding to the custom HTML tag <tg-slideshow>. */
 export interface InputRichBlockSlideshow {
   /** Type of the block, always “slideshow” */
-  readonly type: string;
+  readonly type: "slideshow";
   /** Elements of the slideshow */
   readonly blocks: ReadonlyArray<InputRichBlock>;
   /** Optional. Caption of the block */
@@ -4718,7 +4718,7 @@ export interface InputRichBlockSlideshow {
 }
 export const InputRichBlockSlideshow: Schema.Codec<InputRichBlockSlideshow> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("slideshow"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<InputRichBlock> => InputRichBlock)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4728,7 +4728,7 @@ export const InputRichBlockSlideshow: Schema.Codec<InputRichBlockSlideshow> = Sc
 /** A table, corresponding to the HTML tag <table>. */
 export interface InputRichBlockTable {
   /** Type of the block, always “table” */
-  readonly type: string;
+  readonly type: "table";
   /** Cells of the table */
   readonly cells: ReadonlyArray<ReadonlyArray<RichBlockTableCell>>;
   /** Optional. Pass True if the table has borders */
@@ -4743,7 +4743,7 @@ export interface InputRichBlockTable {
 }
 export const InputRichBlockTable: Schema.Codec<InputRichBlockTable> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("table"),
     cells: Schema.Array(Schema.Array(Schema.suspend((): Schema.Codec<RichBlockTableCell> => RichBlockTableCell))),
     is_bordered: Schema.optionalKey(Schema.Literal(true)),
     is_striped: Schema.optionalKey(Schema.Literal(true)),
@@ -4756,14 +4756,14 @@ export const InputRichBlockTable: Schema.Codec<InputRichBlockTable> = Schema.Str
 /** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
 export interface InputRichBlockThinking {
   /** Type of the block, always “thinking” */
-  readonly type: string;
+  readonly type: "thinking";
   /** Text of the block. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const InputRichBlockThinking: Schema.Codec<InputRichBlockThinking> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("thinking"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4772,7 +4772,7 @@ export const InputRichBlockThinking: Schema.Codec<InputRichBlockThinking> = Sche
 /** A block with a video, corresponding to the HTML tag <video>. */
 export interface InputRichBlockVideo {
   /** Type of the block, always “video” */
-  readonly type: string;
+  readonly type: "video";
   /** The video. Caption is ignored. */
   readonly video: InputMediaVideo;
   /** Optional. Caption of the block */
@@ -4781,7 +4781,7 @@ export interface InputRichBlockVideo {
 }
 export const InputRichBlockVideo: Schema.Codec<InputRichBlockVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     video: Schema.suspend((): Schema.Codec<InputMediaVideo> => InputMediaVideo),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4791,7 +4791,7 @@ export const InputRichBlockVideo: Schema.Codec<InputRichBlockVideo> = Schema.Str
 /** A block with a voice note, corresponding to the HTML tag <audio>. */
 export interface InputRichBlockVoiceNote {
   /** Type of the block, always “voice_note” */
-  readonly type: string;
+  readonly type: "voice_note";
   /** The voice note. Caption is ignored. */
   readonly voice_note: InputMediaVoiceNote;
   /** Optional. Caption of the block */
@@ -4800,7 +4800,7 @@ export interface InputRichBlockVoiceNote {
 }
 export const InputRichBlockVoiceNote: Schema.Codec<InputRichBlockVoiceNote> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("voice_note"),
     voice_note: Schema.suspend((): Schema.Codec<InputMediaVoiceNote> => InputMediaVoiceNote),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -4896,14 +4896,14 @@ export const InputStoryContent: Schema.Codec<InputStoryContent> = Schema.Union([
 /** Describes a photo to post as a story. */
 export interface InputStoryContentPhoto {
   /** Type of the content, must be photo */
-  readonly type: string;
+  readonly type: "photo";
   /** The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
   readonly photo: string;
   readonly [key: string]: unknown;
 }
 export const InputStoryContentPhoto: Schema.Codec<InputStoryContentPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     photo: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -4912,7 +4912,7 @@ export const InputStoryContentPhoto: Schema.Codec<InputStoryContentPhoto> = Sche
 /** Describes a video to post as a story. */
 export interface InputStoryContentVideo {
   /** Type of the content, must be video */
-  readonly type: string;
+  readonly type: "video";
   /** The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the video was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
   readonly video: string;
   /** Optional. Precise duration of the video in seconds; 0-60 */
@@ -4925,7 +4925,7 @@ export interface InputStoryContentVideo {
 }
 export const InputStoryContentVideo: Schema.Codec<InputStoryContentVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     video: Schema.String,
     duration: Schema.optionalKey(Schema.Number),
     cover_frame_timestamp: Schema.optionalKey(Schema.Number),
@@ -5385,12 +5385,12 @@ export const MenuButton: Schema.Codec<MenuButton> = Schema.Union([Schema.suspend
 /** Represents a menu button, which opens the bot's list of commands. */
 export interface MenuButtonCommands {
   /** Type of the button, must be commands */
-  readonly type: string;
+  readonly type: "commands";
   readonly [key: string]: unknown;
 }
 export const MenuButtonCommands: Schema.Codec<MenuButtonCommands> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("commands"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5398,12 +5398,12 @@ export const MenuButtonCommands: Schema.Codec<MenuButtonCommands> = Schema.Struc
 /** Describes that no specific value for the menu button was set. */
 export interface MenuButtonDefault {
   /** Type of the button, must be default */
-  readonly type: string;
+  readonly type: "default";
   readonly [key: string]: unknown;
 }
 export const MenuButtonDefault: Schema.Codec<MenuButtonDefault> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("default"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -5411,7 +5411,7 @@ export const MenuButtonDefault: Schema.Codec<MenuButtonDefault> = Schema.StructW
 /** Represents a menu button, which launches a Web App. */
 export interface MenuButtonWebApp {
   /** Type of the button, must be web_app */
-  readonly type: string;
+  readonly type: "web_app";
   /** Text on the button */
   readonly text: string;
   /** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link. */
@@ -5420,7 +5420,7 @@ export interface MenuButtonWebApp {
 }
 export const MenuButtonWebApp: Schema.Codec<MenuButtonWebApp> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("web_app"),
     text: Schema.String,
     web_app: Schema.suspend((): Schema.Codec<WebAppInfo> => WebAppInfo),
   }),
@@ -5886,7 +5886,7 @@ export const MessageOrigin: Schema.Codec<MessageOrigin> = Schema.Union([Schema.s
 /** The message was originally sent to a channel chat. */
 export interface MessageOriginChannel {
   /** Type of the message origin, always “channel” */
-  readonly type: string;
+  readonly type: "channel";
   /** Date the message was sent originally in Unix time */
   readonly date: number;
   /** Channel chat to which the message was originally sent */
@@ -5899,7 +5899,7 @@ export interface MessageOriginChannel {
 }
 export const MessageOriginChannel: Schema.Codec<MessageOriginChannel> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("channel"),
     date: Schema.Int,
     chat: Schema.suspend((): Schema.Codec<Chat> => Chat),
     message_id: Schema.Int,
@@ -5911,7 +5911,7 @@ export const MessageOriginChannel: Schema.Codec<MessageOriginChannel> = Schema.S
 /** The message was originally sent on behalf of a chat to a group chat. */
 export interface MessageOriginChat {
   /** Type of the message origin, always “chat” */
-  readonly type: string;
+  readonly type: "chat";
   /** Date the message was sent originally in Unix time */
   readonly date: number;
   /** Chat that sent the message originally */
@@ -5922,7 +5922,7 @@ export interface MessageOriginChat {
 }
 export const MessageOriginChat: Schema.Codec<MessageOriginChat> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat"),
     date: Schema.Int,
     sender_chat: Schema.suspend((): Schema.Codec<Chat> => Chat),
     author_signature: Schema.optionalKey(Schema.String),
@@ -5933,7 +5933,7 @@ export const MessageOriginChat: Schema.Codec<MessageOriginChat> = Schema.StructW
 /** The message was originally sent by an unknown user. */
 export interface MessageOriginHiddenUser {
   /** Type of the message origin, always “hidden_user” */
-  readonly type: string;
+  readonly type: "hidden_user";
   /** Date the message was sent originally in Unix time */
   readonly date: number;
   /** Name of the user that sent the message originally */
@@ -5942,7 +5942,7 @@ export interface MessageOriginHiddenUser {
 }
 export const MessageOriginHiddenUser: Schema.Codec<MessageOriginHiddenUser> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("hidden_user"),
     date: Schema.Int,
     sender_user_name: Schema.String,
   }),
@@ -5952,7 +5952,7 @@ export const MessageOriginHiddenUser: Schema.Codec<MessageOriginHiddenUser> = Sc
 /** The message was originally sent by a known user. */
 export interface MessageOriginUser {
   /** Type of the message origin, always “user” */
-  readonly type: string;
+  readonly type: "user";
   /** Date the message was sent originally in Unix time */
   readonly date: number;
   /** User that sent the message originally */
@@ -5961,7 +5961,7 @@ export interface MessageOriginUser {
 }
 export const MessageOriginUser: Schema.Codec<MessageOriginUser> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("user"),
     date: Schema.Int,
     sender_user: Schema.suspend((): Schema.Codec<User> => User),
   }),
@@ -6050,7 +6050,7 @@ export const OwnedGift: Schema.Codec<OwnedGift> = Schema.Union([Schema.suspend((
 /** Describes a regular gift owned by a user or a chat. */
 export interface OwnedGiftRegular {
   /** Type of the gift, always “regular” */
-  readonly type: string;
+  readonly type: "regular";
   /** Information about the regular gift */
   readonly gift: Gift;
   /** Optional. Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only */
@@ -6083,7 +6083,7 @@ export interface OwnedGiftRegular {
 }
 export const OwnedGiftRegular: Schema.Codec<OwnedGiftRegular> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("regular"),
     gift: Schema.suspend((): Schema.Codec<Gift> => Gift),
     owned_gift_id: Schema.optionalKey(Schema.String),
     sender_user: Schema.optionalKey(Schema.suspend((): Schema.Codec<User> => User)),
@@ -6124,7 +6124,7 @@ export const OwnedGifts: Schema.Codec<OwnedGifts> = Schema.StructWithRest(
 /** Describes a unique gift received and owned by a user or a chat. */
 export interface OwnedGiftUnique {
   /** Type of the gift, always “unique” */
-  readonly type: string;
+  readonly type: "unique";
   /** Information about the unique gift */
   readonly gift: UniqueGift;
   /** Optional. Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only */
@@ -6145,7 +6145,7 @@ export interface OwnedGiftUnique {
 }
 export const OwnedGiftUnique: Schema.Codec<OwnedGiftUnique> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("unique"),
     gift: Schema.suspend((): Schema.Codec<UniqueGift> => UniqueGift),
     owned_gift_id: Schema.optionalKey(Schema.String),
     sender_user: Schema.optionalKey(Schema.suspend((): Schema.Codec<User> => User)),
@@ -6181,14 +6181,14 @@ export const PaidMediaInfo: Schema.Codec<PaidMediaInfo> = Schema.StructWithRest(
 /** The paid media is a live photo. */
 export interface PaidMediaLivePhoto {
   /** Type of the paid media, always “live_photo” */
-  readonly type: string;
+  readonly type: "live_photo";
   /** The photo */
   readonly live_photo: LivePhoto;
   readonly [key: string]: unknown;
 }
 export const PaidMediaLivePhoto: Schema.Codec<PaidMediaLivePhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("live_photo"),
     live_photo: Schema.suspend((): Schema.Codec<LivePhoto> => LivePhoto),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -6197,14 +6197,14 @@ export const PaidMediaLivePhoto: Schema.Codec<PaidMediaLivePhoto> = Schema.Struc
 /** The paid media is a photo. */
 export interface PaidMediaPhoto {
   /** Type of the paid media, always “photo” */
-  readonly type: string;
+  readonly type: "photo";
   /** The photo */
   readonly photo: ReadonlyArray<PhotoSize>;
   readonly [key: string]: unknown;
 }
 export const PaidMediaPhoto: Schema.Codec<PaidMediaPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     photo: Schema.Array(Schema.suspend((): Schema.Codec<PhotoSize> => PhotoSize)),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -6213,7 +6213,7 @@ export const PaidMediaPhoto: Schema.Codec<PaidMediaPhoto> = Schema.StructWithRes
 /** The paid media isn't available before the payment. */
 export interface PaidMediaPreview {
   /** Type of the paid media, always “preview” */
-  readonly type: string;
+  readonly type: "preview";
   /** Optional. Media width as defined by the sender */
   readonly width?: number;
   /** Optional. Media height as defined by the sender */
@@ -6224,7 +6224,7 @@ export interface PaidMediaPreview {
 }
 export const PaidMediaPreview: Schema.Codec<PaidMediaPreview> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("preview"),
     width: Schema.optionalKey(Schema.Int),
     height: Schema.optionalKey(Schema.Int),
     duration: Schema.optionalKey(Schema.Int),
@@ -6251,14 +6251,14 @@ export const PaidMediaPurchased: Schema.Codec<PaidMediaPurchased> = Schema.Struc
 /** The paid media is a video. */
 export interface PaidMediaVideo {
   /** Type of the paid media, always “video” */
-  readonly type: string;
+  readonly type: "video";
   /** The video */
   readonly video: Video;
   readonly [key: string]: unknown;
 }
 export const PaidMediaVideo: Schema.Codec<PaidMediaVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     video: Schema.suspend((): Schema.Codec<Video> => Video),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -6300,7 +6300,7 @@ export const PassportElementError: Schema.Codec<PassportElementError> = Schema.U
 /** Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes. */
 export interface PassportElementErrorDataField {
   /** Error source, must be data */
-  readonly source: string;
+  readonly source: "data";
   /** The section of the user's Telegram Passport which has the error, one of “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport”, “address” */
   readonly type: string;
   /** Name of the data field which has the error */
@@ -6313,7 +6313,7 @@ export interface PassportElementErrorDataField {
 }
 export const PassportElementErrorDataField: Schema.Codec<PassportElementErrorDataField> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("data"),
     type: Schema.String,
     field_name: Schema.String,
     data_hash: Schema.String,
@@ -6325,7 +6325,7 @@ export const PassportElementErrorDataField: Schema.Codec<PassportElementErrorDat
 /** Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes. */
 export interface PassportElementErrorFile {
   /** Error source, must be file */
-  readonly source: string;
+  readonly source: "file";
   /** The section of the user's Telegram Passport which has the issue, one of “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration” */
   readonly type: string;
   /** Base64-encoded file hash */
@@ -6336,7 +6336,7 @@ export interface PassportElementErrorFile {
 }
 export const PassportElementErrorFile: Schema.Codec<PassportElementErrorFile> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("file"),
     type: Schema.String,
     file_hash: Schema.String,
     message: Schema.String,
@@ -6347,7 +6347,7 @@ export const PassportElementErrorFile: Schema.Codec<PassportElementErrorFile> = 
 /** Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes. */
 export interface PassportElementErrorFiles {
   /** Error source, must be files */
-  readonly source: string;
+  readonly source: "files";
   /** The section of the user's Telegram Passport which has the issue, one of “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration” */
   readonly type: string;
   /** List of base64-encoded file hashes */
@@ -6358,7 +6358,7 @@ export interface PassportElementErrorFiles {
 }
 export const PassportElementErrorFiles: Schema.Codec<PassportElementErrorFiles> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("files"),
     type: Schema.String,
     file_hashes: Schema.Array(Schema.String),
     message: Schema.String,
@@ -6369,7 +6369,7 @@ export const PassportElementErrorFiles: Schema.Codec<PassportElementErrorFiles> 
 /** Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes. */
 export interface PassportElementErrorFrontSide {
   /** Error source, must be front_side */
-  readonly source: string;
+  readonly source: "front_side";
   /** The section of the user's Telegram Passport which has the issue, one of “passport”, “driver_license”, “identity_card”, “internal_passport” */
   readonly type: string;
   /** Base64-encoded hash of the file with the front side of the document */
@@ -6380,7 +6380,7 @@ export interface PassportElementErrorFrontSide {
 }
 export const PassportElementErrorFrontSide: Schema.Codec<PassportElementErrorFrontSide> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("front_side"),
     type: Schema.String,
     file_hash: Schema.String,
     message: Schema.String,
@@ -6391,7 +6391,7 @@ export const PassportElementErrorFrontSide: Schema.Codec<PassportElementErrorFro
 /** Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes. */
 export interface PassportElementErrorReverseSide {
   /** Error source, must be reverse_side */
-  readonly source: string;
+  readonly source: "reverse_side";
   /** The section of the user's Telegram Passport which has the issue, one of “driver_license”, “identity_card” */
   readonly type: string;
   /** Base64-encoded hash of the file with the reverse side of the document */
@@ -6402,7 +6402,7 @@ export interface PassportElementErrorReverseSide {
 }
 export const PassportElementErrorReverseSide: Schema.Codec<PassportElementErrorReverseSide> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("reverse_side"),
     type: Schema.String,
     file_hash: Schema.String,
     message: Schema.String,
@@ -6413,7 +6413,7 @@ export const PassportElementErrorReverseSide: Schema.Codec<PassportElementErrorR
 /** Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes. */
 export interface PassportElementErrorSelfie {
   /** Error source, must be selfie */
-  readonly source: string;
+  readonly source: "selfie";
   /** The section of the user's Telegram Passport which has the issue, one of “passport”, “driver_license”, “identity_card”, “internal_passport” */
   readonly type: string;
   /** Base64-encoded hash of the file with the selfie */
@@ -6424,7 +6424,7 @@ export interface PassportElementErrorSelfie {
 }
 export const PassportElementErrorSelfie: Schema.Codec<PassportElementErrorSelfie> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("selfie"),
     type: Schema.String,
     file_hash: Schema.String,
     message: Schema.String,
@@ -6435,7 +6435,7 @@ export const PassportElementErrorSelfie: Schema.Codec<PassportElementErrorSelfie
 /** Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes. */
 export interface PassportElementErrorTranslationFile {
   /** Error source, must be translation_file */
-  readonly source: string;
+  readonly source: "translation_file";
   /** Type of element of the user's Telegram Passport which has the issue, one of “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration” */
   readonly type: string;
   /** Base64-encoded file hash */
@@ -6446,7 +6446,7 @@ export interface PassportElementErrorTranslationFile {
 }
 export const PassportElementErrorTranslationFile: Schema.Codec<PassportElementErrorTranslationFile> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("translation_file"),
     type: Schema.String,
     file_hash: Schema.String,
     message: Schema.String,
@@ -6457,7 +6457,7 @@ export const PassportElementErrorTranslationFile: Schema.Codec<PassportElementEr
 /** Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change. */
 export interface PassportElementErrorTranslationFiles {
   /** Error source, must be translation_files */
-  readonly source: string;
+  readonly source: "translation_files";
   /** Type of element of the user's Telegram Passport which has the issue, one of “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration” */
   readonly type: string;
   /** List of base64-encoded file hashes */
@@ -6468,7 +6468,7 @@ export interface PassportElementErrorTranslationFiles {
 }
 export const PassportElementErrorTranslationFiles: Schema.Codec<PassportElementErrorTranslationFiles> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("translation_files"),
     type: Schema.String,
     file_hashes: Schema.Array(Schema.String),
     message: Schema.String,
@@ -6479,7 +6479,7 @@ export const PassportElementErrorTranslationFiles: Schema.Codec<PassportElementE
 /** Represents an issue in an unspecified place. The error is considered resolved when new data is added. */
 export interface PassportElementErrorUnspecified {
   /** Error source, must be unspecified */
-  readonly source: string;
+  readonly source: "unspecified";
   /** Type of element of the user's Telegram Passport which has the issue */
   readonly type: string;
   /** Base64-encoded element hash */
@@ -6490,7 +6490,7 @@ export interface PassportElementErrorUnspecified {
 }
 export const PassportElementErrorUnspecified: Schema.Codec<PassportElementErrorUnspecified> = Schema.StructWithRest(
   Schema.Struct({
-    source: Schema.String,
+    source: Schema.Literal("unspecified"),
     type: Schema.String,
     element_hash: Schema.String,
     message: Schema.String,
@@ -6863,14 +6863,14 @@ export const ReactionType: Schema.Codec<ReactionType> = Schema.Union([Schema.sus
 /** The reaction is based on a custom emoji. */
 export interface ReactionTypeCustomEmoji {
   /** Type of the reaction, always “custom_emoji” */
-  readonly type: string;
+  readonly type: "custom_emoji";
   /** Custom emoji identifier */
   readonly custom_emoji_id: string;
   readonly [key: string]: unknown;
 }
 export const ReactionTypeCustomEmoji: Schema.Codec<ReactionTypeCustomEmoji> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("custom_emoji"),
     custom_emoji_id: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -6879,14 +6879,14 @@ export const ReactionTypeCustomEmoji: Schema.Codec<ReactionTypeCustomEmoji> = Sc
 /** The reaction is based on an emoji. */
 export interface ReactionTypeEmoji {
   /** Type of the reaction, always “emoji” */
-  readonly type: string;
+  readonly type: "emoji";
   /** Reaction emoji. Currently, it can be one of "❤", "👍", "👎", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊", "🤡", "🥱", "🥴", "😍", "🐳", "❤‍🔥", "🌚", "🌭", "💯", "🤣", "⚡", "🍌", "🏆", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈", "😴", "😭", "🤓", "👻", "👨‍💻", "👀", "🎃", "🙈", "😇", "😨", "🤝", "✍", "🤗", "🫡", "🎅", "🎄", "☃", "💅", "🤪", "🗿", "🆒", "💘", "🙉", "🦄", "😘", "💊", "🙊", "😎", "👾", "🤷‍♂", "🤷", "🤷‍♀", "😡". */
   readonly emoji: string;
   readonly [key: string]: unknown;
 }
 export const ReactionTypeEmoji: Schema.Codec<ReactionTypeEmoji> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("emoji"),
     emoji: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -6895,12 +6895,12 @@ export const ReactionTypeEmoji: Schema.Codec<ReactionTypeEmoji> = Schema.StructW
 /** The reaction is paid. */
 export interface ReactionTypePaid {
   /** Type of the reaction, always “paid” */
-  readonly type: string;
+  readonly type: "paid";
   readonly [key: string]: unknown;
 }
 export const ReactionTypePaid: Schema.Codec<ReactionTypePaid> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("paid"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -7044,12 +7044,12 @@ export const RevenueWithdrawalState: Schema.Codec<RevenueWithdrawalState> = Sche
 /** The withdrawal failed and the transaction was refunded. */
 export interface RevenueWithdrawalStateFailed {
   /** Type of the state, always “failed” */
-  readonly type: string;
+  readonly type: "failed";
   readonly [key: string]: unknown;
 }
 export const RevenueWithdrawalStateFailed: Schema.Codec<RevenueWithdrawalStateFailed> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("failed"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -7057,12 +7057,12 @@ export const RevenueWithdrawalStateFailed: Schema.Codec<RevenueWithdrawalStateFa
 /** The withdrawal is in progress. */
 export interface RevenueWithdrawalStatePending {
   /** Type of the state, always “pending” */
-  readonly type: string;
+  readonly type: "pending";
   readonly [key: string]: unknown;
 }
 export const RevenueWithdrawalStatePending: Schema.Codec<RevenueWithdrawalStatePending> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pending"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -7070,7 +7070,7 @@ export const RevenueWithdrawalStatePending: Schema.Codec<RevenueWithdrawalStateP
 /** The withdrawal succeeded. */
 export interface RevenueWithdrawalStateSucceeded {
   /** Type of the state, always “succeeded” */
-  readonly type: string;
+  readonly type: "succeeded";
   /** Date the withdrawal was completed in Unix time */
   readonly date: number;
   /** An HTTPS URL that can be used to see transaction details */
@@ -7079,7 +7079,7 @@ export interface RevenueWithdrawalStateSucceeded {
 }
 export const RevenueWithdrawalStateSucceeded: Schema.Codec<RevenueWithdrawalStateSucceeded> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("succeeded"),
     date: Schema.Int,
     url: Schema.String,
   }),
@@ -7093,14 +7093,14 @@ export const RichBlock: Schema.Codec<RichBlock> = Schema.Union([Schema.suspend((
 /** A block with an anchor, corresponding to the HTML tag <a> with the attribute name. */
 export interface RichBlockAnchor {
   /** Type of the block, always “anchor” */
-  readonly type: string;
+  readonly type: "anchor";
   /** The name of the anchor */
   readonly name: string;
   readonly [key: string]: unknown;
 }
 export const RichBlockAnchor: Schema.Codec<RichBlockAnchor> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("anchor"),
     name: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7109,7 +7109,7 @@ export const RichBlockAnchor: Schema.Codec<RichBlockAnchor> = Schema.StructWithR
 /** A block with an animation, corresponding to the HTML tag <video>. */
 export interface RichBlockAnimation {
   /** Type of the block, always “animation” */
-  readonly type: string;
+  readonly type: "animation";
   /** The animation */
   readonly animation: Animation;
   /** Optional. True, if the media preview is covered by a spoiler animation */
@@ -7120,7 +7120,7 @@ export interface RichBlockAnimation {
 }
 export const RichBlockAnimation: Schema.Codec<RichBlockAnimation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("animation"),
     animation: Schema.suspend((): Schema.Codec<Animation> => Animation),
     has_spoiler: Schema.optionalKey(Schema.Literal(true)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
@@ -7131,7 +7131,7 @@ export const RichBlockAnimation: Schema.Codec<RichBlockAnimation> = Schema.Struc
 /** A block with a music file, corresponding to the HTML tag <audio>. */
 export interface RichBlockAudio {
   /** Type of the block, always “audio” */
-  readonly type: string;
+  readonly type: "audio";
   /** The audio */
   readonly audio: Audio;
   /** Optional. Caption of the block */
@@ -7140,7 +7140,7 @@ export interface RichBlockAudio {
 }
 export const RichBlockAudio: Schema.Codec<RichBlockAudio> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("audio"),
     audio: Schema.suspend((): Schema.Codec<Audio> => Audio),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -7150,7 +7150,7 @@ export const RichBlockAudio: Schema.Codec<RichBlockAudio> = Schema.StructWithRes
 /** A block quotation, corresponding to the HTML tag <blockquote>. */
 export interface RichBlockBlockQuotation {
   /** Type of the block, always “blockquote” */
-  readonly type: string;
+  readonly type: "blockquote";
   /** Content of the block */
   readonly blocks: ReadonlyArray<RichBlock>;
   /** Optional. Credit of the block */
@@ -7159,7 +7159,7 @@ export interface RichBlockBlockQuotation {
 }
 export const RichBlockBlockQuotation: Schema.Codec<RichBlockBlockQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("blockquote"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<RichBlock> => RichBlock)),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -7169,7 +7169,7 @@ export const RichBlockBlockQuotation: Schema.Codec<RichBlockBlockQuotation> = Sc
 /** A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>. */
 export interface RichBlockButtons {
   /** Type of the block, always “buttons” */
-  readonly type: string;
+  readonly type: "buttons";
   /** The buttons */
   readonly buttons: ReadonlyArray<RichMessageButton>;
   /** Optional. Horizontal alignment of the buttons. Currently, must be one of “left”, “center”, or “right”. */
@@ -7178,7 +7178,7 @@ export interface RichBlockButtons {
 }
 export const RichBlockButtons: Schema.Codec<RichBlockButtons> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("buttons"),
     buttons: Schema.Array(Schema.suspend((): Schema.Codec<RichMessageButton> => RichMessageButton)),
     align: Schema.optionalKey(Schema.String),
   }),
@@ -7204,7 +7204,7 @@ export const RichBlockCaption: Schema.Codec<RichBlockCaption> = Schema.StructWit
 /** A collage, corresponding to the custom HTML tag <tg-collage>. */
 export interface RichBlockCollage {
   /** Type of the block, always “collage” */
-  readonly type: string;
+  readonly type: "collage";
   /** Elements of the collage */
   readonly blocks: ReadonlyArray<RichBlock>;
   /** Optional. Caption of the block */
@@ -7213,7 +7213,7 @@ export interface RichBlockCollage {
 }
 export const RichBlockCollage: Schema.Codec<RichBlockCollage> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("collage"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<RichBlock> => RichBlock)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -7223,7 +7223,7 @@ export const RichBlockCollage: Schema.Codec<RichBlockCollage> = Schema.StructWit
 /** An expandable block for details disclosure, corresponding to the HTML tag <details>. */
 export interface RichBlockDetails {
   /** Type of the block, always “details” */
-  readonly type: string;
+  readonly type: "details";
   /** Always shown summary of the block */
   readonly summary: RichText;
   /** Content of the block */
@@ -7234,7 +7234,7 @@ export interface RichBlockDetails {
 }
 export const RichBlockDetails: Schema.Codec<RichBlockDetails> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("details"),
     summary: Schema.suspend((): Schema.Codec<RichText> => RichText),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<RichBlock> => RichBlock)),
     is_open: Schema.optionalKey(Schema.Literal(true)),
@@ -7245,12 +7245,12 @@ export const RichBlockDetails: Schema.Codec<RichBlockDetails> = Schema.StructWit
 /** A divider, corresponding to the HTML tag <hr/>. */
 export interface RichBlockDivider {
   /** Type of the block, always “divider” */
-  readonly type: string;
+  readonly type: "divider";
   readonly [key: string]: unknown;
 }
 export const RichBlockDivider: Schema.Codec<RichBlockDivider> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("divider"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -7258,7 +7258,7 @@ export const RichBlockDivider: Schema.Codec<RichBlockDivider> = Schema.StructWit
 /** A block with a general file, corresponding to the custom HTML tag <tg-document>. */
 export interface RichBlockDocument {
   /** Type of the block, always “document” */
-  readonly type: string;
+  readonly type: "document";
   /** The document */
   readonly document: Document;
   /** Optional. Caption of the block */
@@ -7267,7 +7267,7 @@ export interface RichBlockDocument {
 }
 export const RichBlockDocument: Schema.Codec<RichBlockDocument> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("document"),
     document: Schema.suspend((): Schema.Codec<Document> => Document),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -7277,7 +7277,7 @@ export const RichBlockDocument: Schema.Codec<RichBlockDocument> = Schema.StructW
 /** A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable". */
 export interface RichBlockExpandableBlockQuotation {
   /** Type of the block, always “expandable_blockquote” */
-  readonly type: string;
+  readonly type: "expandable_blockquote";
   /** Content of the block */
   readonly text: RichText;
   /** Optional. Credit of the block */
@@ -7286,7 +7286,7 @@ export interface RichBlockExpandableBlockQuotation {
 }
 export const RichBlockExpandableBlockQuotation: Schema.Codec<RichBlockExpandableBlockQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("expandable_blockquote"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -7296,14 +7296,14 @@ export const RichBlockExpandableBlockQuotation: Schema.Codec<RichBlockExpandable
 /** A footer, corresponding to the HTML tag <footer>. */
 export interface RichBlockFooter {
   /** Type of the block, always “footer” */
-  readonly type: string;
+  readonly type: "footer";
   /** Text of the block */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichBlockFooter: Schema.Codec<RichBlockFooter> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("footer"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7312,14 +7312,14 @@ export const RichBlockFooter: Schema.Codec<RichBlockFooter> = Schema.StructWithR
 /** A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>. */
 export interface RichBlockList {
   /** Type of the block, always “list” */
-  readonly type: string;
+  readonly type: "list";
   /** Items of the list */
   readonly items: ReadonlyArray<RichBlockListItem>;
   readonly [key: string]: unknown;
 }
 export const RichBlockList: Schema.Codec<RichBlockList> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("list"),
     items: Schema.Array(Schema.suspend((): Schema.Codec<RichBlockListItem> => RichBlockListItem)),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7356,7 +7356,7 @@ export const RichBlockListItem: Schema.Codec<RichBlockListItem> = Schema.StructW
 /** A block with a map, corresponding to the custom HTML tag <tg-map>. */
 export interface RichBlockMap {
   /** Type of the block, always “map” */
-  readonly type: string;
+  readonly type: "map";
   /** Location of the center of the map */
   readonly location: Location;
   /** Map zoom level */
@@ -7371,7 +7371,7 @@ export interface RichBlockMap {
 }
 export const RichBlockMap: Schema.Codec<RichBlockMap> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("map"),
     location: Schema.suspend((): Schema.Codec<Location> => Location),
     zoom: Schema.Int,
     width: Schema.Int,
@@ -7384,14 +7384,14 @@ export const RichBlockMap: Schema.Codec<RichBlockMap> = Schema.StructWithRest(
 /** A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>. */
 export interface RichBlockMathematicalExpression {
   /** Type of the block, always “mathematical_expression” */
-  readonly type: string;
+  readonly type: "mathematical_expression";
   /** The mathematical expression in LaTeX format */
   readonly expression: string;
   readonly [key: string]: unknown;
 }
 export const RichBlockMathematicalExpression: Schema.Codec<RichBlockMathematicalExpression> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mathematical_expression"),
     expression: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7400,14 +7400,14 @@ export const RichBlockMathematicalExpression: Schema.Codec<RichBlockMathematical
 /** A text paragraph, corresponding to the HTML tag <p>. */
 export interface RichBlockParagraph {
   /** Type of the block, always “paragraph” */
-  readonly type: string;
+  readonly type: "paragraph";
   /** Text of the block */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichBlockParagraph: Schema.Codec<RichBlockParagraph> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("paragraph"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7416,7 +7416,7 @@ export const RichBlockParagraph: Schema.Codec<RichBlockParagraph> = Schema.Struc
 /** A block with a photo, corresponding to the HTML tag <img>. */
 export interface RichBlockPhoto {
   /** Type of the block, always “photo” */
-  readonly type: string;
+  readonly type: "photo";
   /** Available sizes of the photo */
   readonly photo: ReadonlyArray<PhotoSize>;
   /** Optional. True, if the media preview is covered by a spoiler animation */
@@ -7427,7 +7427,7 @@ export interface RichBlockPhoto {
 }
 export const RichBlockPhoto: Schema.Codec<RichBlockPhoto> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("photo"),
     photo: Schema.Array(Schema.suspend((): Schema.Codec<PhotoSize> => PhotoSize)),
     has_spoiler: Schema.optionalKey(Schema.Literal(true)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
@@ -7438,7 +7438,7 @@ export const RichBlockPhoto: Schema.Codec<RichBlockPhoto> = Schema.StructWithRes
 /** A preformatted text block, corresponding to the nested HTML tags <pre> and <code>. */
 export interface RichBlockPreformatted {
   /** Type of the block, always “pre” */
-  readonly type: string;
+  readonly type: "pre";
   /** Text of the block */
   readonly text: RichText;
   /** Optional. The programming language of the text */
@@ -7447,7 +7447,7 @@ export interface RichBlockPreformatted {
 }
 export const RichBlockPreformatted: Schema.Codec<RichBlockPreformatted> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pre"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     language: Schema.optionalKey(Schema.String),
   }),
@@ -7457,7 +7457,7 @@ export const RichBlockPreformatted: Schema.Codec<RichBlockPreformatted> = Schema
 /** A quotation with centered text, loosely corresponding to the HTML tag <aside>. */
 export interface RichBlockPullQuotation {
   /** Type of the block, always “pullquote” */
-  readonly type: string;
+  readonly type: "pullquote";
   /** Text of the block */
   readonly text: RichText;
   /** Optional. Credit of the block */
@@ -7466,7 +7466,7 @@ export interface RichBlockPullQuotation {
 }
 export const RichBlockPullQuotation: Schema.Codec<RichBlockPullQuotation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("pullquote"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     credit: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichText> => RichText)),
   }),
@@ -7476,7 +7476,7 @@ export const RichBlockPullQuotation: Schema.Codec<RichBlockPullQuotation> = Sche
 /** A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>. */
 export interface RichBlockSectionHeading {
   /** Type of the block, always “heading” */
-  readonly type: string;
+  readonly type: "heading";
   /** Text of the block */
   readonly text: RichText;
   /** Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest */
@@ -7485,7 +7485,7 @@ export interface RichBlockSectionHeading {
 }
 export const RichBlockSectionHeading: Schema.Codec<RichBlockSectionHeading> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("heading"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     size: Schema.Int,
   }),
@@ -7495,7 +7495,7 @@ export const RichBlockSectionHeading: Schema.Codec<RichBlockSectionHeading> = Sc
 /** A slideshow, corresponding to the custom HTML tag <tg-slideshow>. */
 export interface RichBlockSlideshow {
   /** Type of the block, always “slideshow” */
-  readonly type: string;
+  readonly type: "slideshow";
   /** Elements of the slideshow */
   readonly blocks: ReadonlyArray<RichBlock>;
   /** Optional. Caption of the block */
@@ -7504,7 +7504,7 @@ export interface RichBlockSlideshow {
 }
 export const RichBlockSlideshow: Schema.Codec<RichBlockSlideshow> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("slideshow"),
     blocks: Schema.Array(Schema.suspend((): Schema.Codec<RichBlock> => RichBlock)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -7514,7 +7514,7 @@ export const RichBlockSlideshow: Schema.Codec<RichBlockSlideshow> = Schema.Struc
 /** A table, corresponding to the HTML tag <table>. */
 export interface RichBlockTable {
   /** Type of the block, always “table” */
-  readonly type: string;
+  readonly type: "table";
   /** Cells of the table */
   readonly cells: ReadonlyArray<ReadonlyArray<RichBlockTableCell>>;
   /** Optional. True, if the table has borders */
@@ -7529,7 +7529,7 @@ export interface RichBlockTable {
 }
 export const RichBlockTable: Schema.Codec<RichBlockTable> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("table"),
     cells: Schema.Array(Schema.Array(Schema.suspend((): Schema.Codec<RichBlockTableCell> => RichBlockTableCell))),
     is_bordered: Schema.optionalKey(Schema.Literal(true)),
     is_striped: Schema.optionalKey(Schema.Literal(true)),
@@ -7570,14 +7570,14 @@ export const RichBlockTableCell: Schema.Codec<RichBlockTableCell> = Schema.Struc
 /** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
 export interface RichBlockThinking {
   /** Type of the block, always “thinking” */
-  readonly type: string;
+  readonly type: "thinking";
   /** Text of the block. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichBlockThinking: Schema.Codec<RichBlockThinking> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("thinking"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7586,7 +7586,7 @@ export const RichBlockThinking: Schema.Codec<RichBlockThinking> = Schema.StructW
 /** A block with a video, corresponding to the HTML tag <video>. */
 export interface RichBlockVideo {
   /** Type of the block, always “video” */
-  readonly type: string;
+  readonly type: "video";
   /** The video */
   readonly video: Video;
   /** Optional. True, if the media preview is covered by a spoiler animation */
@@ -7597,7 +7597,7 @@ export interface RichBlockVideo {
 }
 export const RichBlockVideo: Schema.Codec<RichBlockVideo> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("video"),
     video: Schema.suspend((): Schema.Codec<Video> => Video),
     has_spoiler: Schema.optionalKey(Schema.Literal(true)),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
@@ -7608,7 +7608,7 @@ export const RichBlockVideo: Schema.Codec<RichBlockVideo> = Schema.StructWithRes
 /** A block with a voice note, corresponding to the HTML tag <audio>. */
 export interface RichBlockVoiceNote {
   /** Type of the block, always “voice_note” */
-  readonly type: string;
+  readonly type: "voice_note";
   /** The voice note */
   readonly voice_note: Voice;
   /** Optional. Caption of the block */
@@ -7617,7 +7617,7 @@ export interface RichBlockVoiceNote {
 }
 export const RichBlockVoiceNote: Schema.Codec<RichBlockVoiceNote> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("voice_note"),
     voice_note: Schema.suspend((): Schema.Codec<Voice> => Voice),
     caption: Schema.optionalKey(Schema.suspend((): Schema.Codec<RichBlockCaption> => RichBlockCaption)),
   }),
@@ -7690,14 +7690,14 @@ export const RichText: Schema.Codec<RichText> = Schema.Union([Schema.suspend(():
 /** An anchor. */
 export interface RichTextAnchor {
   /** Type of the rich text, always “anchor” */
-  readonly type: string;
+  readonly type: "anchor";
   /** The name of the anchor */
   readonly name: string;
   readonly [key: string]: unknown;
 }
 export const RichTextAnchor: Schema.Codec<RichTextAnchor> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("anchor"),
     name: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7706,7 +7706,7 @@ export const RichTextAnchor: Schema.Codec<RichTextAnchor> = Schema.StructWithRes
 /** A link to an anchor. */
 export interface RichTextAnchorLink {
   /** Type of the rich text, always “anchor_link” */
-  readonly type: string;
+  readonly type: "anchor_link";
   /** The link text */
   readonly text: RichText;
   /** The name of the anchor. If the name is empty, then the link brings back to the top of the message. */
@@ -7715,7 +7715,7 @@ export interface RichTextAnchorLink {
 }
 export const RichTextAnchorLink: Schema.Codec<RichTextAnchorLink> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("anchor_link"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     anchor_name: Schema.String,
   }),
@@ -7725,7 +7725,7 @@ export const RichTextAnchorLink: Schema.Codec<RichTextAnchorLink> = Schema.Struc
 /** A text with a bank card number. */
 export interface RichTextBankCardNumber {
   /** Type of the rich text, always “bank_card_number” */
-  readonly type: string;
+  readonly type: "bank_card_number";
   /** The text */
   readonly text: RichText;
   /** The bank card number */
@@ -7734,7 +7734,7 @@ export interface RichTextBankCardNumber {
 }
 export const RichTextBankCardNumber: Schema.Codec<RichTextBankCardNumber> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("bank_card_number"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     bank_card_number: Schema.String,
   }),
@@ -7744,14 +7744,14 @@ export const RichTextBankCardNumber: Schema.Codec<RichTextBankCardNumber> = Sche
 /** A bold text. */
 export interface RichTextBold {
   /** Type of the rich text, always “bold” */
-  readonly type: string;
+  readonly type: "bold";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextBold: Schema.Codec<RichTextBold> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("bold"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7760,7 +7760,7 @@ export const RichTextBold: Schema.Codec<RichTextBold> = Schema.StructWithRest(
 /** A bot command. */
 export interface RichTextBotCommand {
   /** Type of the rich text, always “bot_command” */
-  readonly type: string;
+  readonly type: "bot_command";
   /** The text */
   readonly text: RichText;
   /** The bot command */
@@ -7769,7 +7769,7 @@ export interface RichTextBotCommand {
 }
 export const RichTextBotCommand: Schema.Codec<RichTextBotCommand> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("bot_command"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     bot_command: Schema.String,
   }),
@@ -7779,14 +7779,14 @@ export const RichTextBotCommand: Schema.Codec<RichTextBotCommand> = Schema.Struc
 /** A button. */
 export interface RichTextButton {
   /** Type of the rich text, always “button” */
-  readonly type: string;
+  readonly type: "button";
   /** The button */
   readonly button: RichMessageButton;
   readonly [key: string]: unknown;
 }
 export const RichTextButton: Schema.Codec<RichTextButton> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("button"),
     button: Schema.suspend((): Schema.Codec<RichMessageButton> => RichMessageButton),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7795,7 +7795,7 @@ export const RichTextButton: Schema.Codec<RichTextButton> = Schema.StructWithRes
 /** A cashtag. */
 export interface RichTextCashtag {
   /** Type of the rich text, always “cashtag” */
-  readonly type: string;
+  readonly type: "cashtag";
   /** The text */
   readonly text: RichText;
   /** The cashtag */
@@ -7804,7 +7804,7 @@ export interface RichTextCashtag {
 }
 export const RichTextCashtag: Schema.Codec<RichTextCashtag> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("cashtag"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     cashtag: Schema.String,
   }),
@@ -7814,14 +7814,14 @@ export const RichTextCashtag: Schema.Codec<RichTextCashtag> = Schema.StructWithR
 /** A monowidth text. */
 export interface RichTextCode {
   /** Type of the rich text, always “code” */
-  readonly type: string;
+  readonly type: "code";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextCode: Schema.Codec<RichTextCode> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("code"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7830,7 +7830,7 @@ export const RichTextCode: Schema.Codec<RichTextCode> = Schema.StructWithRest(
 /** A custom emoji. */
 export interface RichTextCustomEmoji {
   /** Type of the rich text, always “custom_emoji” */
-  readonly type: string;
+  readonly type: "custom_emoji";
   /** Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker. */
   readonly custom_emoji_id: string;
   /** Alternative emoji for the custom emoji */
@@ -7839,7 +7839,7 @@ export interface RichTextCustomEmoji {
 }
 export const RichTextCustomEmoji: Schema.Codec<RichTextCustomEmoji> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("custom_emoji"),
     custom_emoji_id: Schema.String,
     alternative_text: Schema.String,
   }),
@@ -7849,7 +7849,7 @@ export const RichTextCustomEmoji: Schema.Codec<RichTextCustomEmoji> = Schema.Str
 /** Formatted date and time. */
 export interface RichTextDateTime {
   /** Type of the rich text, always “date_time” */
-  readonly type: string;
+  readonly type: "date_time";
   /** The text */
   readonly text: RichText;
   /** The Unix time associated with the entity */
@@ -7860,7 +7860,7 @@ export interface RichTextDateTime {
 }
 export const RichTextDateTime: Schema.Codec<RichTextDateTime> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("date_time"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     unix_time: Schema.Int,
     date_time_format: Schema.String,
@@ -7871,7 +7871,7 @@ export const RichTextDateTime: Schema.Codec<RichTextDateTime> = Schema.StructWit
 /** A text with an email address. */
 export interface RichTextEmailAddress {
   /** Type of the rich text, always “email_address” */
-  readonly type: string;
+  readonly type: "email_address";
   /** The text */
   readonly text: RichText;
   /** The email address */
@@ -7880,7 +7880,7 @@ export interface RichTextEmailAddress {
 }
 export const RichTextEmailAddress: Schema.Codec<RichTextEmailAddress> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("email_address"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     email_address: Schema.String,
   }),
@@ -7890,7 +7890,7 @@ export const RichTextEmailAddress: Schema.Codec<RichTextEmailAddress> = Schema.S
 /** A hashtag. */
 export interface RichTextHashtag {
   /** Type of the rich text, always “hashtag” */
-  readonly type: string;
+  readonly type: "hashtag";
   /** The text */
   readonly text: RichText;
   /** The hashtag */
@@ -7899,7 +7899,7 @@ export interface RichTextHashtag {
 }
 export const RichTextHashtag: Schema.Codec<RichTextHashtag> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("hashtag"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     hashtag: Schema.String,
   }),
@@ -7909,14 +7909,14 @@ export const RichTextHashtag: Schema.Codec<RichTextHashtag> = Schema.StructWithR
 /** An italicized text. */
 export interface RichTextItalic {
   /** Type of the rich text, always “italic” */
-  readonly type: string;
+  readonly type: "italic";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextItalic: Schema.Codec<RichTextItalic> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("italic"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7925,14 +7925,14 @@ export const RichTextItalic: Schema.Codec<RichTextItalic> = Schema.StructWithRes
 /** A marked text. */
 export interface RichTextMarked {
   /** Type of the rich text, always “marked” */
-  readonly type: string;
+  readonly type: "marked";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextMarked: Schema.Codec<RichTextMarked> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("marked"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7941,14 +7941,14 @@ export const RichTextMarked: Schema.Codec<RichTextMarked> = Schema.StructWithRes
 /** A mathematical expression. */
 export interface RichTextMathematicalExpression {
   /** Type of the rich text, always “mathematical_expression” */
-  readonly type: string;
+  readonly type: "mathematical_expression";
   /** The expression in LaTeX format */
   readonly expression: string;
   readonly [key: string]: unknown;
 }
 export const RichTextMathematicalExpression: Schema.Codec<RichTextMathematicalExpression> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mathematical_expression"),
     expression: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -7957,7 +7957,7 @@ export const RichTextMathematicalExpression: Schema.Codec<RichTextMathematicalEx
 /** A mention by a username. */
 export interface RichTextMention {
   /** Type of the rich text, always “mention” */
-  readonly type: string;
+  readonly type: "mention";
   /** The text */
   readonly text: RichText;
   /** The username */
@@ -7966,7 +7966,7 @@ export interface RichTextMention {
 }
 export const RichTextMention: Schema.Codec<RichTextMention> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("mention"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     username: Schema.String,
   }),
@@ -7976,7 +7976,7 @@ export const RichTextMention: Schema.Codec<RichTextMention> = Schema.StructWithR
 /** A text with a phone number. */
 export interface RichTextPhoneNumber {
   /** Type of the rich text, always “phone_number” */
-  readonly type: string;
+  readonly type: "phone_number";
   /** The text */
   readonly text: RichText;
   /** The phone number */
@@ -7985,7 +7985,7 @@ export interface RichTextPhoneNumber {
 }
 export const RichTextPhoneNumber: Schema.Codec<RichTextPhoneNumber> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("phone_number"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     phone_number: Schema.String,
   }),
@@ -7995,7 +7995,7 @@ export const RichTextPhoneNumber: Schema.Codec<RichTextPhoneNumber> = Schema.Str
 /** A reference. */
 export interface RichTextReference {
   /** Type of the rich text, always “reference” */
-  readonly type: string;
+  readonly type: "reference";
   /** Text of the reference */
   readonly text: RichText;
   /** The name of the reference */
@@ -8004,7 +8004,7 @@ export interface RichTextReference {
 }
 export const RichTextReference: Schema.Codec<RichTextReference> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("reference"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     name: Schema.String,
   }),
@@ -8014,7 +8014,7 @@ export const RichTextReference: Schema.Codec<RichTextReference> = Schema.StructW
 /** A link to a reference. */
 export interface RichTextReferenceLink {
   /** Type of the rich text, always “reference_link” */
-  readonly type: string;
+  readonly type: "reference_link";
   /** The link text */
   readonly text: RichText;
   /** The name of the reference */
@@ -8023,7 +8023,7 @@ export interface RichTextReferenceLink {
 }
 export const RichTextReferenceLink: Schema.Codec<RichTextReferenceLink> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("reference_link"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     reference_name: Schema.String,
   }),
@@ -8033,14 +8033,14 @@ export const RichTextReferenceLink: Schema.Codec<RichTextReferenceLink> = Schema
 /** A text covered by a spoiler. */
 export interface RichTextSpoiler {
   /** Type of the rich text, always “spoiler” */
-  readonly type: string;
+  readonly type: "spoiler";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextSpoiler: Schema.Codec<RichTextSpoiler> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("spoiler"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8049,14 +8049,14 @@ export const RichTextSpoiler: Schema.Codec<RichTextSpoiler> = Schema.StructWithR
 /** A strikethrough text. */
 export interface RichTextStrikethrough {
   /** Type of the rich text, always “strikethrough” */
-  readonly type: string;
+  readonly type: "strikethrough";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextStrikethrough: Schema.Codec<RichTextStrikethrough> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("strikethrough"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8065,14 +8065,14 @@ export const RichTextStrikethrough: Schema.Codec<RichTextStrikethrough> = Schema
 /** A subscript text. */
 export interface RichTextSubscript {
   /** Type of the rich text, always “subscript” */
-  readonly type: string;
+  readonly type: "subscript";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextSubscript: Schema.Codec<RichTextSubscript> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("subscript"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8081,14 +8081,14 @@ export const RichTextSubscript: Schema.Codec<RichTextSubscript> = Schema.StructW
 /** A superscript text. */
 export interface RichTextSuperscript {
   /** Type of the rich text, always “superscript” */
-  readonly type: string;
+  readonly type: "superscript";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextSuperscript: Schema.Codec<RichTextSuperscript> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("superscript"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8097,7 +8097,7 @@ export const RichTextSuperscript: Schema.Codec<RichTextSuperscript> = Schema.Str
 /** A mention of a Telegram user by their identifier. */
 export interface RichTextTextMention {
   /** Type of the rich text, always “text_mention” */
-  readonly type: string;
+  readonly type: "text_mention";
   /** The text */
   readonly text: RichText;
   /** The mentioned user */
@@ -8106,7 +8106,7 @@ export interface RichTextTextMention {
 }
 export const RichTextTextMention: Schema.Codec<RichTextTextMention> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("text_mention"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     user: Schema.suspend((): Schema.Codec<User> => User),
   }),
@@ -8116,14 +8116,14 @@ export const RichTextTextMention: Schema.Codec<RichTextTextMention> = Schema.Str
 /** An underlined text. */
 export interface RichTextUnderline {
   /** Type of the rich text, always “underline” */
-  readonly type: string;
+  readonly type: "underline";
   /** The text */
   readonly text: RichText;
   readonly [key: string]: unknown;
 }
 export const RichTextUnderline: Schema.Codec<RichTextUnderline> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("underline"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8132,7 +8132,7 @@ export const RichTextUnderline: Schema.Codec<RichTextUnderline> = Schema.StructW
 /** A text with a link. */
 export interface RichTextUrl {
   /** Type of the rich text, always “url” */
-  readonly type: string;
+  readonly type: "url";
   /** The text */
   readonly text: RichText;
   /** URL of the link */
@@ -8141,7 +8141,7 @@ export interface RichTextUrl {
 }
 export const RichTextUrl: Schema.Codec<RichTextUrl> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("url"),
     text: Schema.suspend((): Schema.Codec<RichText> => RichText),
     url: Schema.String,
   }),
@@ -8472,14 +8472,14 @@ export const StoryAreaType: Schema.Codec<StoryAreaType> = Schema.Union([Schema.s
 /** Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas. */
 export interface StoryAreaTypeLink {
   /** Type of the area, always “link” */
-  readonly type: string;
+  readonly type: "link";
   /** HTTP or tg:// URL to be opened when the area is clicked */
   readonly url: string;
   readonly [key: string]: unknown;
 }
 export const StoryAreaTypeLink: Schema.Codec<StoryAreaTypeLink> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("link"),
     url: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8488,7 +8488,7 @@ export const StoryAreaTypeLink: Schema.Codec<StoryAreaTypeLink> = Schema.StructW
 /** Describes a story area pointing to a location. Currently, a story can have up to 10 location areas. */
 export interface StoryAreaTypeLocation {
   /** Type of the area, always “location” */
-  readonly type: string;
+  readonly type: "location";
   /** Location latitude in degrees */
   readonly latitude: number;
   /** Location longitude in degrees */
@@ -8499,7 +8499,7 @@ export interface StoryAreaTypeLocation {
 }
 export const StoryAreaTypeLocation: Schema.Codec<StoryAreaTypeLocation> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("location"),
     latitude: Schema.Number,
     longitude: Schema.Number,
     address: Schema.optionalKey(Schema.suspend((): Schema.Codec<LocationAddress> => LocationAddress)),
@@ -8510,7 +8510,7 @@ export const StoryAreaTypeLocation: Schema.Codec<StoryAreaTypeLocation> = Schema
 /** Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas. */
 export interface StoryAreaTypeSuggestedReaction {
   /** Type of the area, always “suggested_reaction” */
-  readonly type: string;
+  readonly type: "suggested_reaction";
   /** Type of the reaction */
   readonly reaction_type: ReactionType;
   /** Optional. Pass True if the reaction area has a dark background */
@@ -8521,7 +8521,7 @@ export interface StoryAreaTypeSuggestedReaction {
 }
 export const StoryAreaTypeSuggestedReaction: Schema.Codec<StoryAreaTypeSuggestedReaction> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("suggested_reaction"),
     reaction_type: Schema.suspend((): Schema.Codec<ReactionType> => ReactionType),
     is_dark: Schema.optionalKey(Schema.Boolean),
     is_flipped: Schema.optionalKey(Schema.Boolean),
@@ -8532,14 +8532,14 @@ export const StoryAreaTypeSuggestedReaction: Schema.Codec<StoryAreaTypeSuggested
 /** Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area. */
 export interface StoryAreaTypeUniqueGift {
   /** Type of the area, always “unique_gift” */
-  readonly type: string;
+  readonly type: "unique_gift";
   /** Unique name of the gift */
   readonly name: string;
   readonly [key: string]: unknown;
 }
 export const StoryAreaTypeUniqueGift: Schema.Codec<StoryAreaTypeUniqueGift> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("unique_gift"),
     name: Schema.String,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8548,7 +8548,7 @@ export const StoryAreaTypeUniqueGift: Schema.Codec<StoryAreaTypeUniqueGift> = Sc
 /** Describes a story area containing weather information. Currently, a story can have up to 3 weather areas. */
 export interface StoryAreaTypeWeather {
   /** Type of the area, always “weather” */
-  readonly type: string;
+  readonly type: "weather";
   /** Temperature, in degree Celsius */
   readonly temperature: number;
   /** Emoji representing the weather */
@@ -8559,7 +8559,7 @@ export interface StoryAreaTypeWeather {
 }
 export const StoryAreaTypeWeather: Schema.Codec<StoryAreaTypeWeather> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("weather"),
     temperature: Schema.Number,
     emoji: Schema.String,
     background_color: Schema.Int,
@@ -8801,7 +8801,7 @@ export const TransactionPartner: Schema.Codec<TransactionPartner> = Schema.Union
 /** Describes the affiliate program that issued the affiliate commission received via this transaction. */
 export interface TransactionPartnerAffiliateProgram {
   /** Type of the transaction partner, always “affiliate_program” */
-  readonly type: string;
+  readonly type: "affiliate_program";
   /** Optional. Information about the bot that sponsored the affiliate program */
   readonly sponsor_user?: User;
   /** The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users */
@@ -8810,7 +8810,7 @@ export interface TransactionPartnerAffiliateProgram {
 }
 export const TransactionPartnerAffiliateProgram: Schema.Codec<TransactionPartnerAffiliateProgram> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("affiliate_program"),
     sponsor_user: Schema.optionalKey(Schema.suspend((): Schema.Codec<User> => User)),
     commission_per_mille: Schema.Int,
   }),
@@ -8820,7 +8820,7 @@ export const TransactionPartnerAffiliateProgram: Schema.Codec<TransactionPartner
 /** Describes a transaction with a chat. */
 export interface TransactionPartnerChat {
   /** Type of the transaction partner, always “chat” */
-  readonly type: string;
+  readonly type: "chat";
   /** Information about the chat */
   readonly chat: Chat;
   /** Optional. The gift sent to the chat by the bot */
@@ -8829,7 +8829,7 @@ export interface TransactionPartnerChat {
 }
 export const TransactionPartnerChat: Schema.Codec<TransactionPartnerChat> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("chat"),
     chat: Schema.suspend((): Schema.Codec<Chat> => Chat),
     gift: Schema.optionalKey(Schema.suspend((): Schema.Codec<Gift> => Gift)),
   }),
@@ -8839,14 +8839,14 @@ export const TransactionPartnerChat: Schema.Codec<TransactionPartnerChat> = Sche
 /** Describes a withdrawal transaction with Fragment. */
 export interface TransactionPartnerFragment {
   /** Type of the transaction partner, always “fragment” */
-  readonly type: string;
+  readonly type: "fragment";
   /** Optional. State of the transaction if the transaction is outgoing */
   readonly withdrawal_state?: RevenueWithdrawalState;
   readonly [key: string]: unknown;
 }
 export const TransactionPartnerFragment: Schema.Codec<TransactionPartnerFragment> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("fragment"),
     withdrawal_state: Schema.optionalKey(Schema.suspend((): Schema.Codec<RevenueWithdrawalState> => RevenueWithdrawalState)),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8855,12 +8855,12 @@ export const TransactionPartnerFragment: Schema.Codec<TransactionPartnerFragment
 /** Describes a transaction with an unknown source or recipient. */
 export interface TransactionPartnerOther {
   /** Type of the transaction partner, always “other” */
-  readonly type: string;
+  readonly type: "other";
   readonly [key: string]: unknown;
 }
 export const TransactionPartnerOther: Schema.Codec<TransactionPartnerOther> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("other"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -8868,12 +8868,12 @@ export const TransactionPartnerOther: Schema.Codec<TransactionPartnerOther> = Sc
 /** Describes a withdrawal transaction to the Telegram Ads platform. */
 export interface TransactionPartnerTelegramAds {
   /** Type of the transaction partner, always “telegram_ads” */
-  readonly type: string;
+  readonly type: "telegram_ads";
   readonly [key: string]: unknown;
 }
 export const TransactionPartnerTelegramAds: Schema.Codec<TransactionPartnerTelegramAds> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("telegram_ads"),
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
 );
@@ -8881,14 +8881,14 @@ export const TransactionPartnerTelegramAds: Schema.Codec<TransactionPartnerTeleg
 /** Describes a transaction with payment for paid broadcasting. */
 export interface TransactionPartnerTelegramApi {
   /** Type of the transaction partner, always “telegram_api” */
-  readonly type: string;
+  readonly type: "telegram_api";
   /** The number of successful requests that exceeded regular limits and were therefore billed */
   readonly request_count: number;
   readonly [key: string]: unknown;
 }
 export const TransactionPartnerTelegramApi: Schema.Codec<TransactionPartnerTelegramApi> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("telegram_api"),
     request_count: Schema.Int,
   }),
   [Schema.Record(Schema.String, Schema.Unknown)],
@@ -8897,7 +8897,7 @@ export const TransactionPartnerTelegramApi: Schema.Codec<TransactionPartnerTeleg
 /** Describes a transaction with a user. */
 export interface TransactionPartnerUser {
   /** Type of the transaction partner, always “user” */
-  readonly type: string;
+  readonly type: "user";
   /** Type of the transaction, currently one of “invoice_payment” for payments via invoices, “paid_media_payment” for payments for paid media, “gift_purchase” for gifts sent by the bot, “premium_purchase” for Telegram Premium subscriptions gifted by the bot, “business_account_transfer” for direct transfers from managed business accounts */
   readonly transaction_type: string;
   /** Information about the user */
@@ -8920,7 +8920,7 @@ export interface TransactionPartnerUser {
 }
 export const TransactionPartnerUser: Schema.Codec<TransactionPartnerUser> = Schema.StructWithRest(
   Schema.Struct({
-    type: Schema.String,
+    type: Schema.Literal("user"),
     transaction_type: Schema.String,
     user: Schema.suspend((): Schema.Codec<User> => User),
     affiliate: Schema.optionalKey(Schema.suspend((): Schema.Codec<AffiliateInfo> => AffiliateInfo)),
