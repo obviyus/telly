@@ -292,9 +292,9 @@
       "status": "blocked"
     },
     "getAvailableGifts": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:47:23.909Z",
+      "status": "proven"
     },
     "getBusinessAccountGifts": {
       "expires_on": "2026-09-23",
@@ -352,9 +352,9 @@
       "status": "blocked"
     },
     "getForumTopicIconStickers": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:47:23.935Z",
+      "status": "proven"
     },
     "getGameHighScores": {
       "expires_on": "2026-09-23",
@@ -372,9 +372,9 @@
       "status": "blocked"
     },
     "getMe": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMe/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:47:23.954Z",
+      "status": "proven"
     },
     "getMyCommands": {
       "expires_on": "2026-09-23",
@@ -402,9 +402,9 @@
       "status": "blocked"
     },
     "getMyStarBalance": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyStarBalance/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:47:23.977Z",
+      "status": "proven"
     },
     "getStarTransactions": {
       "expires_on": "2026-09-23",
@@ -447,9 +447,9 @@
       "status": "blocked"
     },
     "getWebhookInfo": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getWebhookInfo/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:49:46.814Z",
+      "status": "proven"
     },
     "giftPremiumSubscription": {
       "expires_on": "2026-09-23",

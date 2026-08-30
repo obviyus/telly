@@ -6,7 +6,7 @@ const [root, testing] = await Promise.all([
 if (!root.Application || !root.Bot || !root.BotApiError) {
   throw new Error("telly application exports are incomplete");
 }
-if (!root.sendMessage || !root.SendMessageParams) {
+if (!root.getMe || !root.sendMessage || !root.SendMessageParams) {
   throw new Error("telly method exports are incomplete");
 }
 if (!testing.FakeBotApi || !testing.FakeBotApiReply) {
@@ -34,6 +34,15 @@ const message = await Effect.runPromise(
 );
 if (message.messageId !== 41 || message.chat.id !== 29 || message.text !== "node-smoke") {
   throw new Error("sendMessage failed under Node.js");
+}
+fake.enqueue(testing.FakeBotApiReply.ok({
+  first_name: "Node Smoke",
+  id: 59,
+  is_bot: true,
+}));
+const botUser = await Effect.runPromise(root.getMe().pipe(Effect.provide(bot)));
+if (botUser.id !== 59 || botUser.firstName !== "Node Smoke" || botUser.isBot !== true) {
+  throw new Error("getMe failed under Node.js");
 }
 
 const invalidFake = testing.FakeBotApi.make({

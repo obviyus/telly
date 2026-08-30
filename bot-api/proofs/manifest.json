@@ -1,4 +1,24 @@
 {
+  "getAvailableGifts": {
+    "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:47:23.909Z"
+  },
+  "getForumTopicIconStickers": {
+    "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:47:23.935Z"
+  },
+  "getMe": {
+    "artifact": "bot-api/proofs/getMe/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:47:23.954Z"
+  },
+  "getMyStarBalance": {
+    "artifact": "bot-api/proofs/getMyStarBalance/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:47:23.977Z"
+  },
+  "getWebhookInfo": {
+    "artifact": "bot-api/proofs/getWebhookInfo/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:49:46.814Z"
+  },
   "sendMessage": {
     "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
     "recorded_time": "2026-08-30T13:55:04.034Z"
