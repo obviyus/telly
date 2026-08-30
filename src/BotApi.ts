@@ -78,34 +78,66 @@ function scrub(description: string, token: string): string {
   return description.replaceAll(token, "<token>");
 }
 
-function invalidResponse(method: string, description: string, token: string) {
+function invalidResponse(
+  method: string,
+  description: string,
+  token: string,
+  retrySafe: boolean,
+) {
   return new BotApiError({
     method,
     reason: {
       _tag: "InvalidResponse",
       description: scrub(description, token),
     },
-    retrySafe: false,
+    retrySafe,
   });
 }
 
-function transportError(method: string, error: unknown, token: string) {
+function transportError(method: string, error: unknown, token: string, retrySafe: boolean) {
   return new BotApiError({
     method,
     reason: {
       _tag: "Transport",
       description: scrub(describeError(error), token),
     },
-    retrySafe: false,
+    retrySafe,
   });
 }
 
-function decodeEnvelope(response: HttpClientResponse.HttpClientResponse, method: string, token: string) {
+function telegramRejected(
+  method: string,
+  failure: typeof TelegramFailure.Type,
+  token: string,
+) {
+  return new BotApiError({
+    method,
+    reason: {
+      _tag: "TelegramRejected",
+      description: scrub(failure.description, token),
+      errorCode: failure.error_code,
+      ...(failure.parameters?.migrate_to_chat_id === undefined
+        ? {}
+        : { migrateToChatId: failure.parameters.migrate_to_chat_id }),
+      ...(failure.parameters?.retry_after === undefined
+        ? {}
+        : { retryAfter: failure.parameters.retry_after }),
+    },
+    retrySafe: true,
+  });
+}
+
+function decodeEnvelope(
+  response: HttpClientResponse.HttpClientResponse,
+  method: string,
+  token: string,
+  retrySafe: boolean,
+) {
   return response.json.pipe(
-    Effect.mapError((error) => invalidResponse(method, describeError(error), token)),
+    Effect.mapError((error) => invalidResponse(method, describeError(error), token, retrySafe)),
     Effect.flatMap((body) =>
       Schema.decodeUnknownEffect(TelegramEnvelope)(body).pipe(
-        Effect.mapError((error) => invalidResponse(method, error.message, token)),
+        Effect.mapError((error) => invalidResponse(method, error.message, token, retrySafe)),
       ),
     ),
   );
@@ -119,6 +151,9 @@ export class Bot extends Context.Service<
       method: string,
       params?: object,
     ) => Effect.Effect<unknown, BotApiError>;
+    readonly downloadRaw: (
+      filePath: string,
+    ) => Effect.Effect<Uint8Array, BotApiError>;
   }
 >()("telly/Bot") {
   static layer(options: BotApiOptions): Layer.Layer<Bot, never, HttpClient.HttpClient> {
@@ -139,30 +174,42 @@ export class Bot extends Context.Service<
           ).pipe(HttpClientRequest.bodyJsonUnsafe(params));
           const response = yield* client.execute(request).pipe(
             Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
-            Effect.mapError((error) => transportError(method, error, token)),
+            Effect.mapError((error) => transportError(method, error, token, false)),
           );
-          const envelope = yield* decodeEnvelope(response, method, token);
+          const envelope = yield* decodeEnvelope(response, method, token, false);
           if (!envelope.ok) {
-            return yield* new BotApiError({
-              method,
-              reason: {
-                _tag: "TelegramRejected",
-                description: scrub(envelope.description, token),
-                errorCode: envelope.error_code,
-                ...(envelope.parameters?.migrate_to_chat_id === undefined
-                  ? {}
-                  : { migrateToChatId: envelope.parameters.migrate_to_chat_id }),
-                ...(envelope.parameters?.retry_after === undefined
-                  ? {}
-                  : { retryAfter: envelope.parameters.retry_after }),
-              },
-              retrySafe: true,
-            });
+            return yield* telegramRejected(method, envelope, token);
           }
           return envelope.result;
         });
 
-        return Bot.of({ callRaw });
+        const downloadRaw = Effect.fn("Bot.downloadRaw")(function* (filePath: string) {
+          yield* Effect.annotateCurrentSpan({ method: "downloadFile" });
+          const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
+          const request = HttpClientRequest.get(`${apiRoot}/file/bot${token}/${encodedPath}`);
+          const response = yield* client.execute(request).pipe(
+            Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
+            Effect.mapError((error) => transportError("downloadFile", error, token, true)),
+          );
+          if (response.status === 200) {
+            const buffer = yield* response.arrayBuffer.pipe(
+              Effect.mapError((error) => transportError("downloadFile", error, token, true)),
+            );
+            return new Uint8Array(buffer);
+          }
+          const envelope = yield* decodeEnvelope(response, "downloadFile", token, true);
+          if (!envelope.ok) {
+            return yield* telegramRejected("downloadFile", envelope, token);
+          }
+          return yield* invalidResponse(
+            "downloadFile",
+            `file endpoint returned an unexpected success envelope with status ${response.status}`,
+            token,
+            true,
+          );
+        });
+
+        return Bot.of({ callRaw, downloadRaw });
       }),
     );
   }

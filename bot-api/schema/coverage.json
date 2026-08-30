@@ -342,14 +342,14 @@
       "status": "proven"
     },
     "getCustomEmojiStickers": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getCustomEmojiStickers/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:18:19.438Z",
+      "status": "proven"
     },
     "getFile": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getFile/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:18:19.838Z",
+      "status": "proven"
     },
     "getForumTopicIconStickers": {
       "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
@@ -412,9 +412,9 @@
       "status": "proven"
     },
     "getStickerSet": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getStickerSet/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:18:19.857Z",
+      "status": "proven"
     },
     "getUpdates": {
       "expires_on": "2026-09-23",

@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const entries = [
   ["src/Application.ts", "Application.js", "Application.js"],
   ["src/BotApi.ts", "BotApi.js", "BotApi.js"],
+  ["src/Files.ts", "Files.js", "Files.js"],
   ["src/methods.generated.ts", "methods.generated.js", "methods.js"],
   ["src/testing/FakeBotApi.ts", "FakeBotApi.js", "testing.js"],
   ["src/types.generated.ts", "types.generated.js", "types.js"],
@@ -42,6 +43,7 @@ try {
     [
       'export { Application } from "./Application.js";',
       'export { Bot, BotApiError } from "./BotApi.js";',
+      'export { downloadFile } from "./Files.js";',
       'export * from "./methods.js";',
       'export * from "./types.js";',
       "",

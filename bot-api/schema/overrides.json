@@ -21,6 +21,12 @@
     "getChatMenuButton": {
       "retrySafe": true
     },
+    "getCustomEmojiStickers": {
+      "retrySafe": true
+    },
+    "getFile": {
+      "retrySafe": true
+    },
     "getForumTopicIconStickers": {
       "retrySafe": true
     },
@@ -46,6 +52,9 @@
       "retrySafe": true
     },
     "getStarTransactions": {
+      "retrySafe": true
+    },
+    "getStickerSet": {
       "retrySafe": true
     },
     "getUserChatBoosts": {

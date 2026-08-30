@@ -1,0 +1,15 @@
+{
+  "method": "downloadFile",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:18:19.900Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 43,
+      "kind": "bot_api_result",
+      "observation": {
+        "byteLength": 2197
+      }
+    }
+  ]
+}

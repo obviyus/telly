@@ -1,0 +1,16 @@
+{
+  "method": "getFile",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:18:19.838Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 399,
+      "kind": "bot_api_result",
+      "observation": {
+        "fileSize": 2197,
+        "hasFilePath": true
+      }
+    }
+  ]
+}

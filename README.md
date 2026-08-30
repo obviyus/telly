@@ -32,6 +32,8 @@ try {
 
 A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
 
+`downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.
+
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
 
 ## Bot API schema

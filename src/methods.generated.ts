@@ -198,6 +198,56 @@ export const getChatMenuButton = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects. */
+export interface GetCustomEmojiStickersParams {
+  /** A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified. */
+  readonly customEmojiIds: ReadonlyArray<string>;
+}
+const _GetCustomEmojiStickersParamsPublicKeys = { custom_emoji_ids: "customEmojiIds" } as const;
+const _GetCustomEmojiStickersParamsWireKeys = invertKeys(_GetCustomEmojiStickersParamsPublicKeys);
+const _GetCustomEmojiStickersParamsEncoded = Schema.Struct({
+  custom_emoji_ids: Schema.Array(Schema.String),
+});
+const _GetCustomEmojiStickersParamsDecoded = Schema.declare<GetCustomEmojiStickersParams>((input): input is GetCustomEmojiStickersParams => Predicate.isObject(input));
+export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersParams, Readonly<Record<string, unknown>>> = _GetCustomEmojiStickersParamsEncoded.pipe(
+  Schema.decodeTo(_GetCustomEmojiStickersParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetCustomEmojiStickersParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetCustomEmojiStickersParamsWireKeys)),
+  }),
+);
+
+export const getCustomEmojiStickers = callMethod({
+  method: "getCustomEmojiStickers",
+  params: GetCustomEmojiStickersParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
+  retrySafe: true,
+});
+
+/** Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again. */
+export interface GetFileParams {
+  /** File identifier to get information about */
+  readonly fileId: string;
+}
+const _GetFileParamsPublicKeys = { file_id: "fileId" } as const;
+const _GetFileParamsWireKeys = invertKeys(_GetFileParamsPublicKeys);
+const _GetFileParamsEncoded = Schema.Struct({
+  file_id: Schema.String,
+});
+const _GetFileParamsDecoded = Schema.declare<GetFileParams>((input): input is GetFileParams => Predicate.isObject(input));
+export const GetFileParams: Schema.Codec<GetFileParams, Readonly<Record<string, unknown>>> = _GetFileParamsEncoded.pipe(
+  Schema.decodeTo(_GetFileParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetFileParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetFileParamsWireKeys)),
+  }),
+);
+
+export const getFile = callMethod({
+  method: "getFile",
+  params: GetFileParams,
+  result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
+  retrySafe: true,
+});
+
 /** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
 export const getForumTopicIconStickers = callMethod({
   method: "getForumTopicIconStickers",
@@ -363,6 +413,22 @@ export const getStarTransactions = callMethod({
   method: "getStarTransactions",
   params: GetStarTransactionsParams,
   result: Schema.suspend((): Schema.Codec<Types.StarTransactions, unknown> => Types.StarTransactions),
+  retrySafe: true,
+});
+
+/** Use this method to get a sticker set. On success, a StickerSet object is returned. */
+export interface GetStickerSetParams {
+  /** Name of the sticker set */
+  readonly name: string;
+}
+export const GetStickerSetParams: Schema.Codec<GetStickerSetParams> = Schema.Struct({
+  name: Schema.String,
+});
+
+export const getStickerSet = callMethod({
+  method: "getStickerSet",
+  params: GetStickerSetParams,
+  result: Schema.suspend((): Schema.Codec<Types.StickerSet, unknown> => Types.StickerSet),
   retrySafe: true,
 });
 
