@@ -34,6 +34,16 @@
     "recorded_time": "2026-08-30T16:57:06.343Z",
     "status": "proven"
   },
+  "getCustomEmojiStickers": {
+    "artifact": "bot-api/proofs/getCustomEmojiStickers/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:18:19.438Z",
+    "status": "proven"
+  },
+  "getFile": {
+    "artifact": "bot-api/proofs/getFile/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:18:19.838Z",
+    "status": "proven"
+  },
   "getForumTopicIconStickers": {
     "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.935Z",
@@ -77,6 +87,11 @@
   "getStarTransactions": {
     "artifact": "bot-api/proofs/getStarTransactions/2026-08-30.json",
     "recorded_time": "2026-08-30T16:57:06.505Z",
+    "status": "proven"
+  },
+  "getStickerSet": {
+    "artifact": "bot-api/proofs/getStickerSet/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:18:19.857Z",
     "status": "proven"
   },
   "getUserChatBoosts": {

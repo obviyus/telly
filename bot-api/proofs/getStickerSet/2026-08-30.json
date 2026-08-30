@@ -1,0 +1,16 @@
+{
+  "method": "getStickerSet",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:18:19.857Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 19,
+      "kind": "bot_api_result",
+      "observation": {
+        "stickerCount": 7,
+        "type": "custom_emoji"
+      }
+    }
+  ]
+}

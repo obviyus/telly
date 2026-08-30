@@ -44,6 +44,18 @@ const botUser = await Effect.runPromise(root.getMe().pipe(Effect.provide(bot)));
 if (botUser.id !== 59 || botUser.firstName !== "Node Smoke" || botUser.isBot !== true) {
   throw new Error("getMe failed under Node.js");
 }
+fake.enqueue(testing.FakeBotApiReply.ok({
+  file_id: "node-file",
+  file_path: "documents/node.bin",
+  file_unique_id: "node-unique",
+}));
+fake.enqueue(testing.FakeBotApiReply.file(new Uint8Array([2, 7, 1, 8])));
+const fileBytes = await Effect.runPromise(
+  root.downloadFile({ fileId: "node-file" }).pipe(Effect.provide(bot)),
+);
+if (!(fileBytes instanceof Uint8Array) || fileBytes.join(",") !== "2,7,1,8") {
+  throw new Error("downloadFile failed under Node.js");
+}
 
 const invalidFake = testing.FakeBotApi.make({
   replies: [testing.FakeBotApiReply.ok({ message_id: "invalid" })],

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   Application,
+  downloadFile,
   getAvailableGifts,
   getChat,
   getChatAdministrators,
@@ -11,6 +12,8 @@ import {
   getChatMember,
   getChatMemberCount,
   getChatMenuButton,
+  getCustomEmojiStickers,
+  getFile,
   getForumTopicIconStickers,
   getMe,
   getMyCommands,
@@ -20,6 +23,7 @@ import {
   getMyShortDescription,
   getMyStarBalance,
   getStarTransactions,
+  getStickerSet,
   getUserChatBoosts,
   getUserGifts,
   getUserPersonalChatMessages,
@@ -178,10 +182,59 @@ try {
     },
   ];
   const requestedMethods = process.env.TELLY_E2E_METHODS?.split(",").filter(Boolean);
+  const fileMethodNames = new Set([
+    "downloadFile",
+    "getCustomEmojiStickers",
+    "getFile",
+    "getStickerSet",
+  ]);
+  const needsFileSticker = requestedMethods === undefined ||
+    requestedMethods.some((name) => fileMethodNames.has(name));
+  let fileMethods = [];
+  if (needsFileSticker) {
+    const stickers = await app.run(getForumTopicIconStickers());
+    const sticker = stickers.find((item) =>
+      item.customEmojiId !== undefined && item.setName !== undefined
+    );
+    if (sticker === undefined) {
+      throw new Error("Telegram returned no reusable forum icon sticker");
+    }
+    fileMethods = [
+      {
+        name: "downloadFile",
+        operation: () => downloadFile({ fileId: sticker.fileId }),
+        summarize: (result) => ({ byteLength: result.byteLength }),
+      },
+      {
+        name: "getCustomEmojiStickers",
+        operation: () => getCustomEmojiStickers({
+          customEmojiIds: [sticker.customEmojiId],
+        }),
+        summarize: (result) => ({ stickerCount: result.length }),
+      },
+      {
+        name: "getFile",
+        operation: () => getFile({ fileId: sticker.fileId }),
+        summarize: (result) => ({
+          fileSize: result.fileSize ?? null,
+          hasFilePath: result.filePath !== undefined,
+        }),
+      },
+      {
+        name: "getStickerSet",
+        operation: () => getStickerSet({ name: sticker.setName }),
+        summarize: (result) => ({
+          stickerCount: result.stickers.length,
+          type: result.stickerType,
+        }),
+      },
+    ];
+  }
+  const availableMethods = [...methods, ...fileMethods];
   const selectedMethods = requestedMethods === undefined
-    ? methods
+    ? availableMethods
     : requestedMethods.map((name) => {
-        const method = methods.find((candidate) => candidate.name === name);
+        const method = availableMethods.find((candidate) => candidate.name === name);
         if (method === undefined) throw new Error(`Unknown read-only method ${name}`);
         return method;
       });
