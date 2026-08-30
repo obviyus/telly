@@ -179,10 +179,16 @@
     "banChatSenderChat": {
       "retrySafe": true
     },
+    "close": {
+      "retrySafe": true
+    },
     "closeForumTopic": {
       "retrySafe": true
     },
     "closeGeneralForumTopic": {
+      "retrySafe": true
+    },
+    "convertGiftToStars": {
       "retrySafe": true
     },
     "copyMessage": {
@@ -203,10 +209,19 @@
     "createInvoiceLink": {
       "retrySafe": false
     },
+    "createNewStickerSet": {
+      "retrySafe": true
+    },
     "declineChatJoinRequest": {
       "retrySafe": true
     },
     "declineSuggestedPost": {
+      "retrySafe": true
+    },
+    "deleteAllMessageReactions": {
+      "retrySafe": true
+    },
+    "deleteBusinessMessages": {
       "retrySafe": true
     },
     "deleteChatPhoto": {
@@ -215,10 +230,34 @@
     "deleteChatStickerSet": {
       "retrySafe": true
     },
+    "deleteEphemeralMessage": {
+      "retrySafe": true
+    },
     "deleteForumTopic": {
       "retrySafe": true
     },
+    "deleteMessage": {
+      "retrySafe": true
+    },
+    "deleteMessageReaction": {
+      "retrySafe": true
+    },
+    "deleteMessages": {
+      "retrySafe": true
+    },
     "deleteMyCommands": {
+      "retrySafe": true
+    },
+    "deleteStickerFromSet": {
+      "retrySafe": true
+    },
+    "deleteStickerSet": {
+      "retrySafe": true
+    },
+    "deleteStory": {
+      "retrySafe": true
+    },
+    "deleteWebhook": {
       "retrySafe": true
     },
     "editChatInviteLink": {
@@ -227,10 +266,46 @@
     "editChatSubscriptionInviteLink": {
       "retrySafe": true
     },
+    "editEphemeralMessageCaption": {
+      "retrySafe": true
+    },
+    "editEphemeralMessageMedia": {
+      "retrySafe": true
+    },
+    "editEphemeralMessageReplyMarkup": {
+      "retrySafe": true
+    },
+    "editEphemeralMessageText": {
+      "retrySafe": true
+    },
     "editForumTopic": {
       "retrySafe": true
     },
     "editGeneralForumTopic": {
+      "retrySafe": true
+    },
+    "editMessageCaption": {
+      "retrySafe": true
+    },
+    "editMessageChecklist": {
+      "retrySafe": true
+    },
+    "editMessageLiveLocation": {
+      "retrySafe": true
+    },
+    "editMessageMedia": {
+      "retrySafe": true
+    },
+    "editMessageReplyMarkup": {
+      "retrySafe": true
+    },
+    "editMessageText": {
+      "retrySafe": true
+    },
+    "editStory": {
+      "retrySafe": true
+    },
+    "editUserStarSubscription": {
       "retrySafe": true
     },
     "exportChatInviteLink": {
@@ -318,6 +393,9 @@
     "getStickerSet": {
       "retrySafe": true
     },
+    "getUpdates": {
+      "retrySafe": true
+    },
     "getUserChatBoosts": {
       "retrySafe": true
     },
@@ -345,6 +423,9 @@
     "leaveChat": {
       "retrySafe": true
     },
+    "logOut": {
+      "retrySafe": true
+    },
     "pinChatMessage": {
       "retrySafe": false
     },
@@ -354,7 +435,22 @@
     "promoteChatMember": {
       "retrySafe": true
     },
+    "readBusinessMessage": {
+      "retrySafe": true
+    },
+    "refundStarPayment": {
+      "retrySafe": true
+    },
+    "removeBusinessAccountProfilePhoto": {
+      "retrySafe": true
+    },
     "removeChatVerification": {
+      "retrySafe": true
+    },
+    "removeMyProfilePhoto": {
+      "retrySafe": true
+    },
+    "removeUserVerification": {
       "retrySafe": true
     },
     "reopenForumTopic": {
@@ -366,6 +462,9 @@
     "replaceManagedBotToken": {
       "resultSchema": "Schema.RedactedFromValue(Schema.String, { label: \"Telegram bot token\" })",
       "retrySafe": false
+    },
+    "replaceStickerInSet": {
+      "retrySafe": true
     },
     "repostStory": {
       "retrySafe": false
@@ -427,6 +526,9 @@
     "sendMessage": {
       "retrySafe": false
     },
+    "sendMessageDraft": {
+      "retrySafe": true
+    },
     "sendPaidMedia": {
       "retrySafe": false
     },
@@ -438,6 +540,9 @@
     },
     "sendRichMessage": {
       "retrySafe": false
+    },
+    "sendRichMessageDraft": {
+      "retrySafe": true
     },
     "sendSticker": {
       "retrySafe": false
@@ -454,8 +559,20 @@
     "sendVoice": {
       "retrySafe": false
     },
+    "setBusinessAccountBio": {
+      "retrySafe": true
+    },
+    "setBusinessAccountGiftSettings": {
+      "retrySafe": true
+    },
+    "setBusinessAccountName": {
+      "retrySafe": true
+    },
     "setBusinessAccountProfilePhoto": {
       "retrySafe": false
+    },
+    "setBusinessAccountUsername": {
+      "retrySafe": true
     },
     "setChatAdministratorCustomTitle": {
       "retrySafe": true
@@ -464,6 +581,9 @@
       "retrySafe": true
     },
     "setChatMemberTag": {
+      "retrySafe": true
+    },
+    "setChatMenuButton": {
       "retrySafe": true
     },
     "setChatPermissions": {
@@ -476,6 +596,18 @@
       "retrySafe": true
     },
     "setChatTitle": {
+      "retrySafe": true
+    },
+    "setCustomEmojiStickerSetThumbnail": {
+      "retrySafe": true
+    },
+    "setGameScore": {
+      "retrySafe": true
+    },
+    "setManagedBotAccessSettings": {
+      "retrySafe": true
+    },
+    "setMessageReaction": {
       "retrySafe": true
     },
     "setMyCommands": {
@@ -496,8 +628,44 @@
     "setMyShortDescription": {
       "retrySafe": true
     },
+    "setPassportDataErrors": {
+      "retrySafe": true
+    },
+    "setStickerEmojiList": {
+      "retrySafe": true
+    },
+    "setStickerKeywords": {
+      "retrySafe": true
+    },
+    "setStickerMaskPosition": {
+      "retrySafe": true
+    },
+    "setStickerPositionInSet": {
+      "retrySafe": true
+    },
+    "setStickerSetThumbnail": {
+      "retrySafe": true
+    },
+    "setStickerSetTitle": {
+      "retrySafe": true
+    },
+    "setUserEmojiStatus": {
+      "retrySafe": true
+    },
+    "setWebhook": {
+      "retrySafe": true
+    },
+    "stopMessageLiveLocation": {
+      "retrySafe": true
+    },
+    "stopPoll": {
+      "retrySafe": true
+    },
     "transferBusinessAccountStars": {
       "retrySafe": false
+    },
+    "transferGift": {
+      "retrySafe": true
     },
     "unbanChatMember": {
       "retrySafe": true
@@ -518,6 +686,9 @@
       "retrySafe": true
     },
     "unpinChatMessage": {
+      "retrySafe": true
+    },
+    "upgradeGift": {
       "retrySafe": true
     },
     "uploadStickerFile": {

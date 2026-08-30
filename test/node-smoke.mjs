@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 const [root, testing] = await Promise.all([
   import("telly"),
   import("telly/testing"),
@@ -14,6 +16,15 @@ if (!testing.FakeBotApi || !testing.FakeBotApiReply) {
 }
 if (!root.Message || !root.Chat || !root.User) {
   throw new Error("telly type exports are incomplete");
+}
+const overrides = JSON.parse(readFileSync(
+  new URL("../bot-api/schema/overrides.json", import.meta.url),
+  "utf8",
+));
+for (const method of Object.keys(overrides.methods)) {
+  if (typeof root[method] !== "function") {
+    throw new Error(`telly root does not export ${method}`);
+  }
 }
 
 for (const removedPath of ["telly/methods", "telly/types"]) {

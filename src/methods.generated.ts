@@ -386,6 +386,13 @@ export const banChatSenderChat = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters. */
+export const close = callMethod({
+  method: "close",
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 export interface CloseForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
@@ -435,6 +442,34 @@ export const CloseGeneralForumTopicParams: Schema.Codec<CloseGeneralForumTopicPa
 export const closeGeneralForumTopic = callMethod({
   method: "closeGeneralForumTopic",
   params: CloseGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars business bot right. Returns True on success. */
+export interface ConvertGiftToStarsParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the regular gift that should be converted to Telegram Stars */
+  readonly ownedGiftId: string;
+}
+const _ConvertGiftToStarsParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId" } as const;
+const _ConvertGiftToStarsParamsWireKeys = invertKeys(_ConvertGiftToStarsParamsPublicKeys);
+const _ConvertGiftToStarsParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  owned_gift_id: Schema.String,
+});
+const _ConvertGiftToStarsParamsDecoded = Schema.declare<ConvertGiftToStarsParams>((input): input is ConvertGiftToStarsParams => Predicate.isObject(input));
+export const ConvertGiftToStarsParams: Schema.Codec<ConvertGiftToStarsParams, Readonly<Record<string, unknown>>> = _ConvertGiftToStarsParamsEncoded.pipe(
+  Schema.decodeTo(_ConvertGiftToStarsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ConvertGiftToStarsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ConvertGiftToStarsParamsWireKeys)),
+  }),
+);
+
+export const convertGiftToStars = callMethod({
+  method: "convertGiftToStars",
+  params: ConvertGiftToStarsParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -751,6 +786,46 @@ export const createInvoiceLink = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success. */
+export interface CreateNewStickerSetParams {
+  /** User identifier of created sticker set owner */
+  readonly userId: number;
+  /** Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only English letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in "_by_<bot_username>". <bot_username> is case insensitive. 1-64 characters. */
+  readonly name: string;
+  /** Sticker set title, 1-64 characters */
+  readonly title: string;
+  /** A JSON-serialized list of 1-50 initial stickers to be added to the sticker set */
+  readonly stickers: ReadonlyArray<Types.InputSticker>;
+  /** Type of stickers in the set, pass “regular”, “mask”, or “custom_emoji”. By default, a regular sticker set is created. */
+  readonly stickerType?: Types.StickerType | undefined;
+  /** Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only */
+  readonly needsRepainting?: boolean | undefined;
+}
+const _CreateNewStickerSetParamsPublicKeys = { user_id: "userId", sticker_type: "stickerType", needs_repainting: "needsRepainting" } as const;
+const _CreateNewStickerSetParamsWireKeys = invertKeys(_CreateNewStickerSetParamsPublicKeys);
+const _CreateNewStickerSetParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  name: Schema.String,
+  title: Schema.String,
+  stickers: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker)),
+  sticker_type: Schema.optional(Schema.suspend((): Schema.Codec<Types.StickerType, unknown> => Types.StickerType)),
+  needs_repainting: Schema.optional(Schema.Boolean),
+});
+const _CreateNewStickerSetParamsDecoded = Schema.declare<CreateNewStickerSetParams>((input): input is CreateNewStickerSetParams => Predicate.isObject(input));
+export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, Readonly<Record<string, unknown>>> = _CreateNewStickerSetParamsEncoded.pipe(
+  Schema.decodeTo(_CreateNewStickerSetParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CreateNewStickerSetParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CreateNewStickerSetParamsWireKeys)),
+  }),
+);
+
+export const createNewStickerSet = callMethod({
+  method: "createNewStickerSet",
+  params: CreateNewStickerSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
 export interface DeclineChatJoinRequestParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
@@ -810,6 +885,65 @@ export const declineSuggestedPost = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to remove up to 10000 recent reactions in a group or a supergroup chat added by a given user or chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
+export interface DeleteAllMessageReactionsParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user whose reactions will be removed, if the reactions were added by a user */
+  readonly userId?: number | undefined;
+  /** Identifier of the chat whose reactions will be removed, if the reactions were added by a chat */
+  readonly actorChatId?: number | undefined;
+}
+const _DeleteAllMessageReactionsParamsPublicKeys = { chat_id: "chatId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
+const _DeleteAllMessageReactionsParamsWireKeys = invertKeys(_DeleteAllMessageReactionsParamsPublicKeys);
+const _DeleteAllMessageReactionsParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.optional(Schema.Int),
+  actor_chat_id: Schema.optional(Schema.Int),
+});
+const _DeleteAllMessageReactionsParamsDecoded = Schema.declare<DeleteAllMessageReactionsParams>((input): input is DeleteAllMessageReactionsParams => Predicate.isObject(input));
+export const DeleteAllMessageReactionsParams: Schema.Codec<DeleteAllMessageReactionsParams, Readonly<Record<string, unknown>>> = _DeleteAllMessageReactionsParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteAllMessageReactionsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteAllMessageReactionsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteAllMessageReactionsParamsWireKeys)),
+  }),
+);
+
+export const deleteAllMessageReactions = callMethod({
+  method: "deleteAllMessageReactions",
+  params: DeleteAllMessageReactionsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Delete messages on behalf of a business account. Requires the can_delete_sent_messages business bot right to delete messages sent by the bot itself, or the can_delete_all_messages business bot right to delete any message. Returns True on success. */
+export interface DeleteBusinessMessagesParams {
+  /** Unique identifier of the business connection on behalf of which to delete the messages */
+  readonly businessConnectionId: string;
+  /** A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted. */
+  readonly messageIds: ReadonlyArray<number>;
+}
+const _DeleteBusinessMessagesParamsPublicKeys = { business_connection_id: "businessConnectionId", message_ids: "messageIds" } as const;
+const _DeleteBusinessMessagesParamsWireKeys = invertKeys(_DeleteBusinessMessagesParamsPublicKeys);
+const _DeleteBusinessMessagesParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  message_ids: Schema.Array(Schema.Int),
+});
+const _DeleteBusinessMessagesParamsDecoded = Schema.declare<DeleteBusinessMessagesParams>((input): input is DeleteBusinessMessagesParams => Predicate.isObject(input));
+export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesParams, Readonly<Record<string, unknown>>> = _DeleteBusinessMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteBusinessMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteBusinessMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteBusinessMessagesParamsWireKeys)),
+  }),
+);
+
+export const deleteBusinessMessages = callMethod({
+  method: "deleteBusinessMessages",
+  params: DeleteBusinessMessagesParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 export interface DeleteChatPhotoParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
@@ -860,6 +994,37 @@ export const deleteChatStickerSet = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to delete an ephemeral message. Note that it is not guaranteed that the user will receive the message deletion event, especially if they are offline. Returns True on success. */
+export interface DeleteEphemeralMessageParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user who received the message */
+  readonly receiverUserId: number;
+  /** Identifier of the ephemeral message to delete */
+  readonly ephemeralMessageId: number;
+}
+const _DeleteEphemeralMessageParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId" } as const;
+const _DeleteEphemeralMessageParamsWireKeys = invertKeys(_DeleteEphemeralMessageParamsPublicKeys);
+const _DeleteEphemeralMessageParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  receiver_user_id: Schema.Int,
+  ephemeral_message_id: Schema.Int,
+});
+const _DeleteEphemeralMessageParamsDecoded = Schema.declare<DeleteEphemeralMessageParams>((input): input is DeleteEphemeralMessageParams => Predicate.isObject(input));
+export const DeleteEphemeralMessageParams: Schema.Codec<DeleteEphemeralMessageParams, Readonly<Record<string, unknown>>> = _DeleteEphemeralMessageParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteEphemeralMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteEphemeralMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteEphemeralMessageParamsWireKeys)),
+  }),
+);
+
+export const deleteEphemeralMessage = callMethod({
+  method: "deleteEphemeralMessage",
+  params: DeleteEphemeralMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success. */
 export interface DeleteForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
@@ -888,6 +1053,106 @@ export const deleteForumTopic = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to delete a message, including service messages, with the following limitations:
+- A message can only be deleted if it was sent less than 48 hours ago.
+- Service messages about a supergroup, channel, or forum topic creation can't be deleted.
+- A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+- Bots can delete outgoing messages in private chats, groups, and supergroups.
+- Bots can delete incoming messages in private chats.
+- Bots granted can_post_messages permissions can delete outgoing messages in channels.
+- If the bot is an administrator of a group, it can delete any message there.
+- If the bot has can_delete_messages administrator right in a supergroup or a channel, it can delete any message there.
+- If the bot has can_manage_direct_messages administrator right in a channel, it can delete any message in the corresponding direct messages chat.
+Returns True on success. */
+export interface DeleteMessageParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the message to delete */
+  readonly messageId: number;
+}
+const _DeleteMessageParamsPublicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
+const _DeleteMessageParamsWireKeys = invertKeys(_DeleteMessageParamsPublicKeys);
+const _DeleteMessageParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+});
+const _DeleteMessageParamsDecoded = Schema.declare<DeleteMessageParams>((input): input is DeleteMessageParams => Predicate.isObject(input));
+export const DeleteMessageParams: Schema.Codec<DeleteMessageParams, Readonly<Record<string, unknown>>> = _DeleteMessageParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageParamsWireKeys)),
+  }),
+);
+
+export const deleteMessage = callMethod({
+  method: "deleteMessage",
+  params: DeleteMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to remove a reaction from a message in a group or a supergroup chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
+export interface DeleteMessageReactionParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the target message */
+  readonly messageId: number;
+  /** Identifier of the user whose reaction will be removed, if the reaction was added by a user */
+  readonly userId?: number | undefined;
+  /** Identifier of the chat whose reaction will be removed, if the reaction was added by a chat */
+  readonly actorChatId?: number | undefined;
+}
+const _DeleteMessageReactionParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
+const _DeleteMessageReactionParamsWireKeys = invertKeys(_DeleteMessageReactionParamsPublicKeys);
+const _DeleteMessageReactionParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  user_id: Schema.optional(Schema.Int),
+  actor_chat_id: Schema.optional(Schema.Int),
+});
+const _DeleteMessageReactionParamsDecoded = Schema.declare<DeleteMessageReactionParams>((input): input is DeleteMessageReactionParams => Predicate.isObject(input));
+export const DeleteMessageReactionParams: Schema.Codec<DeleteMessageReactionParams, Readonly<Record<string, unknown>>> = _DeleteMessageReactionParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteMessageReactionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageReactionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageReactionParamsWireKeys)),
+  }),
+);
+
+export const deleteMessageReaction = callMethod({
+  method: "deleteMessageReaction",
+  params: DeleteMessageReactionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success. */
+export interface DeleteMessagesParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** A JSON-serialized list of 1-100 identifiers of messages to delete. See deleteMessage for limitations on which messages can be deleted. */
+  readonly messageIds: ReadonlyArray<number>;
+}
+const _DeleteMessagesParamsPublicKeys = { chat_id: "chatId", message_ids: "messageIds" } as const;
+const _DeleteMessagesParamsWireKeys = invertKeys(_DeleteMessagesParamsPublicKeys);
+const _DeleteMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_ids: Schema.Array(Schema.Int),
+});
+const _DeleteMessagesParamsDecoded = Schema.declare<DeleteMessagesParams>((input): input is DeleteMessagesParams => Predicate.isObject(input));
+export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<Record<string, unknown>>> = _DeleteMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessagesParamsWireKeys)),
+  }),
+);
+
+export const deleteMessages = callMethod({
+  method: "deleteMessages",
+  params: DeleteMessagesParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
 export interface DeleteMyCommandsParams {
   /** A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
@@ -912,6 +1177,91 @@ export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readon
 export const deleteMyCommands = callMethod({
   method: "deleteMyCommands",
   params: DeleteMyCommandsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to delete a sticker from a set created by the bot. Returns True on success. */
+export interface DeleteStickerFromSetParams {
+  /** File identifier of the sticker */
+  readonly sticker: string;
+}
+export const DeleteStickerFromSetParams: Schema.Codec<DeleteStickerFromSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  sticker: Schema.String,
+});
+
+export const deleteStickerFromSet = callMethod({
+  method: "deleteStickerFromSet",
+  params: DeleteStickerFromSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to delete a sticker set that was created by the bot. Returns True on success. */
+export interface DeleteStickerSetParams {
+  /** Sticker set name */
+  readonly name: string;
+}
+export const DeleteStickerSetParams: Schema.Codec<DeleteStickerSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  name: Schema.String,
+});
+
+export const deleteStickerSet = callMethod({
+  method: "deleteStickerSet",
+  params: DeleteStickerSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Deletes a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns True on success. */
+export interface DeleteStoryParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the story to delete */
+  readonly storyId: number;
+}
+const _DeleteStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId" } as const;
+const _DeleteStoryParamsWireKeys = invertKeys(_DeleteStoryParamsPublicKeys);
+const _DeleteStoryParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  story_id: Schema.Int,
+});
+const _DeleteStoryParamsDecoded = Schema.declare<DeleteStoryParams>((input): input is DeleteStoryParams => Predicate.isObject(input));
+export const DeleteStoryParams: Schema.Codec<DeleteStoryParams, Readonly<Record<string, unknown>>> = _DeleteStoryParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteStoryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteStoryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteStoryParamsWireKeys)),
+  }),
+);
+
+export const deleteStory = callMethod({
+  method: "deleteStory",
+  params: DeleteStoryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns True on success. */
+export interface DeleteWebhookParams {
+  /** Pass True to drop all pending updates */
+  readonly dropPendingUpdates?: boolean | undefined;
+}
+const _DeleteWebhookParamsPublicKeys = { drop_pending_updates: "dropPendingUpdates" } as const;
+const _DeleteWebhookParamsWireKeys = invertKeys(_DeleteWebhookParamsPublicKeys);
+const _DeleteWebhookParamsEncoded = Schema.Struct({
+  drop_pending_updates: Schema.optional(Schema.Boolean),
+});
+const _DeleteWebhookParamsDecoded = Schema.declare<DeleteWebhookParams>((input): input is DeleteWebhookParams => Predicate.isObject(input));
+export const DeleteWebhookParams: Schema.Codec<DeleteWebhookParams, Readonly<Record<string, unknown>>> = _DeleteWebhookParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteWebhookParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteWebhookParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteWebhookParamsWireKeys)),
+  }),
+);
+
+export const deleteWebhook = callMethod({
+  method: "deleteWebhook",
+  params: DeleteWebhookParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -987,6 +1337,172 @@ export const editChatSubscriptionInviteLink = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to edit the caption of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+export interface EditEphemeralMessageCaptionParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user who received the message */
+  readonly receiverUserId: number;
+  /** Identifier of the ephemeral message to edit */
+  readonly ephemeralMessageId: number;
+  /** New caption of the message, 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the message caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditEphemeralMessageCaptionParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
+const _EditEphemeralMessageCaptionParamsWireKeys = invertKeys(_EditEphemeralMessageCaptionParamsPublicKeys);
+const _EditEphemeralMessageCaptionParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  receiver_user_id: Schema.Int,
+  ephemeral_message_id: Schema.Int,
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditEphemeralMessageCaptionParamsDecoded = Schema.declare<EditEphemeralMessageCaptionParams>((input): input is EditEphemeralMessageCaptionParams => Predicate.isObject(input));
+export const EditEphemeralMessageCaptionParams: Schema.Codec<EditEphemeralMessageCaptionParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageCaptionParamsEncoded.pipe(
+  Schema.decodeTo(_EditEphemeralMessageCaptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageCaptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageCaptionParamsWireKeys)),
+  }),
+);
+
+export const editEphemeralMessageCaption = callMethod({
+  method: "editEphemeralMessageCaption",
+  params: EditEphemeralMessageCaptionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit the media of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+export interface EditEphemeralMessageMediaParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user who received the message */
+  readonly receiverUserId: number;
+  /** Identifier of the ephemeral message to edit */
+  readonly ephemeralMessageId: number;
+  /** A JSON-serialized object for the new media content of the message */
+  readonly media: Types.InputMedia;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditEphemeralMessageMediaParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
+const _EditEphemeralMessageMediaParamsWireKeys = invertKeys(_EditEphemeralMessageMediaParamsPublicKeys);
+const _EditEphemeralMessageMediaParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  receiver_user_id: Schema.Int,
+  ephemeral_message_id: Schema.Int,
+  media: Schema.suspend((): Schema.Codec<Types.InputMedia, unknown> => Types.InputMedia),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditEphemeralMessageMediaParamsDecoded = Schema.declare<EditEphemeralMessageMediaParams>((input): input is EditEphemeralMessageMediaParams => Predicate.isObject(input));
+export const EditEphemeralMessageMediaParams: Schema.Codec<EditEphemeralMessageMediaParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageMediaParamsEncoded.pipe(
+  Schema.decodeTo(_EditEphemeralMessageMediaParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageMediaParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageMediaParamsWireKeys)),
+  }),
+);
+
+export const editEphemeralMessageMedia = callMethod({
+  method: "editEphemeralMessageMedia",
+  params: EditEphemeralMessageMediaParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit only the reply markup of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+export interface EditEphemeralMessageReplyMarkupParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user who received the message */
+  readonly receiverUserId: number;
+  /** Identifier of the ephemeral message to edit */
+  readonly ephemeralMessageId: number;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditEphemeralMessageReplyMarkupParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
+const _EditEphemeralMessageReplyMarkupParamsWireKeys = invertKeys(_EditEphemeralMessageReplyMarkupParamsPublicKeys);
+const _EditEphemeralMessageReplyMarkupParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  receiver_user_id: Schema.Int,
+  ephemeral_message_id: Schema.Int,
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditEphemeralMessageReplyMarkupParamsDecoded = Schema.declare<EditEphemeralMessageReplyMarkupParams>((input): input is EditEphemeralMessageReplyMarkupParams => Predicate.isObject(input));
+export const EditEphemeralMessageReplyMarkupParams: Schema.Codec<EditEphemeralMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageReplyMarkupParamsEncoded.pipe(
+  Schema.decodeTo(_EditEphemeralMessageReplyMarkupParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageReplyMarkupParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageReplyMarkupParamsWireKeys)),
+  }),
+);
+
+export const editEphemeralMessageReplyMarkup = callMethod({
+  method: "editEphemeralMessageReplyMarkup",
+  params: EditEphemeralMessageReplyMarkupParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+export interface EditEphemeralMessageTextParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the user who received the message */
+  readonly receiverUserId: number;
+  /** Identifier of the ephemeral message to edit */
+  readonly ephemeralMessageId: number;
+  /** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+  readonly text?: string | undefined;
+  /** Mode for parsing entities in the message text. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode */
+  readonly entities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** New rich content of the message; required if text isn't specified */
+  readonly richMessage?: Types.InputRichMessage | undefined;
+  /** Link preview generation options for the message */
+  readonly linkPreviewOptions?: Types.LinkPreviewOptions | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditEphemeralMessageTextParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", rich_message: "richMessage", link_preview_options: "linkPreviewOptions", reply_markup: "replyMarkup" } as const;
+const _EditEphemeralMessageTextParamsWireKeys = invertKeys(_EditEphemeralMessageTextParamsPublicKeys);
+const _EditEphemeralMessageTextParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  receiver_user_id: Schema.Int,
+  ephemeral_message_id: Schema.Int,
+  text: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  rich_message: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage)),
+  link_preview_options: Schema.optional(Schema.suspend((): Schema.Codec<Types.LinkPreviewOptions, unknown> => Types.LinkPreviewOptions)),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditEphemeralMessageTextParamsDecoded = Schema.declare<EditEphemeralMessageTextParams>((input): input is EditEphemeralMessageTextParams => Predicate.isObject(input));
+export const EditEphemeralMessageTextParams: Schema.Codec<EditEphemeralMessageTextParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageTextParamsEncoded.pipe(
+  Schema.decodeTo(_EditEphemeralMessageTextParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageTextParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageTextParamsWireKeys)),
+  }),
+);
+
+export const editEphemeralMessageText = callMethod({
+  method: "editEphemeralMessageText",
+  params: EditEphemeralMessageTextParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 export interface EditForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
@@ -1045,6 +1561,350 @@ export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicPara
 export const editGeneralForumTopic = callMethod({
   method: "editGeneralForumTopic",
   params: EditGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+export interface EditMessageCaptionParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message to edit. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** New caption of the message, 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the message caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageCaptionParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
+const _EditMessageCaptionParamsWireKeys = invertKeys(_EditMessageCaptionParamsPublicKeys);
+const _EditMessageCaptionParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageCaptionParamsDecoded = Schema.declare<EditMessageCaptionParams>((input): input is EditMessageCaptionParams => Predicate.isObject(input));
+export const EditMessageCaptionParams: Schema.Codec<EditMessageCaptionParams, Readonly<Record<string, unknown>>> = _EditMessageCaptionParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageCaptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageCaptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageCaptionParamsWireKeys)),
+  }),
+);
+
+export const editMessageCaption = callMethod({
+  method: "editMessageCaption",
+  params: EditMessageCaptionParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned. */
+export interface EditMessageChecklistParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId: string;
+  /** Unique identifier for the target chat or username of the target bot in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message */
+  readonly messageId: number;
+  /** A JSON-serialized object for the new checklist */
+  readonly checklist: Types.InputChecklist;
+  /** A JSON-serialized object for the new inline keyboard for the message */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageChecklistParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
+const _EditMessageChecklistParamsWireKeys = invertKeys(_EditMessageChecklistParamsPublicKeys);
+const _EditMessageChecklistParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  checklist: Schema.suspend((): Schema.Codec<Types.InputChecklist, unknown> => Types.InputChecklist),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageChecklistParamsDecoded = Schema.declare<EditMessageChecklistParams>((input): input is EditMessageChecklistParams => Predicate.isObject(input));
+export const EditMessageChecklistParams: Schema.Codec<EditMessageChecklistParams, Readonly<Record<string, unknown>>> = _EditMessageChecklistParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageChecklistParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageChecklistParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageChecklistParamsWireKeys)),
+  }),
+);
+
+export const editMessageChecklist = callMethod({
+  method: "editMessageChecklist",
+  params: EditMessageChecklistParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: true,
+});
+
+/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+export interface EditMessageLiveLocationParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message to edit. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** Latitude of new location */
+  readonly latitude: number;
+  /** Longitude of new location */
+  readonly longitude: number;
+  /** New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged. */
+  readonly livePeriod?: number | undefined;
+  /** The radius of uncertainty for the location, measured in meters; 0-1500 */
+  readonly horizontalAccuracy?: number | undefined;
+  /** Direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
+  readonly heading?: number | undefined;
+  /** The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified. */
+  readonly proximityAlertRadius?: number | undefined;
+  /** A JSON-serialized object for a new inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageLiveLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", live_period: "livePeriod", horizontal_accuracy: "horizontalAccuracy", proximity_alert_radius: "proximityAlertRadius", reply_markup: "replyMarkup" } as const;
+const _EditMessageLiveLocationParamsWireKeys = invertKeys(_EditMessageLiveLocationParamsPublicKeys);
+const _EditMessageLiveLocationParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  latitude: Schema.Number,
+  longitude: Schema.Number,
+  live_period: Schema.optional(Schema.Int),
+  horizontal_accuracy: Schema.optional(Schema.Number),
+  heading: Schema.optional(Schema.Int),
+  proximity_alert_radius: Schema.optional(Schema.Int),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageLiveLocationParamsDecoded = Schema.declare<EditMessageLiveLocationParams>((input): input is EditMessageLiveLocationParams => Predicate.isObject(input));
+export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocationParams, Readonly<Record<string, unknown>>> = _EditMessageLiveLocationParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageLiveLocationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageLiveLocationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageLiveLocationParamsWireKeys)),
+  }),
+);
+
+export const editMessageLiveLocation = callMethod({
+  method: "editMessageLiveLocation",
+  params: EditMessageLiveLocationParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+export interface EditMessageMediaParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message to edit. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** A JSON-serialized object for the new media content of the message */
+  readonly media: Types.InputMedia;
+  /** A JSON-serialized object for a new inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageMediaParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+const _EditMessageMediaParamsWireKeys = invertKeys(_EditMessageMediaParamsPublicKeys);
+const _EditMessageMediaParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  media: Schema.suspend((): Schema.Codec<Types.InputMedia, unknown> => Types.InputMedia),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageMediaParamsDecoded = Schema.declare<EditMessageMediaParams>((input): input is EditMessageMediaParams => Predicate.isObject(input));
+export const EditMessageMediaParams: Schema.Codec<EditMessageMediaParams, Readonly<Record<string, unknown>>> = _EditMessageMediaParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageMediaParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageMediaParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageMediaParamsWireKeys)),
+  }),
+);
+
+export const editMessageMedia = callMethod({
+  method: "editMessageMedia",
+  params: EditMessageMediaParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+export interface EditMessageReplyMarkupParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message to edit. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageReplyMarkupParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+const _EditMessageReplyMarkupParamsWireKeys = invertKeys(_EditMessageReplyMarkupParamsPublicKeys);
+const _EditMessageReplyMarkupParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageReplyMarkupParamsDecoded = Schema.declare<EditMessageReplyMarkupParams>((input): input is EditMessageReplyMarkupParams => Predicate.isObject(input));
+export const EditMessageReplyMarkupParams: Schema.Codec<EditMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = _EditMessageReplyMarkupParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageReplyMarkupParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageReplyMarkupParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageReplyMarkupParamsWireKeys)),
+  }),
+);
+
+export const editMessageReplyMarkup = callMethod({
+  method: "editMessageReplyMarkup",
+  params: EditMessageReplyMarkupParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to edit text, rich and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+export interface EditMessageTextParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message to edit. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+  readonly text?: string | undefined;
+  /** Mode for parsing entities in the message text. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode */
+  readonly entities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Link preview generation options for the message */
+  readonly linkPreviewOptions?: Types.LinkPreviewOptions | undefined;
+  /** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
+  readonly richMessage?: Types.InputRichMessage | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _EditMessageTextParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", link_preview_options: "linkPreviewOptions", rich_message: "richMessage", reply_markup: "replyMarkup" } as const;
+const _EditMessageTextParamsWireKeys = invertKeys(_EditMessageTextParamsPublicKeys);
+const _EditMessageTextParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  text: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  link_preview_options: Schema.optional(Schema.suspend((): Schema.Codec<Types.LinkPreviewOptions, unknown> => Types.LinkPreviewOptions)),
+  rich_message: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage)),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _EditMessageTextParamsDecoded = Schema.declare<EditMessageTextParams>((input): input is EditMessageTextParams => Predicate.isObject(input));
+export const EditMessageTextParams: Schema.Codec<EditMessageTextParams, Readonly<Record<string, unknown>>> = _EditMessageTextParamsEncoded.pipe(
+  Schema.decodeTo(_EditMessageTextParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageTextParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageTextParamsWireKeys)),
+  }),
+);
+
+export const editMessageText = callMethod({
+  method: "editMessageText",
+  params: EditMessageTextParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
+export interface EditStoryParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the story to edit */
+  readonly storyId: number;
+  /** Content of the story */
+  readonly content: Types.InputStoryContent;
+  /** Caption of the story, 0-2048 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the story caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** A JSON-serialized list of clickable areas to be shown on the story */
+  readonly areas?: ReadonlyArray<Types.StoryArea> | undefined;
+}
+const _EditStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId", parse_mode: "parseMode", caption_entities: "captionEntities" } as const;
+const _EditStoryParamsWireKeys = invertKeys(_EditStoryParamsPublicKeys);
+const _EditStoryParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  story_id: Schema.Int,
+  content: Schema.suspend((): Schema.Codec<Types.InputStoryContent, unknown> => Types.InputStoryContent),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  areas: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.StoryArea, unknown> => Types.StoryArea))),
+});
+const _EditStoryParamsDecoded = Schema.declare<EditStoryParams>((input): input is EditStoryParams => Predicate.isObject(input));
+export const EditStoryParams: Schema.Codec<EditStoryParams, Readonly<Record<string, unknown>>> = _EditStoryParamsEncoded.pipe(
+  Schema.decodeTo(_EditStoryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditStoryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditStoryParamsWireKeys)),
+  }),
+);
+
+export const editStory = callMethod({
+  method: "editStory",
+  params: EditStoryParams,
+  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  retrySafe: true,
+});
+
+/** Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success. */
+export interface EditUserStarSubscriptionParams {
+  /** Identifier of the user whose subscription will be edited */
+  readonly userId: number;
+  /** Telegram payment identifier for the subscription */
+  readonly telegramPaymentChargeId: string;
+  /** Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot. */
+  readonly isCanceled: boolean;
+}
+const _EditUserStarSubscriptionParamsPublicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId", is_canceled: "isCanceled" } as const;
+const _EditUserStarSubscriptionParamsWireKeys = invertKeys(_EditUserStarSubscriptionParamsPublicKeys);
+const _EditUserStarSubscriptionParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  telegram_payment_charge_id: Schema.String,
+  is_canceled: Schema.Boolean,
+});
+const _EditUserStarSubscriptionParamsDecoded = Schema.declare<EditUserStarSubscriptionParams>((input): input is EditUserStarSubscriptionParams => Predicate.isObject(input));
+export const EditUserStarSubscriptionParams: Schema.Codec<EditUserStarSubscriptionParams, Readonly<Record<string, unknown>>> = _EditUserStarSubscriptionParamsEncoded.pipe(
+  Schema.decodeTo(_EditUserStarSubscriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditUserStarSubscriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditUserStarSubscriptionParamsWireKeys)),
+  }),
+);
+
+export const editUserStarSubscription = callMethod({
+  method: "editUserStarSubscription",
+  params: EditUserStarSubscriptionParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1785,6 +2645,42 @@ export const getStickerSet = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects. */
+export interface GetUpdatesParams {
+  /** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten. */
+  readonly offset?: number | undefined;
+  /** Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+  readonly limit?: number | undefined;
+  /** Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only. */
+  readonly timeout?: number | undefined;
+  /** A JSON-serialized list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
+
+Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
+  readonly allowedUpdates?: ReadonlyArray<Types.UpdateType> | undefined;
+}
+const _GetUpdatesParamsPublicKeys = { allowed_updates: "allowedUpdates" } as const;
+const _GetUpdatesParamsWireKeys = invertKeys(_GetUpdatesParamsPublicKeys);
+const _GetUpdatesParamsEncoded = Schema.Struct({
+  offset: Schema.optional(Schema.Int),
+  limit: Schema.optional(Schema.Int),
+  timeout: Schema.optional(Schema.Int),
+  allowed_updates: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.UpdateType, unknown> => Types.UpdateType))),
+});
+const _GetUpdatesParamsDecoded = Schema.declare<GetUpdatesParams>((input): input is GetUpdatesParams => Predicate.isObject(input));
+export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<string, unknown>>> = _GetUpdatesParamsEncoded.pipe(
+  Schema.decodeTo(_GetUpdatesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetUpdatesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetUpdatesParamsWireKeys)),
+  }),
+);
+
+export const getUpdates = callMethod({
+  method: "getUpdates",
+  params: GetUpdatesParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Update, unknown> => Types.Update)),
+  retrySafe: true,
+});
+
 /** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
 export interface GetUserChatBoostsParams {
   /** Unique identifier for the chat or username of the channel in the format @username */
@@ -2049,6 +2945,13 @@ export const leaveChat = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters. */
+export const logOut = callMethod({
+  method: "logOut",
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns True on success. */
 export interface PinChatMessageParams {
   /** Unique identifier of the business connection on behalf of which the message will be pinned */
@@ -2214,6 +3117,93 @@ export const promoteChatMember = callMethod({
   retrySafe: true,
 });
 
+/** Marks incoming message as read on behalf of a business account. Requires the can_read_messages business bot right. Returns True on success. */
+export interface ReadBusinessMessageParams {
+  /** Unique identifier of the business connection on behalf of which to read the message */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the chat in which the message was received. The chat must have been active in the last 24 hours. */
+  readonly chatId: number;
+  /** Unique identifier of the message to mark as read */
+  readonly messageId: number;
+}
+const _ReadBusinessMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
+const _ReadBusinessMessageParamsWireKeys = invertKeys(_ReadBusinessMessageParamsPublicKeys);
+const _ReadBusinessMessageParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  chat_id: Schema.Int,
+  message_id: Schema.Int,
+});
+const _ReadBusinessMessageParamsDecoded = Schema.declare<ReadBusinessMessageParams>((input): input is ReadBusinessMessageParams => Predicate.isObject(input));
+export const ReadBusinessMessageParams: Schema.Codec<ReadBusinessMessageParams, Readonly<Record<string, unknown>>> = _ReadBusinessMessageParamsEncoded.pipe(
+  Schema.decodeTo(_ReadBusinessMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ReadBusinessMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ReadBusinessMessageParamsWireKeys)),
+  }),
+);
+
+export const readBusinessMessage = callMethod({
+  method: "readBusinessMessage",
+  params: ReadBusinessMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Refunds a successful payment in Telegram Stars. Returns True on success. */
+export interface RefundStarPaymentParams {
+  /** Identifier of the user whose payment will be refunded */
+  readonly userId: number;
+  /** Telegram payment identifier */
+  readonly telegramPaymentChargeId: string;
+}
+const _RefundStarPaymentParamsPublicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId" } as const;
+const _RefundStarPaymentParamsWireKeys = invertKeys(_RefundStarPaymentParamsPublicKeys);
+const _RefundStarPaymentParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  telegram_payment_charge_id: Schema.String,
+});
+const _RefundStarPaymentParamsDecoded = Schema.declare<RefundStarPaymentParams>((input): input is RefundStarPaymentParams => Predicate.isObject(input));
+export const RefundStarPaymentParams: Schema.Codec<RefundStarPaymentParams, Readonly<Record<string, unknown>>> = _RefundStarPaymentParamsEncoded.pipe(
+  Schema.decodeTo(_RefundStarPaymentParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RefundStarPaymentParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RefundStarPaymentParamsWireKeys)),
+  }),
+);
+
+export const refundStarPayment = callMethod({
+  method: "refundStarPayment",
+  params: RefundStarPaymentParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Removes the current profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success. */
+export interface RemoveBusinessAccountProfilePhotoParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Pass True to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo. */
+  readonly isPublic?: boolean | undefined;
+}
+const _RemoveBusinessAccountProfilePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
+const _RemoveBusinessAccountProfilePhotoParamsWireKeys = invertKeys(_RemoveBusinessAccountProfilePhotoParamsPublicKeys);
+const _RemoveBusinessAccountProfilePhotoParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  is_public: Schema.optional(Schema.Boolean),
+});
+const _RemoveBusinessAccountProfilePhotoParamsDecoded = Schema.declare<RemoveBusinessAccountProfilePhotoParams>((input): input is RemoveBusinessAccountProfilePhotoParams => Predicate.isObject(input));
+export const RemoveBusinessAccountProfilePhotoParams: Schema.Codec<RemoveBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = _RemoveBusinessAccountProfilePhotoParamsEncoded.pipe(
+  Schema.decodeTo(_RemoveBusinessAccountProfilePhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveBusinessAccountProfilePhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveBusinessAccountProfilePhotoParamsWireKeys)),
+  }),
+);
+
+export const removeBusinessAccountProfilePhoto = callMethod({
+  method: "removeBusinessAccountProfilePhoto",
+  params: RemoveBusinessAccountProfilePhotoParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success. */
 export interface RemoveChatVerificationParams {
   /** Unique identifier for the target chat or username of the target bot or channel in the format @username */
@@ -2235,6 +3225,38 @@ export const RemoveChatVerificationParams: Schema.Codec<RemoveChatVerificationPa
 export const removeChatVerification = callMethod({
   method: "removeChatVerification",
   params: RemoveChatVerificationParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Removes the profile photo of the bot. Requires no parameters. Returns True on success. */
+export const removeMyProfilePhoto = callMethod({
+  method: "removeMyProfilePhoto",
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+export interface RemoveUserVerificationParams {
+  /** Unique identifier of the target user */
+  readonly userId: number;
+}
+const _RemoveUserVerificationParamsPublicKeys = { user_id: "userId" } as const;
+const _RemoveUserVerificationParamsWireKeys = invertKeys(_RemoveUserVerificationParamsPublicKeys);
+const _RemoveUserVerificationParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+});
+const _RemoveUserVerificationParamsDecoded = Schema.declare<RemoveUserVerificationParams>((input): input is RemoveUserVerificationParams => Predicate.isObject(input));
+export const RemoveUserVerificationParams: Schema.Codec<RemoveUserVerificationParams, Readonly<Record<string, unknown>>> = _RemoveUserVerificationParamsEncoded.pipe(
+  Schema.decodeTo(_RemoveUserVerificationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveUserVerificationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveUserVerificationParamsWireKeys)),
+  }),
+);
+
+export const removeUserVerification = callMethod({
+  method: "removeUserVerification",
+  params: RemoveUserVerificationParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -2315,6 +3337,40 @@ export const replaceManagedBotToken = callMethod({
   params: ReplaceManagedBotTokenParams,
   result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
   retrySafe: false,
+});
+
+/** Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success. */
+export interface ReplaceStickerInSetParams {
+  /** User identifier of the sticker set owner */
+  readonly userId: number;
+  /** Sticker set name */
+  readonly name: string;
+  /** File identifier of the replaced sticker */
+  readonly oldSticker: string;
+  /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged. */
+  readonly sticker: Types.InputSticker;
+}
+const _ReplaceStickerInSetParamsPublicKeys = { user_id: "userId", old_sticker: "oldSticker" } as const;
+const _ReplaceStickerInSetParamsWireKeys = invertKeys(_ReplaceStickerInSetParamsPublicKeys);
+const _ReplaceStickerInSetParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  name: Schema.String,
+  old_sticker: Schema.String,
+  sticker: Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker),
+});
+const _ReplaceStickerInSetParamsDecoded = Schema.declare<ReplaceStickerInSetParams>((input): input is ReplaceStickerInSetParams => Predicate.isObject(input));
+export const ReplaceStickerInSetParams: Schema.Codec<ReplaceStickerInSetParams, Readonly<Record<string, unknown>>> = _ReplaceStickerInSetParamsEncoded.pipe(
+  Schema.decodeTo(_ReplaceStickerInSetParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ReplaceStickerInSetParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ReplaceStickerInSetParamsWireKeys)),
+  }),
+);
+
+export const replaceStickerInSet = callMethod({
+  method: "replaceStickerInSet",
+  params: ReplaceStickerInSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success. */
@@ -3459,6 +4515,52 @@ export const sendMessage = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendMessage with the complete message to persist it in the user's chat. Returns True on success. */
+export interface SendMessageDraftParams {
+  /** Unique identifier for the target private chat */
+  readonly chatId: number;
+  /** Unique identifier for the target message thread */
+  readonly messageThreadId?: number | undefined;
+  /** Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation. */
+  readonly draftId: number;
+  /** Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a “Thinking…” placeholder. */
+  readonly text?: string | undefined;
+  /** Mode for parsing entities in the message text. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode */
+  readonly entities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
+  readonly canStop?: boolean | undefined;
+  /** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
+  readonly keepOnStop?: boolean | undefined;
+}
+const _SendMessageDraftParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", parse_mode: "parseMode", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
+const _SendMessageDraftParamsWireKeys = invertKeys(_SendMessageDraftParamsPublicKeys);
+const _SendMessageDraftParamsEncoded = Schema.Struct({
+  chat_id: Schema.Int,
+  message_thread_id: Schema.optional(Schema.Int),
+  draft_id: Schema.Int,
+  text: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  can_stop: Schema.optional(Schema.Boolean),
+  keep_on_stop: Schema.optional(Schema.Boolean),
+});
+const _SendMessageDraftParamsDecoded = Schema.declare<SendMessageDraftParams>((input): input is SendMessageDraftParams => Predicate.isObject(input));
+export const SendMessageDraftParams: Schema.Codec<SendMessageDraftParams, Readonly<Record<string, unknown>>> = _SendMessageDraftParamsEncoded.pipe(
+  Schema.decodeTo(_SendMessageDraftParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendMessageDraftParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendMessageDraftParamsWireKeys)),
+  }),
+);
+
+export const sendMessageDraft = callMethod({
+  method: "sendMessageDraft",
+  params: SendMessageDraftParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to send paid media. On success, the sent Message is returned. */
 export interface SendPaidMediaParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -3791,6 +4893,46 @@ export const sendRichMessage = callMethod({
   params: SendRichMessageParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
+});
+
+/** Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendRichMessage with the complete message to persist it in the user's chat. Returns True on success. */
+export interface SendRichMessageDraftParams {
+  /** Unique identifier for the target private chat */
+  readonly chatId: number;
+  /** Unique identifier for the target message thread */
+  readonly messageThreadId?: number | undefined;
+  /** Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation. */
+  readonly draftId: number;
+  /** The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported. */
+  readonly richMessage: Types.InputRichMessage;
+  /** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
+  readonly canStop?: boolean | undefined;
+  /** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
+  readonly keepOnStop?: boolean | undefined;
+}
+const _SendRichMessageDraftParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", rich_message: "richMessage", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
+const _SendRichMessageDraftParamsWireKeys = invertKeys(_SendRichMessageDraftParamsPublicKeys);
+const _SendRichMessageDraftParamsEncoded = Schema.Struct({
+  chat_id: Schema.Int,
+  message_thread_id: Schema.optional(Schema.Int),
+  draft_id: Schema.Int,
+  rich_message: Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage),
+  can_stop: Schema.optional(Schema.Boolean),
+  keep_on_stop: Schema.optional(Schema.Boolean),
+});
+const _SendRichMessageDraftParamsDecoded = Schema.declare<SendRichMessageDraftParams>((input): input is SendRichMessageDraftParams => Predicate.isObject(input));
+export const SendRichMessageDraftParams: Schema.Codec<SendRichMessageDraftParams, Readonly<Record<string, unknown>>> = _SendRichMessageDraftParamsEncoded.pipe(
+  Schema.decodeTo(_SendRichMessageDraftParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageDraftParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageDraftParamsWireKeys)),
+  }),
+);
+
+export const sendRichMessageDraft = callMethod({
+  method: "sendRichMessageDraft",
+  params: SendRichMessageDraftParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
@@ -4179,6 +5321,96 @@ export const sendVoice = callMethod({
   retrySafe: false,
 });
 
+/** Changes the bio of a managed business account. Requires the can_change_bio business bot right. Returns True on success. */
+export interface SetBusinessAccountBioParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** The new value of the bio for the business account; 0-140 characters */
+  readonly bio?: string | undefined;
+}
+const _SetBusinessAccountBioParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
+const _SetBusinessAccountBioParamsWireKeys = invertKeys(_SetBusinessAccountBioParamsPublicKeys);
+const _SetBusinessAccountBioParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  bio: Schema.optional(Schema.String),
+});
+const _SetBusinessAccountBioParamsDecoded = Schema.declare<SetBusinessAccountBioParams>((input): input is SetBusinessAccountBioParams => Predicate.isObject(input));
+export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountBioParamsEncoded.pipe(
+  Schema.decodeTo(_SetBusinessAccountBioParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountBioParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountBioParamsWireKeys)),
+  }),
+);
+
+export const setBusinessAccountBio = callMethod({
+  method: "setBusinessAccountBio",
+  params: SetBusinessAccountBioParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Changes the privacy settings pertaining to incoming gifts in a managed business account. Requires the can_change_gift_settings business bot right. Returns True on success. */
+export interface SetBusinessAccountGiftSettingsParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Pass True if a button for sending a gift to the user or by the business account must always be shown in the input field */
+  readonly showGiftButton: boolean;
+  /** Types of gifts accepted by the business account */
+  readonly acceptedGiftTypes: Types.AcceptedGiftTypes;
+}
+const _SetBusinessAccountGiftSettingsParamsPublicKeys = { business_connection_id: "businessConnectionId", show_gift_button: "showGiftButton", accepted_gift_types: "acceptedGiftTypes" } as const;
+const _SetBusinessAccountGiftSettingsParamsWireKeys = invertKeys(_SetBusinessAccountGiftSettingsParamsPublicKeys);
+const _SetBusinessAccountGiftSettingsParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  show_gift_button: Schema.Boolean,
+  accepted_gift_types: Schema.suspend((): Schema.Codec<Types.AcceptedGiftTypes, unknown> => Types.AcceptedGiftTypes),
+});
+const _SetBusinessAccountGiftSettingsParamsDecoded = Schema.declare<SetBusinessAccountGiftSettingsParams>((input): input is SetBusinessAccountGiftSettingsParams => Predicate.isObject(input));
+export const SetBusinessAccountGiftSettingsParams: Schema.Codec<SetBusinessAccountGiftSettingsParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountGiftSettingsParamsEncoded.pipe(
+  Schema.decodeTo(_SetBusinessAccountGiftSettingsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountGiftSettingsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountGiftSettingsParamsWireKeys)),
+  }),
+);
+
+export const setBusinessAccountGiftSettings = callMethod({
+  method: "setBusinessAccountGiftSettings",
+  params: SetBusinessAccountGiftSettingsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Changes the first and last name of a managed business account. Requires the can_change_name business bot right. Returns True on success. */
+export interface SetBusinessAccountNameParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** The new value of the first name for the business account; 1-64 characters */
+  readonly firstName: string;
+  /** The new value of the last name for the business account; 0-64 characters */
+  readonly lastName?: string | undefined;
+}
+const _SetBusinessAccountNameParamsPublicKeys = { business_connection_id: "businessConnectionId", first_name: "firstName", last_name: "lastName" } as const;
+const _SetBusinessAccountNameParamsWireKeys = invertKeys(_SetBusinessAccountNameParamsPublicKeys);
+const _SetBusinessAccountNameParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  first_name: Schema.String,
+  last_name: Schema.optional(Schema.String),
+});
+const _SetBusinessAccountNameParamsDecoded = Schema.declare<SetBusinessAccountNameParams>((input): input is SetBusinessAccountNameParams => Predicate.isObject(input));
+export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNameParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountNameParamsEncoded.pipe(
+  Schema.decodeTo(_SetBusinessAccountNameParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountNameParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountNameParamsWireKeys)),
+  }),
+);
+
+export const setBusinessAccountName = callMethod({
+  method: "setBusinessAccountName",
+  params: SetBusinessAccountNameParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Changes the profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success. */
 export interface SetBusinessAccountProfilePhotoParams {
   /** Unique identifier of the business connection */
@@ -4208,6 +5440,34 @@ export const setBusinessAccountProfilePhoto = callMethod({
   params: SetBusinessAccountProfilePhotoParams,
   result: Schema.Literal(true),
   retrySafe: false,
+});
+
+/** Changes the username of a managed business account. Requires the can_change_username business bot right. Returns True on success. */
+export interface SetBusinessAccountUsernameParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** The new value of the username for the business account; 0-32 characters */
+  readonly username?: string | undefined;
+}
+const _SetBusinessAccountUsernameParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
+const _SetBusinessAccountUsernameParamsWireKeys = invertKeys(_SetBusinessAccountUsernameParamsPublicKeys);
+const _SetBusinessAccountUsernameParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  username: Schema.optional(Schema.String),
+});
+const _SetBusinessAccountUsernameParamsDecoded = Schema.declare<SetBusinessAccountUsernameParams>((input): input is SetBusinessAccountUsernameParams => Predicate.isObject(input));
+export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUsernameParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountUsernameParamsEncoded.pipe(
+  Schema.decodeTo(_SetBusinessAccountUsernameParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountUsernameParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountUsernameParamsWireKeys)),
+  }),
+);
+
+export const setBusinessAccountUsername = callMethod({
+  method: "setBusinessAccountUsername",
+  params: SetBusinessAccountUsernameParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success. */
@@ -4296,6 +5556,34 @@ export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readon
 export const setChatMemberTag = callMethod({
   method: "setChatMemberTag",
   params: SetChatMemberTagParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success. */
+export interface SetChatMenuButtonParams {
+  /** Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed. */
+  readonly chatId?: number | undefined;
+  /** A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault. */
+  readonly menuButton?: Types.MenuButton | undefined;
+}
+const _SetChatMenuButtonParamsPublicKeys = { chat_id: "chatId", menu_button: "menuButton" } as const;
+const _SetChatMenuButtonParamsWireKeys = invertKeys(_SetChatMenuButtonParamsPublicKeys);
+const _SetChatMenuButtonParamsEncoded = Schema.Struct({
+  chat_id: Schema.optional(Schema.Int),
+  menu_button: Schema.optional(Schema.suspend((): Schema.Codec<Types.MenuButton, unknown> => Types.MenuButton)),
+});
+const _SetChatMenuButtonParamsDecoded = Schema.declare<SetChatMenuButtonParams>((input): input is SetChatMenuButtonParams => Predicate.isObject(input));
+export const SetChatMenuButtonParams: Schema.Codec<SetChatMenuButtonParams, Readonly<Record<string, unknown>>> = _SetChatMenuButtonParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatMenuButtonParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatMenuButtonParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatMenuButtonParamsWireKeys)),
+  }),
+);
+
+export const setChatMenuButton = callMethod({
+  method: "setChatMenuButton",
+  params: SetChatMenuButtonParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -4411,6 +5699,142 @@ export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Recor
 export const setChatTitle = callMethod({
   method: "setChatTitle",
   params: SetChatTitleParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set the thumbnail of a custom emoji sticker set. Returns True on success. */
+export interface SetCustomEmojiStickerSetThumbnailParams {
+  /** Sticker set name */
+  readonly name: string;
+  /** Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail */
+  readonly customEmojiId?: string | undefined;
+}
+const _SetCustomEmojiStickerSetThumbnailParamsPublicKeys = { custom_emoji_id: "customEmojiId" } as const;
+const _SetCustomEmojiStickerSetThumbnailParamsWireKeys = invertKeys(_SetCustomEmojiStickerSetThumbnailParamsPublicKeys);
+const _SetCustomEmojiStickerSetThumbnailParamsEncoded = Schema.Struct({
+  name: Schema.String,
+  custom_emoji_id: Schema.optional(Schema.String),
+});
+const _SetCustomEmojiStickerSetThumbnailParamsDecoded = Schema.declare<SetCustomEmojiStickerSetThumbnailParams>((input): input is SetCustomEmojiStickerSetThumbnailParams => Predicate.isObject(input));
+export const SetCustomEmojiStickerSetThumbnailParams: Schema.Codec<SetCustomEmojiStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = _SetCustomEmojiStickerSetThumbnailParamsEncoded.pipe(
+  Schema.decodeTo(_SetCustomEmojiStickerSetThumbnailParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetCustomEmojiStickerSetThumbnailParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetCustomEmojiStickerSetThumbnailParamsWireKeys)),
+  }),
+);
+
+export const setCustomEmojiStickerSetThumbnail = callMethod({
+  method: "setCustomEmojiStickerSetThumbnail",
+  params: SetCustomEmojiStickerSetThumbnailParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
+export interface SetGameScoreParams {
+  /** User identifier */
+  readonly userId: number;
+  /** New score, must be non-negative */
+  readonly score: number;
+  /** Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters. */
+  readonly force?: boolean | undefined;
+  /** Pass True if the game message should not be automatically edited to include the current scoreboard */
+  readonly disableEditMessage?: boolean | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat. */
+  readonly chatId?: number | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the sent message. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+}
+const _SetGameScoreParamsPublicKeys = { user_id: "userId", disable_edit_message: "disableEditMessage", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
+const _SetGameScoreParamsWireKeys = invertKeys(_SetGameScoreParamsPublicKeys);
+const _SetGameScoreParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  score: Schema.Int,
+  force: Schema.optional(Schema.Boolean),
+  disable_edit_message: Schema.optional(Schema.Boolean),
+  chat_id: Schema.optional(Schema.Int),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+});
+const _SetGameScoreParamsDecoded = Schema.declare<SetGameScoreParams>((input): input is SetGameScoreParams => Predicate.isObject(input));
+export const SetGameScoreParams: Schema.Codec<SetGameScoreParams, Readonly<Record<string, unknown>>> = _SetGameScoreParamsEncoded.pipe(
+  Schema.decodeTo(_SetGameScoreParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetGameScoreParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetGameScoreParamsWireKeys)),
+  }),
+);
+
+export const setGameScore = callMethod({
+  method: "setGameScore",
+  params: SetGameScoreParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to change the access settings of a managed bot. Returns True on success. */
+export interface SetManagedBotAccessSettingsParams {
+  /** User identifier of the managed bot whose access settings will be changed */
+  readonly userId: number;
+  /** Pass True if only selected users can access the bot. The bot's owner can always access it. */
+  readonly isAccessRestricted: boolean;
+  /** A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if is_access_restricted is False. */
+  readonly addedUserIds?: ReadonlyArray<number> | undefined;
+}
+const _SetManagedBotAccessSettingsParamsPublicKeys = { user_id: "userId", is_access_restricted: "isAccessRestricted", added_user_ids: "addedUserIds" } as const;
+const _SetManagedBotAccessSettingsParamsWireKeys = invertKeys(_SetManagedBotAccessSettingsParamsPublicKeys);
+const _SetManagedBotAccessSettingsParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  is_access_restricted: Schema.Boolean,
+  added_user_ids: Schema.optional(Schema.Array(Schema.Int)),
+});
+const _SetManagedBotAccessSettingsParamsDecoded = Schema.declare<SetManagedBotAccessSettingsParams>((input): input is SetManagedBotAccessSettingsParams => Predicate.isObject(input));
+export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = _SetManagedBotAccessSettingsParamsEncoded.pipe(
+  Schema.decodeTo(_SetManagedBotAccessSettingsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetManagedBotAccessSettingsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetManagedBotAccessSettingsParamsWireKeys)),
+  }),
+);
+
+export const setManagedBotAccessSettings = callMethod({
+  method: "setManagedBotAccessSettings",
+  params: SetManagedBotAccessSettingsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the chosen reactions on a message. Service messages of some types can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success. */
+export interface SetMessageReactionParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead. */
+  readonly messageId: number;
+  /** A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots. */
+  readonly reaction?: ReadonlyArray<Types.ReactionType> | undefined;
+  /** Pass True to set the reaction with a big animation */
+  readonly isBig?: boolean | undefined;
+}
+const _SetMessageReactionParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", is_big: "isBig" } as const;
+const _SetMessageReactionParamsWireKeys = invertKeys(_SetMessageReactionParamsPublicKeys);
+const _SetMessageReactionParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  reaction: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.ReactionType, unknown> => Types.ReactionType))),
+  is_big: Schema.optional(Schema.Boolean),
+});
+const _SetMessageReactionParamsDecoded = Schema.declare<SetMessageReactionParams>((input): input is SetMessageReactionParams => Predicate.isObject(input));
+export const SetMessageReactionParams: Schema.Codec<SetMessageReactionParams, Readonly<Record<string, unknown>>> = _SetMessageReactionParamsEncoded.pipe(
+  Schema.decodeTo(_SetMessageReactionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMessageReactionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMessageReactionParamsWireKeys)),
+  }),
+);
+
+export const setMessageReaction = callMethod({
+  method: "setMessageReaction",
+  params: SetMessageReactionParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -4574,6 +5998,327 @@ export const setMyShortDescription = callMethod({
   retrySafe: true,
 });
 
+/** Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success. Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues. */
+export interface SetPassportDataErrorsParams {
+  /** User identifier */
+  readonly userId: number;
+  /** A JSON-serialized Array describing the errors */
+  readonly errors: ReadonlyArray<Types.PassportElementError>;
+}
+const _SetPassportDataErrorsParamsPublicKeys = { user_id: "userId" } as const;
+const _SetPassportDataErrorsParamsWireKeys = invertKeys(_SetPassportDataErrorsParamsPublicKeys);
+const _SetPassportDataErrorsParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  errors: Schema.Array(Schema.suspend((): Schema.Codec<Types.PassportElementError, unknown> => Types.PassportElementError)),
+});
+const _SetPassportDataErrorsParamsDecoded = Schema.declare<SetPassportDataErrorsParams>((input): input is SetPassportDataErrorsParams => Predicate.isObject(input));
+export const SetPassportDataErrorsParams: Schema.Codec<SetPassportDataErrorsParams, Readonly<Record<string, unknown>>> = _SetPassportDataErrorsParamsEncoded.pipe(
+  Schema.decodeTo(_SetPassportDataErrorsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetPassportDataErrorsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetPassportDataErrorsParamsWireKeys)),
+  }),
+);
+
+export const setPassportDataErrors = callMethod({
+  method: "setPassportDataErrors",
+  params: SetPassportDataErrorsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success. */
+export interface SetStickerEmojiListParams {
+  /** File identifier of the sticker */
+  readonly sticker: string;
+  /** A JSON-serialized list of 1-20 emoji associated with the sticker */
+  readonly emojiList: ReadonlyArray<string>;
+}
+const _SetStickerEmojiListParamsPublicKeys = { emoji_list: "emojiList" } as const;
+const _SetStickerEmojiListParamsWireKeys = invertKeys(_SetStickerEmojiListParamsPublicKeys);
+const _SetStickerEmojiListParamsEncoded = Schema.Struct({
+  sticker: Schema.String,
+  emoji_list: Schema.Array(Schema.String),
+});
+const _SetStickerEmojiListParamsDecoded = Schema.declare<SetStickerEmojiListParams>((input): input is SetStickerEmojiListParams => Predicate.isObject(input));
+export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, Readonly<Record<string, unknown>>> = _SetStickerEmojiListParamsEncoded.pipe(
+  Schema.decodeTo(_SetStickerEmojiListParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerEmojiListParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerEmojiListParamsWireKeys)),
+  }),
+);
+
+export const setStickerEmojiList = callMethod({
+  method: "setStickerEmojiList",
+  params: SetStickerEmojiListParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success. */
+export interface SetStickerKeywordsParams {
+  /** File identifier of the sticker */
+  readonly sticker: string;
+  /** A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters */
+  readonly keywords?: ReadonlyArray<string> | undefined;
+}
+export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  sticker: Schema.String,
+  keywords: Schema.optional(Schema.Array(Schema.String)),
+});
+
+export const setStickerKeywords = callMethod({
+  method: "setStickerKeywords",
+  params: SetStickerKeywordsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success. */
+export interface SetStickerMaskPositionParams {
+  /** File identifier of the sticker */
+  readonly sticker: string;
+  /** A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position. */
+  readonly maskPosition?: Types.MaskPosition | undefined;
+}
+const _SetStickerMaskPositionParamsPublicKeys = { mask_position: "maskPosition" } as const;
+const _SetStickerMaskPositionParamsWireKeys = invertKeys(_SetStickerMaskPositionParamsPublicKeys);
+const _SetStickerMaskPositionParamsEncoded = Schema.Struct({
+  sticker: Schema.String,
+  mask_position: Schema.optional(Schema.suspend((): Schema.Codec<Types.MaskPosition, unknown> => Types.MaskPosition)),
+});
+const _SetStickerMaskPositionParamsDecoded = Schema.declare<SetStickerMaskPositionParams>((input): input is SetStickerMaskPositionParams => Predicate.isObject(input));
+export const SetStickerMaskPositionParams: Schema.Codec<SetStickerMaskPositionParams, Readonly<Record<string, unknown>>> = _SetStickerMaskPositionParamsEncoded.pipe(
+  Schema.decodeTo(_SetStickerMaskPositionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerMaskPositionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerMaskPositionParamsWireKeys)),
+  }),
+);
+
+export const setStickerMaskPosition = callMethod({
+  method: "setStickerMaskPosition",
+  params: SetStickerMaskPositionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to move a sticker in a set created by the bot to a specific position. Returns True on success. */
+export interface SetStickerPositionInSetParams {
+  /** File identifier of the sticker */
+  readonly sticker: string;
+  /** New sticker position in the set, zero-based */
+  readonly position: number;
+}
+export const SetStickerPositionInSetParams: Schema.Codec<SetStickerPositionInSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  sticker: Schema.String,
+  position: Schema.Int,
+});
+
+export const setStickerPositionInSet = callMethod({
+  method: "setStickerPositionInSet",
+  params: SetStickerPositionInSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success. */
+export interface SetStickerSetThumbnailParams {
+  /** Sticker set name */
+  readonly name: string;
+  /** User identifier of the sticker set owner */
+  readonly userId: number;
+  /** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a .WEBM video */
+  readonly format: Types.StickerFormat;
+}
+const _SetStickerSetThumbnailParamsPublicKeys = { user_id: "userId" } as const;
+const _SetStickerSetThumbnailParamsWireKeys = invertKeys(_SetStickerSetThumbnailParamsPublicKeys);
+const _SetStickerSetThumbnailParamsEncoded = Schema.Struct({
+  name: Schema.String,
+  user_id: Schema.Int,
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  format: Schema.suspend((): Schema.Codec<Types.StickerFormat, unknown> => Types.StickerFormat),
+});
+const _SetStickerSetThumbnailParamsDecoded = Schema.declare<SetStickerSetThumbnailParams>((input): input is SetStickerSetThumbnailParams => Predicate.isObject(input));
+export const SetStickerSetThumbnailParams: Schema.Codec<SetStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = _SetStickerSetThumbnailParamsEncoded.pipe(
+  Schema.decodeTo(_SetStickerSetThumbnailParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerSetThumbnailParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerSetThumbnailParamsWireKeys)),
+  }),
+);
+
+export const setStickerSetThumbnail = callMethod({
+  method: "setStickerSetThumbnail",
+  params: SetStickerSetThumbnailParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set the title of a created sticker set. Returns True on success. */
+export interface SetStickerSetTitleParams {
+  /** Sticker set name */
+  readonly name: string;
+  /** Sticker set title, 1-64 characters */
+  readonly title: string;
+}
+export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  name: Schema.String,
+  title: Schema.String,
+});
+
+export const setStickerSetTitle = callMethod({
+  method: "setStickerSetTitle",
+  params: SetStickerSetTitleParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success. */
+export interface SetUserEmojiStatusParams {
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status. */
+  readonly emojiStatusCustomEmojiId?: string | undefined;
+  /** Expiration date of the emoji status, if any */
+  readonly emojiStatusExpirationDate?: number | undefined;
+}
+const _SetUserEmojiStatusParamsPublicKeys = { user_id: "userId", emoji_status_custom_emoji_id: "emojiStatusCustomEmojiId", emoji_status_expiration_date: "emojiStatusExpirationDate" } as const;
+const _SetUserEmojiStatusParamsWireKeys = invertKeys(_SetUserEmojiStatusParamsPublicKeys);
+const _SetUserEmojiStatusParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  emoji_status_custom_emoji_id: Schema.optional(Schema.String),
+  emoji_status_expiration_date: Schema.optional(Schema.Int),
+});
+const _SetUserEmojiStatusParamsDecoded = Schema.declare<SetUserEmojiStatusParams>((input): input is SetUserEmojiStatusParams => Predicate.isObject(input));
+export const SetUserEmojiStatusParams: Schema.Codec<SetUserEmojiStatusParams, Readonly<Record<string, unknown>>> = _SetUserEmojiStatusParamsEncoded.pipe(
+  Schema.decodeTo(_SetUserEmojiStatusParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetUserEmojiStatusParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetUserEmojiStatusParamsWireKeys)),
+  }),
+);
+
+export const setUserEmojiStatus = callMethod({
+  method: "setUserEmojiStatus",
+  params: SetUserEmojiStatusParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success. If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content. */
+export interface SetWebhookParams {
+  /** HTTPS URL to send updates to. Use an empty string to remove webhook integration. */
+  readonly url: string;
+  /** Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details. */
+  readonly certificate?: Types.InputFile | undefined;
+  /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
+  readonly ipAddress?: string | undefined;
+  /** The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput. */
+  readonly maxConnections?: number | undefined;
+  /** A JSON-serialized list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
+Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time. */
+  readonly allowedUpdates?: ReadonlyArray<Types.UpdateType> | undefined;
+  /** Pass True to drop all pending updates */
+  readonly dropPendingUpdates?: boolean | undefined;
+  /** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
+  readonly secretToken?: string | undefined;
+}
+const _SetWebhookParamsPublicKeys = { ip_address: "ipAddress", max_connections: "maxConnections", allowed_updates: "allowedUpdates", drop_pending_updates: "dropPendingUpdates", secret_token: "secretToken" } as const;
+const _SetWebhookParamsWireKeys = invertKeys(_SetWebhookParamsPublicKeys);
+const _SetWebhookParamsEncoded = Schema.Struct({
+  url: Schema.String,
+  certificate: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile)),
+  ip_address: Schema.optional(Schema.String),
+  max_connections: Schema.optional(Schema.Int),
+  allowed_updates: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.UpdateType, unknown> => Types.UpdateType))),
+  drop_pending_updates: Schema.optional(Schema.Boolean),
+  secret_token: Schema.optional(Schema.String),
+});
+const _SetWebhookParamsDecoded = Schema.declare<SetWebhookParams>((input): input is SetWebhookParams => Predicate.isObject(input));
+export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<string, unknown>>> = _SetWebhookParamsEncoded.pipe(
+  Schema.decodeTo(_SetWebhookParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetWebhookParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetWebhookParamsWireKeys)),
+  }),
+);
+
+export const setWebhook = callMethod({
+  method: "setWebhook",
+  params: SetWebhookParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
+export interface StopMessageLiveLocationParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. */
+  readonly chatId?: number | string | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the message with live location to stop. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+  /** A JSON-serialized object for a new inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _StopMessageLiveLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+const _StopMessageLiveLocationParamsWireKeys = invertKeys(_StopMessageLiveLocationParamsPublicKeys);
+const _StopMessageLiveLocationParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _StopMessageLiveLocationParamsDecoded = Schema.declare<StopMessageLiveLocationParams>((input): input is StopMessageLiveLocationParams => Predicate.isObject(input));
+export const StopMessageLiveLocationParams: Schema.Codec<StopMessageLiveLocationParams, Readonly<Record<string, unknown>>> = _StopMessageLiveLocationParamsEncoded.pipe(
+  Schema.decodeTo(_StopMessageLiveLocationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_StopMessageLiveLocationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_StopMessageLiveLocationParamsWireKeys)),
+  }),
+);
+
+export const stopMessageLiveLocation = callMethod({
+  method: "stopMessageLiveLocation",
+  params: StopMessageLiveLocationParams,
+  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  retrySafe: true,
+});
+
+/** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
+export interface StopPollParams {
+  /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the original message with the poll */
+  readonly messageId: number;
+  /** A JSON-serialized object for a new message inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _StopPollParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
+const _StopPollParamsWireKeys = invertKeys(_StopPollParamsPublicKeys);
+const _StopPollParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _StopPollParamsDecoded = Schema.declare<StopPollParams>((input): input is StopPollParams => Predicate.isObject(input));
+export const StopPollParams: Schema.Codec<StopPollParams, Readonly<Record<string, unknown>>> = _StopPollParamsEncoded.pipe(
+  Schema.decodeTo(_StopPollParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_StopPollParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_StopPollParamsWireKeys)),
+  }),
+);
+
+export const stopPoll = callMethod({
+  method: "stopPoll",
+  params: StopPollParams,
+  result: Schema.suspend((): Schema.Codec<Types.Poll, unknown> => Types.Poll),
+  retrySafe: true,
+});
+
 /** Transfers Telegram Stars from the business account balance to the bot's balance. Requires the can_transfer_stars business bot right. Returns True on success. */
 export interface TransferBusinessAccountStarsParams {
   /** Unique identifier of the business connection */
@@ -4600,6 +6345,40 @@ export const transferBusinessAccountStars = callMethod({
   params: TransferBusinessAccountStarsParams,
   result: Schema.Literal(true),
   retrySafe: false,
+});
+
+/** Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts business bot right. Requires can_transfer_stars business bot right if the transfer is paid. Returns True on success. */
+export interface TransferGiftParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the regular gift that should be transferred */
+  readonly ownedGiftId: string;
+  /** Unique identifier of the chat which will own the gift. The chat must be active in the last 24 hours. */
+  readonly newOwnerChatId: number;
+  /** The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the can_transfer_stars business bot right is required. */
+  readonly starCount?: number | undefined;
+}
+const _TransferGiftParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", new_owner_chat_id: "newOwnerChatId", star_count: "starCount" } as const;
+const _TransferGiftParamsWireKeys = invertKeys(_TransferGiftParamsPublicKeys);
+const _TransferGiftParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  owned_gift_id: Schema.String,
+  new_owner_chat_id: Schema.Int,
+  star_count: Schema.optional(Schema.Int),
+});
+const _TransferGiftParamsDecoded = Schema.declare<TransferGiftParams>((input): input is TransferGiftParams => Predicate.isObject(input));
+export const TransferGiftParams: Schema.Codec<TransferGiftParams, Readonly<Record<string, unknown>>> = _TransferGiftParamsEncoded.pipe(
+  Schema.decodeTo(_TransferGiftParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_TransferGiftParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_TransferGiftParamsWireKeys)),
+  }),
+);
+
+export const transferGift = callMethod({
+  method: "transferGift",
+  params: TransferGiftParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success. */
@@ -4791,6 +6570,40 @@ export const UnpinChatMessageParams: Schema.Codec<UnpinChatMessageParams, Readon
 export const unpinChatMessage = callMethod({
   method: "unpinChatMessage",
   params: UnpinChatMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Upgrades a given regular gift to a unique gift. Requires the can_transfer_and_upgrade_gifts business bot right. Additionally requires the can_transfer_stars business bot right if the upgrade is paid. Returns True on success. */
+export interface UpgradeGiftParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the regular gift that should be upgraded to a unique one */
+  readonly ownedGiftId: string;
+  /** Pass True to keep the original gift text, sender and receiver in the upgraded gift */
+  readonly keepOriginalDetails?: boolean | undefined;
+  /** The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If gift.prepaid_upgrade_star_count > 0, then pass 0, otherwise, the can_transfer_stars business bot right is required and gift.upgrade_star_count must be passed. */
+  readonly starCount?: number | undefined;
+}
+const _UpgradeGiftParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", keep_original_details: "keepOriginalDetails", star_count: "starCount" } as const;
+const _UpgradeGiftParamsWireKeys = invertKeys(_UpgradeGiftParamsPublicKeys);
+const _UpgradeGiftParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  owned_gift_id: Schema.String,
+  keep_original_details: Schema.optional(Schema.Boolean),
+  star_count: Schema.optional(Schema.Int),
+});
+const _UpgradeGiftParamsDecoded = Schema.declare<UpgradeGiftParams>((input): input is UpgradeGiftParams => Predicate.isObject(input));
+export const UpgradeGiftParams: Schema.Codec<UpgradeGiftParams, Readonly<Record<string, unknown>>> = _UpgradeGiftParamsEncoded.pipe(
+  Schema.decodeTo(_UpgradeGiftParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UpgradeGiftParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UpgradeGiftParamsWireKeys)),
+  }),
+);
+
+export const upgradeGift = callMethod({
+  method: "upgradeGift",
+  params: UpgradeGiftParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
