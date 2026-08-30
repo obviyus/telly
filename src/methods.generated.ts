@@ -12,6 +12,111 @@ export const getAvailableGifts = callMethod({
   retrySafe: true,
 });
 
+/** Returns the gifts received and owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns OwnedGifts on success. */
+export interface GetBusinessAccountGiftsParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Pass True to exclude gifts that aren't saved to the account's profile page */
+  readonly excludeUnsaved?: boolean | undefined;
+  /** Pass True to exclude gifts that are saved to the account's profile page */
+  readonly excludeSaved?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased an unlimited number of times */
+  readonly excludeUnlimited?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+  readonly excludeLimitedUpgradable?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+  readonly excludeLimitedNonUpgradable?: boolean | undefined;
+  /** Pass True to exclude unique gifts */
+  readonly excludeUnique?: boolean | undefined;
+  /** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+  readonly excludeFromBlockchain?: boolean | undefined;
+  /** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
+  readonly sortByPrice?: boolean | undefined;
+  /** Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results */
+  readonly offset?: string | undefined;
+  /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+const _GetBusinessAccountGiftsParamsPublicKeys = { business_connection_id: "businessConnectionId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_unique: "excludeUnique", exclude_from_blockchain: "excludeFromBlockchain", sort_by_price: "sortByPrice" } as const;
+const _GetBusinessAccountGiftsParamsWireKeys = invertKeys(_GetBusinessAccountGiftsParamsPublicKeys);
+const _GetBusinessAccountGiftsParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  exclude_unsaved: Schema.optional(Schema.Boolean),
+  exclude_saved: Schema.optional(Schema.Boolean),
+  exclude_unlimited: Schema.optional(Schema.Boolean),
+  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+  exclude_unique: Schema.optional(Schema.Boolean),
+  exclude_from_blockchain: Schema.optional(Schema.Boolean),
+  sort_by_price: Schema.optional(Schema.Boolean),
+  offset: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Int),
+});
+const _GetBusinessAccountGiftsParamsDecoded = Schema.declare<GetBusinessAccountGiftsParams>((input): input is GetBusinessAccountGiftsParams => Predicate.isObject(input));
+export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGiftsParams, Readonly<Record<string, unknown>>> = _GetBusinessAccountGiftsParamsEncoded.pipe(
+  Schema.decodeTo(_GetBusinessAccountGiftsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountGiftsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountGiftsParamsWireKeys)),
+  }),
+);
+
+export const getBusinessAccountGifts = callMethod({
+  method: "getBusinessAccountGifts",
+  params: GetBusinessAccountGiftsParams,
+  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  retrySafe: true,
+});
+
+/** Returns the amount of Telegram Stars owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns StarAmount on success. */
+export interface GetBusinessAccountStarBalanceParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+}
+const _GetBusinessAccountStarBalanceParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
+const _GetBusinessAccountStarBalanceParamsWireKeys = invertKeys(_GetBusinessAccountStarBalanceParamsPublicKeys);
+const _GetBusinessAccountStarBalanceParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+});
+const _GetBusinessAccountStarBalanceParamsDecoded = Schema.declare<GetBusinessAccountStarBalanceParams>((input): input is GetBusinessAccountStarBalanceParams => Predicate.isObject(input));
+export const GetBusinessAccountStarBalanceParams: Schema.Codec<GetBusinessAccountStarBalanceParams, Readonly<Record<string, unknown>>> = _GetBusinessAccountStarBalanceParamsEncoded.pipe(
+  Schema.decodeTo(_GetBusinessAccountStarBalanceParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountStarBalanceParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountStarBalanceParamsWireKeys)),
+  }),
+);
+
+export const getBusinessAccountStarBalance = callMethod({
+  method: "getBusinessAccountStarBalance",
+  params: GetBusinessAccountStarBalanceParams,
+  result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
+  retrySafe: true,
+});
+
+/** Use this method to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success. */
+export interface GetBusinessConnectionParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+}
+const _GetBusinessConnectionParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
+const _GetBusinessConnectionParamsWireKeys = invertKeys(_GetBusinessConnectionParamsPublicKeys);
+const _GetBusinessConnectionParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+});
+const _GetBusinessConnectionParamsDecoded = Schema.declare<GetBusinessConnectionParams>((input): input is GetBusinessConnectionParams => Predicate.isObject(input));
+export const GetBusinessConnectionParams: Schema.Codec<GetBusinessConnectionParams, Readonly<Record<string, unknown>>> = _GetBusinessConnectionParamsEncoded.pipe(
+  Schema.decodeTo(_GetBusinessConnectionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessConnectionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessConnectionParamsWireKeys)),
+  }),
+);
+
+export const getBusinessConnection = callMethod({
+  method: "getBusinessConnection",
+  params: GetBusinessConnectionParams,
+  result: Schema.suspend((): Schema.Codec<Types.BusinessConnection, unknown> => Types.BusinessConnection),
+  retrySafe: true,
+});
+
 /** Use this method to get up-to-date information about the chat. Returns a ChatFullInfo object on success. */
 export interface GetChatParams {
   /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
@@ -252,6 +357,90 @@ export const getFile = callMethod({
 export const getForumTopicIconStickers = callMethod({
   method: "getForumTopicIconStickers",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
+  retrySafe: true,
+});
+
+/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects. */
+export interface GetGameHighScoresParams {
+  /** Target user id */
+  readonly userId: number;
+  /** Required if inline_message_id is not specified. Unique identifier for the target chat. */
+  readonly chatId?: number | undefined;
+  /** Required if inline_message_id is not specified. Identifier of the sent message. */
+  readonly messageId?: number | undefined;
+  /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+  readonly inlineMessageId?: string | undefined;
+}
+const _GetGameHighScoresParamsPublicKeys = { user_id: "userId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
+const _GetGameHighScoresParamsWireKeys = invertKeys(_GetGameHighScoresParamsPublicKeys);
+const _GetGameHighScoresParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  chat_id: Schema.optional(Schema.Int),
+  message_id: Schema.optional(Schema.Int),
+  inline_message_id: Schema.optional(Schema.String),
+});
+const _GetGameHighScoresParamsDecoded = Schema.declare<GetGameHighScoresParams>((input): input is GetGameHighScoresParams => Predicate.isObject(input));
+export const GetGameHighScoresParams: Schema.Codec<GetGameHighScoresParams, Readonly<Record<string, unknown>>> = _GetGameHighScoresParamsEncoded.pipe(
+  Schema.decodeTo(_GetGameHighScoresParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetGameHighScoresParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetGameHighScoresParamsWireKeys)),
+  }),
+);
+
+export const getGameHighScores = callMethod({
+  method: "getGameHighScores",
+  params: GetGameHighScoresParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.GameHighScore, unknown> => Types.GameHighScore)),
+  retrySafe: true,
+});
+
+/** Use this method to get the access settings of a managed bot. Returns a BotAccessSettings object on success. */
+export interface GetManagedBotAccessSettingsParams {
+  /** User identifier of the managed bot whose access settings will be returned */
+  readonly userId: number;
+}
+const _GetManagedBotAccessSettingsParamsPublicKeys = { user_id: "userId" } as const;
+const _GetManagedBotAccessSettingsParamsWireKeys = invertKeys(_GetManagedBotAccessSettingsParamsPublicKeys);
+const _GetManagedBotAccessSettingsParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+});
+const _GetManagedBotAccessSettingsParamsDecoded = Schema.declare<GetManagedBotAccessSettingsParams>((input): input is GetManagedBotAccessSettingsParams => Predicate.isObject(input));
+export const GetManagedBotAccessSettingsParams: Schema.Codec<GetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = _GetManagedBotAccessSettingsParamsEncoded.pipe(
+  Schema.decodeTo(_GetManagedBotAccessSettingsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotAccessSettingsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotAccessSettingsParamsWireKeys)),
+  }),
+);
+
+export const getManagedBotAccessSettings = callMethod({
+  method: "getManagedBotAccessSettings",
+  params: GetManagedBotAccessSettingsParams,
+  result: Schema.suspend((): Schema.Codec<Types.BotAccessSettings, unknown> => Types.BotAccessSettings),
+  retrySafe: true,
+});
+
+/** Use this method to get the token of a managed bot. Returns the token as String on success. */
+export interface GetManagedBotTokenParams {
+  /** User identifier of the managed bot whose token will be returned */
+  readonly userId: number;
+}
+const _GetManagedBotTokenParamsPublicKeys = { user_id: "userId" } as const;
+const _GetManagedBotTokenParamsWireKeys = invertKeys(_GetManagedBotTokenParamsPublicKeys);
+const _GetManagedBotTokenParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+});
+const _GetManagedBotTokenParamsDecoded = Schema.declare<GetManagedBotTokenParams>((input): input is GetManagedBotTokenParams => Predicate.isObject(input));
+export const GetManagedBotTokenParams: Schema.Codec<GetManagedBotTokenParams, Readonly<Record<string, unknown>>> = _GetManagedBotTokenParamsEncoded.pipe(
+  Schema.decodeTo(_GetManagedBotTokenParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotTokenParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotTokenParamsWireKeys)),
+  }),
+);
+
+export const getManagedBotToken = callMethod({
+  method: "getManagedBotToken",
+  params: GetManagedBotTokenParams,
+  result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
   retrySafe: true,
 });
 

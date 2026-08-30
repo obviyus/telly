@@ -6,7 +6,7 @@ import { Bot } from "./BotApi.js";
 export interface ApplicationOptions {
   readonly apiRoot?: string;
   readonly httpClient?: Layer.Layer<HttpClient.HttpClient>;
-  readonly token: string;
+  readonly token: string | Redacted.Redacted<string>;
 }
 
 export interface Application {
@@ -19,7 +19,7 @@ export const Application = {
     const runtime = ManagedRuntime.make(
       Bot.layer({
         ...(options.apiRoot === undefined ? {} : { apiRoot: options.apiRoot }),
-        token: Redacted.make(options.token),
+        token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
       }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer)),
     );
 
