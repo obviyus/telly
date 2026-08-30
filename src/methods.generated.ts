@@ -12,6 +12,167 @@ export const getAvailableGifts = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to get up-to-date information about the chat. Returns a ChatFullInfo object on success. */
+export interface GetChatParams {
+  /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+}
+const _GetChatParamsPublicKeys = { chat_id: "chatId" } as const;
+const _GetChatParamsWireKeys = invertKeys(_GetChatParamsPublicKeys);
+const _GetChatParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _GetChatParamsDecoded = Schema.declare<GetChatParams>((input): input is GetChatParams => Predicate.isObject(input));
+export const GetChatParams: Schema.Codec<GetChatParams, Readonly<Record<string, unknown>>> = _GetChatParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatParamsWireKeys)),
+  }),
+);
+
+export const getChat = callMethod({
+  method: "getChat",
+  params: GetChatParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatFullInfo, unknown> => Types.ChatFullInfo),
+  retrySafe: true,
+});
+
+/** Use this method to get a list of administrators in a chat. Returns an Array of ChatMember objects. */
+export interface GetChatAdministratorsParams {
+  /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Pass True to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted. */
+  readonly returnBots?: boolean | undefined;
+}
+const _GetChatAdministratorsParamsPublicKeys = { chat_id: "chatId", return_bots: "returnBots" } as const;
+const _GetChatAdministratorsParamsWireKeys = invertKeys(_GetChatAdministratorsParamsPublicKeys);
+const _GetChatAdministratorsParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  return_bots: Schema.optional(Schema.Boolean),
+});
+const _GetChatAdministratorsParamsDecoded = Schema.declare<GetChatAdministratorsParams>((input): input is GetChatAdministratorsParams => Predicate.isObject(input));
+export const GetChatAdministratorsParams: Schema.Codec<GetChatAdministratorsParams, Readonly<Record<string, unknown>>> = _GetChatAdministratorsParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatAdministratorsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatAdministratorsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatAdministratorsParamsWireKeys)),
+  }),
+);
+
+export const getChatAdministrators = callMethod({
+  method: "getChatAdministrators",
+  params: GetChatAdministratorsParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember)),
+  retrySafe: true,
+});
+
+/** Returns the gifts owned by a chat. Returns OwnedGifts on success. */
+export interface GetChatGiftsParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Pass True to exclude gifts that aren't saved to the chat's profile page. Always True, unless the bot has the can_post_messages administrator right in the channel. */
+  readonly excludeUnsaved?: boolean | undefined;
+  /** Pass True to exclude gifts that are saved to the chat's profile page. Always False, unless the bot has the can_post_messages administrator right in the channel. */
+  readonly excludeSaved?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased an unlimited number of times */
+  readonly excludeUnlimited?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+  readonly excludeLimitedUpgradable?: boolean | undefined;
+  /** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+  readonly excludeLimitedNonUpgradable?: boolean | undefined;
+  /** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+  readonly excludeFromBlockchain?: boolean | undefined;
+  /** Pass True to exclude unique gifts */
+  readonly excludeUnique?: boolean | undefined;
+  /** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
+  readonly sortByPrice?: boolean | undefined;
+  /** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
+  readonly offset?: string | undefined;
+  /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+const _GetChatGiftsParamsPublicKeys = { chat_id: "chatId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
+const _GetChatGiftsParamsWireKeys = invertKeys(_GetChatGiftsParamsPublicKeys);
+const _GetChatGiftsParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  exclude_unsaved: Schema.optional(Schema.Boolean),
+  exclude_saved: Schema.optional(Schema.Boolean),
+  exclude_unlimited: Schema.optional(Schema.Boolean),
+  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+  exclude_from_blockchain: Schema.optional(Schema.Boolean),
+  exclude_unique: Schema.optional(Schema.Boolean),
+  sort_by_price: Schema.optional(Schema.Boolean),
+  offset: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Int),
+});
+const _GetChatGiftsParamsDecoded = Schema.declare<GetChatGiftsParams>((input): input is GetChatGiftsParams => Predicate.isObject(input));
+export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Record<string, unknown>>> = _GetChatGiftsParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatGiftsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatGiftsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatGiftsParamsWireKeys)),
+  }),
+);
+
+export const getChatGifts = callMethod({
+  method: "getChatGifts",
+  params: GetChatGiftsParams,
+  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  retrySafe: true,
+});
+
+/** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success. */
+export interface GetChatMemberParams {
+  /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+}
+const _GetChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+const _GetChatMemberParamsWireKeys = invertKeys(_GetChatMemberParamsPublicKeys);
+const _GetChatMemberParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+});
+const _GetChatMemberParamsDecoded = Schema.declare<GetChatMemberParams>((input): input is GetChatMemberParams => Predicate.isObject(input));
+export const GetChatMemberParams: Schema.Codec<GetChatMemberParams, Readonly<Record<string, unknown>>> = _GetChatMemberParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatMemberParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberParamsWireKeys)),
+  }),
+);
+
+export const getChatMember = callMethod({
+  method: "getChatMember",
+  params: GetChatMemberParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember),
+  retrySafe: true,
+});
+
+/** Use this method to get the number of members in a chat. Returns Integer on success. */
+export interface GetChatMemberCountParams {
+  /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+}
+const _GetChatMemberCountParamsPublicKeys = { chat_id: "chatId" } as const;
+const _GetChatMemberCountParamsWireKeys = invertKeys(_GetChatMemberCountParamsPublicKeys);
+const _GetChatMemberCountParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _GetChatMemberCountParamsDecoded = Schema.declare<GetChatMemberCountParams>((input): input is GetChatMemberCountParams => Predicate.isObject(input));
+export const GetChatMemberCountParams: Schema.Codec<GetChatMemberCountParams, Readonly<Record<string, unknown>>> = _GetChatMemberCountParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatMemberCountParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberCountParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberCountParamsWireKeys)),
+  }),
+);
+
+export const getChatMemberCount = callMethod({
+  method: "getChatMemberCount",
+  params: GetChatMemberCountParams,
+  result: Schema.Int,
+  retrySafe: true,
+});
+
 /** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success. */
 export interface GetChatMenuButtonParams {
   /** Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned. */

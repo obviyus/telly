@@ -1,0 +1,15 @@
+{
+  "method": "getChatMember",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:02:30.360Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 65,
+      "kind": "bot_api_result",
+      "observation": {
+        "status": "member"
+      }
+    }
+  ]
+}

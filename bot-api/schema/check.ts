@@ -1,8 +1,13 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 
 import { Effect, Schema } from "effect";
 
-import { GeneratorOverrides, generateSources, MethodProofs } from "./generator.ts";
+import {
+  BotApiCoverage,
+  GeneratorOverrides,
+  generateSources,
+  MethodEvidence,
+} from "./generator.ts";
 import { checkBotApiSchema } from "./spec.ts";
 
 class SchemaFileReadError extends Schema.TaggedError<SchemaFileReadError>()(
@@ -25,13 +30,20 @@ const readText = Effect.fn("readSchemaText")(function* (url: URL) {
   });
 });
 
+const checkFile = Effect.fn("checkEvidenceArtifact")(function* (url: URL) {
+  yield* Effect.tryPromise({
+    try: () => access(url),
+    catch: (cause) => new SchemaFileReadError({ cause, path: url.pathname }),
+  });
+});
+
 const result = await Effect.runPromise(
   Effect.gen(function* () {
     const [
       specText,
       manifestText,
       overridesText,
-      proofsText,
+      evidenceText,
       generatedTypes,
       generatedMethods,
       generatedCoverage,
@@ -48,8 +60,17 @@ const result = await Effect.runPromise(
     const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides))(
       overridesText,
     );
-    const proofs = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(MethodProofs))(proofsText);
-    const expected = generateSources(result.spec, overrides, proofs);
+    const evidence = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(MethodEvidence), {
+      onExcessProperty: "error",
+    })(evidenceText);
+    yield* Effect.all(
+      Object.values(evidence).flatMap((item) =>
+        item.status === "proven"
+          ? [checkFile(new URL(`../../${item.artifact}`, import.meta.url))]
+          : []
+      ),
+    );
+    const expected = generateSources(result.spec, overrides, evidence);
     for (const [path, actual, wanted] of [
       ["src/types.generated.ts", generatedTypes, expected.types],
       ["src/methods.generated.ts", generatedMethods, expected.methods],
@@ -59,10 +80,17 @@ const result = await Effect.runPromise(
         return yield* new GeneratedSourceMismatch({ path });
       }
     }
-    return result;
+    const coverage = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(BotApiCoverage))(
+      expected.coverage,
+    );
+    const today = new Date().toISOString().slice(0, 10);
+    const expiredBlockCount = Object.values(coverage.methods).filter(
+      (item) => item.status === "blocked" && item.expires_on < today,
+    ).length;
+    return { ...result, expiredBlockCount };
   }),
 );
 
 console.log(
-  `Bot API ${result.summary.version}: ${result.summary.typeCount} types, ${result.summary.methodCount} methods, ${result.summary.enumCount} enums, ${result.summary.unresolvedReferenceCount} unresolved references`,
+  `Bot API ${result.summary.version}: ${result.summary.typeCount} types, ${result.summary.methodCount} methods, ${result.summary.enumCount} enums, ${result.summary.unresolvedReferenceCount} unresolved references, ${result.expiredBlockCount} expired evidence blocks`,
 );
