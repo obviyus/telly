@@ -8,6 +8,7 @@ const TypeOverride = Schema.Struct({
 });
 
 const MethodOverride = Schema.Struct({
+  resultSchema: Schema.optionalKey(Schema.String),
   retrySafe: Schema.Boolean,
 });
 
@@ -357,7 +358,8 @@ function renderMethods(
       const paramsSchema = renamed.length === 0
         ? `export const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${encodedFields}\n});`
         : `const _${paramsName}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${paramsName}WireKeys = invertKeys(_${paramsName}PublicKeys);\nconst _${paramsName}Encoded = Schema.Struct({\n${encodedFields}\n});\nconst _${paramsName}Decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\nexport const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = _${paramsName}Encoded.pipe(\n  Schema.decodeTo(_${paramsName}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}WireKeys)),\n  }),\n);`;
-      const result = unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
+      const result = override.resultSchema ??
+        unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
       const parameterDeclaration = fields.length === 0
         ? ""
         : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;

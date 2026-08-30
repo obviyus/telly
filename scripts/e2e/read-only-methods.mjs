@@ -1,11 +1,15 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { Redacted } from "effect";
 
 import {
   Application,
   downloadFile,
   getAvailableGifts,
+  getBusinessAccountGifts,
+  getBusinessAccountStarBalance,
+  getBusinessConnection,
   getChat,
   getChatAdministrators,
   getChatGifts,
@@ -15,6 +19,9 @@ import {
   getCustomEmojiStickers,
   getFile,
   getForumTopicIconStickers,
+  getGameHighScores,
+  getManagedBotAccessSettings,
+  getManagedBotToken,
   getMe,
   getMyCommands,
   getMyDefaultAdministratorRights,
@@ -63,6 +70,26 @@ try {
       summarize: (result) => ({ giftCount: result.gifts.length }),
     },
     {
+      name: "getBusinessAccountGifts",
+      operation: () => getBusinessAccountGifts({
+        businessConnectionId: "missing-connection",
+        limit: 1,
+      }),
+      summarize: (result) => ({ giftCount: result.gifts.length, totalCount: result.totalCount }),
+    },
+    {
+      name: "getBusinessAccountStarBalance",
+      operation: () => getBusinessAccountStarBalance({
+        businessConnectionId: "missing-connection",
+      }),
+      summarize: (result) => ({ amount: result.amount }),
+    },
+    {
+      name: "getBusinessConnection",
+      operation: () => getBusinessConnection({ businessConnectionId: "missing-connection" }),
+      summarize: (result) => ({ enabled: result.isEnabled }),
+    },
+    {
       name: "getChat",
       operation: () => getChat({ chatId: groupId }),
       summarize: (result) => ({ hasTitle: result.title !== undefined, type: result.type }),
@@ -96,6 +123,25 @@ try {
       name: "getForumTopicIconStickers",
       operation: getForumTopicIconStickers,
       summarize: (result) => ({ stickerCount: result.length }),
+    },
+    {
+      name: "getGameHighScores",
+      operation: () => getGameHighScores({
+        chatId: testerUserId,
+        messageId: 1,
+        userId: testerUserId,
+      }),
+      summarize: (result) => ({ scoreCount: result.length }),
+    },
+    {
+      name: "getManagedBotAccessSettings",
+      operation: () => getManagedBotAccessSettings({ userId: testerUserId }),
+      summarize: () => ({ decoded: true }),
+    },
+    {
+      name: "getManagedBotToken",
+      operation: () => getManagedBotToken({ userId: testerUserId }),
+      summarize: (result) => ({ isRedacted: Redacted.isRedacted(result) }),
     },
     {
       name: "getMe",

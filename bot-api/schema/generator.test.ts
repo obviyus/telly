@@ -35,6 +35,7 @@ const spec = {
 } satisfies BotApiSpec;
 
 test("coverage distinguishes proven, explicitly blocked, and absent methods", () => {
+  const resultSchema = "Schema.Literal(\"overridden\")";
   const evidence: MethodEvidence = {
     blocked: {
       expires_on: "2026-09-13",
@@ -48,7 +49,12 @@ test("coverage distinguishes proven, explicitly blocked, and absent methods", ()
     },
   };
 
-  const coverage = JSON.parse(generateSources(spec, { methods: {}, types: {} }, evidence).coverage);
+  const sources = generateSources(
+    spec,
+    { methods: { proven: { resultSchema, retrySafe: true } }, types: {} },
+    evidence,
+  );
+  const coverage = JSON.parse(sources.coverage);
 
   expect(coverage.methods["proven"]).toEqual(evidence["proven"]);
   expect(coverage.methods["blocked"]).toEqual(evidence["blocked"]);
@@ -57,6 +63,7 @@ test("coverage distinguishes proven, explicitly blocked, and absent methods", ()
     reason: "no live scenario",
     status: "blocked",
   });
+  expect(sources.methods).toContain(`result: ${resultSchema}`);
 });
 
 test("evidence tags reject fields from the other state", async () => {

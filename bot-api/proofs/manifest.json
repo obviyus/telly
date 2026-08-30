@@ -4,6 +4,21 @@
     "recorded_time": "2026-08-30T16:47:23.909Z",
     "status": "proven"
   },
+  "getBusinessAccountGifts": {
+    "expires_on": "2026-09-13",
+    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getBusinessAccountStarBalance": {
+    "expires_on": "2026-09-13",
+    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getBusinessConnection": {
+    "expires_on": "2026-09-13",
+    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
+    "status": "blocked"
+  },
   "getChat": {
     "artifact": "bot-api/proofs/getChat/2026-08-30.json",
     "recorded_time": "2026-08-30T17:00:55.780Z",
@@ -48,6 +63,21 @@
     "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.935Z",
     "status": "proven"
+  },
+  "getGameHighScores": {
+    "expires_on": "2026-09-13",
+    "reason": "leased bot has no game message fixture: Telegram returned 'message to get game high scores not found'; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getManagedBotAccessSettings": {
+    "expires_on": "2026-09-13",
+    "reason": "leased user is not a managed bot fixture: Telegram returned 'user is not a bot'; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getManagedBotToken": {
+    "expires_on": "2026-09-13",
+    "reason": "leased user is not a managed bot fixture: Telegram returned 'user is not a bot'; credential pool repair is owner-only",
+    "status": "blocked"
   },
   "getMe": {
     "artifact": "bot-api/proofs/getMe/2026-08-30.json",

@@ -9,7 +9,7 @@ Read [VISION.md](./VISION.md) for the product direction.
 Bot API methods are generated from the checked-in Telegram schema. Methods with no parameters take no arguments.
 
 ```ts
-import { Application, getMe, getMyName, sendMessage } from "telly";
+import { Application, getManagedBotToken, getMe, getMyName, sendMessage } from "telly";
 
 const token = process.env.BOT_TOKEN;
 if (token === undefined) throw new Error("Set BOT_TOKEN");
@@ -33,6 +33,13 @@ try {
 A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
 
 `downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.
+
+Managed bot tokens stay redacted and pass directly into another application:
+
+```ts
+const managedToken = await app.run(getManagedBotToken({ userId: 123 }));
+const managedApp = Application.make({ token: managedToken });
+```
 
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
 
