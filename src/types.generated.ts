@@ -1,4 +1,4 @@
-// Generated from schema/sources/dofer/spec.json. Edit schema inputs or overrides, then regenerate.
+// Generated from bot-api/schema/sources/dofer/spec.json. Edit schema inputs or overrides, then regenerate.
 import { Schema } from "effect";
 
 /** Values of the type field that tell subtypes of BackgroundFill apart. */

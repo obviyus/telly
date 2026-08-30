@@ -19,6 +19,6 @@
     "types": ["node"],
     "verbatimModuleSyntax": true
   },
-  "include": ["index.ts", "testing.ts", "schema/**/*.ts", "src/**/*.ts"],
-  "exclude": ["schema/**/*.test.ts"]
+  "include": ["bot-api/schema/**/*.ts", "index.ts", "testing.ts", "src/**/*.ts"],
+  "exclude": ["bot-api/schema/**/*.test.ts"]
 }

@@ -39,9 +39,9 @@ const result = await Effect.runPromise(
       readText(new URL("./sources/dofer/spec.json", import.meta.url)),
       readText(new URL("./sources/manifest.json", import.meta.url)),
       readText(new URL("./overrides.json", import.meta.url)),
-      readText(new URL("./proofs.json", import.meta.url)),
-      readText(new URL("../src/types.generated.ts", import.meta.url)),
-      readText(new URL("../src/methods.generated.ts", import.meta.url)),
+      readText(new URL("../proofs/manifest.json", import.meta.url)),
+      readText(new URL("../../src/types.generated.ts", import.meta.url)),
+      readText(new URL("../../src/methods.generated.ts", import.meta.url)),
       readText(new URL("./coverage.json", import.meta.url)),
     ]);
     const result = yield* checkBotApiSchema({ manifestText, specText });
@@ -53,7 +53,7 @@ const result = await Effect.runPromise(
     for (const [path, actual, wanted] of [
       ["src/types.generated.ts", generatedTypes, expected.types],
       ["src/methods.generated.ts", generatedMethods, expected.methods],
-      ["schema/coverage.json", generatedCoverage, expected.coverage],
+      ["bot-api/schema/coverage.json", generatedCoverage, expected.coverage],
     ] as const) {
       if (actual !== wanted) {
         return yield* new GeneratedSourceMismatch({ path });

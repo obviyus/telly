@@ -4,5 +4,5 @@
     "types": ["bun", "node"]
   },
   "exclude": [],
-  "include": ["schema/**/*.test.ts", "scripts/build.ts", "test/**/*.test.ts"]
+  "include": ["bot-api/schema/**/*.test.ts", "scripts/build.ts", "test/**/*.test.ts"]
 }

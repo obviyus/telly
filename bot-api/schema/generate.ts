@@ -12,7 +12,7 @@ const program = Effect.gen(function* () {
     read("./sources/dofer/spec.json"),
     read("./sources/manifest.json"),
     read("./overrides.json"),
-    read("./proofs.json"),
+    read("../proofs/manifest.json"),
   ]);
   const { spec } = yield* checkBotApiSchema({ manifestText, specText });
   const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides))(
@@ -21,8 +21,8 @@ const program = Effect.gen(function* () {
   const proofs = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(MethodProofs))(proofsText);
   const sources = generateSources(spec, overrides, proofs);
   yield* Effect.all([
-    Effect.tryPromise(() => writeFile(new URL("../src/types.generated.ts", import.meta.url), sources.types)),
-    Effect.tryPromise(() => writeFile(new URL("../src/methods.generated.ts", import.meta.url), sources.methods)),
+    Effect.tryPromise(() => writeFile(new URL("../../src/types.generated.ts", import.meta.url), sources.types)),
+    Effect.tryPromise(() => writeFile(new URL("../../src/methods.generated.ts", import.meta.url), sources.methods)),
     Effect.tryPromise(() => writeFile(new URL("./coverage.json", import.meta.url), sources.coverage)),
   ]);
 });

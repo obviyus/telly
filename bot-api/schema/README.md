@@ -6,7 +6,7 @@
 
 `spec.ts` is the single check interface. It preserves unknown fields and verifies provenance, version, names, and type references.
 
-`generator.ts` converts the checked source, `overrides.json`, and `proofs.json` into the public type Schemas, enabled methods, and method coverage.
+`generator.ts` converts the checked source, `overrides.json`, and `../proofs/manifest.json` into the public type Schemas, enabled methods, and method coverage.
 
 `overrides.json` records type corrections and explicit retry safety metadata for every enabled method. Method `retry_safe` states whether retrying after an unknown outcome is guaranteed not to duplicate a side effect.
 

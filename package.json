@@ -28,8 +28,8 @@
     "build": "bun run ./scripts/build.ts && tsc --project ./tsconfig.build.json",
     "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
     "e2e:send-message": "bun run ./scripts/e2e/send-message.mjs",
-    "schema:check": "bun run ./schema/check.ts",
-    "schema:generate": "bun run ./schema/generate.ts",
+    "schema:check": "bun run ./bot-api/schema/check.ts",
+    "schema:generate": "bun run ./bot-api/schema/generate.ts",
     "test": "bun test --pass-with-no-tests",
     "test:node": "bun run build && node ./test/node-smoke.mjs",
     "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json"

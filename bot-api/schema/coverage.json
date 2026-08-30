@@ -632,7 +632,7 @@
       "status": "blocked"
     },
     "sendMessage": {
-      "artifact": "proofs/sendMessage/2026-08-30.json",
+      "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
       "recorded_time": "2026-08-30T13:55:04.034Z",
       "status": "proven"
     },

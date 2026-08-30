@@ -171,7 +171,7 @@ function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
       }
       return renderObjectType(name, definition, targets);
     });
-  return `${generatedHeader("schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
 }
 
 function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string {
@@ -207,7 +207,7 @@ function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string 
       const result = unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
       return `${docComment(method.description)}export interface ${paramsName} {\n${interfaceFields}\n}\nexport const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${schemaFields}\n});\n\nexport const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n  params: ${paramsName},\n  result: ${result},\n  retrySafe: ${override.retry_safe},\n});\n`;
     });
-  return `${generatedHeader("schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
 
 function renderCoverage(spec: BotApiSpec, proofs: MethodProofs): string {

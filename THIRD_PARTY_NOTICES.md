@@ -86,7 +86,7 @@ SOFTWARE.
 ## Telegram Bot API schema
 
 - Source: <https://github.com/DOFER998/telegram-bot-api-schema>
-- Included file: `schema/sources/dofer/spec.json`
+- Included file: `bot-api/schema/sources/dofer/spec.json`
 
 MIT License
 
