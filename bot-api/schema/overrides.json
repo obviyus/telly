@@ -1,79 +1,145 @@
 {
   "fields": {
     "InputMediaAnimation.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaAnimation.thumbnail": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputMediaAudio.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaAudio.thumbnail": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputMediaDocument.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaDocument.thumbnail": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputMediaLivePhoto.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaLivePhoto.photo": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaPhoto.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaSticker.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaVideo.cover": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaVideo.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputMediaVideo.thumbnail": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputMediaVoiceNote.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaLivePhoto.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaLivePhoto.photo": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaPhoto.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaVideo.cover": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaVideo.media": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputPaidMediaVideo.thumbnail": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputProfilePhotoAnimated.animation": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputProfilePhotoStatic.photo": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputSticker.sticker": {
-      "types": ["InputFile", "String"]
+      "types": [
+        "InputFile",
+        "String"
+      ]
     },
     "InputStoryContentPhoto.photo": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     },
     "InputStoryContentVideo.video": {
-      "types": ["InputFile"]
+      "types": [
+        "InputFile"
+      ]
     }
   },
   "methods": {
@@ -107,6 +173,18 @@
     "approveSuggestedPost": {
       "retrySafe": true
     },
+    "banChatMember": {
+      "retrySafe": true
+    },
+    "banChatSenderChat": {
+      "retrySafe": true
+    },
+    "closeForumTopic": {
+      "retrySafe": true
+    },
+    "closeGeneralForumTopic": {
+      "retrySafe": true
+    },
     "copyMessage": {
       "retrySafe": false
     },
@@ -125,13 +203,34 @@
     "createInvoiceLink": {
       "retrySafe": false
     },
-    "deleteMyCommands": {
-      "retrySafe": true
-    },
     "declineChatJoinRequest": {
       "retrySafe": true
     },
     "declineSuggestedPost": {
+      "retrySafe": true
+    },
+    "deleteChatPhoto": {
+      "retrySafe": true
+    },
+    "deleteChatStickerSet": {
+      "retrySafe": true
+    },
+    "deleteForumTopic": {
+      "retrySafe": true
+    },
+    "deleteMyCommands": {
+      "retrySafe": true
+    },
+    "editChatInviteLink": {
+      "retrySafe": true
+    },
+    "editChatSubscriptionInviteLink": {
+      "retrySafe": true
+    },
+    "editForumTopic": {
+      "retrySafe": true
+    },
+    "editGeneralForumTopic": {
       "retrySafe": true
     },
     "exportChatInviteLink": {
@@ -141,9 +240,6 @@
       "retrySafe": false
     },
     "forwardMessages": {
-      "retrySafe": false
-    },
-    "giftPremiumSubscription": {
       "retrySafe": false
     },
     "getAvailableGifts": {
@@ -240,11 +336,32 @@
     "getWebhookInfo": {
       "retrySafe": true
     },
+    "giftPremiumSubscription": {
+      "retrySafe": false
+    },
+    "hideGeneralForumTopic": {
+      "retrySafe": true
+    },
+    "leaveChat": {
+      "retrySafe": true
+    },
     "pinChatMessage": {
       "retrySafe": false
     },
     "postStory": {
       "retrySafe": false
+    },
+    "promoteChatMember": {
+      "retrySafe": true
+    },
+    "removeChatVerification": {
+      "retrySafe": true
+    },
+    "reopenForumTopic": {
+      "retrySafe": true
+    },
+    "reopenGeneralForumTopic": {
+      "retrySafe": true
     },
     "replaceManagedBotToken": {
       "resultSchema": "Schema.RedactedFromValue(Schema.String, { label: \"Telegram bot token\" })",
@@ -252,6 +369,12 @@
     },
     "repostStory": {
       "retrySafe": false
+    },
+    "restrictChatMember": {
+      "retrySafe": true
+    },
+    "revokeChatInviteLink": {
+      "retrySafe": true
     },
     "savePreparedInlineMessage": {
       "retrySafe": false
@@ -334,8 +457,26 @@
     "setBusinessAccountProfilePhoto": {
       "retrySafe": false
     },
+    "setChatAdministratorCustomTitle": {
+      "retrySafe": true
+    },
+    "setChatDescription": {
+      "retrySafe": true
+    },
+    "setChatMemberTag": {
+      "retrySafe": true
+    },
+    "setChatPermissions": {
+      "retrySafe": true
+    },
     "setChatPhoto": {
       "retrySafe": false
+    },
+    "setChatStickerSet": {
+      "retrySafe": true
+    },
+    "setChatTitle": {
+      "retrySafe": true
     },
     "setMyCommands": {
       "retrySafe": true
@@ -358,8 +499,35 @@
     "transferBusinessAccountStars": {
       "retrySafe": false
     },
+    "unbanChatMember": {
+      "retrySafe": true
+    },
+    "unbanChatSenderChat": {
+      "retrySafe": true
+    },
+    "unhideGeneralForumTopic": {
+      "retrySafe": true
+    },
+    "unpinAllChatMessages": {
+      "retrySafe": true
+    },
+    "unpinAllForumTopicMessages": {
+      "retrySafe": true
+    },
+    "unpinAllGeneralForumTopicMessages": {
+      "retrySafe": true
+    },
+    "unpinChatMessage": {
+      "retrySafe": true
+    },
     "uploadStickerFile": {
       "retrySafe": false
+    },
+    "verifyChat": {
+      "retrySafe": true
+    },
+    "verifyUser": {
+      "retrySafe": true
     }
   },
   "types": {

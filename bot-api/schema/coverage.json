@@ -52,13 +52,13 @@
       "status": "blocked"
     },
     "banChatMember": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "banChatSenderChat": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased group and sender-chat fixtures unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "close": {
@@ -67,13 +67,13 @@
       "status": "blocked"
     },
     "closeForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "closeGeneralForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "convertGiftToStars": {
@@ -137,13 +137,13 @@
       "status": "blocked"
     },
     "deleteChatPhoto": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator chat fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "deleteChatStickerSet": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased supergroup sticker-set fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "deleteEphemeralMessage": {
@@ -152,8 +152,8 @@
       "status": "blocked"
     },
     "deleteForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "deleteMessage": {
@@ -197,13 +197,13 @@
       "status": "blocked"
     },
     "editChatInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "administrator chat and bot-created invite-link fixtures are unavailable after group migration",
       "status": "blocked"
     },
     "editChatSubscriptionInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "channel and subscription invite-link fixtures are unavailable",
       "status": "blocked"
     },
     "editEphemeralMessageCaption": {
@@ -227,13 +227,13 @@
       "status": "blocked"
     },
     "editForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "editGeneralForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "editMessageCaption": {
@@ -457,13 +457,13 @@
       "status": "blocked"
     },
     "hideGeneralForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "leaveChat": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "live execution would remove the leased bot from shared state that only the credential owner can repair",
       "status": "blocked"
     },
     "logOut": {
@@ -482,8 +482,8 @@
       "status": "blocked"
     },
     "promoteChatMember": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "readBusinessMessage": {
@@ -502,8 +502,8 @@
       "status": "blocked"
     },
     "removeChatVerification": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "verified chat and verification-rights fixtures are unavailable",
       "status": "blocked"
     },
     "removeMyProfilePhoto": {
@@ -517,13 +517,13 @@
       "status": "blocked"
     },
     "reopenForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased closed forum topic fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "reopenGeneralForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased closed forum fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "replaceManagedBotToken": {
@@ -542,13 +542,13 @@
       "status": "blocked"
     },
     "restrictChatMember": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "revokeChatInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "administrator chat and bot-created invite-link fixtures are unavailable after group migration",
       "status": "blocked"
     },
     "savePreparedInlineMessage": {
@@ -717,18 +717,18 @@
       "status": "blocked"
     },
     "setChatAdministratorCustomTitle": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "setChatDescription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator chat fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "setChatMemberTag": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased tagged-member group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "setChatMenuButton": {
@@ -737,8 +737,8 @@
       "status": "blocked"
     },
     "setChatPermissions": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "setChatPhoto": {
@@ -747,13 +747,13 @@
       "status": "blocked"
     },
     "setChatStickerSet": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased supergroup and bot-owned sticker-set fixtures are unavailable after migration",
       "status": "blocked"
     },
     "setChatTitle": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator chat fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "setCustomEmojiStickerSetThumbnail": {
@@ -872,38 +872,38 @@
       "status": "blocked"
     },
     "unbanChatMember": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased banned-member group fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "unbanChatSenderChat": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased banned sender-chat fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "unhideGeneralForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased hidden forum fixture unavailable after migration; credential pool repair is owner-only",
       "status": "blocked"
     },
     "unpinAllChatMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator chat with pinned-message state is unavailable after group migration",
       "status": "blocked"
     },
     "unpinAllForumTopicMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased forum topic with pinned-message state is unavailable after group migration",
       "status": "blocked"
     },
     "unpinAllGeneralForumTopicMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased general forum topic with pinned-message state is unavailable after group migration",
       "status": "blocked"
     },
     "unpinChatMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "leased administrator chat with a pinned-message fixture is unavailable after group migration",
       "status": "blocked"
     },
     "upgradeGift": {
@@ -917,13 +917,13 @@
       "status": "blocked"
     },
     "verifyChat": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "verification-rights and eligible chat fixtures are unavailable",
       "status": "blocked"
     },
     "verifyUser": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "verification-rights and eligible user fixtures are unavailable",
       "status": "blocked"
     }
   }
