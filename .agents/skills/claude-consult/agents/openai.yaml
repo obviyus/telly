@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude Consult"
+  short_description: "Consult Claude Fable on tricky designs"
+  default_prompt: "Use $claude-consult to get a second opinion on this design."
