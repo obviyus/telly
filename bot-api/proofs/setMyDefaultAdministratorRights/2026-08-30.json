@@ -1,0 +1,16 @@
+{
+  "method": "setMyDefaultAdministratorRights",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:33:36.381Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 55,
+      "kind": "bot_api_result",
+      "observation": {
+        "matches": true,
+        "result": true
+      }
+    }
+  ]
+}

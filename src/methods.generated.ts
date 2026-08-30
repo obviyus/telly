@@ -5,6 +5,34 @@ import { callMethod } from "./internal/CallMethod.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
 import * as Types from "./types.generated.js";
 
+/** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
+export interface DeleteMyCommandsParams {
+  /** A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
+  readonly scope?: Types.BotCommandScope | undefined;
+  /** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands. */
+  readonly languageCode?: string | undefined;
+}
+const _DeleteMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
+const _DeleteMyCommandsParamsWireKeys = invertKeys(_DeleteMyCommandsParamsPublicKeys);
+const _DeleteMyCommandsParamsEncoded = Schema.Struct({
+  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
+  language_code: Schema.optional(Schema.String),
+});
+const _DeleteMyCommandsParamsDecoded = Schema.declare<DeleteMyCommandsParams>((input): input is DeleteMyCommandsParams => Predicate.isObject(input));
+export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readonly<Record<string, unknown>>> = _DeleteMyCommandsParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteMyCommandsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMyCommandsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMyCommandsParamsWireKeys)),
+  }),
+);
+
+export const deleteMyCommands = callMethod({
+  method: "deleteMyCommands",
+  params: DeleteMyCommandsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
 export const getAvailableGifts = callMethod({
   method: "getAvailableGifts",
@@ -863,4 +891,147 @@ export const sendMessage = callMethod({
   params: SendMessageParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
+});
+
+/** Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success. */
+export interface SetMyCommandsParams {
+  /** A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */
+  readonly commands: ReadonlyArray<Types.BotCommand>;
+  /** A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
+  readonly scope?: Types.BotCommandScope | undefined;
+  /** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands. */
+  readonly languageCode?: string | undefined;
+}
+const _SetMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
+const _SetMyCommandsParamsWireKeys = invertKeys(_SetMyCommandsParamsPublicKeys);
+const _SetMyCommandsParamsEncoded = Schema.Struct({
+  commands: Schema.Array(Schema.suspend((): Schema.Codec<Types.BotCommand, unknown> => Types.BotCommand)),
+  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
+  language_code: Schema.optional(Schema.String),
+});
+const _SetMyCommandsParamsDecoded = Schema.declare<SetMyCommandsParams>((input): input is SetMyCommandsParams => Predicate.isObject(input));
+export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Record<string, unknown>>> = _SetMyCommandsParamsEncoded.pipe(
+  Schema.decodeTo(_SetMyCommandsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyCommandsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyCommandsParamsWireKeys)),
+  }),
+);
+
+export const setMyCommands = callMethod({
+  method: "setMyCommands",
+  params: SetMyCommandsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success. */
+export interface SetMyDefaultAdministratorRightsParams {
+  /** A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared. */
+  readonly rights?: Types.ChatAdministratorRights | undefined;
+  /** Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed. */
+  readonly forChannels?: boolean | undefined;
+}
+const _SetMyDefaultAdministratorRightsParamsPublicKeys = { for_channels: "forChannels" } as const;
+const _SetMyDefaultAdministratorRightsParamsWireKeys = invertKeys(_SetMyDefaultAdministratorRightsParamsPublicKeys);
+const _SetMyDefaultAdministratorRightsParamsEncoded = Schema.Struct({
+  rights: Schema.optional(Schema.suspend((): Schema.Codec<Types.ChatAdministratorRights, unknown> => Types.ChatAdministratorRights)),
+  for_channels: Schema.optional(Schema.Boolean),
+});
+const _SetMyDefaultAdministratorRightsParamsDecoded = Schema.declare<SetMyDefaultAdministratorRightsParams>((input): input is SetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
+export const SetMyDefaultAdministratorRightsParams: Schema.Codec<SetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = _SetMyDefaultAdministratorRightsParamsEncoded.pipe(
+  Schema.decodeTo(_SetMyDefaultAdministratorRightsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyDefaultAdministratorRightsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyDefaultAdministratorRightsParamsWireKeys)),
+  }),
+);
+
+export const setMyDefaultAdministratorRights = callMethod({
+  method: "setMyDefaultAdministratorRights",
+  params: SetMyDefaultAdministratorRightsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success. */
+export interface SetMyDescriptionParams {
+  /** New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language. */
+  readonly description?: string | undefined;
+  /** A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description. */
+  readonly languageCode?: string | undefined;
+}
+const _SetMyDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
+const _SetMyDescriptionParamsWireKeys = invertKeys(_SetMyDescriptionParamsPublicKeys);
+const _SetMyDescriptionParamsEncoded = Schema.Struct({
+  description: Schema.optional(Schema.String),
+  language_code: Schema.optional(Schema.String),
+});
+const _SetMyDescriptionParamsDecoded = Schema.declare<SetMyDescriptionParams>((input): input is SetMyDescriptionParams => Predicate.isObject(input));
+export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readonly<Record<string, unknown>>> = _SetMyDescriptionParamsEncoded.pipe(
+  Schema.decodeTo(_SetMyDescriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyDescriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyDescriptionParamsWireKeys)),
+  }),
+);
+
+export const setMyDescription = callMethod({
+  method: "setMyDescription",
+  params: SetMyDescriptionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the bot's name. Returns True on success. */
+export interface SetMyNameParams {
+  /** New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language. */
+  readonly name?: string | undefined;
+  /** A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name. */
+  readonly languageCode?: string | undefined;
+}
+const _SetMyNameParamsPublicKeys = { language_code: "languageCode" } as const;
+const _SetMyNameParamsWireKeys = invertKeys(_SetMyNameParamsPublicKeys);
+const _SetMyNameParamsEncoded = Schema.Struct({
+  name: Schema.optional(Schema.String),
+  language_code: Schema.optional(Schema.String),
+});
+const _SetMyNameParamsDecoded = Schema.declare<SetMyNameParams>((input): input is SetMyNameParams => Predicate.isObject(input));
+export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<string, unknown>>> = _SetMyNameParamsEncoded.pipe(
+  Schema.decodeTo(_SetMyNameParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyNameParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyNameParamsWireKeys)),
+  }),
+);
+
+export const setMyName = callMethod({
+  method: "setMyName",
+  params: SetMyNameParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success. */
+export interface SetMyShortDescriptionParams {
+  /** New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language. */
+  readonly shortDescription?: string | undefined;
+  /** A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description. */
+  readonly languageCode?: string | undefined;
+}
+const _SetMyShortDescriptionParamsPublicKeys = { short_description: "shortDescription", language_code: "languageCode" } as const;
+const _SetMyShortDescriptionParamsWireKeys = invertKeys(_SetMyShortDescriptionParamsPublicKeys);
+const _SetMyShortDescriptionParamsEncoded = Schema.Struct({
+  short_description: Schema.optional(Schema.String),
+  language_code: Schema.optional(Schema.String),
+});
+const _SetMyShortDescriptionParamsDecoded = Schema.declare<SetMyShortDescriptionParams>((input): input is SetMyShortDescriptionParams => Predicate.isObject(input));
+export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = _SetMyShortDescriptionParamsEncoded.pipe(
+  Schema.decodeTo(_SetMyShortDescriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyShortDescriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyShortDescriptionParamsWireKeys)),
+  }),
+);
+
+export const setMyShortDescription = callMethod({
+  method: "setMyShortDescription",
+  params: SetMyShortDescriptionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
