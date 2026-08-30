@@ -69,6 +69,7 @@ How Telly uses Effect:
 - Handlers are Effects. Effect combinators and Layers are the single composition model for timing, tracing, error reporting, and application policy.
 - `Application` owns the HTTP client and managed runtime. Its `run` method bridges an operation to a Promise only at the application edge. An optional HTTP client Layer replaces the default fetch client without changing the operation.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
+- `Message` is generated from Telegram's wire contract and remains the single Message model. Derived facts are pure functions; operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
 - Layers wire real services for production and deterministic services for tests.
 - Runtimes own a Scope. Interruption of the Scope cancels polling, drains work, and releases resources.
