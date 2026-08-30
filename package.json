@@ -21,10 +21,11 @@
   "sideEffects": false,
   "scripts": {
     "build": "bun build ./index.ts --outdir ./dist --target node --format esm --packages external && tsc --project ./tsconfig.build.json",
-    "check": "bun run typecheck && bun run test && bun run test:node",
+    "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
+    "schema:check": "bun run ./schema/check.ts",
     "test": "bun test --pass-with-no-tests",
     "test:node": "bun run build && node --input-type=module --eval \"await import('./dist/index.js')\"",
-    "typecheck": "tsc --project ./tsconfig.json"
+    "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json"
   },
   "dependencies": {
     "effect": "4.0.0-rc.112"

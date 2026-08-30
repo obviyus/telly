@@ -1,0 +1,20 @@
+{
+  "botApiVersion": "10.3",
+  "botApiReleaseDate": "2026-08-24",
+  "primarySource": {
+    "repository": "DOFER998/telegram-bot-api-schema",
+    "revision": "v10.3.1",
+    "commit": "136746c1d66b7b15d4bd93a524adbbb8152e6f04",
+    "url": "https://raw.githubusercontent.com/DOFER998/telegram-bot-api-schema/v10.3.1/spec.json",
+    "sha256": "4c76f0eba04c6b1be27be4c37e3615d53c91cffefb2ec7d9e3ac2b4925db0763"
+  },
+  "independentSources": [
+    {
+      "repository": "PaulSonOfLars/telegram-bot-api-spec",
+      "revision": "d59462bb813375e5fd53e3969d59400969148bf7",
+      "commit": "d59462bb813375e5fd53e3969d59400969148bf7",
+      "url": "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/d59462bb813375e5fd53e3969d59400969148bf7/api.json",
+      "sha256": "76315bfbb0e869ce59d9aaf429eb11b031de717a0d9e8208b3dc50a14c340a61"
+    }
+  ]
+}
