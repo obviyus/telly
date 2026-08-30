@@ -66,6 +66,7 @@ Terms:
 How Telly uses Effect:
 
 - Bot API methods are Effects. Their requirements name the services they need.
+- Handlers are Effects. Effect combinators and Layers are the single composition model for timing, tracing, error reporting, and application policy.
 - `Application` owns the HTTP client and managed runtime. Its `run` method bridges an operation to a Promise only at the application edge. An optional HTTP client Layer replaces the default fetch client without changing the operation.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
