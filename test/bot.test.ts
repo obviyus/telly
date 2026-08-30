@@ -12,6 +12,7 @@ import {
   sendMessage,
   sendVenue,
   setMyDefaultAdministratorRights,
+  setChatTitle,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
@@ -372,5 +373,24 @@ test("answerCallbackQuery sends one consumable query response", async () => {
     callback_query_id: "query-127",
     show_alert: true,
     text: "Done",
+  });
+});
+
+test("setChatTitle sends request-keyed replacement state", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok(true)],
+    token,
+  });
+
+  const changed = await Effect.runPromise(
+    setChatTitle({ chatId: -100131, title: "Telly Room" }).pipe(
+      Effect.provide(botLayer(fake)),
+    ),
+  );
+
+  expect(changed).toBe(true);
+  expect(fake.requests[0]?.params).toEqual({
+    chat_id: -100131,
+    title: "Telly Room",
   });
 });

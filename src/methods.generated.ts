@@ -324,6 +324,121 @@ export const approveSuggestedPost = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface BanChatMemberParams {
+  /** Unique identifier for the target group or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only. */
+  readonly untilDate?: number | undefined;
+  /** Pass True to delete all messages from the chat for the user that is being removed. If False, the user will be able to see messages in the group that were sent before the user was removed. Always True for supergroups and channels. */
+  readonly revokeMessages?: boolean | undefined;
+}
+const _BanChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", until_date: "untilDate", revoke_messages: "revokeMessages" } as const;
+const _BanChatMemberParamsWireKeys = invertKeys(_BanChatMemberParamsPublicKeys);
+const _BanChatMemberParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  until_date: Schema.optional(Schema.Int),
+  revoke_messages: Schema.optional(Schema.Boolean),
+});
+const _BanChatMemberParamsDecoded = Schema.declare<BanChatMemberParams>((input): input is BanChatMemberParams => Predicate.isObject(input));
+export const BanChatMemberParams: Schema.Codec<BanChatMemberParams, Readonly<Record<string, unknown>>> = _BanChatMemberParamsEncoded.pipe(
+  Schema.decodeTo(_BanChatMemberParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_BanChatMemberParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_BanChatMemberParamsWireKeys)),
+  }),
+);
+
+export const banChatMember = callMethod({
+  method: "banChatMember",
+  params: BanChatMemberParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface BanChatSenderChatParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target sender chat */
+  readonly senderChatId: number;
+}
+const _BanChatSenderChatParamsPublicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
+const _BanChatSenderChatParamsWireKeys = invertKeys(_BanChatSenderChatParamsPublicKeys);
+const _BanChatSenderChatParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  sender_chat_id: Schema.Int,
+});
+const _BanChatSenderChatParamsDecoded = Schema.declare<BanChatSenderChatParams>((input): input is BanChatSenderChatParams => Predicate.isObject(input));
+export const BanChatSenderChatParams: Schema.Codec<BanChatSenderChatParams, Readonly<Record<string, unknown>>> = _BanChatSenderChatParamsEncoded.pipe(
+  Schema.decodeTo(_BanChatSenderChatParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_BanChatSenderChatParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_BanChatSenderChatParamsWireKeys)),
+  }),
+);
+
+export const banChatSenderChat = callMethod({
+  method: "banChatSenderChat",
+  params: BanChatSenderChatParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
+export interface CloseForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread of the forum topic */
+  readonly messageThreadId: number;
+}
+const _CloseForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+const _CloseForumTopicParamsWireKeys = invertKeys(_CloseForumTopicParamsPublicKeys);
+const _CloseForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.Int,
+});
+const _CloseForumTopicParamsDecoded = Schema.declare<CloseForumTopicParams>((input): input is CloseForumTopicParams => Predicate.isObject(input));
+export const CloseForumTopicParams: Schema.Codec<CloseForumTopicParams, Readonly<Record<string, unknown>>> = _CloseForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_CloseForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CloseForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CloseForumTopicParamsWireKeys)),
+  }),
+);
+
+export const closeForumTopic = callMethod({
+  method: "closeForumTopic",
+  params: CloseForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
+export interface CloseGeneralForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _CloseGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
+const _CloseGeneralForumTopicParamsWireKeys = invertKeys(_CloseGeneralForumTopicParamsPublicKeys);
+const _CloseGeneralForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _CloseGeneralForumTopicParamsDecoded = Schema.declare<CloseGeneralForumTopicParams>((input): input is CloseGeneralForumTopicParams => Predicate.isObject(input));
+export const CloseGeneralForumTopicParams: Schema.Codec<CloseGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _CloseGeneralForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_CloseGeneralForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CloseGeneralForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CloseGeneralForumTopicParamsWireKeys)),
+  }),
+);
+
+export const closeGeneralForumTopic = callMethod({
+  method: "closeGeneralForumTopic",
+  params: CloseGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
 export interface CopyMessageParams {
   /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
@@ -695,6 +810,84 @@ export const declineSuggestedPost = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface DeleteChatPhotoParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+}
+const _DeleteChatPhotoParamsPublicKeys = { chat_id: "chatId" } as const;
+const _DeleteChatPhotoParamsWireKeys = invertKeys(_DeleteChatPhotoParamsPublicKeys);
+const _DeleteChatPhotoParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _DeleteChatPhotoParamsDecoded = Schema.declare<DeleteChatPhotoParams>((input): input is DeleteChatPhotoParams => Predicate.isObject(input));
+export const DeleteChatPhotoParams: Schema.Codec<DeleteChatPhotoParams, Readonly<Record<string, unknown>>> = _DeleteChatPhotoParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteChatPhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatPhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatPhotoParamsWireKeys)),
+  }),
+);
+
+export const deleteChatPhoto = callMethod({
+  method: "deleteChatPhoto",
+  params: DeleteChatPhotoParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success. */
+export interface DeleteChatStickerSetParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _DeleteChatStickerSetParamsPublicKeys = { chat_id: "chatId" } as const;
+const _DeleteChatStickerSetParamsWireKeys = invertKeys(_DeleteChatStickerSetParamsPublicKeys);
+const _DeleteChatStickerSetParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _DeleteChatStickerSetParamsDecoded = Schema.declare<DeleteChatStickerSetParams>((input): input is DeleteChatStickerSetParams => Predicate.isObject(input));
+export const DeleteChatStickerSetParams: Schema.Codec<DeleteChatStickerSetParams, Readonly<Record<string, unknown>>> = _DeleteChatStickerSetParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteChatStickerSetParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatStickerSetParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatStickerSetParamsWireKeys)),
+  }),
+);
+
+export const deleteChatStickerSet = callMethod({
+  method: "deleteChatStickerSet",
+  params: DeleteChatStickerSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success. */
+export interface DeleteForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread of the forum topic */
+  readonly messageThreadId: number;
+}
+const _DeleteForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+const _DeleteForumTopicParamsWireKeys = invertKeys(_DeleteForumTopicParamsPublicKeys);
+const _DeleteForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.Int,
+});
+const _DeleteForumTopicParamsDecoded = Schema.declare<DeleteForumTopicParams>((input): input is DeleteForumTopicParams => Predicate.isObject(input));
+export const DeleteForumTopicParams: Schema.Codec<DeleteForumTopicParams, Readonly<Record<string, unknown>>> = _DeleteForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_DeleteForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteForumTopicParamsWireKeys)),
+  }),
+);
+
+export const deleteForumTopic = callMethod({
+  method: "deleteForumTopic",
+  params: DeleteForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
 export interface DeleteMyCommandsParams {
   /** A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
@@ -719,6 +912,139 @@ export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readon
 export const deleteMyCommands = callMethod({
   method: "deleteMyCommands",
   params: DeleteMyCommandsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
+export interface EditChatInviteLinkParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** The invite link to edit */
+  readonly inviteLink: string;
+  /** Invite link name; 0-32 characters */
+  readonly name?: string | undefined;
+  /** Point in time (Unix timestamp) when the link will expire */
+  readonly expireDate?: number | undefined;
+  /** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
+  readonly memberLimit?: number | undefined;
+  /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
+  readonly createsJoinRequest?: boolean | undefined;
+}
+const _EditChatInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
+const _EditChatInviteLinkParamsWireKeys = invertKeys(_EditChatInviteLinkParamsPublicKeys);
+const _EditChatInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  invite_link: Schema.String,
+  name: Schema.optional(Schema.String),
+  expire_date: Schema.optional(Schema.Int),
+  member_limit: Schema.optional(Schema.Int),
+  creates_join_request: Schema.optional(Schema.Boolean),
+});
+const _EditChatInviteLinkParamsDecoded = Schema.declare<EditChatInviteLinkParams>((input): input is EditChatInviteLinkParams => Predicate.isObject(input));
+export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Readonly<Record<string, unknown>>> = _EditChatInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_EditChatInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditChatInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditChatInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const editChatInviteLink = callMethod({
+  method: "editChatInviteLink",
+  params: EditChatInviteLinkParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  retrySafe: true,
+});
+
+/** Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object. */
+export interface EditChatSubscriptionInviteLinkParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** The invite link to edit */
+  readonly inviteLink: string;
+  /** Invite link name; 0-32 characters */
+  readonly name?: string | undefined;
+}
+const _EditChatSubscriptionInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
+const _EditChatSubscriptionInviteLinkParamsWireKeys = invertKeys(_EditChatSubscriptionInviteLinkParamsPublicKeys);
+const _EditChatSubscriptionInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  invite_link: Schema.String,
+  name: Schema.optional(Schema.String),
+});
+const _EditChatSubscriptionInviteLinkParamsDecoded = Schema.declare<EditChatSubscriptionInviteLinkParams>((input): input is EditChatSubscriptionInviteLinkParams => Predicate.isObject(input));
+export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = _EditChatSubscriptionInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_EditChatSubscriptionInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditChatSubscriptionInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditChatSubscriptionInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const editChatSubscriptionInviteLink = callMethod({
+  method: "editChatSubscriptionInviteLink",
+  params: EditChatSubscriptionInviteLinkParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  retrySafe: true,
+});
+
+/** Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
+export interface EditForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread of the forum topic */
+  readonly messageThreadId: number;
+  /** New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept. */
+  readonly name?: string | undefined;
+  /** New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept. */
+  readonly iconCustomEmojiId?: string | undefined;
+}
+const _EditForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
+const _EditForumTopicParamsWireKeys = invertKeys(_EditForumTopicParamsPublicKeys);
+const _EditForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.Int,
+  name: Schema.optional(Schema.String),
+  icon_custom_emoji_id: Schema.optional(Schema.String),
+});
+const _EditForumTopicParamsDecoded = Schema.declare<EditForumTopicParams>((input): input is EditForumTopicParams => Predicate.isObject(input));
+export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<Record<string, unknown>>> = _EditForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_EditForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditForumTopicParamsWireKeys)),
+  }),
+);
+
+export const editForumTopic = callMethod({
+  method: "editForumTopic",
+  params: EditForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
+export interface EditGeneralForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** New topic name, 1-128 characters */
+  readonly name: string;
+}
+const _EditGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
+const _EditGeneralForumTopicParamsWireKeys = invertKeys(_EditGeneralForumTopicParamsPublicKeys);
+const _EditGeneralForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  name: Schema.String,
+});
+const _EditGeneralForumTopicParamsDecoded = Schema.declare<EditGeneralForumTopicParams>((input): input is EditGeneralForumTopicParams => Predicate.isObject(input));
+export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _EditGeneralForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_EditGeneralForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_EditGeneralForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_EditGeneralForumTopicParamsWireKeys)),
+  }),
+);
+
+export const editGeneralForumTopic = callMethod({
+  method: "editGeneralForumTopic",
+  params: EditGeneralForumTopicParams,
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1673,6 +1999,56 @@ export const giftPremiumSubscription = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success. */
+export interface HideGeneralForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _HideGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
+const _HideGeneralForumTopicParamsWireKeys = invertKeys(_HideGeneralForumTopicParamsPublicKeys);
+const _HideGeneralForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _HideGeneralForumTopicParamsDecoded = Schema.declare<HideGeneralForumTopicParams>((input): input is HideGeneralForumTopicParams => Predicate.isObject(input));
+export const HideGeneralForumTopicParams: Schema.Codec<HideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _HideGeneralForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_HideGeneralForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_HideGeneralForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_HideGeneralForumTopicParamsWireKeys)),
+  }),
+);
+
+export const hideGeneralForumTopic = callMethod({
+  method: "hideGeneralForumTopic",
+  params: HideGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method for your bot to leave a group, supergroup or channel. Returns True on success. */
+export interface LeaveChatParams {
+  /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username. Channel direct messages chats aren't supported; leave the corresponding channel instead. */
+  readonly chatId: number | string;
+}
+const _LeaveChatParamsPublicKeys = { chat_id: "chatId" } as const;
+const _LeaveChatParamsWireKeys = invertKeys(_LeaveChatParamsPublicKeys);
+const _LeaveChatParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _LeaveChatParamsDecoded = Schema.declare<LeaveChatParams>((input): input is LeaveChatParams => Predicate.isObject(input));
+export const LeaveChatParams: Schema.Codec<LeaveChatParams, Readonly<Record<string, unknown>>> = _LeaveChatParamsEncoded.pipe(
+  Schema.decodeTo(_LeaveChatParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_LeaveChatParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_LeaveChatParamsWireKeys)),
+  }),
+);
+
+export const leaveChat = callMethod({
+  method: "leaveChat",
+  params: LeaveChatParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns True on success. */
 export interface PinChatMessageParams {
   /** Unique identifier of the business connection on behalf of which the message will be pinned */
@@ -1756,6 +2132,166 @@ export const postStory = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success. */
+export interface PromoteChatMemberParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Pass True if the administrator's presence in the chat is hidden */
+  readonly isAnonymous?: boolean | undefined;
+  /** Pass True if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege. */
+  readonly canManageChat?: boolean | undefined;
+  /** Pass True if the administrator can delete messages of other users */
+  readonly canDeleteMessages?: boolean | undefined;
+  /** Pass True if the administrator can manage video chats */
+  readonly canManageVideoChats?: boolean | undefined;
+  /** Pass True if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to True for promotions of channel administrators. */
+  readonly canRestrictMembers?: boolean | undefined;
+  /** Pass True if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by him) */
+  readonly canPromoteMembers?: boolean | undefined;
+  /** Pass True if the administrator can change chat title, photo and other settings */
+  readonly canChangeInfo?: boolean | undefined;
+  /** Pass True if the administrator can invite new users to the chat */
+  readonly canInviteUsers?: boolean | undefined;
+  /** Pass True if the administrator can post stories to the chat */
+  readonly canPostStories?: boolean | undefined;
+  /** Pass True if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
+  readonly canEditStories?: boolean | undefined;
+  /** Pass True if the administrator can delete stories posted by other users */
+  readonly canDeleteStories?: boolean | undefined;
+  /** Pass True if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
+  readonly canPostMessages?: boolean | undefined;
+  /** Pass True if the administrator can edit messages of other users and can pin messages; for channels only */
+  readonly canEditMessages?: boolean | undefined;
+  /** Pass True if the administrator can pin messages; for supergroups only */
+  readonly canPinMessages?: boolean | undefined;
+  /** Pass True if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
+  readonly canManageTopics?: boolean | undefined;
+  /** Pass True if the administrator can manage direct messages within the channel and decline suggested posts; for channels only */
+  readonly canManageDirectMessages?: boolean | undefined;
+  /** Pass True if the administrator can edit the tags of regular members; for groups and supergroups only */
+  readonly canManageTags?: boolean | undefined;
+  /** Pass True if the administrator can manage chat welcome messages or directly send them in the case of bots */
+  readonly canSendWelcomeMessages?: boolean | undefined;
+}
+const _PromoteChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", is_anonymous: "isAnonymous", can_manage_chat: "canManageChat", can_delete_messages: "canDeleteMessages", can_manage_video_chats: "canManageVideoChats", can_restrict_members: "canRestrictMembers", can_promote_members: "canPromoteMembers", can_change_info: "canChangeInfo", can_invite_users: "canInviteUsers", can_post_stories: "canPostStories", can_edit_stories: "canEditStories", can_delete_stories: "canDeleteStories", can_post_messages: "canPostMessages", can_edit_messages: "canEditMessages", can_pin_messages: "canPinMessages", can_manage_topics: "canManageTopics", can_manage_direct_messages: "canManageDirectMessages", can_manage_tags: "canManageTags", can_send_welcome_messages: "canSendWelcomeMessages" } as const;
+const _PromoteChatMemberParamsWireKeys = invertKeys(_PromoteChatMemberParamsPublicKeys);
+const _PromoteChatMemberParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  is_anonymous: Schema.optional(Schema.Boolean),
+  can_manage_chat: Schema.optional(Schema.Boolean),
+  can_delete_messages: Schema.optional(Schema.Boolean),
+  can_manage_video_chats: Schema.optional(Schema.Boolean),
+  can_restrict_members: Schema.optional(Schema.Boolean),
+  can_promote_members: Schema.optional(Schema.Boolean),
+  can_change_info: Schema.optional(Schema.Boolean),
+  can_invite_users: Schema.optional(Schema.Boolean),
+  can_post_stories: Schema.optional(Schema.Boolean),
+  can_edit_stories: Schema.optional(Schema.Boolean),
+  can_delete_stories: Schema.optional(Schema.Boolean),
+  can_post_messages: Schema.optional(Schema.Boolean),
+  can_edit_messages: Schema.optional(Schema.Boolean),
+  can_pin_messages: Schema.optional(Schema.Boolean),
+  can_manage_topics: Schema.optional(Schema.Boolean),
+  can_manage_direct_messages: Schema.optional(Schema.Boolean),
+  can_manage_tags: Schema.optional(Schema.Boolean),
+  can_send_welcome_messages: Schema.optional(Schema.Boolean),
+});
+const _PromoteChatMemberParamsDecoded = Schema.declare<PromoteChatMemberParams>((input): input is PromoteChatMemberParams => Predicate.isObject(input));
+export const PromoteChatMemberParams: Schema.Codec<PromoteChatMemberParams, Readonly<Record<string, unknown>>> = _PromoteChatMemberParamsEncoded.pipe(
+  Schema.decodeTo(_PromoteChatMemberParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_PromoteChatMemberParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_PromoteChatMemberParamsWireKeys)),
+  }),
+);
+
+export const promoteChatMember = callMethod({
+  method: "promoteChatMember",
+  params: PromoteChatMemberParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+export interface RemoveChatVerificationParams {
+  /** Unique identifier for the target chat or username of the target bot or channel in the format @username */
+  readonly chatId: number | string;
+}
+const _RemoveChatVerificationParamsPublicKeys = { chat_id: "chatId" } as const;
+const _RemoveChatVerificationParamsWireKeys = invertKeys(_RemoveChatVerificationParamsPublicKeys);
+const _RemoveChatVerificationParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _RemoveChatVerificationParamsDecoded = Schema.declare<RemoveChatVerificationParams>((input): input is RemoveChatVerificationParams => Predicate.isObject(input));
+export const RemoveChatVerificationParams: Schema.Codec<RemoveChatVerificationParams, Readonly<Record<string, unknown>>> = _RemoveChatVerificationParamsEncoded.pipe(
+  Schema.decodeTo(_RemoveChatVerificationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveChatVerificationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveChatVerificationParamsWireKeys)),
+  }),
+);
+
+export const removeChatVerification = callMethod({
+  method: "removeChatVerification",
+  params: RemoveChatVerificationParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
+export interface ReopenForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread of the forum topic */
+  readonly messageThreadId: number;
+}
+const _ReopenForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+const _ReopenForumTopicParamsWireKeys = invertKeys(_ReopenForumTopicParamsPublicKeys);
+const _ReopenForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.Int,
+});
+const _ReopenForumTopicParamsDecoded = Schema.declare<ReopenForumTopicParams>((input): input is ReopenForumTopicParams => Predicate.isObject(input));
+export const ReopenForumTopicParams: Schema.Codec<ReopenForumTopicParams, Readonly<Record<string, unknown>>> = _ReopenForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_ReopenForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ReopenForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ReopenForumTopicParamsWireKeys)),
+  }),
+);
+
+export const reopenForumTopic = callMethod({
+  method: "reopenForumTopic",
+  params: ReopenForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically unhidden if it was hidden. Returns True on success. */
+export interface ReopenGeneralForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _ReopenGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
+const _ReopenGeneralForumTopicParamsWireKeys = invertKeys(_ReopenGeneralForumTopicParamsPublicKeys);
+const _ReopenGeneralForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _ReopenGeneralForumTopicParamsDecoded = Schema.declare<ReopenGeneralForumTopicParams>((input): input is ReopenGeneralForumTopicParams => Predicate.isObject(input));
+export const ReopenGeneralForumTopicParams: Schema.Codec<ReopenGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _ReopenGeneralForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_ReopenGeneralForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ReopenGeneralForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ReopenGeneralForumTopicParamsWireKeys)),
+  }),
+);
+
+export const reopenGeneralForumTopic = callMethod({
+  method: "reopenGeneralForumTopic",
+  params: ReopenGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success. */
 export interface ReplaceManagedBotTokenParams {
   /** User identifier of the managed bot whose token will be replaced */
@@ -1819,6 +2355,71 @@ export const repostStory = callMethod({
   params: RepostStoryParams,
   result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
   retrySafe: false,
+});
+
+/** Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success. */
+export interface RestrictChatMemberParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** A JSON-serialized object for new user permissions */
+  readonly permissions: Types.ChatPermissions;
+  /** Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission. */
+  readonly useIndependentChatPermissions?: boolean | undefined;
+  /** Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever. */
+  readonly untilDate?: number | undefined;
+}
+const _RestrictChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", use_independent_chat_permissions: "useIndependentChatPermissions", until_date: "untilDate" } as const;
+const _RestrictChatMemberParamsWireKeys = invertKeys(_RestrictChatMemberParamsPublicKeys);
+const _RestrictChatMemberParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  permissions: Schema.suspend((): Schema.Codec<Types.ChatPermissions, unknown> => Types.ChatPermissions),
+  use_independent_chat_permissions: Schema.optional(Schema.Boolean),
+  until_date: Schema.optional(Schema.Int),
+});
+const _RestrictChatMemberParamsDecoded = Schema.declare<RestrictChatMemberParams>((input): input is RestrictChatMemberParams => Predicate.isObject(input));
+export const RestrictChatMemberParams: Schema.Codec<RestrictChatMemberParams, Readonly<Record<string, unknown>>> = _RestrictChatMemberParamsEncoded.pipe(
+  Schema.decodeTo(_RestrictChatMemberParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RestrictChatMemberParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RestrictChatMemberParamsWireKeys)),
+  }),
+);
+
+export const restrictChatMember = callMethod({
+  method: "restrictChatMember",
+  params: RestrictChatMemberParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object. */
+export interface RevokeChatInviteLinkParams {
+  /** Unique identifier of the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** The invite link to revoke */
+  readonly inviteLink: string;
+}
+const _RevokeChatInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
+const _RevokeChatInviteLinkParamsWireKeys = invertKeys(_RevokeChatInviteLinkParamsPublicKeys);
+const _RevokeChatInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  invite_link: Schema.String,
+});
+const _RevokeChatInviteLinkParamsDecoded = Schema.declare<RevokeChatInviteLinkParams>((input): input is RevokeChatInviteLinkParams => Predicate.isObject(input));
+export const RevokeChatInviteLinkParams: Schema.Codec<RevokeChatInviteLinkParams, Readonly<Record<string, unknown>>> = _RevokeChatInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_RevokeChatInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RevokeChatInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RevokeChatInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const revokeChatInviteLink = callMethod({
+  method: "revokeChatInviteLink",
+  params: RevokeChatInviteLinkParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  retrySafe: true,
 });
 
 /** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
@@ -3609,6 +4210,127 @@ export const setBusinessAccountProfilePhoto = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success. */
+export interface SetChatAdministratorCustomTitleParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** New custom title for the administrator; 0-16 characters, emoji are not allowed */
+  readonly customTitle: string;
+}
+const _SetChatAdministratorCustomTitleParamsPublicKeys = { chat_id: "chatId", user_id: "userId", custom_title: "customTitle" } as const;
+const _SetChatAdministratorCustomTitleParamsWireKeys = invertKeys(_SetChatAdministratorCustomTitleParamsPublicKeys);
+const _SetChatAdministratorCustomTitleParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  custom_title: Schema.String,
+});
+const _SetChatAdministratorCustomTitleParamsDecoded = Schema.declare<SetChatAdministratorCustomTitleParams>((input): input is SetChatAdministratorCustomTitleParams => Predicate.isObject(input));
+export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdministratorCustomTitleParams, Readonly<Record<string, unknown>>> = _SetChatAdministratorCustomTitleParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatAdministratorCustomTitleParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatAdministratorCustomTitleParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatAdministratorCustomTitleParamsWireKeys)),
+  }),
+);
+
+export const setChatAdministratorCustomTitle = callMethod({
+  method: "setChatAdministratorCustomTitle",
+  params: SetChatAdministratorCustomTitleParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface SetChatDescriptionParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** New chat description, 0-255 characters */
+  readonly description?: string | undefined;
+}
+const _SetChatDescriptionParamsPublicKeys = { chat_id: "chatId" } as const;
+const _SetChatDescriptionParamsWireKeys = invertKeys(_SetChatDescriptionParamsPublicKeys);
+const _SetChatDescriptionParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  description: Schema.optional(Schema.String),
+});
+const _SetChatDescriptionParamsDecoded = Schema.declare<SetChatDescriptionParams>((input): input is SetChatDescriptionParams => Predicate.isObject(input));
+export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Readonly<Record<string, unknown>>> = _SetChatDescriptionParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatDescriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatDescriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatDescriptionParamsWireKeys)),
+  }),
+);
+
+export const setChatDescription = callMethod({
+  method: "setChatDescription",
+  params: SetChatDescriptionParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set a tag for a regular member in a group or a supergroup. The bot must be an administrator in the chat for this to work and must have the can_manage_tags administrator right. Returns True on success. */
+export interface SetChatMemberTagParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** New tag for the member; 0-16 characters, emoji are not allowed */
+  readonly tag?: string | undefined;
+}
+const _SetChatMemberTagParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+const _SetChatMemberTagParamsWireKeys = invertKeys(_SetChatMemberTagParamsPublicKeys);
+const _SetChatMemberTagParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  tag: Schema.optional(Schema.String),
+});
+const _SetChatMemberTagParamsDecoded = Schema.declare<SetChatMemberTagParams>((input): input is SetChatMemberTagParams => Predicate.isObject(input));
+export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readonly<Record<string, unknown>>> = _SetChatMemberTagParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatMemberTagParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatMemberTagParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatMemberTagParamsWireKeys)),
+  }),
+);
+
+export const setChatMemberTag = callMethod({
+  method: "setChatMemberTag",
+  params: SetChatMemberTagParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success. */
+export interface SetChatPermissionsParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** A JSON-serialized object for new default chat permissions */
+  readonly permissions: Types.ChatPermissions;
+  /** Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission. */
+  readonly useIndependentChatPermissions?: boolean | undefined;
+}
+const _SetChatPermissionsParamsPublicKeys = { chat_id: "chatId", use_independent_chat_permissions: "useIndependentChatPermissions" } as const;
+const _SetChatPermissionsParamsWireKeys = invertKeys(_SetChatPermissionsParamsPublicKeys);
+const _SetChatPermissionsParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  permissions: Schema.suspend((): Schema.Codec<Types.ChatPermissions, unknown> => Types.ChatPermissions),
+  use_independent_chat_permissions: Schema.optional(Schema.Boolean),
+});
+const _SetChatPermissionsParamsDecoded = Schema.declare<SetChatPermissionsParams>((input): input is SetChatPermissionsParams => Predicate.isObject(input));
+export const SetChatPermissionsParams: Schema.Codec<SetChatPermissionsParams, Readonly<Record<string, unknown>>> = _SetChatPermissionsParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatPermissionsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatPermissionsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatPermissionsParamsWireKeys)),
+  }),
+);
+
+export const setChatPermissions = callMethod({
+  method: "setChatPermissions",
+  params: SetChatPermissionsParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 export interface SetChatPhotoParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
@@ -3635,6 +4357,62 @@ export const setChatPhoto = callMethod({
   params: SetChatPhotoParams,
   result: Schema.Literal(true),
   retrySafe: false,
+});
+
+/** Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success. */
+export interface SetChatStickerSetParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Name of the sticker set to be set as the group sticker set */
+  readonly stickerSetName: string;
+}
+const _SetChatStickerSetParamsPublicKeys = { chat_id: "chatId", sticker_set_name: "stickerSetName" } as const;
+const _SetChatStickerSetParamsWireKeys = invertKeys(_SetChatStickerSetParamsPublicKeys);
+const _SetChatStickerSetParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  sticker_set_name: Schema.String,
+});
+const _SetChatStickerSetParamsDecoded = Schema.declare<SetChatStickerSetParams>((input): input is SetChatStickerSetParams => Predicate.isObject(input));
+export const SetChatStickerSetParams: Schema.Codec<SetChatStickerSetParams, Readonly<Record<string, unknown>>> = _SetChatStickerSetParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatStickerSetParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatStickerSetParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatStickerSetParamsWireKeys)),
+  }),
+);
+
+export const setChatStickerSet = callMethod({
+  method: "setChatStickerSet",
+  params: SetChatStickerSetParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface SetChatTitleParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** New chat title, 1-128 characters */
+  readonly title: string;
+}
+const _SetChatTitleParamsPublicKeys = { chat_id: "chatId" } as const;
+const _SetChatTitleParamsWireKeys = invertKeys(_SetChatTitleParamsPublicKeys);
+const _SetChatTitleParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  title: Schema.String,
+});
+const _SetChatTitleParamsDecoded = Schema.declare<SetChatTitleParams>((input): input is SetChatTitleParams => Predicate.isObject(input));
+export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Record<string, unknown>>> = _SetChatTitleParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatTitleParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatTitleParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatTitleParamsWireKeys)),
+  }),
+);
+
+export const setChatTitle = callMethod({
+  method: "setChatTitle",
+  params: SetChatTitleParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success. */
@@ -3824,6 +4602,199 @@ export const transferBusinessAccountStars = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success. */
+export interface UnbanChatMemberParams {
+  /** Unique identifier for the target group or username of the target supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Do nothing if the user is not banned */
+  readonly onlyIfBanned?: boolean | undefined;
+}
+const _UnbanChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", only_if_banned: "onlyIfBanned" } as const;
+const _UnbanChatMemberParamsWireKeys = invertKeys(_UnbanChatMemberParamsPublicKeys);
+const _UnbanChatMemberParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+  only_if_banned: Schema.optional(Schema.Boolean),
+});
+const _UnbanChatMemberParamsDecoded = Schema.declare<UnbanChatMemberParams>((input): input is UnbanChatMemberParams => Predicate.isObject(input));
+export const UnbanChatMemberParams: Schema.Codec<UnbanChatMemberParams, Readonly<Record<string, unknown>>> = _UnbanChatMemberParamsEncoded.pipe(
+  Schema.decodeTo(_UnbanChatMemberParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatMemberParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatMemberParamsWireKeys)),
+  }),
+);
+
+export const unbanChatMember = callMethod({
+  method: "unbanChatMember",
+  params: UnbanChatMemberParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface UnbanChatSenderChatParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target sender chat */
+  readonly senderChatId: number;
+}
+const _UnbanChatSenderChatParamsPublicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
+const _UnbanChatSenderChatParamsWireKeys = invertKeys(_UnbanChatSenderChatParamsPublicKeys);
+const _UnbanChatSenderChatParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  sender_chat_id: Schema.Int,
+});
+const _UnbanChatSenderChatParamsDecoded = Schema.declare<UnbanChatSenderChatParams>((input): input is UnbanChatSenderChatParams => Predicate.isObject(input));
+export const UnbanChatSenderChatParams: Schema.Codec<UnbanChatSenderChatParams, Readonly<Record<string, unknown>>> = _UnbanChatSenderChatParamsEncoded.pipe(
+  Schema.decodeTo(_UnbanChatSenderChatParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatSenderChatParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatSenderChatParamsWireKeys)),
+  }),
+);
+
+export const unbanChatSenderChat = callMethod({
+  method: "unbanChatSenderChat",
+  params: UnbanChatSenderChatParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
+export interface UnhideGeneralForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _UnhideGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
+const _UnhideGeneralForumTopicParamsWireKeys = invertKeys(_UnhideGeneralForumTopicParamsPublicKeys);
+const _UnhideGeneralForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _UnhideGeneralForumTopicParamsDecoded = Schema.declare<UnhideGeneralForumTopicParams>((input): input is UnhideGeneralForumTopicParams => Predicate.isObject(input));
+export const UnhideGeneralForumTopicParams: Schema.Codec<UnhideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _UnhideGeneralForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_UnhideGeneralForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnhideGeneralForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnhideGeneralForumTopicParamsWireKeys)),
+  }),
+);
+
+export const unhideGeneralForumTopic = callMethod({
+  method: "unhideGeneralForumTopic",
+  params: UnhideGeneralForumTopicParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to clear the list of pinned messages in a chat. In private chats and channel direct messages chats, no additional rights are required to unpin all pinned messages. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin all pinned messages in groups and channels respectively. Returns True on success. */
+export interface UnpinAllChatMessagesParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+}
+const _UnpinAllChatMessagesParamsPublicKeys = { chat_id: "chatId" } as const;
+const _UnpinAllChatMessagesParamsWireKeys = invertKeys(_UnpinAllChatMessagesParamsPublicKeys);
+const _UnpinAllChatMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _UnpinAllChatMessagesParamsDecoded = Schema.declare<UnpinAllChatMessagesParams>((input): input is UnpinAllChatMessagesParams => Predicate.isObject(input));
+export const UnpinAllChatMessagesParams: Schema.Codec<UnpinAllChatMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllChatMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_UnpinAllChatMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllChatMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllChatMessagesParamsWireKeys)),
+  }),
+);
+
+export const unpinAllChatMessages = callMethod({
+  method: "unpinAllChatMessages",
+  params: UnpinAllChatMessagesParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to clear the list of pinned messages in a forum topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
+export interface UnpinAllForumTopicMessagesParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread of the forum topic */
+  readonly messageThreadId: number;
+}
+const _UnpinAllForumTopicMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+const _UnpinAllForumTopicMessagesParamsWireKeys = invertKeys(_UnpinAllForumTopicMessagesParamsPublicKeys);
+const _UnpinAllForumTopicMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.Int,
+});
+const _UnpinAllForumTopicMessagesParamsDecoded = Schema.declare<UnpinAllForumTopicMessagesParams>((input): input is UnpinAllForumTopicMessagesParams => Predicate.isObject(input));
+export const UnpinAllForumTopicMessagesParams: Schema.Codec<UnpinAllForumTopicMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllForumTopicMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_UnpinAllForumTopicMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllForumTopicMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllForumTopicMessagesParamsWireKeys)),
+  }),
+);
+
+export const unpinAllForumTopicMessages = callMethod({
+  method: "unpinAllForumTopicMessages",
+  params: UnpinAllForumTopicMessagesParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
+export interface UnpinAllGeneralForumTopicMessagesParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+}
+const _UnpinAllGeneralForumTopicMessagesParamsPublicKeys = { chat_id: "chatId" } as const;
+const _UnpinAllGeneralForumTopicMessagesParamsWireKeys = invertKeys(_UnpinAllGeneralForumTopicMessagesParamsPublicKeys);
+const _UnpinAllGeneralForumTopicMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _UnpinAllGeneralForumTopicMessagesParamsDecoded = Schema.declare<UnpinAllGeneralForumTopicMessagesParams>((input): input is UnpinAllGeneralForumTopicMessagesParams => Predicate.isObject(input));
+export const UnpinAllGeneralForumTopicMessagesParams: Schema.Codec<UnpinAllGeneralForumTopicMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllGeneralForumTopicMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_UnpinAllGeneralForumTopicMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllGeneralForumTopicMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllGeneralForumTopicMessagesParamsWireKeys)),
+  }),
+);
+
+export const unpinAllGeneralForumTopicMessages = callMethod({
+  method: "unpinAllGeneralForumTopicMessages",
+  params: UnpinAllGeneralForumTopicMessagesParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns True on success. */
+export interface UnpinChatMessageParams {
+  /** Unique identifier of the business connection on behalf of which the message will be unpinned */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
+  readonly messageId?: number | undefined;
+}
+const _UnpinChatMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
+const _UnpinChatMessageParamsWireKeys = invertKeys(_UnpinChatMessageParamsPublicKeys);
+const _UnpinChatMessageParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.optional(Schema.Int),
+});
+const _UnpinChatMessageParamsDecoded = Schema.declare<UnpinChatMessageParams>((input): input is UnpinChatMessageParams => Predicate.isObject(input));
+export const UnpinChatMessageParams: Schema.Codec<UnpinChatMessageParams, Readonly<Record<string, unknown>>> = _UnpinChatMessageParamsEncoded.pipe(
+  Schema.decodeTo(_UnpinChatMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinChatMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinChatMessageParamsWireKeys)),
+  }),
+);
+
+export const unpinChatMessage = callMethod({
+  method: "unpinChatMessage",
+  params: UnpinChatMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success. */
 export interface UploadStickerFileParams {
   /** User identifier of sticker file owner */
@@ -3853,4 +4824,60 @@ export const uploadStickerFile = callMethod({
   params: UploadStickerFileParams,
   result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
   retrySafe: false,
+});
+
+/** Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success. */
+export interface VerifyChatParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Channel direct messages chats can't be verified. */
+  readonly chatId: number | string;
+  /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
+  readonly customDescription?: string | undefined;
+}
+const _VerifyChatParamsPublicKeys = { chat_id: "chatId", custom_description: "customDescription" } as const;
+const _VerifyChatParamsWireKeys = invertKeys(_VerifyChatParamsPublicKeys);
+const _VerifyChatParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  custom_description: Schema.optional(Schema.String),
+});
+const _VerifyChatParamsDecoded = Schema.declare<VerifyChatParams>((input): input is VerifyChatParams => Predicate.isObject(input));
+export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<string, unknown>>> = _VerifyChatParamsEncoded.pipe(
+  Schema.decodeTo(_VerifyChatParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_VerifyChatParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_VerifyChatParamsWireKeys)),
+  }),
+);
+
+export const verifyChat = callMethod({
+  method: "verifyChat",
+  params: VerifyChatParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Verifies a user on behalf of the organization which is represented by the bot. Returns True on success. */
+export interface VerifyUserParams {
+  /** Unique identifier of the target user */
+  readonly userId: number;
+  /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
+  readonly customDescription?: string | undefined;
+}
+const _VerifyUserParamsPublicKeys = { user_id: "userId", custom_description: "customDescription" } as const;
+const _VerifyUserParamsWireKeys = invertKeys(_VerifyUserParamsPublicKeys);
+const _VerifyUserParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  custom_description: Schema.optional(Schema.String),
+});
+const _VerifyUserParamsDecoded = Schema.declare<VerifyUserParams>((input): input is VerifyUserParams => Predicate.isObject(input));
+export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<string, unknown>>> = _VerifyUserParamsEncoded.pipe(
+  Schema.decodeTo(_VerifyUserParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_VerifyUserParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_VerifyUserParamsWireKeys)),
+  }),
+);
+
+export const verifyUser = callMethod({
+  method: "verifyUser",
+  params: VerifyUserParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
