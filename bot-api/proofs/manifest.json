@@ -4,6 +4,51 @@
     "reason": "unsafe live scenario: retry can add a duplicate sticker, and no isolated regular sticker-set fixture is available",
     "status": "blocked"
   },
+  "answerCallbackQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "active callback query fixture unavailable: Telegram returned 'query is too old and response timeout expired or query ID is invalid'",
+    "status": "blocked"
+  },
+  "answerChatJoinRequestQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "chat join request query fixture unavailable: Telegram returned 'BOT_GUARD_NOT_SUPPORTED'",
+    "status": "blocked"
+  },
+  "answerGuestQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "guest query fixture unavailable: Telegram returned 'USER_BOT_INVALID'",
+    "status": "blocked"
+  },
+  "answerInlineQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "inline query fixture unavailable: Telegram returned 'USER_BOT_INVALID'",
+    "status": "blocked"
+  },
+  "answerPreCheckoutQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "active pre-checkout query fixture unavailable: Telegram returned 'query is too old and response timeout expired or query ID is invalid'",
+    "status": "blocked"
+  },
+  "answerShippingQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "active shipping query fixture unavailable: Telegram returned 'query is too old and response timeout expired or query ID is invalid'",
+    "status": "blocked"
+  },
+  "answerWebAppQuery": {
+    "expires_on": "2026-09-13",
+    "reason": "active Web App query fixture unavailable: Telegram returned 'query is too old and response timeout expired or query ID is invalid'",
+    "status": "blocked"
+  },
+  "approveChatJoinRequest": {
+    "expires_on": "2026-09-13",
+    "reason": "join-request administrator fixture unavailable: Telegram returned 'not enough rights to manage chat join requests'",
+    "status": "blocked"
+  },
+  "approveSuggestedPost": {
+    "expires_on": "2026-09-13",
+    "reason": "active suggested-post fixture unavailable: Telegram returned 'suggested post not found'",
+    "status": "blocked"
+  },
   "copyMessage": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry can create a duplicate copied message",
@@ -32,6 +77,16 @@
   "createInvoiceLink": {
     "expires_on": "2026-09-13",
     "reason": "unsafe live scenario: retry mints another payable invoice link, and no isolated payment fixture is available",
+    "status": "blocked"
+  },
+  "declineChatJoinRequest": {
+    "expires_on": "2026-09-13",
+    "reason": "join-request group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'",
+    "status": "blocked"
+  },
+  "declineSuggestedPost": {
+    "expires_on": "2026-09-13",
+    "reason": "active suggested-post fixture unavailable: Telegram returned 'suggested post not found'",
     "status": "blocked"
   },
   "deleteMyCommands": {

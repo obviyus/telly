@@ -5,6 +5,17 @@ import { Redacted } from "effect";
 
 import {
   Application,
+  answerCallbackQuery,
+  answerChatJoinRequestQuery,
+  answerGuestQuery,
+  answerInlineQuery,
+  answerPreCheckoutQuery,
+  answerShippingQuery,
+  answerWebAppQuery,
+  approveChatJoinRequest,
+  approveSuggestedPost,
+  declineChatJoinRequest,
+  declineSuggestedPost,
   downloadFile,
   getAvailableGifts,
   getBusinessAccountGifts,
@@ -63,7 +74,83 @@ try {
   if (!Number.isSafeInteger(groupId) || !Number.isSafeInteger(testerUserId)) {
     throw new Error("Leased Telegram identifiers are not safe integers");
   }
+  const inlineResult = {
+    id: "missing-result",
+    inputMessageContent: { messageText: "Missing query fixture" },
+    title: "Missing fixture",
+    type: "article",
+  };
   const methods = [
+    {
+      name: "answerCallbackQuery",
+      operation: () => answerCallbackQuery({ callbackQueryId: "missing-query" }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "answerChatJoinRequestQuery",
+      operation: () => answerChatJoinRequestQuery({
+        chatJoinRequestQueryId: "missing-query",
+        result: "decline",
+      }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "answerGuestQuery",
+      operation: () => answerGuestQuery({ guestQueryId: "missing-query", result: inlineResult }),
+      summarize: () => ({ decoded: true }),
+    },
+    {
+      name: "answerInlineQuery",
+      operation: () => answerInlineQuery({ inlineQueryId: "missing-query", results: [] }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "answerPreCheckoutQuery",
+      operation: () => answerPreCheckoutQuery({
+        errorMessage: "Missing query fixture",
+        ok: false,
+        preCheckoutQueryId: "missing-query",
+      }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "answerShippingQuery",
+      operation: () => answerShippingQuery({
+        ok: true,
+        shippingQueryId: "missing-query",
+        shippingOptions: [{
+          id: "missing-option",
+          prices: [{ amount: 1, label: "Missing fixture" }],
+          title: "Missing fixture",
+        }],
+      }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "answerWebAppQuery",
+      operation: () => answerWebAppQuery({ result: inlineResult, webAppQueryId: "missing-query" }),
+      summarize: () => ({ decoded: true }),
+    },
+    {
+      name: "approveChatJoinRequest",
+      operation: () => approveChatJoinRequest({ chatId: groupId, userId: testerUserId }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "approveSuggestedPost",
+      operation: () => approveSuggestedPost({ chatId: testerUserId, messageId: 1 }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "declineChatJoinRequest",
+      operation: () => declineChatJoinRequest({ chatId: groupId, userId: testerUserId }),
+      summarize: (result) => ({ result }),
+    },
+    {
+      name: "declineSuggestedPost",
+      operation: () => declineSuggestedPost({ chatId: testerUserId, messageId: 1 }),
+      summarize: (result) => ({ result }),
+    },
     {
       name: "getAvailableGifts",
       operation: getAvailableGifts,

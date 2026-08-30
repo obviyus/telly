@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { Effect, Layer, Predicate, Redacted, Tracer } from "effect";
 
 import {
+  answerCallbackQuery,
   Bot,
   getChatMenuButton,
   getChatMemberCount,
@@ -347,5 +348,29 @@ test("sendVenue maps its public location fields to Telegram", async () => {
     latitude: 12,
     longitude: 34,
     title: "Gear Hall",
+  });
+});
+
+test("answerCallbackQuery sends one consumable query response", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok(true)],
+    token,
+  });
+
+  const answered = await Effect.runPromise(
+    answerCallbackQuery({
+      callbackQueryId: "query-127",
+      cacheTime: 17,
+      showAlert: true,
+      text: "Done",
+    }).pipe(Effect.provide(botLayer(fake))),
+  );
+
+  expect(answered).toBe(true);
+  expect(fake.requests[0]?.params).toEqual({
+    cache_time: 17,
+    callback_query_id: "query-127",
+    show_alert: true,
+    text: "Done",
   });
 });
