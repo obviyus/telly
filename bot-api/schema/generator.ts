@@ -363,8 +363,9 @@ function renderMethods(
         .map((field) => `  ${field.wireName}: ${field.schema},`)
         .join("\n");
       const renamed = rendered.filter((field) => field.publicName !== field.wireName);
+      // Nested codecs can transform even when every top-level key is unchanged.
       const paramsSchema = renamed.length === 0
-        ? `export const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${encodedFields}\n});`
+        ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.Struct({\n${encodedFields}\n});`
         : `const _${paramsName}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${paramsName}WireKeys = invertKeys(_${paramsName}PublicKeys);\nconst _${paramsName}Encoded = Schema.Struct({\n${encodedFields}\n});\nconst _${paramsName}Decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\nexport const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = _${paramsName}Encoded.pipe(\n  Schema.decodeTo(_${paramsName}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}WireKeys)),\n  }),\n);`;
       const result = override.resultSchema ??
         unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));

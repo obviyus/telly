@@ -5,6 +5,349 @@ import { callMethod } from "./internal/CallMethod.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
 import * as Types from "./types.generated.js";
 
+/** Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success. */
+export interface AddStickerToSetParams {
+  /** User identifier of sticker set owner */
+  readonly userId: number;
+  /** Sticker set name */
+  readonly name: string;
+  /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed. */
+  readonly sticker: Types.InputSticker;
+}
+const _AddStickerToSetParamsPublicKeys = { user_id: "userId" } as const;
+const _AddStickerToSetParamsWireKeys = invertKeys(_AddStickerToSetParamsPublicKeys);
+const _AddStickerToSetParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  name: Schema.String,
+  sticker: Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker),
+});
+const _AddStickerToSetParamsDecoded = Schema.declare<AddStickerToSetParams>((input): input is AddStickerToSetParams => Predicate.isObject(input));
+export const AddStickerToSetParams: Schema.Codec<AddStickerToSetParams, Readonly<Record<string, unknown>>> = _AddStickerToSetParamsEncoded.pipe(
+  Schema.decodeTo(_AddStickerToSetParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AddStickerToSetParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AddStickerToSetParamsWireKeys)),
+  }),
+);
+
+export const addStickerToSet = callMethod({
+  method: "addStickerToSet",
+  params: AddStickerToSetParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
+export interface CopyMessageParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username) */
+  readonly fromChatId: number | string;
+  /** Message identifier in the chat specified in from_chat_id */
+  readonly messageId: number;
+  /** New start timestamp for the copied video in the message */
+  readonly videoStartTimestamp?: number | undefined;
+  /** New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept. */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the new caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; only available when copying to private chats */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _CopyMessageParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_id: "messageId", video_start_timestamp: "videoStartTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _CopyMessageParamsWireKeys = invertKeys(_CopyMessageParamsPublicKeys);
+const _CopyMessageParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  video_start_timestamp: Schema.optional(Schema.Int),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _CopyMessageParamsDecoded = Schema.declare<CopyMessageParams>((input): input is CopyMessageParams => Predicate.isObject(input));
+export const CopyMessageParams: Schema.Codec<CopyMessageParams, Readonly<Record<string, unknown>>> = _CopyMessageParamsEncoded.pipe(
+  Schema.decodeTo(_CopyMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CopyMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CopyMessageParamsWireKeys)),
+  }),
+);
+
+export const copyMessage = callMethod({
+  method: "copyMessage",
+  params: CopyMessageParams,
+  result: Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId),
+  retrySafe: false,
+});
+
+/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of MessageId of the sent messages is returned. */
+export interface CopyMessagesParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username) */
+  readonly fromChatId: number | string;
+  /** A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
+  readonly messageIds: ReadonlyArray<number>;
+  /** Sends the messages silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent messages from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to copy the messages without their captions */
+  readonly removeCaption?: boolean | undefined;
+}
+const _CopyMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent", remove_caption: "removeCaption" } as const;
+const _CopyMessagesParamsWireKeys = invertKeys(_CopyMessagesParamsPublicKeys);
+const _CopyMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_ids: Schema.Array(Schema.Int),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  remove_caption: Schema.optional(Schema.Boolean),
+});
+const _CopyMessagesParamsDecoded = Schema.declare<CopyMessagesParams>((input): input is CopyMessagesParams => Predicate.isObject(input));
+export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Record<string, unknown>>> = _CopyMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_CopyMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CopyMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CopyMessagesParamsWireKeys)),
+  }),
+);
+
+export const copyMessages = callMethod({
+  method: "copyMessages",
+  params: CopyMessagesParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
+  retrySafe: false,
+});
+
+/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
+export interface CreateChatInviteLinkParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Invite link name; 0-32 characters */
+  readonly name?: string | undefined;
+  /** Point in time (Unix timestamp) when the link will expire */
+  readonly expireDate?: number | undefined;
+  /** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
+  readonly memberLimit?: number | undefined;
+  /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
+  readonly createsJoinRequest?: boolean | undefined;
+}
+const _CreateChatInviteLinkParamsPublicKeys = { chat_id: "chatId", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
+const _CreateChatInviteLinkParamsWireKeys = invertKeys(_CreateChatInviteLinkParamsPublicKeys);
+const _CreateChatInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  name: Schema.optional(Schema.String),
+  expire_date: Schema.optional(Schema.Int),
+  member_limit: Schema.optional(Schema.Int),
+  creates_join_request: Schema.optional(Schema.Boolean),
+});
+const _CreateChatInviteLinkParamsDecoded = Schema.declare<CreateChatInviteLinkParams>((input): input is CreateChatInviteLinkParams => Predicate.isObject(input));
+export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams, Readonly<Record<string, unknown>>> = _CreateChatInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_CreateChatInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CreateChatInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CreateChatInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const createChatInviteLink = callMethod({
+  method: "createChatInviteLink",
+  params: CreateChatInviteLinkParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  retrySafe: false,
+});
+
+/** Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
+export interface CreateChatSubscriptionInviteLinkParams {
+  /** Unique identifier for the target channel chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Invite link name; 0-32 characters */
+  readonly name?: string | undefined;
+  /** The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days). */
+  readonly subscriptionPeriod: number;
+  /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000 */
+  readonly subscriptionPrice: number;
+}
+const _CreateChatSubscriptionInviteLinkParamsPublicKeys = { chat_id: "chatId", subscription_period: "subscriptionPeriod", subscription_price: "subscriptionPrice" } as const;
+const _CreateChatSubscriptionInviteLinkParamsWireKeys = invertKeys(_CreateChatSubscriptionInviteLinkParamsPublicKeys);
+const _CreateChatSubscriptionInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  name: Schema.optional(Schema.String),
+  subscription_period: Schema.Int,
+  subscription_price: Schema.Int,
+});
+const _CreateChatSubscriptionInviteLinkParamsDecoded = Schema.declare<CreateChatSubscriptionInviteLinkParams>((input): input is CreateChatSubscriptionInviteLinkParams => Predicate.isObject(input));
+export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = _CreateChatSubscriptionInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_CreateChatSubscriptionInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CreateChatSubscriptionInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CreateChatSubscriptionInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const createChatSubscriptionInviteLink = callMethod({
+  method: "createChatSubscriptionInviteLink",
+  params: CreateChatSubscriptionInviteLinkParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  retrySafe: false,
+});
+
+/** Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator right. Returns information about the created topic as a ForumTopic object. */
+export interface CreateForumTopicParams {
+  /** Unique identifier for the target chat or username of the target supergroup in the format @username */
+  readonly chatId: number | string;
+  /** Topic name, 1-128 characters */
+  readonly name: string;
+  /** Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F). */
+  readonly iconColor?: number | undefined;
+  /** Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. */
+  readonly iconCustomEmojiId?: string | undefined;
+}
+const _CreateForumTopicParamsPublicKeys = { chat_id: "chatId", icon_color: "iconColor", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
+const _CreateForumTopicParamsWireKeys = invertKeys(_CreateForumTopicParamsPublicKeys);
+const _CreateForumTopicParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  name: Schema.String,
+  icon_color: Schema.optional(Schema.Int),
+  icon_custom_emoji_id: Schema.optional(Schema.String),
+});
+const _CreateForumTopicParamsDecoded = Schema.declare<CreateForumTopicParams>((input): input is CreateForumTopicParams => Predicate.isObject(input));
+export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readonly<Record<string, unknown>>> = _CreateForumTopicParamsEncoded.pipe(
+  Schema.decodeTo(_CreateForumTopicParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CreateForumTopicParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CreateForumTopicParamsWireKeys)),
+  }),
+);
+
+export const createForumTopic = callMethod({
+  method: "createForumTopic",
+  params: CreateForumTopicParams,
+  result: Schema.suspend((): Schema.Codec<Types.ForumTopic, unknown> => Types.ForumTopic),
+  retrySafe: false,
+});
+
+/** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
+export interface CreateInvoiceLinkParams {
+  /** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
+  readonly businessConnectionId?: string | undefined;
+  /** Product name, 1-32 characters */
+  readonly title: string;
+  /** Product description, 1-255 characters */
+  readonly description: string;
+  /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+  readonly payload: string;
+  /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
+  readonly providerToken?: string | undefined;
+  /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+  readonly currency: string;
+  /** Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+  readonly prices: ReadonlyArray<Types.LabeledPrice>;
+  /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 10000 Telegram Stars. */
+  readonly subscriptionPeriod?: number | undefined;
+  /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+  readonly maxTipAmount?: number | undefined;
+  /** A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
+  readonly suggestedTipAmounts?: ReadonlyArray<number> | undefined;
+  /** JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
+  readonly providerData?: string | undefined;
+  /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. */
+  readonly photoUrl?: string | undefined;
+  /** Photo size in bytes */
+  readonly photoSize?: number | undefined;
+  /** Photo width */
+  readonly photoWidth?: number | undefined;
+  /** Photo height */
+  readonly photoHeight?: number | undefined;
+  /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needName?: boolean | undefined;
+  /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needPhoneNumber?: boolean | undefined;
+  /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needEmail?: boolean | undefined;
+  /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needShippingAddress?: boolean | undefined;
+  /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+  readonly sendPhoneNumberToProvider?: boolean | undefined;
+  /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+  readonly sendEmailToProvider?: boolean | undefined;
+  /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+  readonly isFlexible?: boolean | undefined;
+}
+const _CreateInvoiceLinkParamsPublicKeys = { business_connection_id: "businessConnectionId", provider_token: "providerToken", subscription_period: "subscriptionPeriod", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible" } as const;
+const _CreateInvoiceLinkParamsWireKeys = invertKeys(_CreateInvoiceLinkParamsPublicKeys);
+const _CreateInvoiceLinkParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  title: Schema.String,
+  description: Schema.String,
+  payload: Schema.String,
+  provider_token: Schema.optional(Schema.String),
+  currency: Schema.String,
+  prices: Schema.Array(Schema.suspend((): Schema.Codec<Types.LabeledPrice, unknown> => Types.LabeledPrice)),
+  subscription_period: Schema.optional(Schema.Int),
+  max_tip_amount: Schema.optional(Schema.Int),
+  suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
+  provider_data: Schema.optional(Schema.String),
+  photo_url: Schema.optional(Schema.String),
+  photo_size: Schema.optional(Schema.Int),
+  photo_width: Schema.optional(Schema.Int),
+  photo_height: Schema.optional(Schema.Int),
+  need_name: Schema.optional(Schema.Boolean),
+  need_phone_number: Schema.optional(Schema.Boolean),
+  need_email: Schema.optional(Schema.Boolean),
+  need_shipping_address: Schema.optional(Schema.Boolean),
+  send_phone_number_to_provider: Schema.optional(Schema.Boolean),
+  send_email_to_provider: Schema.optional(Schema.Boolean),
+  is_flexible: Schema.optional(Schema.Boolean),
+});
+const _CreateInvoiceLinkParamsDecoded = Schema.declare<CreateInvoiceLinkParams>((input): input is CreateInvoiceLinkParams => Predicate.isObject(input));
+export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Readonly<Record<string, unknown>>> = _CreateInvoiceLinkParamsEncoded.pipe(
+  Schema.decodeTo(_CreateInvoiceLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_CreateInvoiceLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_CreateInvoiceLinkParamsWireKeys)),
+  }),
+);
+
+export const createInvoiceLink = callMethod({
+  method: "createInvoiceLink",
+  params: CreateInvoiceLinkParams,
+  result: Schema.String,
+  retrySafe: false,
+});
+
 /** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
 export interface DeleteMyCommandsParams {
   /** A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
@@ -31,6 +374,126 @@ export const deleteMyCommands = callMethod({
   params: DeleteMyCommandsParams,
   result: Schema.Literal(true),
   retrySafe: true,
+});
+
+/** Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success. */
+export interface ExportChatInviteLinkParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+}
+const _ExportChatInviteLinkParamsPublicKeys = { chat_id: "chatId" } as const;
+const _ExportChatInviteLinkParamsWireKeys = invertKeys(_ExportChatInviteLinkParamsPublicKeys);
+const _ExportChatInviteLinkParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+});
+const _ExportChatInviteLinkParamsDecoded = Schema.declare<ExportChatInviteLinkParams>((input): input is ExportChatInviteLinkParams => Predicate.isObject(input));
+export const ExportChatInviteLinkParams: Schema.Codec<ExportChatInviteLinkParams, Readonly<Record<string, unknown>>> = _ExportChatInviteLinkParamsEncoded.pipe(
+  Schema.decodeTo(_ExportChatInviteLinkParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ExportChatInviteLinkParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ExportChatInviteLinkParamsWireKeys)),
+  }),
+);
+
+export const exportChatInviteLink = callMethod({
+  method: "exportChatInviteLink",
+  params: ExportChatInviteLinkParams,
+  result: Schema.String,
+  retrySafe: false,
+});
+
+/** Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent Message is returned. */
+export interface ForwardMessageParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be forwarded; required if the message is forwarded to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username) */
+  readonly fromChatId: number | string;
+  /** New start timestamp for the forwarded video in the message */
+  readonly videoStartTimestamp?: number | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the forwarded message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; only available when forwarding to private chats */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Message identifier in the chat specified in from_chat_id */
+  readonly messageId: number;
+}
+const _ForwardMessageParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", video_start_timestamp: "videoStartTimestamp", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", message_id: "messageId" } as const;
+const _ForwardMessageParamsWireKeys = invertKeys(_ForwardMessageParamsPublicKeys);
+const _ForwardMessageParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+  video_start_timestamp: Schema.optional(Schema.Int),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  message_id: Schema.Int,
+});
+const _ForwardMessageParamsDecoded = Schema.declare<ForwardMessageParams>((input): input is ForwardMessageParams => Predicate.isObject(input));
+export const ForwardMessageParams: Schema.Codec<ForwardMessageParams, Readonly<Record<string, unknown>>> = _ForwardMessageParamsEncoded.pipe(
+  Schema.decodeTo(_ForwardMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessageParamsWireKeys)),
+  }),
+);
+
+export const forwardMessage = callMethod({
+  method: "forwardMessage",
+  params: ForwardMessageParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an Array of MessageId of the sent messages is returned. */
+export interface ForwardMessagesParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the messages will be forwarded; required if the messages are forwarded to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username) */
+  readonly fromChatId: number | string;
+  /** A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
+  readonly messageIds: ReadonlyArray<number>;
+  /** Sends the messages silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the forwarded messages from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+}
+const _ForwardMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent" } as const;
+const _ForwardMessagesParamsWireKeys = invertKeys(_ForwardMessagesParamsPublicKeys);
+const _ForwardMessagesParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_ids: Schema.Array(Schema.Int),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+});
+const _ForwardMessagesParamsDecoded = Schema.declare<ForwardMessagesParams>((input): input is ForwardMessagesParams => Predicate.isObject(input));
+export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly<Record<string, unknown>>> = _ForwardMessagesParamsEncoded.pipe(
+  Schema.decodeTo(_ForwardMessagesParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessagesParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessagesParamsWireKeys)),
+  }),
+);
+
+export const forwardMessages = callMethod({
+  method: "forwardMessages",
+  params: ForwardMessagesParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
+  retrySafe: false,
 });
 
 /** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
@@ -621,7 +1084,7 @@ export interface GetStarTransactionsParams {
   /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams> = Schema.Struct({
+export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, Readonly<Record<string, unknown>>> = Schema.Struct({
   offset: Schema.optional(Schema.Int),
   limit: Schema.optional(Schema.Int),
 });
@@ -638,7 +1101,7 @@ export interface GetStickerSetParams {
   /** Name of the sticker set */
   readonly name: string;
 }
-export const GetStickerSetParams: Schema.Codec<GetStickerSetParams> = Schema.Struct({
+export const GetStickerSetParams: Schema.Codec<GetStickerSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
   name: Schema.String,
 });
 
@@ -821,6 +1284,262 @@ export const getWebhookInfo = callMethod({
   method: "getWebhookInfo",
   result: Schema.suspend((): Schema.Codec<Types.WebhookInfo, unknown> => Types.WebhookInfo),
   retrySafe: true,
+});
+
+/** Gifts a Telegram Premium subscription to the given user. Returns True on success. */
+export interface GiftPremiumSubscriptionParams {
+  /** Unique identifier of the target user who will receive a Telegram Premium subscription */
+  readonly userId: number;
+  /** Number of months the Telegram Premium subscription will be active for the user; must be one of 3, 6, or 12 */
+  readonly monthCount: number;
+  /** Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months */
+  readonly starCount: number;
+  /** Text that will be shown along with the service message about the subscription; 0-128 characters */
+  readonly text?: string | undefined;
+  /** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+  readonly textParseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+  readonly textEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+}
+const _GiftPremiumSubscriptionParamsPublicKeys = { user_id: "userId", month_count: "monthCount", star_count: "starCount", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
+const _GiftPremiumSubscriptionParamsWireKeys = invertKeys(_GiftPremiumSubscriptionParamsPublicKeys);
+const _GiftPremiumSubscriptionParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  month_count: Schema.Int,
+  star_count: Schema.Int,
+  text: Schema.optional(Schema.String),
+  text_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  text_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+});
+const _GiftPremiumSubscriptionParamsDecoded = Schema.declare<GiftPremiumSubscriptionParams>((input): input is GiftPremiumSubscriptionParams => Predicate.isObject(input));
+export const GiftPremiumSubscriptionParams: Schema.Codec<GiftPremiumSubscriptionParams, Readonly<Record<string, unknown>>> = _GiftPremiumSubscriptionParamsEncoded.pipe(
+  Schema.decodeTo(_GiftPremiumSubscriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GiftPremiumSubscriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GiftPremiumSubscriptionParamsWireKeys)),
+  }),
+);
+
+export const giftPremiumSubscription = callMethod({
+  method: "giftPremiumSubscription",
+  params: GiftPremiumSubscriptionParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns True on success. */
+export interface PinChatMessageParams {
+  /** Unique identifier of the business connection on behalf of which the message will be pinned */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Identifier of a message to pin */
+  readonly messageId: number;
+  /** Pass True if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats. */
+  readonly disableNotification?: boolean | undefined;
+}
+const _PinChatMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", disable_notification: "disableNotification" } as const;
+const _PinChatMessageParamsWireKeys = invertKeys(_PinChatMessageParamsPublicKeys);
+const _PinChatMessageParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_id: Schema.Int,
+  disable_notification: Schema.optional(Schema.Boolean),
+});
+const _PinChatMessageParamsDecoded = Schema.declare<PinChatMessageParams>((input): input is PinChatMessageParams => Predicate.isObject(input));
+export const PinChatMessageParams: Schema.Codec<PinChatMessageParams, Readonly<Record<string, unknown>>> = _PinChatMessageParamsEncoded.pipe(
+  Schema.decodeTo(_PinChatMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_PinChatMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_PinChatMessageParamsWireKeys)),
+  }),
+);
+
+export const pinChatMessage = callMethod({
+  method: "pinChatMessage",
+  params: PinChatMessageParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
+export interface PostStoryParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Content of the story */
+  readonly content: Types.InputStoryContent;
+  /** Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400 */
+  readonly activePeriod: number;
+  /** Caption of the story, 0-2048 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the story caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** A JSON-serialized list of clickable areas to be shown on the story */
+  readonly areas?: ReadonlyArray<Types.StoryArea> | undefined;
+  /** Pass True to keep the story accessible after it expires */
+  readonly postToChatPage?: boolean | undefined;
+  /** Pass True if the content of the story must be protected from forwarding and screenshotting */
+  readonly protectContent?: boolean | undefined;
+}
+const _PostStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", active_period: "activePeriod", parse_mode: "parseMode", caption_entities: "captionEntities", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
+const _PostStoryParamsWireKeys = invertKeys(_PostStoryParamsPublicKeys);
+const _PostStoryParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  content: Schema.suspend((): Schema.Codec<Types.InputStoryContent, unknown> => Types.InputStoryContent),
+  active_period: Schema.Int,
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  areas: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.StoryArea, unknown> => Types.StoryArea))),
+  post_to_chat_page: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+});
+const _PostStoryParamsDecoded = Schema.declare<PostStoryParams>((input): input is PostStoryParams => Predicate.isObject(input));
+export const PostStoryParams: Schema.Codec<PostStoryParams, Readonly<Record<string, unknown>>> = _PostStoryParamsEncoded.pipe(
+  Schema.decodeTo(_PostStoryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_PostStoryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_PostStoryParamsWireKeys)),
+  }),
+);
+
+export const postStory = callMethod({
+  method: "postStory",
+  params: PostStoryParams,
+  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  retrySafe: false,
+});
+
+/** Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success. */
+export interface ReplaceManagedBotTokenParams {
+  /** User identifier of the managed bot whose token will be replaced */
+  readonly userId: number;
+}
+const _ReplaceManagedBotTokenParamsPublicKeys = { user_id: "userId" } as const;
+const _ReplaceManagedBotTokenParamsWireKeys = invertKeys(_ReplaceManagedBotTokenParamsPublicKeys);
+const _ReplaceManagedBotTokenParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+});
+const _ReplaceManagedBotTokenParamsDecoded = Schema.declare<ReplaceManagedBotTokenParams>((input): input is ReplaceManagedBotTokenParams => Predicate.isObject(input));
+export const ReplaceManagedBotTokenParams: Schema.Codec<ReplaceManagedBotTokenParams, Readonly<Record<string, unknown>>> = _ReplaceManagedBotTokenParamsEncoded.pipe(
+  Schema.decodeTo(_ReplaceManagedBotTokenParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ReplaceManagedBotTokenParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ReplaceManagedBotTokenParamsWireKeys)),
+  }),
+);
+
+export const replaceManagedBotToken = callMethod({
+  method: "replaceManagedBotToken",
+  params: ReplaceManagedBotTokenParams,
+  result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
+  retrySafe: false,
+});
+
+/** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success. */
+export interface RepostStoryParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Unique identifier of the chat which posted the story that should be reposted */
+  readonly fromChatId: number;
+  /** Unique identifier of the story that should be reposted */
+  readonly fromStoryId: number;
+  /** Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400 */
+  readonly activePeriod: number;
+  /** Pass True to keep the story accessible after it expires */
+  readonly postToChatPage?: boolean | undefined;
+  /** Pass True if the content of the story must be protected from forwarding and screenshotting */
+  readonly protectContent?: boolean | undefined;
+}
+const _RepostStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", from_chat_id: "fromChatId", from_story_id: "fromStoryId", active_period: "activePeriod", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
+const _RepostStoryParamsWireKeys = invertKeys(_RepostStoryParamsPublicKeys);
+const _RepostStoryParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  from_chat_id: Schema.Int,
+  from_story_id: Schema.Int,
+  active_period: Schema.Int,
+  post_to_chat_page: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+});
+const _RepostStoryParamsDecoded = Schema.declare<RepostStoryParams>((input): input is RepostStoryParams => Predicate.isObject(input));
+export const RepostStoryParams: Schema.Codec<RepostStoryParams, Readonly<Record<string, unknown>>> = _RepostStoryParamsEncoded.pipe(
+  Schema.decodeTo(_RepostStoryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_RepostStoryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_RepostStoryParamsWireKeys)),
+  }),
+);
+
+export const repostStory = callMethod({
+  method: "repostStory",
+  params: RepostStoryParams,
+  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  retrySafe: false,
+});
+
+/** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
+export interface SavePreparedInlineMessageParams {
+  /** Unique identifier of the target user that can use the prepared message */
+  readonly userId: number;
+  /** A JSON-serialized object describing the message to be sent */
+  readonly result: Types.InlineQueryResult;
+  /** Pass True if the message can be sent to private chats with users */
+  readonly allowUserChats?: boolean | undefined;
+  /** Pass True if the message can be sent to private chats with bots */
+  readonly allowBotChats?: boolean | undefined;
+  /** Pass True if the message can be sent to group and supergroup chats */
+  readonly allowGroupChats?: boolean | undefined;
+  /** Pass True if the message can be sent to channel chats */
+  readonly allowChannelChats?: boolean | undefined;
+}
+const _SavePreparedInlineMessageParamsPublicKeys = { user_id: "userId", allow_user_chats: "allowUserChats", allow_bot_chats: "allowBotChats", allow_group_chats: "allowGroupChats", allow_channel_chats: "allowChannelChats" } as const;
+const _SavePreparedInlineMessageParamsWireKeys = invertKeys(_SavePreparedInlineMessageParamsPublicKeys);
+const _SavePreparedInlineMessageParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
+  allow_user_chats: Schema.optional(Schema.Boolean),
+  allow_bot_chats: Schema.optional(Schema.Boolean),
+  allow_group_chats: Schema.optional(Schema.Boolean),
+  allow_channel_chats: Schema.optional(Schema.Boolean),
+});
+const _SavePreparedInlineMessageParamsDecoded = Schema.declare<SavePreparedInlineMessageParams>((input): input is SavePreparedInlineMessageParams => Predicate.isObject(input));
+export const SavePreparedInlineMessageParams: Schema.Codec<SavePreparedInlineMessageParams, Readonly<Record<string, unknown>>> = _SavePreparedInlineMessageParamsEncoded.pipe(
+  Schema.decodeTo(_SavePreparedInlineMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedInlineMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedInlineMessageParamsWireKeys)),
+  }),
+);
+
+export const savePreparedInlineMessage = callMethod({
+  method: "savePreparedInlineMessage",
+  params: SavePreparedInlineMessageParams,
+  result: Schema.suspend((): Schema.Codec<Types.PreparedInlineMessage, unknown> => Types.PreparedInlineMessage),
+  retrySafe: false,
+});
+
+/** Stores a keyboard button that can be used by a user within a Mini App. Returns a PreparedKeyboardButton object. */
+export interface SavePreparedKeyboardButtonParams {
+  /** Unique identifier of the target user that can use the button */
+  readonly userId: number;
+  /** A JSON-serialized object describing the button to be saved. The button must be of the type request_users, request_chat, or request_managed_bot. */
+  readonly button: Types.KeyboardButton;
+}
+const _SavePreparedKeyboardButtonParamsPublicKeys = { user_id: "userId" } as const;
+const _SavePreparedKeyboardButtonParamsWireKeys = invertKeys(_SavePreparedKeyboardButtonParamsPublicKeys);
+const _SavePreparedKeyboardButtonParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  button: Schema.suspend((): Schema.Codec<Types.KeyboardButton, unknown> => Types.KeyboardButton),
+});
+const _SavePreparedKeyboardButtonParamsDecoded = Schema.declare<SavePreparedKeyboardButtonParams>((input): input is SavePreparedKeyboardButtonParams => Predicate.isObject(input));
+export const SavePreparedKeyboardButtonParams: Schema.Codec<SavePreparedKeyboardButtonParams, Readonly<Record<string, unknown>>> = _SavePreparedKeyboardButtonParamsEncoded.pipe(
+  Schema.decodeTo(_SavePreparedKeyboardButtonParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedKeyboardButtonParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedKeyboardButtonParamsWireKeys)),
+  }),
+);
+
+export const savePreparedKeyboardButton = callMethod({
+  method: "savePreparedKeyboardButton",
+  params: SavePreparedKeyboardButtonParams,
+  result: Schema.suspend((): Schema.Codec<Types.PreparedKeyboardButton, unknown> => Types.PreparedKeyboardButton),
+  retrySafe: false,
 });
 
 /** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
@@ -1027,6 +1746,80 @@ export const sendChatAction = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns True on success. */
+export interface SendChatJoinRequestWebAppParams {
+  /** Unique identifier of the join request query */
+  readonly chatJoinRequestQueryId: string;
+  /** An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps */
+  readonly webAppUrl: string;
+}
+const _SendChatJoinRequestWebAppParamsPublicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId", web_app_url: "webAppUrl" } as const;
+const _SendChatJoinRequestWebAppParamsWireKeys = invertKeys(_SendChatJoinRequestWebAppParamsPublicKeys);
+const _SendChatJoinRequestWebAppParamsEncoded = Schema.Struct({
+  chat_join_request_query_id: Schema.String,
+  web_app_url: Schema.String,
+});
+const _SendChatJoinRequestWebAppParamsDecoded = Schema.declare<SendChatJoinRequestWebAppParams>((input): input is SendChatJoinRequestWebAppParams => Predicate.isObject(input));
+export const SendChatJoinRequestWebAppParams: Schema.Codec<SendChatJoinRequestWebAppParams, Readonly<Record<string, unknown>>> = _SendChatJoinRequestWebAppParamsEncoded.pipe(
+  Schema.decodeTo(_SendChatJoinRequestWebAppParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendChatJoinRequestWebAppParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendChatJoinRequestWebAppParamsWireKeys)),
+  }),
+);
+
+export const sendChatJoinRequestWebApp = callMethod({
+  method: "sendChatJoinRequestWebApp",
+  params: SendChatJoinRequestWebAppParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to send a checklist on behalf of a connected business account. On success, the sent Message is returned. */
+export interface SendChecklistParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId: string;
+  /** Unique identifier for the target chat or username of the target bot in the format @username */
+  readonly chatId: number | string;
+  /** A JSON-serialized object for the checklist to send */
+  readonly checklist: Types.InputChecklist;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object for description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** A JSON-serialized object for an inline keyboard */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _SendChecklistParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendChecklistParamsWireKeys = invertKeys(_SendChecklistParamsPublicKeys);
+const _SendChecklistParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  checklist: Schema.suspend((): Schema.Codec<Types.InputChecklist, unknown> => Types.InputChecklist),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _SendChecklistParamsDecoded = Schema.declare<SendChecklistParams>((input): input is SendChecklistParams => Predicate.isObject(input));
+export const SendChecklistParams: Schema.Codec<SendChecklistParams, Readonly<Record<string, unknown>>> = _SendChecklistParamsEncoded.pipe(
+  Schema.decodeTo(_SendChecklistParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendChecklistParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendChecklistParamsWireKeys)),
+  }),
+);
+
+export const sendChecklist = callMethod({
+  method: "sendChecklist",
+  params: SendChecklistParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method to send phone contacts. On success, the sent Message is returned. */
 export interface SendContactParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -1231,6 +2024,216 @@ export const sendDocument = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to send a game. On success, the sent Message is returned. */
+export interface SendGameParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot in the format @username. Games can't be sent to channel direct messages chats and channel chats. */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather. */
+  readonly gameShortName: string;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _SendGameParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", game_short_name: "gameShortName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendGameParamsWireKeys = invertKeys(_SendGameParamsPublicKeys);
+const _SendGameParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  game_short_name: Schema.String,
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _SendGameParamsDecoded = Schema.declare<SendGameParams>((input): input is SendGameParams => Predicate.isObject(input));
+export const SendGameParams: Schema.Codec<SendGameParams, Readonly<Record<string, unknown>>> = _SendGameParamsEncoded.pipe(
+  Schema.decodeTo(_SendGameParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendGameParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendGameParamsWireKeys)),
+  }),
+);
+
+export const sendGame = callMethod({
+  method: "sendGame",
+  params: SendGameParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success. */
+export interface SendGiftParams {
+  /** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift. */
+  readonly userId?: number | undefined;
+  /** Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift. */
+  readonly chatId?: number | string | undefined;
+  /** Identifier of the gift; limited gifts can't be sent to channel chats */
+  readonly giftId: string;
+  /** Pass True to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver */
+  readonly payForUpgrade?: boolean | undefined;
+  /** Text that will be shown along with the gift; 0-128 characters */
+  readonly text?: string | undefined;
+  /** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+  readonly textParseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+  readonly textEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+}
+const _SendGiftParamsPublicKeys = { user_id: "userId", chat_id: "chatId", gift_id: "giftId", pay_for_upgrade: "payForUpgrade", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
+const _SendGiftParamsWireKeys = invertKeys(_SendGiftParamsPublicKeys);
+const _SendGiftParamsEncoded = Schema.Struct({
+  user_id: Schema.optional(Schema.Int),
+  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+  gift_id: Schema.String,
+  pay_for_upgrade: Schema.optional(Schema.Boolean),
+  text: Schema.optional(Schema.String),
+  text_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  text_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+});
+const _SendGiftParamsDecoded = Schema.declare<SendGiftParams>((input): input is SendGiftParams => Predicate.isObject(input));
+export const SendGiftParams: Schema.Codec<SendGiftParams, Readonly<Record<string, unknown>>> = _SendGiftParamsEncoded.pipe(
+  Schema.decodeTo(_SendGiftParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendGiftParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendGiftParamsWireKeys)),
+  }),
+);
+
+export const sendGift = callMethod({
+  method: "sendGift",
+  params: SendGiftParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to send invoices. On success, the sent Message is returned. */
+export interface SendInvoiceParams {
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** Product name, 1-32 characters */
+  readonly title: string;
+  /** Product description, 1-255 characters */
+  readonly description: string;
+  /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+  readonly payload: string;
+  /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
+  readonly providerToken?: string | undefined;
+  /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+  readonly currency: string;
+  /** Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+  readonly prices: ReadonlyArray<Types.LabeledPrice>;
+  /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+  readonly maxTipAmount?: number | undefined;
+  /** A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
+  readonly suggestedTipAmounts?: ReadonlyArray<number> | undefined;
+  /** Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter. */
+  readonly startParameter?: string | undefined;
+  /** JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
+  readonly providerData?: string | undefined;
+  /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for. */
+  readonly photoUrl?: string | undefined;
+  /** Photo size in bytes */
+  readonly photoSize?: number | undefined;
+  /** Photo width */
+  readonly photoWidth?: number | undefined;
+  /** Photo height */
+  readonly photoHeight?: number | undefined;
+  /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needName?: boolean | undefined;
+  /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needPhoneNumber?: boolean | undefined;
+  /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needEmail?: boolean | undefined;
+  /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+  readonly needShippingAddress?: boolean | undefined;
+  /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+  readonly sendPhoneNumberToProvider?: boolean | undefined;
+  /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+  readonly sendEmailToProvider?: boolean | undefined;
+  /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+  readonly isFlexible?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
+}
+const _SendInvoiceParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", provider_token: "providerToken", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", start_parameter: "startParameter", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendInvoiceParamsWireKeys = invertKeys(_SendInvoiceParamsPublicKeys);
+const _SendInvoiceParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  title: Schema.String,
+  description: Schema.String,
+  payload: Schema.String,
+  provider_token: Schema.optional(Schema.String),
+  currency: Schema.String,
+  prices: Schema.Array(Schema.suspend((): Schema.Codec<Types.LabeledPrice, unknown> => Types.LabeledPrice)),
+  max_tip_amount: Schema.optional(Schema.Int),
+  suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
+  start_parameter: Schema.optional(Schema.String),
+  provider_data: Schema.optional(Schema.String),
+  photo_url: Schema.optional(Schema.String),
+  photo_size: Schema.optional(Schema.Int),
+  photo_width: Schema.optional(Schema.Int),
+  photo_height: Schema.optional(Schema.Int),
+  need_name: Schema.optional(Schema.Boolean),
+  need_phone_number: Schema.optional(Schema.Boolean),
+  need_email: Schema.optional(Schema.Boolean),
+  need_shipping_address: Schema.optional(Schema.Boolean),
+  send_phone_number_to_provider: Schema.optional(Schema.Boolean),
+  send_email_to_provider: Schema.optional(Schema.Boolean),
+  is_flexible: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+});
+const _SendInvoiceParamsDecoded = Schema.declare<SendInvoiceParams>((input): input is SendInvoiceParams => Predicate.isObject(input));
+export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<string, unknown>>> = _SendInvoiceParamsEncoded.pipe(
+  Schema.decodeTo(_SendInvoiceParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendInvoiceParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendInvoiceParamsWireKeys)),
+  }),
+);
+
+export const sendInvoice = callMethod({
+  method: "sendInvoice",
+  params: SendInvoiceParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method to send live photos. On success, the sent Message is returned. */
 export interface SendLivePhotoParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -1386,6 +2389,58 @@ export const sendLocation = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of Message objects that were sent is returned. */
+export interface SendMediaGroupParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized Array describing messages to be sent, must include 2-10 items */
+  readonly media: ReadonlyArray<Types.InputMediaAudio> | ReadonlyArray<Types.InputMediaDocument> | ReadonlyArray<Types.InputMediaLivePhoto> | ReadonlyArray<Types.InputMediaPhoto> | ReadonlyArray<Types.InputMediaVideo>;
+  /** Sends messages silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent messages from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+}
+const _SendMediaGroupParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters" } as const;
+const _SendMediaGroupParamsWireKeys = invertKeys(_SendMediaGroupParamsPublicKeys);
+const _SendMediaGroupParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  media: Schema.Union([Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaAudio, unknown> => Types.InputMediaAudio)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaDocument, unknown> => Types.InputMediaDocument)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaLivePhoto, unknown> => Types.InputMediaLivePhoto)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaPhoto, unknown> => Types.InputMediaPhoto)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaVideo, unknown> => Types.InputMediaVideo))]),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+});
+const _SendMediaGroupParamsDecoded = Schema.declare<SendMediaGroupParams>((input): input is SendMediaGroupParams => Predicate.isObject(input));
+export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<Record<string, unknown>>> = _SendMediaGroupParamsEncoded.pipe(
+  Schema.decodeTo(_SendMediaGroupParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendMediaGroupParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendMediaGroupParamsWireKeys)),
+  }),
+);
+
+export const sendMediaGroup = callMethod({
+  method: "sendMediaGroup",
+  params: SendMediaGroupParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
+  retrySafe: false,
+});
+
 /** Use this method to send text messages. On success, the sent Message is returned. */
 export interface SendMessageParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -1452,6 +2507,79 @@ export const SendMessageParams: Schema.Codec<SendMessageParams, Readonly<Record<
 export const sendMessage = callMethod({
   method: "sendMessage",
   params: SendMessageParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send paid media. On success, the sent Message is returned. */
+export interface SendPaidMediaParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance. */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** The number of Telegram Stars that must be paid to buy access to the media; 1-25000 */
+  readonly starCount: number;
+  /** A JSON-serialized Array describing the media to be sent; up to 10 items */
+  readonly media: ReadonlyArray<Types.InputPaidMedia>;
+  /** Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+  readonly payload?: string | undefined;
+  /** Media caption, 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the media caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendPaidMediaParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", star_count: "starCount", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendPaidMediaParamsWireKeys = invertKeys(_SendPaidMediaParamsPublicKeys);
+const _SendPaidMediaParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  star_count: Schema.Int,
+  media: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputPaidMedia, unknown> => Types.InputPaidMedia)),
+  payload: Schema.optional(Schema.String),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendPaidMediaParamsDecoded = Schema.declare<SendPaidMediaParams>((input): input is SendPaidMediaParams => Predicate.isObject(input));
+export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Record<string, unknown>>> = _SendPaidMediaParamsEncoded.pipe(
+  Schema.decodeTo(_SendPaidMediaParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendPaidMediaParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendPaidMediaParamsWireKeys)),
+  }),
+);
+
+export const sendPaidMedia = callMethod({
+  method: "sendPaidMedia",
+  params: SendPaidMediaParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -1528,6 +2656,191 @@ export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<stri
 export const sendPhoto = callMethod({
   method: "sendPhoto",
   params: SendPhotoParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send a native poll. On success, the sent Message is returned. */
+export interface SendPollParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats. */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Poll question, 1-300 characters */
+  readonly question: string;
+  /** Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed. */
+  readonly questionParseMode?: string | undefined;
+  /** A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode. */
+  readonly questionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** A JSON-serialized list of 1-12 answer options */
+  readonly options: ReadonlyArray<Types.InputPollOption>;
+  /** True, if the poll needs to be anonymous, defaults to True */
+  readonly isAnonymous?: boolean | undefined;
+  /** Poll type, “quiz” or “regular”, defaults to “regular” */
+  readonly type?: Types.PollType | undefined;
+  /** Pass True if the poll allows multiple answers, defaults to False */
+  readonly allowsMultipleAnswers?: boolean | undefined;
+  /** Pass True if the poll allows to change chosen answer options, defaults to False for quizzes and to True for regular polls */
+  readonly allowsRevoting?: boolean | undefined;
+  /** Pass True if the poll options must be shown in random order */
+  readonly shuffleOptions?: boolean | undefined;
+  /** Pass True if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes */
+  readonly allowAddingOptions?: boolean | undefined;
+  /** Pass True if poll results must be shown only after the poll closes */
+  readonly hideResultsUntilCloses?: boolean | undefined;
+  /** Pass True if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only */
+  readonly membersOnly?: boolean | undefined;
+  /** A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use “FT” as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll. */
+  readonly countryCodes?: ReadonlyArray<string> | undefined;
+  /** A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode */
+  readonly correctOptionIds?: ReadonlyArray<number> | undefined;
+  /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
+  readonly explanation?: string | undefined;
+  /** Mode for parsing entities in the explanation. See formatting options for more details. */
+  readonly explanationParseMode?: string | undefined;
+  /** A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode. */
+  readonly explanationEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Media added to the quiz explanation */
+  readonly explanationMedia?: Types.InputPollMedia | undefined;
+  /** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with close_date. */
+  readonly openPeriod?: number | undefined;
+  /** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with open_period. */
+  readonly closeDate?: number | undefined;
+  /** Pass True if the poll needs to be immediately closed. This can be useful for poll preview. */
+  readonly isClosed?: boolean | undefined;
+  /** Description of the poll to be sent, 0-1024 characters after entities parsing */
+  readonly description?: string | undefined;
+  /** Mode for parsing entities in the poll description. See formatting options for more details. */
+  readonly descriptionParseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of description_parse_mode */
+  readonly descriptionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Media added to the poll description */
+  readonly media?: Types.InputPollMedia | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendPollParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", question_parse_mode: "questionParseMode", question_entities: "questionEntities", is_anonymous: "isAnonymous", allows_multiple_answers: "allowsMultipleAnswers", allows_revoting: "allowsRevoting", shuffle_options: "shuffleOptions", allow_adding_options: "allowAddingOptions", hide_results_until_closes: "hideResultsUntilCloses", members_only: "membersOnly", country_codes: "countryCodes", correct_option_ids: "correctOptionIds", explanation_parse_mode: "explanationParseMode", explanation_entities: "explanationEntities", explanation_media: "explanationMedia", open_period: "openPeriod", close_date: "closeDate", is_closed: "isClosed", description_parse_mode: "descriptionParseMode", description_entities: "descriptionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendPollParamsWireKeys = invertKeys(_SendPollParamsPublicKeys);
+const _SendPollParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  question: Schema.String,
+  question_parse_mode: Schema.optional(Schema.String),
+  question_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  options: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputPollOption, unknown> => Types.InputPollOption)),
+  is_anonymous: Schema.optional(Schema.Boolean),
+  type: Schema.optional(Schema.suspend((): Schema.Codec<Types.PollType, unknown> => Types.PollType)),
+  allows_multiple_answers: Schema.optional(Schema.Boolean),
+  allows_revoting: Schema.optional(Schema.Boolean),
+  shuffle_options: Schema.optional(Schema.Boolean),
+  allow_adding_options: Schema.optional(Schema.Boolean),
+  hide_results_until_closes: Schema.optional(Schema.Boolean),
+  members_only: Schema.optional(Schema.Boolean),
+  country_codes: Schema.optional(Schema.Array(Schema.String)),
+  correct_option_ids: Schema.optional(Schema.Array(Schema.Int)),
+  explanation: Schema.optional(Schema.String),
+  explanation_parse_mode: Schema.optional(Schema.String),
+  explanation_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  explanation_media: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputPollMedia, unknown> => Types.InputPollMedia)),
+  open_period: Schema.optional(Schema.Int),
+  close_date: Schema.optional(Schema.Int),
+  is_closed: Schema.optional(Schema.Boolean),
+  description: Schema.optional(Schema.String),
+  description_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  description_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  media: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputPollMedia, unknown> => Types.InputPollMedia)),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendPollParamsDecoded = Schema.declare<SendPollParams>((input): input is SendPollParams => Predicate.isObject(input));
+export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string, unknown>>> = _SendPollParamsEncoded.pipe(
+  Schema.decodeTo(_SendPollParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendPollParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendPollParamsWireKeys)),
+  }),
+);
+
+export const sendPoll = callMethod({
+  method: "sendPoll",
+  params: SendPollParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent Message is returned. */
+export interface SendRichMessageParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages. */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** The message to be sent */
+  readonly richMessage: Types.InputRichMessage;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendRichMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", rich_message: "richMessage", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendRichMessageParamsWireKeys = invertKeys(_SendRichMessageParamsPublicKeys);
+const _SendRichMessageParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  rich_message: Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendRichMessageParamsDecoded = Schema.declare<SendRichMessageParams>((input): input is SendRichMessageParams => Predicate.isObject(input));
+export const SendRichMessageParams: Schema.Codec<SendRichMessageParams, Readonly<Record<string, unknown>>> = _SendRichMessageParamsEncoded.pipe(
+  Schema.decodeTo(_SendRichMessageParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageParamsWireKeys)),
+  }),
+);
+
+export const sendRichMessage = callMethod({
+  method: "sendRichMessage",
+  params: SendRichMessageParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -1918,6 +3231,65 @@ export const sendVoice = callMethod({
   retrySafe: false,
 });
 
+/** Changes the profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success. */
+export interface SetBusinessAccountProfilePhotoParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** The new profile photo to set */
+  readonly photo: Types.InputProfilePhoto;
+  /** Pass True to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo. */
+  readonly isPublic?: boolean | undefined;
+}
+const _SetBusinessAccountProfilePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
+const _SetBusinessAccountProfilePhotoParamsWireKeys = invertKeys(_SetBusinessAccountProfilePhotoParamsPublicKeys);
+const _SetBusinessAccountProfilePhotoParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  photo: Schema.suspend((): Schema.Codec<Types.InputProfilePhoto, unknown> => Types.InputProfilePhoto),
+  is_public: Schema.optional(Schema.Boolean),
+});
+const _SetBusinessAccountProfilePhotoParamsDecoded = Schema.declare<SetBusinessAccountProfilePhotoParams>((input): input is SetBusinessAccountProfilePhotoParams => Predicate.isObject(input));
+export const SetBusinessAccountProfilePhotoParams: Schema.Codec<SetBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountProfilePhotoParamsEncoded.pipe(
+  Schema.decodeTo(_SetBusinessAccountProfilePhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountProfilePhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountProfilePhotoParamsWireKeys)),
+  }),
+);
+
+export const setBusinessAccountProfilePhoto = callMethod({
+  method: "setBusinessAccountProfilePhoto",
+  params: SetBusinessAccountProfilePhotoParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+export interface SetChatPhotoParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** New chat photo, uploaded using multipart/form-data */
+  readonly photo: Types.InputFile;
+}
+const _SetChatPhotoParamsPublicKeys = { chat_id: "chatId" } as const;
+const _SetChatPhotoParamsWireKeys = invertKeys(_SetChatPhotoParamsPublicKeys);
+const _SetChatPhotoParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  photo: Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile),
+});
+const _SetChatPhotoParamsDecoded = Schema.declare<SetChatPhotoParams>((input): input is SetChatPhotoParams => Predicate.isObject(input));
+export const SetChatPhotoParams: Schema.Codec<SetChatPhotoParams, Readonly<Record<string, unknown>>> = _SetChatPhotoParamsEncoded.pipe(
+  Schema.decodeTo(_SetChatPhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatPhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatPhotoParamsWireKeys)),
+  }),
+);
+
+export const setChatPhoto = callMethod({
+  method: "setChatPhoto",
+  params: SetChatPhotoParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
 /** Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success. */
 export interface SetMyCommandsParams {
   /** A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */
@@ -2033,6 +3405,22 @@ export const setMyName = callMethod({
   retrySafe: true,
 });
 
+/** Changes the profile photo of the bot. Returns True on success. */
+export interface SetMyProfilePhotoParams {
+  /** The new profile photo to set */
+  readonly photo: Types.InputProfilePhoto;
+}
+export const SetMyProfilePhotoParams: Schema.Codec<SetMyProfilePhotoParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+  photo: Schema.suspend((): Schema.Codec<Types.InputProfilePhoto, unknown> => Types.InputProfilePhoto),
+});
+
+export const setMyProfilePhoto = callMethod({
+  method: "setMyProfilePhoto",
+  params: SetMyProfilePhotoParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
 /** Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success. */
 export interface SetMyShortDescriptionParams {
   /** New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language. */
@@ -2059,4 +3447,63 @@ export const setMyShortDescription = callMethod({
   params: SetMyShortDescriptionParams,
   result: Schema.Literal(true),
   retrySafe: true,
+});
+
+/** Transfers Telegram Stars from the business account balance to the bot's balance. Requires the can_transfer_stars business bot right. Returns True on success. */
+export interface TransferBusinessAccountStarsParams {
+  /** Unique identifier of the business connection */
+  readonly businessConnectionId: string;
+  /** Number of Telegram Stars to transfer; 1-10000 */
+  readonly starCount: number;
+}
+const _TransferBusinessAccountStarsParamsPublicKeys = { business_connection_id: "businessConnectionId", star_count: "starCount" } as const;
+const _TransferBusinessAccountStarsParamsWireKeys = invertKeys(_TransferBusinessAccountStarsParamsPublicKeys);
+const _TransferBusinessAccountStarsParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.String,
+  star_count: Schema.Int,
+});
+const _TransferBusinessAccountStarsParamsDecoded = Schema.declare<TransferBusinessAccountStarsParams>((input): input is TransferBusinessAccountStarsParams => Predicate.isObject(input));
+export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAccountStarsParams, Readonly<Record<string, unknown>>> = _TransferBusinessAccountStarsParamsEncoded.pipe(
+  Schema.decodeTo(_TransferBusinessAccountStarsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_TransferBusinessAccountStarsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_TransferBusinessAccountStarsParamsWireKeys)),
+  }),
+);
+
+export const transferBusinessAccountStars = callMethod({
+  method: "transferBusinessAccountStars",
+  params: TransferBusinessAccountStarsParams,
+  result: Schema.Literal(true),
+  retrySafe: false,
+});
+
+/** Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success. */
+export interface UploadStickerFileParams {
+  /** User identifier of sticker file owner */
+  readonly userId: number;
+  /** A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See https://core.telegram.org/stickers for technical requirements. More information on Sending Files » */
+  readonly sticker: Types.InputFile;
+  /** Format of the sticker, must be one of “static”, “animated”, “video” */
+  readonly stickerFormat: Types.StickerFormat;
+}
+const _UploadStickerFileParamsPublicKeys = { user_id: "userId", sticker_format: "stickerFormat" } as const;
+const _UploadStickerFileParamsWireKeys = invertKeys(_UploadStickerFileParamsPublicKeys);
+const _UploadStickerFileParamsEncoded = Schema.Struct({
+  user_id: Schema.Int,
+  sticker: Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile),
+  sticker_format: Schema.suspend((): Schema.Codec<Types.StickerFormat, unknown> => Types.StickerFormat),
+});
+const _UploadStickerFileParamsDecoded = Schema.declare<UploadStickerFileParams>((input): input is UploadStickerFileParams => Predicate.isObject(input));
+export const UploadStickerFileParams: Schema.Codec<UploadStickerFileParams, Readonly<Record<string, unknown>>> = _UploadStickerFileParamsEncoded.pipe(
+  Schema.decodeTo(_UploadStickerFileParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_UploadStickerFileParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_UploadStickerFileParamsWireKeys)),
+  }),
+);
+
+export const uploadStickerFile = callMethod({
+  method: "uploadStickerFile",
+  params: UploadStickerFileParams,
+  result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
+  retrySafe: false,
 });
