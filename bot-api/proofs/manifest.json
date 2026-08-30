@@ -3,6 +3,10 @@
     "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.909Z"
   },
+  "getChatMenuButton": {
+    "artifact": "bot-api/proofs/getChatMenuButton/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.343Z"
+  },
   "getForumTopicIconStickers": {
     "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.935Z"
@@ -11,9 +15,33 @@
     "artifact": "bot-api/proofs/getMe/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.954Z"
   },
+  "getMyCommands": {
+    "artifact": "bot-api/proofs/getMyCommands/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.364Z"
+  },
+  "getMyDefaultAdministratorRights": {
+    "artifact": "bot-api/proofs/getMyDefaultAdministratorRights/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.393Z"
+  },
+  "getMyDescription": {
+    "artifact": "bot-api/proofs/getMyDescription/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.422Z"
+  },
+  "getMyName": {
+    "artifact": "bot-api/proofs/getMyName/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.454Z"
+  },
+  "getMyShortDescription": {
+    "artifact": "bot-api/proofs/getMyShortDescription/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.483Z"
+  },
   "getMyStarBalance": {
     "artifact": "bot-api/proofs/getMyStarBalance/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.977Z"
+  },
+  "getStarTransactions": {
+    "artifact": "bot-api/proofs/getStarTransactions/2026-08-30.json",
+    "recorded_time": "2026-08-30T16:57:06.505Z"
   },
   "getWebhookInfo": {
     "artifact": "bot-api/proofs/getWebhookInfo/2026-08-30.json",

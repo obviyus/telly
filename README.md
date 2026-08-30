@@ -9,7 +9,7 @@ Read [VISION.md](./VISION.md) for the product direction.
 Bot API methods are generated from the checked-in Telegram schema. Methods with no parameters take no arguments.
 
 ```ts
-import { Application, getMe, sendMessage } from "telly";
+import { Application, getMe, getMyName, sendMessage } from "telly";
 
 const token = process.env.BOT_TOKEN;
 if (token === undefined) throw new Error("Set BOT_TOKEN");
@@ -18,16 +18,19 @@ const app = Application.make({ token });
 
 try {
   const bot = await app.run(getMe());
+  const defaultName = await app.run(getMyName({}));
   const message = await app.run(
     sendMessage({ chatId: 123, text: "Hello from Telly" }),
   );
-  console.log(bot.firstName, message.messageId);
+  console.log(bot.firstName, defaultName.name, message.messageId);
 } finally {
   await app.close();
 }
 ```
 
 `Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
+
+A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
 
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
 

@@ -1,0 +1,15 @@
+{
+  "method": "getStarTransactions",
+  "passed": true,
+  "recorded_time": "2026-08-30T16:57:06.505Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 22,
+      "kind": "bot_api_result",
+      "observation": {
+        "transactionCount": 0
+      }
+    }
+  ]
+}

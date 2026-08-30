@@ -5,9 +5,16 @@ import { fileURLToPath } from "node:url";
 import {
   Application,
   getAvailableGifts,
+  getChatMenuButton,
   getForumTopicIconStickers,
   getMe,
+  getMyCommands,
+  getMyDefaultAdministratorRights,
+  getMyDescription,
+  getMyName,
+  getMyShortDescription,
   getMyStarBalance,
+  getStarTransactions,
   getWebhookInfo,
 } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
@@ -38,6 +45,11 @@ try {
       summarize: (result) => ({ giftCount: result.gifts.length }),
     },
     {
+      name: "getChatMenuButton",
+      operation: () => getChatMenuButton({}),
+      summarize: (result) => ({ type: result.type }),
+    },
+    {
       name: "getForumTopicIconStickers",
       operation: getForumTopicIconStickers,
       summarize: (result) => ({ stickerCount: result.length }),
@@ -51,12 +63,45 @@ try {
       }),
     },
     {
+      name: "getMyCommands",
+      operation: () => getMyCommands({
+        languageCode: "en",
+        scope: { type: "default" },
+      }),
+      summarize: (result) => ({ commandCount: result.length }),
+    },
+    {
+      name: "getMyDefaultAdministratorRights",
+      operation: () => getMyDefaultAdministratorRights({}),
+      summarize: (result) => ({ canManageChat: result.canManageChat }),
+    },
+    {
+      name: "getMyDescription",
+      operation: () => getMyDescription({ languageCode: "en" }),
+      summarize: (result) => ({ descriptionLength: result.description.length }),
+    },
+    {
+      name: "getMyName",
+      operation: () => getMyName({ languageCode: "en" }),
+      summarize: (result) => ({ nameLength: result.name.length }),
+    },
+    {
+      name: "getMyShortDescription",
+      operation: () => getMyShortDescription({ languageCode: "en" }),
+      summarize: (result) => ({ shortDescriptionLength: result.shortDescription.length }),
+    },
+    {
       name: "getMyStarBalance",
       operation: getMyStarBalance,
       summarize: (result) => ({
         amount: result.amount,
         nanostarAmount: result.nanostarAmount ?? 0,
       }),
+    },
+    {
+      name: "getStarTransactions",
+      operation: () => getStarTransactions({ limit: 1, offset: 0 }),
+      summarize: (result) => ({ transactionCount: result.transactions.length }),
     },
     {
       name: "getWebhookInfo",
@@ -68,13 +113,14 @@ try {
       }),
     },
   ];
-  const requestedMethod = process.env.TELLY_E2E_METHOD;
-  const selectedMethods = requestedMethod === undefined
+  const requestedMethods = process.env.TELLY_E2E_METHODS?.split(",").filter(Boolean);
+  const selectedMethods = requestedMethods === undefined
     ? methods
-    : methods.filter((method) => method.name === requestedMethod);
-  if (selectedMethods.length === 0) {
-    throw new Error(`Unknown read-only method ${requestedMethod}`);
-  }
+    : requestedMethods.map((name) => {
+        const method = methods.find((candidate) => candidate.name === name);
+        if (method === undefined) throw new Error(`Unknown read-only method ${name}`);
+        return method;
+      });
   const verdicts = [];
 
   for (const method of selectedMethods) {

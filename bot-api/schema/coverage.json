@@ -337,9 +337,9 @@
       "status": "blocked"
     },
     "getChatMenuButton": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getChatMenuButton/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.343Z",
+      "status": "proven"
     },
     "getCustomEmojiStickers": {
       "expires_on": "2026-09-23",
@@ -377,29 +377,29 @@
       "status": "proven"
     },
     "getMyCommands": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyCommands/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.364Z",
+      "status": "proven"
     },
     "getMyDefaultAdministratorRights": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyDefaultAdministratorRights/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.393Z",
+      "status": "proven"
     },
     "getMyDescription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyDescription/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.422Z",
+      "status": "proven"
     },
     "getMyName": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyName/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.454Z",
+      "status": "proven"
     },
     "getMyShortDescription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getMyShortDescription/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.483Z",
+      "status": "proven"
     },
     "getMyStarBalance": {
       "artifact": "bot-api/proofs/getMyStarBalance/2026-08-30.json",
@@ -407,9 +407,9 @@
       "status": "proven"
     },
     "getStarTransactions": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/getStarTransactions/2026-08-30.json",
+      "recorded_time": "2026-08-30T16:57:06.505Z",
+      "status": "proven"
     },
     "getStickerSet": {
       "expires_on": "2026-09-23",
