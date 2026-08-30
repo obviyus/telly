@@ -1,4 +1,9 @@
 {
+  "deleteMyCommands": {
+    "artifact": "bot-api/proofs/deleteMyCommands/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:36.326Z",
+    "status": "proven"
+  },
   "getAvailableGifts": {
     "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
     "recorded_time": "2026-08-30T16:47:23.909Z",
@@ -157,6 +162,31 @@
   "sendMessage": {
     "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
     "recorded_time": "2026-08-30T13:55:04.034Z",
+    "status": "proven"
+  },
+  "setMyCommands": {
+    "artifact": "bot-api/proofs/setMyCommands/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:36.159Z",
+    "status": "proven"
+  },
+  "setMyDefaultAdministratorRights": {
+    "artifact": "bot-api/proofs/setMyDefaultAdministratorRights/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:36.381Z",
+    "status": "proven"
+  },
+  "setMyDescription": {
+    "artifact": "bot-api/proofs/setMyDescription/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:35.883Z",
+    "status": "proven"
+  },
+  "setMyName": {
+    "artifact": "bot-api/proofs/setMyName/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:35.673Z",
+    "status": "proven"
+  },
+  "setMyShortDescription": {
+    "artifact": "bot-api/proofs/setMyShortDescription/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:33:35.969Z",
     "status": "proven"
   }
 }

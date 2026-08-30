@@ -1,5 +1,8 @@
 {
   "methods": {
+    "deleteMyCommands": {
+      "retrySafe": true
+    },
     "getAvailableGifts": {
       "retrySafe": true
     },
@@ -96,6 +99,21 @@
     },
     "sendMessage": {
       "retrySafe": false
+    },
+    "setMyCommands": {
+      "retrySafe": true
+    },
+    "setMyDefaultAdministratorRights": {
+      "retrySafe": true
+    },
+    "setMyDescription": {
+      "retrySafe": true
+    },
+    "setMyName": {
+      "retrySafe": true
+    },
+    "setMyShortDescription": {
+      "retrySafe": true
     }
   },
   "types": {}

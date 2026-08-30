@@ -9,6 +9,7 @@ import {
   getStarTransactions,
   getUserProfilePhotos,
   sendMessage,
+  setMyDefaultAdministratorRights,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
@@ -270,4 +271,50 @@ test("getUserProfilePhotos decodes its nested result", async () => {
   expect(photos.totalCount).toBe(0);
   expect(photos.photos).toEqual([]);
   expect(fake.requests[0]?.params).toEqual({ limit: 4, offset: 2, user_id: 73 });
+});
+
+test("setMyDefaultAdministratorRights encodes nested camelCase fields", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok(true)],
+    token,
+  });
+  const rights = {
+    canChangeInfo: false,
+    canDeleteMessages: false,
+    canDeleteStories: false,
+    canEditStories: false,
+    canInviteUsers: true,
+    canManageChat: true,
+    canManageVideoChats: false,
+    canPostStories: false,
+    canPromoteMembers: false,
+    canRestrictMembers: false,
+    canSendWelcomeMessages: true,
+    isAnonymous: false,
+  };
+
+  const result = await Effect.runPromise(
+    setMyDefaultAdministratorRights({ forChannels: true, rights }).pipe(
+      Effect.provide(botLayer(fake)),
+    ),
+  );
+
+  expect(result).toBe(true);
+  expect(fake.requests[0]?.params).toEqual({
+    for_channels: true,
+    rights: {
+      can_change_info: false,
+      can_delete_messages: false,
+      can_delete_stories: false,
+      can_edit_stories: false,
+      can_invite_users: true,
+      can_manage_chat: true,
+      can_manage_video_chats: false,
+      can_post_stories: false,
+      can_promote_members: false,
+      can_restrict_members: false,
+      can_send_welcome_messages: true,
+      is_anonymous: false,
+    },
+  });
 });

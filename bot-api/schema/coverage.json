@@ -172,9 +172,9 @@
       "status": "blocked"
     },
     "deleteMyCommands": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/deleteMyCommands/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:36.326Z",
+      "status": "proven"
     },
     "deleteStickerFromSet": {
       "expires_on": "2026-09-23",
@@ -777,24 +777,24 @@
       "status": "blocked"
     },
     "setMyCommands": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/setMyCommands/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:36.159Z",
+      "status": "proven"
     },
     "setMyDefaultAdministratorRights": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/setMyDefaultAdministratorRights/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:36.381Z",
+      "status": "proven"
     },
     "setMyDescription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/setMyDescription/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:35.883Z",
+      "status": "proven"
     },
     "setMyName": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/setMyName/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:35.673Z",
+      "status": "proven"
     },
     "setMyProfilePhoto": {
       "expires_on": "2026-09-23",
@@ -802,9 +802,9 @@
       "status": "blocked"
     },
     "setMyShortDescription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/setMyShortDescription/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:33:35.969Z",
+      "status": "proven"
     },
     "setPassportDataErrors": {
       "expires_on": "2026-09-23",
