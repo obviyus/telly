@@ -30,6 +30,7 @@
     "e2e:read-only-methods": "bun run ./scripts/e2e/read-only-methods.mjs",
     "e2e:bot-profile-settings": "bun run ./scripts/e2e/bot-profile-settings.mjs",
     "e2e:send-message": "bun run ./scripts/e2e/send-message.mjs",
+    "e2e:send-photo": "TELLY_E2E_SEND_METHOD=sendPhoto bun run ./scripts/e2e/send-message.mjs",
     "schema:check": "bun run ./bot-api/schema/check.ts",
     "schema:generate": "bun run ./bot-api/schema/generate.ts",
     "test": "bun test --pass-with-no-tests",

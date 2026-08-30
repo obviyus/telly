@@ -27,6 +27,13 @@ const spec = {
   types: {
     Result: {
       description: ["result"],
+      fields: [{
+        description: "value",
+        html_description: "value",
+        name: "value",
+        required: true,
+        types: ["String"],
+      }],
       href: "#result",
       name: "Result",
     },
@@ -51,7 +58,11 @@ test("coverage distinguishes proven, explicitly blocked, and absent methods", ()
 
   const sources = generateSources(
     spec,
-    { methods: { proven: { resultSchema, retrySafe: true } }, types: {} },
+    {
+      fields: { "Result.value": { types: ["Integer"] } },
+      methods: { proven: { resultSchema, retrySafe: true } },
+      types: {},
+    },
     evidence,
   );
   const coverage = JSON.parse(sources.coverage);
@@ -64,6 +75,7 @@ test("coverage distinguishes proven, explicitly blocked, and absent methods", ()
     status: "blocked",
   });
   expect(sources.methods).toContain(`result: ${resultSchema}`);
+  expect(sources.types).toContain("readonly value: number");
 });
 
 test("evidence tags reject fields from the other state", async () => {
@@ -87,4 +99,40 @@ test("evidence tags reject fields from the other state", async () => {
 
   expect(blockedWithArtifact._tag).toBe("Failure");
   expect(provenWithoutArtifact._tag).toBe("Failure");
+});
+
+test("field overrides must change an existing schema field", () => {
+  expect(() => generateSources(
+    spec,
+    {
+      fields: { "Result.value": { types: ["String"] } },
+      methods: {},
+      types: {},
+    },
+    {},
+  )).toThrow("Field override Result.value duplicates the schema");
+});
+
+test("nested upload fields require an explicit type correction", () => {
+  const uploadSpec = {
+    ...spec,
+    types: {
+      Result: {
+        ...spec.types.Result,
+        fields: [{
+          description: "Upload with attach://file0",
+          html_description: "Upload with attach://file0",
+          name: "value",
+          required: true,
+          types: ["String"],
+        }],
+      },
+    },
+  } satisfies BotApiSpec;
+
+  expect(() => generateSources(
+    uploadSpec,
+    { fields: {}, methods: {}, types: {} },
+    {},
+  )).toThrow("Nested upload field Result.value needs a field override");
 });

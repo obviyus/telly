@@ -5,6 +5,8 @@ import {
   type HttpClientResponse,
 } from "effect/unstable/http";
 
+import { requestBody } from "./internal/Multipart.js";
+
 const TelegramResponseParameters = Schema.Struct({
   migrate_to_chat_id: Schema.optionalKey(Schema.Int),
   retry_after: Schema.optionalKey(Schema.Int),
@@ -169,9 +171,14 @@ export class Bot extends Context.Service<
           params: object = {},
         ) {
           yield* Effect.annotateCurrentSpan({ method });
+          const body = requestBody(params);
           const request = HttpClientRequest.post(
             `${apiRoot}/bot${token}/${encodeURIComponent(method)}`,
-          ).pipe(HttpClientRequest.bodyJsonUnsafe(params));
+          ).pipe(
+            body._tag === "Json"
+              ? HttpClientRequest.bodyJsonUnsafe(body.body)
+              : HttpClientRequest.bodyFormData(body.body),
+          );
           const response = yield* client.execute(request).pipe(
             Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
             Effect.mapError((error) => transportError(method, error, token, false)),

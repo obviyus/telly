@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { Effect, Layer, Redacted } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 
-import { Bot, sendMessage } from "../../index.ts";
+import { Bot, sendMessage, sendPhoto } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
 import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
 
@@ -22,9 +22,13 @@ const readyPath = path.join(proofDir, "recorder-ready.json");
 const scenarioPath = path.join(proofDir, "scenario.json");
 const recorderStdoutPath = path.join(proofDir, "recorder.stdout.log");
 const recorderStderrPath = path.join(proofDir, "recorder.stderr.log");
+const method = process.env.TELLY_E2E_SEND_METHOD ?? "sendMessage";
+if (!["sendMessage", "sendPhoto"].includes(method)) {
+  throw new Error(`Unsupported send proof method ${method}`);
+}
 const run = randomUUID();
 const openText = `telly-open-${run}`;
-const sentText = `telly-sendMessage-${run}`;
+const sentText = `telly-${method}-${run}`;
 
 async function readJsonLines(file) {
   try {
@@ -89,6 +93,9 @@ let recorder;
 let recorderCompletion;
 let recorderStdout = "";
 let recorderStderr = "";
+let bot;
+let sentMessageId;
+let deleted = false;
 
 try {
   credential = await acquireTelegramTestCredential({ convexProjectDir });
@@ -156,40 +163,78 @@ try {
   if (!Number.isSafeInteger(chatId)) {
     throw new Error("Leased Telegram tester id is not a safe integer");
   }
-  const bot = Bot.layer({
+  bot = Bot.layer({
     apiRoot: proxy.apiRoot,
     token: Redacted.make(credential.sutToken),
   }).pipe(Layer.provide(FetchHttpClient.layer));
   const sent = await Effect.runPromise(
-    sendMessage({ chatId, text: sentText }).pipe(Effect.provide(bot)),
+    (method === "sendPhoto"
+      ? sendPhoto({
+          caption: sentText,
+          chatId,
+          photo: new Blob([
+            Buffer.from(
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+              "base64",
+            ),
+          ], { type: "image/png" }),
+        })
+      : sendMessage({ chatId, text: sentText })).pipe(Effect.provide(bot)),
   );
+  sentMessageId = sent.messageId;
+  const sentContent = sent.text ?? sent.caption;
   await writeFile(
     path.join(proofDir, "sent.json"),
-    `${JSON.stringify({ date: sent.date, message_id: sent.messageId, text: sent.text }, null, 2)}\n`,
+    `${JSON.stringify({ date: sent.date, message_id: sent.messageId, text: sentContent }, null, 2)}\n`,
     { mode: 0o600 },
   );
 
-  await recorderCompletion;
-  const events = await readJsonLines(eventsPath);
-  const observed = events.find(
-    (event) =>
-      event.kind === "message" &&
-      event.isSut === true &&
-      event.text === sentText,
-  );
-  if (!observed) {
-    throw new Error("Telegram user recorder did not observe the sent message");
+  const observed = await Promise.race([
+    waitFor(
+      eventsPath,
+      (events) => events.find(
+        (event) => event.kind === "message" && event.isSut === true && event.text === sentText,
+      ),
+      15_000,
+    ),
+    recorderStoppedEarly,
+  ]);
+  let observedDeletion;
+  if (method === "sendPhoto") {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const service = yield* Bot;
+        return yield* service.callRaw("deleteMessage", {
+          chat_id: chatId,
+          message_id: sent.messageId,
+        });
+      }).pipe(Effect.provide(bot)),
+    );
+    deleted = true;
+    observedDeletion = await Promise.race([
+      waitFor(
+        eventsPath,
+        (events) => events.find(
+          (event) =>
+            event.kind === "delete" &&
+            event.botApiMessageId === observed.botApiMessageId,
+        ),
+        15_000,
+      ),
+      recorderStoppedEarly,
+    ]);
   }
+  await recorderCompletion;
 
   const verdict = {
-    method: "sendMessage",
+    method,
     passed: true,
     recorded_time: new Date().toISOString(),
     schemaVersion: 1,
     sent: {
       date: sent.date,
       senderBotApiMessageId: sent.messageId,
-      text: sent.text,
+      text: sentContent,
     },
     timeline: [
       {
@@ -200,6 +245,15 @@ try {
         observerBotApiMessageId: observed.botApiMessageId,
         text: observed.text,
       },
+      ...(observedDeletion === undefined
+        ? []
+        : [{
+            elapsedMs: observedDeletion.elapsedMs,
+            isPermanent: observedDeletion.isPermanent,
+            isSut: true,
+            kind: observedDeletion.kind,
+            observerBotApiMessageId: observedDeletion.botApiMessageId,
+          }]),
     ],
   };
   const serializedVerdict = `${JSON.stringify(verdict, null, 2)}\n`;
@@ -219,6 +273,17 @@ try {
   console.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error), ok: false, proofDir }));
   throw error;
 } finally {
+  if (method === "sendPhoto" && !deleted && sentMessageId !== undefined && bot !== undefined) {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const service = yield* Bot;
+        yield* service.callRaw("deleteMessage", {
+          chat_id: Number(credential.testerUserId),
+          message_id: sentMessageId,
+        });
+      }).pipe(Effect.provide(bot)),
+    );
+  }
   if (recorder?.exitCode === null) recorder.kill("SIGTERM");
   await recorderCompletion?.catch(() => {});
   await writeFile(recorderStdoutPath, recorderStdout, { mode: 0o600 });

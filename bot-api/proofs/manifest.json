@@ -164,6 +164,11 @@
     "recorded_time": "2026-08-30T13:55:04.034Z",
     "status": "proven"
   },
+  "sendPhoto": {
+    "artifact": "bot-api/proofs/sendPhoto/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:50:05.765Z",
+    "status": "proven"
+  },
   "setMyCommands": {
     "artifact": "bot-api/proofs/setMyCommands/2026-08-30.json",
     "recorded_time": "2026-08-30T17:33:36.159Z",

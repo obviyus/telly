@@ -34,6 +34,8 @@ A method with optional fields still takes one options object: `await app.run(get
 
 `downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.
 
+Uploads use Web `Blob` values. Use `File` when Telegram should receive a filename: `sendPhoto({ chatId, photo: new File([bytes], "photo.png") })`.
+
 Managed bot tokens stay redacted and pass directly into another application:
 
 ```ts

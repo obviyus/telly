@@ -47,6 +47,7 @@
 ## Bot API schema
 
 - Change normalized schema inputs or the override file, then regenerate. Generated output comes only from the generator.
+- Correct nested upload fields that the source types as `String` in `overrides.fields`. Preserve the hashed source snapshot.
 
 ## Tests
 

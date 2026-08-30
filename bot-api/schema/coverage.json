@@ -647,9 +647,9 @@
       "status": "blocked"
     },
     "sendPhoto": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
-      "status": "blocked"
+      "artifact": "bot-api/proofs/sendPhoto/2026-08-30.json",
+      "recorded_time": "2026-08-30T17:50:05.765Z",
+      "status": "proven"
     },
     "sendPoll": {
       "expires_on": "2026-09-23",

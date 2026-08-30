@@ -1,4 +1,81 @@
 {
+  "fields": {
+    "InputMediaAnimation.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaAnimation.thumbnail": {
+      "types": ["InputFile"]
+    },
+    "InputMediaAudio.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaAudio.thumbnail": {
+      "types": ["InputFile"]
+    },
+    "InputMediaDocument.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaDocument.thumbnail": {
+      "types": ["InputFile"]
+    },
+    "InputMediaLivePhoto.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaLivePhoto.photo": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaPhoto.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaSticker.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaVideo.cover": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaVideo.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputMediaVideo.thumbnail": {
+      "types": ["InputFile"]
+    },
+    "InputMediaVoiceNote.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaLivePhoto.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaLivePhoto.photo": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaPhoto.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaVideo.cover": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaVideo.media": {
+      "types": ["InputFile", "String"]
+    },
+    "InputPaidMediaVideo.thumbnail": {
+      "types": ["InputFile"]
+    },
+    "InputProfilePhotoAnimated.animation": {
+      "types": ["InputFile"]
+    },
+    "InputProfilePhotoStatic.photo": {
+      "types": ["InputFile"]
+    },
+    "InputSticker.sticker": {
+      "types": ["InputFile", "String"]
+    },
+    "InputStoryContentPhoto.photo": {
+      "types": ["InputFile"]
+    },
+    "InputStoryContentVideo.video": {
+      "types": ["InputFile"]
+    }
+  },
   "methods": {
     "deleteMyCommands": {
       "retrySafe": true
@@ -100,6 +177,9 @@
     "sendMessage": {
       "retrySafe": false
     },
+    "sendPhoto": {
+      "retrySafe": false
+    },
     "setMyCommands": {
       "retrySafe": true
     },
@@ -116,5 +196,10 @@
       "retrySafe": true
     }
   },
-  "types": {}
+  "types": {
+    "InputFile": {
+      "schema": "Schema.instanceOf(Blob)",
+      "typescript": "Blob"
+    }
+  }
 }

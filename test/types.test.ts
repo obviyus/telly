@@ -4,7 +4,7 @@ import { Effect, Schema } from "effect";
 import { InputFile, MessageOrigin, WebhookInfo } from "../index.ts";
 
 test("InputFile does not claim Telegram file references are upload bodies", async () => {
-  const upload = { bytes: new Uint8Array([3, 1, 4]) };
+  const upload = new Blob([new Uint8Array([3, 1, 4])], { type: "application/octet-stream" });
 
   const decoded = await Effect.runPromise(Schema.decodeUnknownEffect(InputFile)(upload));
   const fileReference = await Effect.runPromiseExit(

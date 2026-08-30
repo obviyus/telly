@@ -9,9 +9,16 @@ import {
 export interface FakeBotApiCall {
   readonly contentType?: string;
   readonly filePath?: string;
+  readonly files?: Readonly<Record<string, FakeBotApiFile>>;
   readonly method: string;
   readonly params?: unknown;
   readonly tracingDisabled: boolean;
+}
+
+export interface FakeBotApiFile {
+  readonly fileName: string;
+  readonly size: number;
+  readonly type: string;
 }
 
 export interface FakeBotApiResponseParameters {
@@ -65,11 +72,46 @@ export interface FakeBotApi {
   readonly whenFileRequested: Promise<void>;
 }
 
-function bodyParams(body: HttpClientRequest.HttpClientRequest["body"]): unknown {
-  if (body._tag !== "Uint8Array") {
-    return {};
+function bodyDetails(body: HttpClientRequest.HttpClientRequest["body"]): {
+  readonly contentType?: string;
+  readonly files?: Readonly<Record<string, FakeBotApiFile>>;
+  readonly params: unknown;
+} {
+  if (body._tag === "FormData") {
+    const files: Record<string, FakeBotApiFile> = {};
+    const params: Record<string, string> = {};
+    for (const [key, value] of body.formData.entries()) {
+      if (typeof value === "string") {
+        params[key] = value;
+      } else {
+        const file: unknown = value;
+        if (!Predicate.isObject(file)) throw new Error(`Invalid multipart file part ${key}`);
+        const name = file["name"];
+        const size = file["size"];
+        const type = file["type"];
+        if (typeof name !== "string" || typeof size !== "number" || typeof type !== "string") {
+          throw new Error(`Invalid multipart file part ${key}`);
+        }
+        files[key] = {
+          fileName: name,
+          size,
+          type,
+        };
+      }
+    }
+    return {
+      contentType: "multipart/form-data",
+      ...(Object.keys(files).length === 0 ? {} : { files }),
+      params,
+    };
   }
-  return JSON.parse(new TextDecoder().decode(body.body));
+  if (body._tag === "Uint8Array") {
+    return {
+      ...(body.contentType === undefined ? {} : { contentType: body.contentType }),
+      params: JSON.parse(new TextDecoder().decode(body.body)),
+    };
+  }
+  return { params: {} };
 }
 
 function response(request: HttpClientRequest.HttpClientRequest, status: number, body: string) {
@@ -143,15 +185,12 @@ export const FakeBotApi = {
           ? undefined
           : decodeURIComponent(methodMatch[2]);
         const filePath = fileMatch?.[2]?.split("/").map(decodeURIComponent).join("/");
-        const params = bodyParams(request.body);
+        const details = bodyDetails(request.body);
+        const params = details.params;
         if (method !== undefined) {
-          const contentType = "contentType" in request.body
-            ? request.body.contentType
-            : undefined;
           calls.push({
-            ...(contentType === undefined ? {} : { contentType }),
+            ...details,
             method,
-            params,
             tracingDisabled: fiber.getRef(HttpClient.TracerDisabledWhen)(request),
           });
         } else if (filePath !== undefined) {
