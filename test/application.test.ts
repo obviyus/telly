@@ -11,10 +11,10 @@ test("Application runs sendMessage without Effect setup", async () => {
 
   try {
     const message = await app.run(
-      sendMessage({ chat_id: 37, text: "application-test" }),
+      sendMessage({ chatId: 37, text: "application-test" }),
     );
 
-    expect(message.message_id).toBe(41);
+    expect(message.messageId).toBe(41);
     expect(fake.requests[0]?.params).toEqual({ chat_id: 37, text: "application-test" });
   } finally {
     await app.close();
@@ -25,7 +25,7 @@ test("Application rejects with a useful BotApiError", async () => {
   const fake = FakeBotApi.make({
     replies: [FakeBotApiReply.reject({
       description: "Forbidden",
-      error_code: 403,
+      errorCode: 403,
     })],
     token,
   });
@@ -33,7 +33,7 @@ test("Application rejects with a useful BotApiError", async () => {
   let caught: unknown;
 
   try {
-    await app.run(sendMessage({ chat_id: 43, text: "rejection-test" }));
+    await app.run(sendMessage({ chatId: 43, text: "rejection-test" }));
   } catch (error) {
     caught = error;
   } finally {
@@ -43,5 +43,5 @@ test("Application rejects with a useful BotApiError", async () => {
   expect(caught).toBeInstanceOf(BotApiError);
   if (!(caught instanceof BotApiError)) throw new Error("Expected BotApiError");
   expect(caught.message).toBe("sendMessage: Telegram rejected the call: 403 Forbidden");
-  expect(caught.retry_safe).toBe(true);
+  expect(caught.retrySafe).toBe(true);
 });

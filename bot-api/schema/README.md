@@ -8,7 +8,7 @@
 
 `generator.ts` converts the checked source, `overrides.json`, and `../proofs/manifest.json` into the public type Schemas, enabled methods, and method coverage.
 
-`overrides.json` records type corrections and explicit retry safety metadata for every enabled method. Method `retry_safe` states whether retrying after an unknown outcome is guaranteed not to duplicate a side effect.
+`overrides.json` records type corrections and explicit retry safety metadata for every enabled method. Method `retrySafe` states whether retrying after an unknown outcome is guaranteed not to duplicate a side effect.
 
 - Run `bun run schema:generate` after a schema, override, enabled-method, or proof change.
 - Run `bun run schema:check` to validate the source and confirm every generated file is current.

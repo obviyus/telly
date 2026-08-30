@@ -38,9 +38,10 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Modules are deep: small surface, substantial behavior.
 - Telly uses the fewest concepts that express its behavior without hiding a contract.
 - Names use Telegram domain words. Generic names such as `manager`, `helper`, and `util` stay out of the public interface.
+- Known public fields use `camelCase`. Schema codecs translate them to Telegram's `snake_case` wire keys. Unknown day-zero fields keep their wire names until Telly types them.
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
 - Options objects with named fields replace positional variants and overloads.
-- Errors are typed values in the Effect error channel. Each error has a useful message and a `retry_safe` value that states whether retrying can duplicate a side effect.
+- Errors are typed values in the Effect error channel. Each error has a useful message and a `retrySafe` value that states whether retrying can duplicate a side effect.
 - Every documented feature has an executable example that runs in tests.
 - Reference data for methods, types, errors, and limits is generated from the schema and shipped in machine-readable form.
 - Import paths are stable. A path that ships is a path we keep.
@@ -123,7 +124,7 @@ Guarantees:
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
 - Conflict recovery is typed. A `getUpdates` conflict caused by an overlapping poll retries within a bounded budget. A conflict caused by an active webhook fails at once. The policy is configurable.
 - Retry classification is explicit. Generated method metadata states whether retrying after an unknown outcome can duplicate a side effect. A Telegram rejection is safe to retry. Raw calls treat an unknown outcome as unsafe. A network failure during a send waits for an explicit opt-in before retry, because the send may have succeeded.
-- Rate limits apply Telegram's documented limits by default, honor `retry_after` on every `429`, and learn from typed `429` responses. Telegram does not publish every effective limit, so Telly claims only the documented part of the policy.
+- Rate limits apply Telegram's documented limits by default, honor `retryAfter` on every `429`, and learn from typed `429` responses. Telegram does not publish every effective limit, so Telly claims only the documented part of the policy.
 - Redaction is total. Telly holds the bot token and other secrets in `Redacted` values and never emits a plaintext secret in an error, log, trace, URL, fixture, or proof artifact.
 - Webhook and long polling are two runtimes over one dispatch model. Webhook handling accepts a Web `Request` and returns a Web `Response`. Secret token verification is on by default.
 - Observability is built in. Every runtime decision emits traces, metrics, and structured logs through Effect observability. A consumer that wants external telemetry supplies exporter Layers.

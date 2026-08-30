@@ -13,13 +13,18 @@ export interface FakeBotApiCall {
   readonly tracingDisabled: boolean;
 }
 
+export interface FakeBotApiResponseParameters {
+  readonly migrateToChatId?: number;
+  readonly retryAfter?: number;
+}
+
 export type FakeBotApiReply =
   | { readonly _tag: "Ok"; readonly result: unknown }
   | {
       readonly _tag: "Reject";
       readonly description: string;
-      readonly error_code: number;
-      readonly parameters?: Readonly<Record<string, unknown>>;
+      readonly errorCode: number;
+      readonly parameters?: FakeBotApiResponseParameters;
     }
   | { readonly _tag: "TransportFailure"; readonly description: string }
   | { readonly _tag: "Body"; readonly body: string; readonly status: number };
@@ -29,8 +34,8 @@ export const FakeBotApiReply = {
   ok: (result: unknown): FakeBotApiReply => ({ _tag: "Ok", result }),
   reject: (options: {
     readonly description: string;
-    readonly error_code: number;
-    readonly parameters?: Readonly<Record<string, unknown>>;
+    readonly errorCode: number;
+    readonly parameters?: FakeBotApiResponseParameters;
   }): FakeBotApiReply => ({
     _tag: "Reject",
     ...options,
@@ -74,7 +79,7 @@ function rejectedResponse(
   request: HttpClientRequest.HttpClientRequest,
   errorCode: number,
   description: string,
-  parameters?: Readonly<Record<string, unknown>>,
+  parameters?: FakeBotApiResponseParameters,
 ) {
   return response(
     request,
@@ -83,7 +88,18 @@ function rejectedResponse(
       description,
       error_code: errorCode,
       ok: false,
-      ...(parameters === undefined ? {} : { parameters }),
+      ...(parameters === undefined
+        ? {}
+        : {
+            parameters: {
+              ...(parameters.migrateToChatId === undefined
+                ? {}
+                : { migrate_to_chat_id: parameters.migrateToChatId }),
+              ...(parameters.retryAfter === undefined
+                ? {}
+                : { retry_after: parameters.retryAfter }),
+            },
+          }),
     }),
   );
 }
@@ -136,7 +152,7 @@ export const FakeBotApi = {
         if (scripted?._tag === "Reject") {
           return rejectedResponse(
             request,
-            scripted.error_code,
+            scripted.errorCode,
             scripted.description,
             scripted.parameters,
           );
