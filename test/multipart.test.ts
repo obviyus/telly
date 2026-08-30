@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Effect, Layer, Predicate, Redacted } from "effect";
 
-import { Bot, sendPhoto } from "../index.ts";
+import { Bot, sendMediaGroup, sendPhoto, setMyProfilePhoto } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
 const token = "123456:multipart-tests";
@@ -96,25 +96,29 @@ describe("multipart Bot API calls", () => {
     });
   });
 
-  test("nested raw files use one attachment for the same Blob", async () => {
+  test("sendMediaGroup uses one attachment for the same nested Blob", async () => {
     const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.ok(true)],
+      replies: [FakeBotApiReply.ok([message(109), message(110)])],
       token,
     });
     const blob = new Blob([new Uint8Array([2, 5, 8])], { type: "image/jpeg" });
-    const program = Effect.gen(function* () {
-      const bot = yield* Bot;
-      return yield* bot.callRaw("sendMediaGroup", {
-        media: [{ media: blob }, { thumbnail: blob }],
-      });
-    }).pipe(Effect.provide(botLayer(fake)));
 
-    await Effect.runPromise(program);
+    const messages = await Effect.runPromise(
+      sendMediaGroup({
+        chatId: 19,
+        media: [
+          { media: blob, thumbnail: blob, type: "document" },
+          { media: "existing-document", type: "document" },
+        ],
+      }).pipe(Effect.provide(botLayer(fake))),
+    );
 
+    expect(messages.map((item) => item.messageId)).toEqual([109, 110]);
     expect(JSON.parse(String(requestParams(fake)["media"]))).toEqual([
-      { media: "attach://file0" },
-      { thumbnail: "attach://file0" },
+      { media: "attach://file0", thumbnail: "attach://file0", type: "document" },
+      { media: "existing-document", type: "document" },
     ]);
+    expect(requestParams(fake)["chat_id"]).toBe("19");
     expect(fake.requests[0]?.files).toEqual({
       file0: { fileName: "file0", size: 3, type: "image/jpeg" },
     });
@@ -136,5 +140,34 @@ describe("multipart Bot API calls", () => {
     expect(error.retrySafe).toBe(false);
     expect(String(error)).not.toContain(token);
     expect(JSON.stringify(error)).not.toContain(token);
+  });
+
+  test("nested uploads transform inside an unchanged top-level key", async () => {
+    const fake = FakeBotApi.make({
+      replies: [FakeBotApiReply.ok(true)],
+      token,
+    });
+
+    const result = await Effect.runPromise(
+      setMyProfilePhoto({
+        photo: {
+          animation: new File([new Uint8Array([2, 5, 8])], "profile.mp4", {
+            type: "video/mp4",
+          }),
+          mainFrameTimestamp: 2.5,
+          type: "animated",
+        },
+      }).pipe(Effect.provide(botLayer(fake))),
+    );
+
+    expect(result).toBe(true);
+    expect(JSON.parse(String(requestParams(fake)["photo"]))).toEqual({
+      animation: "attach://file0",
+      main_frame_timestamp: 2.5,
+      type: "animated",
+    });
+    expect(fake.requests[0]?.files).toEqual({
+      file0: { fileName: "profile.mp4", size: 3, type: "video/mp4" },
+    });
   });
 });

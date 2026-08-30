@@ -77,8 +77,41 @@
     }
   },
   "methods": {
+    "addStickerToSet": {
+      "retrySafe": false
+    },
+    "copyMessage": {
+      "retrySafe": false
+    },
+    "copyMessages": {
+      "retrySafe": false
+    },
+    "createChatInviteLink": {
+      "retrySafe": false
+    },
+    "createChatSubscriptionInviteLink": {
+      "retrySafe": false
+    },
+    "createForumTopic": {
+      "retrySafe": false
+    },
+    "createInvoiceLink": {
+      "retrySafe": false
+    },
     "deleteMyCommands": {
       "retrySafe": true
+    },
+    "exportChatInviteLink": {
+      "retrySafe": false
+    },
+    "forwardMessage": {
+      "retrySafe": false
+    },
+    "forwardMessages": {
+      "retrySafe": false
+    },
+    "giftPremiumSubscription": {
+      "retrySafe": false
     },
     "getAvailableGifts": {
       "retrySafe": true
@@ -174,6 +207,25 @@
     "getWebhookInfo": {
       "retrySafe": true
     },
+    "pinChatMessage": {
+      "retrySafe": false
+    },
+    "postStory": {
+      "retrySafe": false
+    },
+    "replaceManagedBotToken": {
+      "resultSchema": "Schema.RedactedFromValue(Schema.String, { label: \"Telegram bot token\" })",
+      "retrySafe": false
+    },
+    "repostStory": {
+      "retrySafe": false
+    },
+    "savePreparedInlineMessage": {
+      "retrySafe": false
+    },
+    "savePreparedKeyboardButton": {
+      "retrySafe": false
+    },
     "sendAnimation": {
       "retrySafe": false
     },
@@ -182,6 +234,12 @@
     },
     "sendChatAction": {
       "retrySafe": true
+    },
+    "sendChatJoinRequestWebApp": {
+      "retrySafe": false
+    },
+    "sendChecklist": {
+      "retrySafe": false
     },
     "sendContact": {
       "retrySafe": false
@@ -192,16 +250,37 @@
     "sendDocument": {
       "retrySafe": false
     },
+    "sendGame": {
+      "retrySafe": false
+    },
+    "sendGift": {
+      "retrySafe": false
+    },
+    "sendInvoice": {
+      "retrySafe": false
+    },
     "sendLivePhoto": {
       "retrySafe": false
     },
     "sendLocation": {
       "retrySafe": false
     },
+    "sendMediaGroup": {
+      "retrySafe": false
+    },
     "sendMessage": {
       "retrySafe": false
     },
+    "sendPaidMedia": {
+      "retrySafe": false
+    },
     "sendPhoto": {
+      "retrySafe": false
+    },
+    "sendPoll": {
+      "retrySafe": false
+    },
+    "sendRichMessage": {
       "retrySafe": false
     },
     "sendSticker": {
@@ -219,6 +298,12 @@
     "sendVoice": {
       "retrySafe": false
     },
+    "setBusinessAccountProfilePhoto": {
+      "retrySafe": false
+    },
+    "setChatPhoto": {
+      "retrySafe": false
+    },
     "setMyCommands": {
       "retrySafe": true
     },
@@ -231,8 +316,17 @@
     "setMyName": {
       "retrySafe": true
     },
+    "setMyProfilePhoto": {
+      "retrySafe": false
+    },
     "setMyShortDescription": {
       "retrySafe": true
+    },
+    "transferBusinessAccountStars": {
+      "retrySafe": false
+    },
+    "uploadStickerFile": {
+      "retrySafe": false
     }
   },
   "types": {

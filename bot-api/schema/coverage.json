@@ -2,8 +2,8 @@
   "botApiVersion": "10.3",
   "methods": {
     "addStickerToSet": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can add a duplicate sticker, and no isolated regular sticker-set fixture is available",
       "status": "blocked"
     },
     "answerCallbackQuery": {
@@ -82,33 +82,33 @@
       "status": "blocked"
     },
     "copyMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create a duplicate copied message",
       "status": "blocked"
     },
     "copyMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create duplicate copied messages",
       "status": "blocked"
     },
     "createChatInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry mints another invite link, and the leased group fixture is unavailable",
       "status": "blocked"
     },
     "createChatSubscriptionInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry mints another paid invite link, and the leased channel fixture is unavailable",
       "status": "blocked"
     },
     "createForumTopic": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry creates another topic, and the leased forum fixture is unavailable",
       "status": "blocked"
     },
     "createInvoiceLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry mints another payable invoice link, and no isolated payment fixture is available",
       "status": "blocked"
     },
     "createNewStickerSet": {
@@ -277,18 +277,18 @@
       "status": "blocked"
     },
     "exportChatInviteLink": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry revokes the link returned by the lost response, and the leased group fixture is unavailable",
       "status": "blocked"
     },
     "forwardMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create a duplicate forwarded message",
       "status": "blocked"
     },
     "forwardMessages": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create duplicate forwarded messages",
       "status": "blocked"
     },
     "getAvailableGifts": {
@@ -452,8 +452,8 @@
       "status": "proven"
     },
     "giftPremiumSubscription": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can purchase another subscription, and no isolated payment fixture is available",
       "status": "blocked"
     },
     "hideGeneralForumTopic": {
@@ -472,13 +472,13 @@
       "status": "blocked"
     },
     "pinChatMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can repeat a member notification, and the leased group fixture is unavailable",
       "status": "blocked"
     },
     "postStory": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry creates another story, and no business connection with format-valid story media is available",
       "status": "blocked"
     },
     "promoteChatMember": {
@@ -527,8 +527,8 @@
       "status": "blocked"
     },
     "replaceManagedBotToken": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry rotates the credential again, and no isolated managed-bot fixture is available",
       "status": "blocked"
     },
     "replaceStickerInSet": {
@@ -537,8 +537,8 @@
       "status": "blocked"
     },
     "repostStory": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry creates another reposted story, and no business story fixture is available",
       "status": "blocked"
     },
     "restrictChatMember": {
@@ -552,13 +552,13 @@
       "status": "blocked"
     },
     "savePreparedInlineMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry stores another prepared message ID, and no isolated Mini App fixture is available",
       "status": "blocked"
     },
     "savePreparedKeyboardButton": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry stores another prepared button ID, and no isolated Mini App fixture is available",
       "status": "blocked"
     },
     "sendAnimation": {
@@ -577,13 +577,13 @@
       "status": "proven"
     },
     "sendChatJoinRequestWebApp": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another message, and no isolated chat-join-request fixture is available",
       "status": "blocked"
     },
     "sendChecklist": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another checklist, and no isolated business connection fixture is available",
       "status": "blocked"
     },
     "sendContact": {
@@ -602,18 +602,18 @@
       "status": "proven"
     },
     "sendGame": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another game, and no BotFather game fixture is available",
       "status": "blocked"
     },
     "sendGift": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can transfer another paid gift, and no isolated gift balance fixture is available",
       "status": "blocked"
     },
     "sendInvoice": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another payable invoice, and no isolated payment fixture is available",
       "status": "blocked"
     },
     "sendLivePhoto": {
@@ -627,8 +627,8 @@
       "status": "proven"
     },
     "sendMediaGroup": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another media album; public nested multipart behavior is proven hermetically",
       "status": "blocked"
     },
     "sendMessage": {
@@ -642,8 +642,8 @@
       "status": "blocked"
     },
     "sendPaidMedia": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another monetized message, and no isolated paid-media fixture is available",
       "status": "blocked"
     },
     "sendPhoto": {
@@ -652,13 +652,13 @@
       "status": "proven"
     },
     "sendPoll": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create another poll message",
       "status": "blocked"
     },
     "sendRichMessage": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can send another rich message, and no isolated rich-message fixture is available",
       "status": "blocked"
     },
     "sendRichMessageDraft": {
@@ -707,8 +707,8 @@
       "status": "blocked"
     },
     "setBusinessAccountProfilePhoto": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can append another profile-photo history entry, and no business connection fixture is available",
       "status": "blocked"
     },
     "setBusinessAccountUsername": {
@@ -742,8 +742,8 @@
       "status": "blocked"
     },
     "setChatPhoto": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can emit another service message, and the leased group fixture is unavailable",
       "status": "blocked"
     },
     "setChatStickerSet": {
@@ -797,8 +797,8 @@
       "status": "proven"
     },
     "setMyProfilePhoto": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can append another profile-photo history entry, and no format-valid profile media fixture is available",
       "status": "blocked"
     },
     "setMyShortDescription": {
@@ -862,8 +862,8 @@
       "status": "blocked"
     },
     "transferBusinessAccountStars": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can transfer Stars twice, and no isolated business balance fixture is available",
       "status": "blocked"
     },
     "transferGift": {
@@ -912,8 +912,8 @@
       "status": "blocked"
     },
     "uploadStickerFile": {
-      "expires_on": "2026-09-23",
-      "reason": "no live scenario",
+      "expires_on": "2026-09-13",
+      "reason": "unsafe live scenario: retry can create another reusable upload, and no format-valid sticker file fixture is available",
       "status": "blocked"
     },
     "verifyChat": {

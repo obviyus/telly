@@ -6,6 +6,7 @@ import {
   BotApiError,
   getManagedBotToken,
   getMe,
+  replaceManagedBotToken,
   sendMessage,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
@@ -88,5 +89,26 @@ test("a managed bot token stays redacted between applications", async () => {
     expect(managedBot.id).toBe(97);
   } finally {
     await managedApp.close();
+  }
+});
+
+test("a rotated managed bot token is redacted", async () => {
+  const sourceToken = "123456:rotation-source";
+  const rotatedPlainToken = "888888:rotated-fake";
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok(rotatedPlainToken)],
+    token: sourceToken,
+  });
+  const app = Application.make({ httpClient: fake.layer, token: sourceToken });
+
+  try {
+    const rotatedToken = await app.run(replaceManagedBotToken({ userId: 83 }));
+
+    expect(Redacted.isRedacted(rotatedToken)).toBe(true);
+    expect(String(rotatedToken)).not.toContain(rotatedPlainToken);
+    expect(JSON.stringify(rotatedToken)).not.toContain(rotatedPlainToken);
+    expect(fake.requests[0]?.params).toEqual({ user_id: 83 });
+  } finally {
+    await app.close();
   }
 });
