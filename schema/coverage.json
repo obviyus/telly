@@ -1,0 +1,930 @@
+{
+  "botApiVersion": "10.3",
+  "methods": {
+    "addStickerToSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerCallbackQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerChatJoinRequestQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerGuestQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerInlineQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerPreCheckoutQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerShippingQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "answerWebAppQuery": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "approveChatJoinRequest": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "approveSuggestedPost": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "banChatMember": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "banChatSenderChat": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "close": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "closeForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "closeGeneralForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "convertGiftToStars": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "copyMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "copyMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "createChatInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "createChatSubscriptionInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "createForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "createInvoiceLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "createNewStickerSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "declineChatJoinRequest": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "declineSuggestedPost": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteAllMessageReactions": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteBusinessMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteChatPhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteChatStickerSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteEphemeralMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteMessageReaction": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteMyCommands": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteStickerFromSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteStickerSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteStory": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "deleteWebhook": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editChatInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editChatSubscriptionInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editEphemeralMessageCaption": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editEphemeralMessageMedia": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editEphemeralMessageReplyMarkup": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editEphemeralMessageText": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editGeneralForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageCaption": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageChecklist": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageLiveLocation": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageMedia": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageReplyMarkup": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editMessageText": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editStory": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "editUserStarSubscription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "exportChatInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "forwardMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "forwardMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getAvailableGifts": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getBusinessAccountGifts": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getBusinessAccountStarBalance": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getBusinessConnection": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChat": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChatAdministrators": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChatGifts": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChatMember": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChatMemberCount": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getChatMenuButton": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getCustomEmojiStickers": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getFile": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getForumTopicIconStickers": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getGameHighScores": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getManagedBotAccessSettings": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getManagedBotToken": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMe": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyCommands": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyDefaultAdministratorRights": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyDescription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyName": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyShortDescription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getMyStarBalance": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getStarTransactions": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getStickerSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUpdates": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUserChatBoosts": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUserGifts": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUserPersonalChatMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUserProfileAudios": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getUserProfilePhotos": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "getWebhookInfo": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "giftPremiumSubscription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "hideGeneralForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "leaveChat": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "logOut": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "pinChatMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "postStory": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "promoteChatMember": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "readBusinessMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "refundStarPayment": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "removeBusinessAccountProfilePhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "removeChatVerification": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "removeMyProfilePhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "removeUserVerification": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "reopenForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "reopenGeneralForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "replaceManagedBotToken": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "replaceStickerInSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "repostStory": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "restrictChatMember": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "revokeChatInviteLink": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "savePreparedInlineMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "savePreparedKeyboardButton": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendAnimation": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendAudio": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendChatAction": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendChatJoinRequestWebApp": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendChecklist": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendContact": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendDice": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendDocument": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendGame": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendGift": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendInvoice": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendLivePhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendLocation": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendMediaGroup": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendMessage": {
+      "artifact": "proofs/sendMessage/2026-08-30.json",
+      "recorded_time": "2026-08-30T13:55:04.034Z",
+      "status": "proven"
+    },
+    "sendMessageDraft": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendPaidMedia": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendPhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendPoll": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendRichMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendRichMessageDraft": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendSticker": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendVenue": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendVideo": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendVideoNote": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "sendVoice": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setBusinessAccountBio": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setBusinessAccountGiftSettings": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setBusinessAccountName": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setBusinessAccountProfilePhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setBusinessAccountUsername": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatAdministratorCustomTitle": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatDescription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatMemberTag": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatMenuButton": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatPermissions": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatPhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatStickerSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setChatTitle": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setCustomEmojiStickerSetThumbnail": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setGameScore": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setManagedBotAccessSettings": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMessageReaction": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyCommands": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyDefaultAdministratorRights": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyDescription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyName": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyProfilePhoto": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setMyShortDescription": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setPassportDataErrors": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerEmojiList": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerKeywords": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerMaskPosition": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerPositionInSet": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerSetThumbnail": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setStickerSetTitle": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setUserEmojiStatus": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "setWebhook": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "stopMessageLiveLocation": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "stopPoll": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "transferBusinessAccountStars": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "transferGift": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unbanChatMember": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unbanChatSenderChat": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unhideGeneralForumTopic": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unpinAllChatMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unpinAllForumTopicMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unpinAllGeneralForumTopicMessages": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "unpinChatMessage": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "upgradeGift": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "uploadStickerFile": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "verifyChat": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    },
+    "verifyUser": {
+      "expires_on": "2026-09-23",
+      "reason": "no live scenario",
+      "status": "blocked"
+    }
+  }
+}

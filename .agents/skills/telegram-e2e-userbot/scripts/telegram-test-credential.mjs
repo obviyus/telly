@@ -207,8 +207,17 @@ async function restoreTemporaryCredential(payload, upstreamRelease = async () =>
   }
 }
 
-export async function acquireTelegramTestCredential({ env = process.env } = {}) {
-  const lease = await acquireQaLease({ kind: TELEGRAM_TEST_CREDENTIAL_KIND, env });
+export async function acquireTelegramTestCredential({
+  env = process.env,
+  cwd = process.cwd(),
+  convexProjectDir,
+} = {}) {
+  const lease = await acquireQaLease({
+    kind: TELEGRAM_TEST_CREDENTIAL_KIND,
+    env,
+    cwd,
+    convexProjectDir,
+  });
   const credential = await restoreTemporaryCredential(lease.payload, lease.release);
   return {
     ...credential,

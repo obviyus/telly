@@ -34,12 +34,13 @@ Qualities we change:
 A coding agent must use a Telly feature correctly with the least context and the fewest decisions. Human ergonomics matter, but agent generation reliability wins ties.
 
 - One canonical path exists for each task.
+- Production code imports application features, Bot API methods, and Telegram types from the package root. Test tools use the `testing` subpath.
 - Modules are deep: small surface, substantial behavior.
 - Telly uses the fewest concepts that express its behavior without hiding a contract.
 - Names use Telegram domain words. Generic names such as `manager`, `helper`, and `util` stay out of the public interface.
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
 - Options objects with named fields replace positional variants and overloads.
-- Errors are typed values in the Effect error channel. Each error names its cause and states whether a retry is safe.
+- Errors are typed values in the Effect error channel. Each error has a useful message and a `retry_safe` value that states whether retrying can duplicate a side effect.
 - Every documented feature has an executable example that runs in tests.
 - Reference data for methods, types, errors, and limits is generated from the schema and shipped in machine-readable form.
 - Import paths are stable. A path that ships is a path we keep.
@@ -65,6 +66,7 @@ Terms:
 How Telly uses Effect:
 
 - Bot API methods are Effects. Their requirements name the services they need.
+- `Application` owns the HTTP client and managed runtime. Its `run` method bridges an operation to a Promise only at the application edge. An optional HTTP client Layer replaces the default fetch client without changing the operation.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
 - Layers wire real services for production and deterministic services for tests.
@@ -118,7 +120,7 @@ Guarantees:
 - A handler has no mandatory timeout. A stalled offset raises an observable event that names the blocking update and key.
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
 - Conflict recovery is typed. A `getUpdates` conflict caused by an overlapping poll retries within a bounded budget. A conflict caused by an active webhook fails at once. The policy is configurable.
-- Retry classification is explicit. Read-only methods and `429` responses retry by policy. A network failure during a send waits for an explicit opt-in before retry, because the send may have succeeded.
+- Retry classification is explicit. Generated method metadata states whether retrying after an unknown outcome can duplicate a side effect. A Telegram rejection is safe to retry. Raw calls treat an unknown outcome as unsafe. A network failure during a send waits for an explicit opt-in before retry, because the send may have succeeded.
 - Rate limits apply Telegram's documented limits by default, honor `retry_after` on every `429`, and learn from typed `429` responses. Telegram does not publish every effective limit, so Telly claims only the documented part of the policy.
 - Redaction is total. Telly holds the bot token and other secrets in `Redacted` values and never emits a plaintext secret in an error, log, trace, URL, fixture, or proof artifact.
 - Webhook and long polling are two runtimes over one dispatch model. Webhook handling accepts a Web `Request` and returns a Web `Response`. Secret token verification is on by default.
@@ -188,7 +190,7 @@ Telly owns its behavior-first testing policy and writes it in its own words. [sh
 Layers of proof:
 
 1. Behavior tests run against public interfaces with deterministic Effect services for time, random, and transport.
-2. A hermetic Bot API fake reproduces Telegram semantics: offsets, conflicts, rate limits, error shapes, multipart uploads.
+2. A synchronous hermetic Bot API fake reproduces Telegram semantics: offsets, conflicts, rate limits, error shapes, multipart uploads. The same fake works through `Application` and direct Effect Layers.
 3. Node.js compatibility tests load and run the built artifact on every supported Node.js version.
 4. Real Telegram Test Server runs produce a structured event timeline for every live claim.
 
@@ -219,7 +221,7 @@ Done when:
 ## Packaging
 
 - Telly ships as one package.
-- Subpaths may expose types, testing tools, and reference data.
+- The package root exports the production interface. Subpaths may expose testing tools and reference data.
 - The package splits only after a proven independent release lifecycle or a proven consumer need.
 - The publication name is undecided. The package stays private and named `telly` until that decision.
 
