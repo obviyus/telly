@@ -2,24 +2,26 @@ import { Effect, Schema } from "effect";
 
 import { Bot, BotApiError } from "../BotApi.js";
 
-interface MethodDescriptor<P extends object, A> {
+interface MethodDescriptor<P extends object, EncodedP extends object, A, EncodedA> {
   readonly method: string;
-  readonly params: Schema.Codec<P, P>;
-  readonly result: Schema.Codec<A, A>;
+  readonly params: Schema.Codec<P, EncodedP>;
+  readonly result: Schema.Codec<A, EncodedA>;
   readonly retrySafe: boolean;
 }
 
 function applyRetrySafety(error: BotApiError, retrySafe: boolean): BotApiError {
-  return error.retry_safe || !retrySafe
+  return error.retrySafe || !retrySafe
     ? error
     : new BotApiError({
         method: error.method,
         reason: error.reason,
-        retry_safe: true,
+        retrySafe: true,
       });
 }
 
-export function callMethod<P extends object, A>(descriptor: MethodDescriptor<P, A>) {
+export function callMethod<P extends object, EncodedP extends object, A, EncodedA>(
+  descriptor: MethodDescriptor<P, EncodedP, A, EncodedA>,
+) {
   return Effect.fn(`telegram.${descriptor.method}`)(function* (
     params: P,
   ): Effect.fn.Return<A, BotApiError, Bot> {
@@ -37,7 +39,7 @@ export function callMethod<P extends object, A>(descriptor: MethodDescriptor<P, 
               _tag: "InvalidResponse",
               description: error.message,
             },
-            retry_safe: descriptor.retrySafe,
+            retrySafe: descriptor.retrySafe,
           }),
       ),
     );

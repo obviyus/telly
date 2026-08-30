@@ -8,7 +8,7 @@ const TypeOverride = Schema.Struct({
 });
 
 const MethodOverride = Schema.Struct({
-  retry_safe: Schema.Boolean,
+  retrySafe: Schema.Boolean,
 });
 
 export const GeneratorOverrides = Schema.Struct({
@@ -75,7 +75,7 @@ function schemaExpression(reference: string, qualifier = ""): string {
     return `Schema.Array(${schemaExpression(item, qualifier)})`;
   }
   return primitiveSchemas[reference] ??
-    `Schema.suspend((): Schema.Codec<${qualifier}${reference}> => ${qualifier}${reference})`;
+    `Schema.suspend((): Schema.Codec<${qualifier}${reference}, unknown> => ${qualifier}${reference})`;
 }
 
 function unionExpression(references: ReadonlyArray<string>, render: (reference: string) => string) {
@@ -173,9 +173,31 @@ function fieldExpressions(
     return { schema: `Schema.Literal(${literal})`, type: literal };
   }
   return {
-    schema: `Schema.suspend((): Schema.Codec<${qualifier}${target.name}> => ${qualifier}${target.name})`,
+    schema: `Schema.suspend((): Schema.Codec<${qualifier}${target.name}, unknown> => ${qualifier}${target.name})`,
     type: `${qualifier}${target.name}`,
   };
+}
+
+function publicFieldName(wireName: string): string {
+  const name = wireName.replace(/_([a-z0-9])/gu, (_, character: string) =>
+    character.toUpperCase()
+  );
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(name)) {
+    throw new Error(`Telegram field ${wireName} cannot become a TypeScript identifier`);
+  }
+  return name;
+}
+
+interface RenamedField {
+  readonly publicName: string;
+  readonly wireName: string;
+}
+
+function publicKeyMapping(fields: ReadonlyArray<RenamedField>) {
+  const renamed = fields.filter((field) => field.publicName !== field.wireName);
+  return renamed
+    .map((field) => `${field.wireName}: ${JSON.stringify(field.publicName)}`)
+    .join(", ");
 }
 
 function renderEnums(spec: BotApiSpec): string {
@@ -194,27 +216,43 @@ function renderObjectType(
   targets: ReadonlyMap<string, FieldTarget>,
 ): string {
   const fields = definition.fields ?? [];
-  const interfaceFields = fields
-    .map((field) => {
-      const expressions = fieldExpressions(name, field, targets);
-      return `${docComment([field.description], "  ")}  readonly ${field.name}${field.required ? "" : "?"}: ${expressions.type};`;
-    })
+  const rendered = fields.map((field) => {
+    const expressions = fieldExpressions(name, field, targets);
+    const schema = field.required
+      ? expressions.schema
+      : `Schema.optionalKey(${expressions.schema})`;
+    return {
+      description: field.description,
+      publicName: publicFieldName(field.name),
+      required: field.required,
+      schema,
+      type: expressions.type,
+      wireName: field.name,
+    };
+  });
+  const publicNames = new Set(rendered.map((field) => field.publicName));
+  if (publicNames.size !== rendered.length) {
+    throw new Error(`Telegram type ${name} has colliding camelCase fields`);
+  }
+  const interfaceFields = rendered
+    .map((field) =>
+      `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type};`
+    )
     .join("\n");
-  const schemaFields = fields
-    .map((field) => {
-      const expressions = fieldExpressions(name, field, targets);
-      const schema = field.required
-        ? expressions.schema
-        : `Schema.optionalKey(${expressions.schema})`;
-      return `    ${field.name}: ${schema},`;
-    })
+  const encodedFields = rendered
+    .map((field) => `    ${field.wireName}: ${field.schema},`)
     .join("\n");
 
   const interfaceBody = interfaceFields.length === 0
     ? "  readonly [key: string]: unknown;"
     : `${interfaceFields}\n  readonly [key: string]: unknown;`;
-  const structBody = schemaFields.length === 0 ? "" : `\n${schemaFields}\n  `;
-  return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}> = Schema.StructWithRest(\n  Schema.Struct({${structBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\n`;
+  const encodedBody = encodedFields.length === 0 ? "" : `\n${encodedFields}\n  `;
+  const renamed = rendered.filter((field) => field.publicName !== field.wireName);
+  if (renamed.length === 0) {
+    return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\n`;
+  }
+  // The encoded schema validates both directions; the declared target carries the camelCase type without validating every field twice.
+  return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nconst _${name}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${name}WireKeys = invertKeys(_${name}PublicKeys);\nconst _${name}Encoded = Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\nconst _${name}Decoded = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\nexport const ${name}: Schema.Codec<${name}, unknown> = _${name}Encoded.pipe(\n  Schema.decodeTo(_${name}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${name}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${name}WireKeys)),\n  }),\n);\n`;
 }
 
 function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
@@ -227,11 +265,11 @@ function renderTypes(spec: BotApiSpec, overrides: GeneratorOverrides): string {
         return `${docComment(definition.description)}export type ${name} = ${override.typescript};\nexport const ${name}: Schema.Codec<${name}> = ${override.schema};\n`;
       }
       if (definition.subtypes !== undefined) {
-        return `${docComment(definition.description)}export type ${name} = ${unionExpression(definition.subtypes, typeExpression)};\nexport const ${name}: Schema.Codec<${name}> = ${unionSchema(definition.subtypes, schemaExpression)};\n`;
+        return `${docComment(definition.description)}export type ${name} = ${unionExpression(definition.subtypes, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = ${unionSchema(definition.subtypes, schemaExpression)};\n`;
       }
       return renderObjectType(name, definition, targets);
     });
-  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { invertKeys } from "./internal/SchemaKeys.js";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
 }
 
 function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string {
@@ -249,25 +287,40 @@ function renderMethods(spec: BotApiSpec, overrides: GeneratorOverrides): string 
       }
       const paramsName = `${name.charAt(0).toUpperCase()}${name.slice(1)}Params`;
       const fields = method.fields ?? [];
-      const interfaceFields = fields
-        .map((field) => {
-          const expressions = fieldExpressions(name, field, targets, "Types.");
-          return `${docComment([field.description], "  ")}  readonly ${field.name}${field.required ? "" : "?"}: ${expressions.type}${field.required ? "" : " | undefined"};`;
-        })
+      const rendered = fields.map((field) => {
+        const expressions = fieldExpressions(name, field, targets, "Types.");
+        const schema = field.required
+          ? expressions.schema
+          : `Schema.optional(${expressions.schema})`;
+        return {
+          description: field.description,
+          publicName: publicFieldName(field.name),
+          required: field.required,
+          schema,
+          type: expressions.type,
+          wireName: field.name,
+        };
+      });
+      const publicNames = new Set(rendered.map((field) => field.publicName));
+      if (publicNames.size !== rendered.length) {
+        throw new Error(`Telegram method ${name} has colliding camelCase fields`);
+      }
+      const interfaceFields = rendered
+        .map((field) =>
+          `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type}${field.required ? "" : " | undefined"};`
+        )
         .join("\n");
-      const schemaFields = fields
-        .map((field) => {
-          const expressions = fieldExpressions(name, field, targets, "Types.");
-          const schema = field.required
-            ? expressions.schema
-            : `Schema.optional(${expressions.schema})`;
-          return `  ${field.name}: ${schema},`;
-        })
+      const encodedFields = rendered
+        .map((field) => `  ${field.wireName}: ${field.schema},`)
         .join("\n");
+      const renamed = rendered.filter((field) => field.publicName !== field.wireName);
+      const paramsSchema = renamed.length === 0
+        ? `export const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${encodedFields}\n});`
+        : `const _${paramsName}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${paramsName}WireKeys = invertKeys(_${paramsName}PublicKeys);\nconst _${paramsName}Encoded = Schema.Struct({\n${encodedFields}\n});\nconst _${paramsName}Decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\nexport const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = _${paramsName}Encoded.pipe(\n  Schema.decodeTo(_${paramsName}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}WireKeys)),\n  }),\n);`;
       const result = unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
-      return `${docComment(method.description)}export interface ${paramsName} {\n${interfaceFields}\n}\nexport const ${paramsName}: Schema.Codec<${paramsName}> = Schema.Struct({\n${schemaFields}\n});\n\nexport const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n  params: ${paramsName},\n  result: ${result},\n  retrySafe: ${override.retry_safe},\n});\n`;
+      return `${docComment(method.description)}export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\nexport const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n  params: ${paramsName},\n  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
-  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Schema } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
 
 function renderCoverage(spec: BotApiSpec, proofs: MethodProofs): string {

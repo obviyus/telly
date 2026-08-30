@@ -161,11 +161,11 @@ try {
     token: Redacted.make(credential.sutToken),
   }).pipe(Layer.provide(FetchHttpClient.layer));
   const sent = await Effect.runPromise(
-    sendMessage({ chat_id: chatId, text: sentText }).pipe(Effect.provide(bot)),
+    sendMessage({ chatId, text: sentText }).pipe(Effect.provide(bot)),
   );
   await writeFile(
     path.join(proofDir, "sent.json"),
-    `${JSON.stringify({ date: sent.date, message_id: sent.message_id, text: sent.text }, null, 2)}\n`,
+    `${JSON.stringify({ date: sent.date, message_id: sent.messageId, text: sent.text }, null, 2)}\n`,
     { mode: 0o600 },
   );
 
@@ -188,7 +188,7 @@ try {
     schemaVersion: 1,
     sent: {
       date: sent.date,
-      senderBotApiMessageId: sent.message_id,
+      senderBotApiMessageId: sent.messageId,
       text: sent.text,
     },
     timeline: [

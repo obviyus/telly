@@ -26,9 +26,9 @@ const TelegramEnvelope = Schema.Union([TelegramSuccess, TelegramFailure]);
 
 const TelegramRejected = Schema.TaggedStruct("TelegramRejected", {
   description: Schema.String,
-  error_code: Schema.Int,
-  migrate_to_chat_id: Schema.optionalKey(Schema.Int),
-  retry_after: Schema.optionalKey(Schema.Int),
+  errorCode: Schema.Int,
+  migrateToChatId: Schema.optionalKey(Schema.Int),
+  retryAfter: Schema.optionalKey(Schema.Int),
 });
 
 const InvalidResponse = Schema.TaggedStruct("InvalidResponse", {
@@ -42,18 +42,18 @@ const Transport = Schema.TaggedStruct("Transport", {
 export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError", {
   method: Schema.String,
   reason: Schema.Union([TelegramRejected, InvalidResponse, Transport]),
-  retry_safe: Schema.Boolean,
+  retrySafe: Schema.Boolean,
 }) {
   override get message(): string {
     switch (this.reason._tag) {
       case "TelegramRejected": {
-        const retry = this.reason.retry_after === undefined
+        const retry = this.reason.retryAfter === undefined
           ? ""
-          : ` (retry after ${this.reason.retry_after}s)`;
-        const migration = this.reason.migrate_to_chat_id === undefined
+          : ` (retry after ${this.reason.retryAfter}s)`;
+        const migration = this.reason.migrateToChatId === undefined
           ? ""
-          : ` (chat migrated to ${this.reason.migrate_to_chat_id})`;
-        return `${this.method}: Telegram rejected the call: ${this.reason.error_code} ${this.reason.description}${retry}${migration}`;
+          : ` (chat migrated to ${this.reason.migrateToChatId})`;
+        return `${this.method}: Telegram rejected the call: ${this.reason.errorCode} ${this.reason.description}${retry}${migration}`;
       }
       case "InvalidResponse":
         return `${this.method}: Telegram returned an invalid response: ${this.reason.description}`;
@@ -85,7 +85,7 @@ function invalidResponse(method: string, description: string, token: string) {
       _tag: "InvalidResponse",
       description: scrub(description, token),
     },
-    retry_safe: false,
+    retrySafe: false,
   });
 }
 
@@ -96,7 +96,7 @@ function transportError(method: string, error: unknown, token: string) {
       _tag: "Transport",
       description: scrub(describeError(error), token),
     },
-    retry_safe: false,
+    retrySafe: false,
   });
 }
 
@@ -148,15 +148,15 @@ export class Bot extends Context.Service<
               reason: {
                 _tag: "TelegramRejected",
                 description: scrub(envelope.description, token),
-                error_code: envelope.error_code,
+                errorCode: envelope.error_code,
                 ...(envelope.parameters?.migrate_to_chat_id === undefined
                   ? {}
-                  : { migrate_to_chat_id: envelope.parameters.migrate_to_chat_id }),
+                  : { migrateToChatId: envelope.parameters.migrate_to_chat_id }),
                 ...(envelope.parameters?.retry_after === undefined
                   ? {}
-                  : { retry_after: envelope.parameters.retry_after }),
+                  : { retryAfter: envelope.parameters.retry_after }),
               },
-              retry_safe: true,
+              retrySafe: true,
             });
           }
           return envelope.result;

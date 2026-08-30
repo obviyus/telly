@@ -1,7 +1,7 @@
 {
   "methods": {
     "sendMessage": {
-      "retry_safe": false
+      "retrySafe": false
     }
   },
   "types": {}

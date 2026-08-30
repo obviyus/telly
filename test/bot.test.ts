@@ -15,10 +15,10 @@ describe("sendMessage", () => {
     const fake = FakeBotApi.make({ token });
 
     const message = await Effect.runPromise(
-      sendMessage({ chat_id: 7, text: "sprocket" }).pipe(Effect.provide(botLayer(fake))),
+      sendMessage({ chatId: 7, text: "sprocket" }).pipe(Effect.provide(botLayer(fake))),
     );
 
-    expect(message.message_id).toBe(41);
+    expect(message.messageId).toBe(41);
     expect(message.chat.id).toBe(7);
     expect(message.text).toBe("sprocket");
     expect(message["future_field"]).toBe("kept");
@@ -36,26 +36,26 @@ describe("sendMessage", () => {
     const fake = FakeBotApi.make({
       replies: [FakeBotApiReply.reject({
         description: "Too Many Requests",
-        error_code: 429,
-        parameters: { retry_after: 9 },
+        errorCode: 429,
+        parameters: { retryAfter: 9 },
       })],
       token,
     });
 
     const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chat_id: 11, text: "ratchet" }).pipe(Effect.provide(botLayer(fake))),
+      sendMessage({ chatId: 11, text: "ratchet" }).pipe(Effect.provide(botLayer(fake))),
     ));
 
     expect(error.reason).toEqual({
       _tag: "TelegramRejected",
       description: "Too Many Requests",
-      error_code: 429,
-      retry_after: 9,
+      errorCode: 429,
+      retryAfter: 9,
     });
     expect(error.message).toBe(
       "sendMessage: Telegram rejected the call: 429 Too Many Requests (retry after 9s)",
     );
-    expect(error.retry_safe).toBe(true);
+    expect(error.retrySafe).toBe(true);
     expect(fake.requests).toHaveLength(1);
   });
 
@@ -64,8 +64,8 @@ describe("sendMessage", () => {
 
     await Effect.runPromise(
       sendMessage({
-        chat_id: 19,
-        parse_mode: undefined,
+        chatId: 19,
+        parseMode: undefined,
         text: "flywheel",
       }).pipe(Effect.provide(botLayer(fake))),
     );
@@ -88,7 +88,7 @@ describe("sendMessage", () => {
     });
 
     const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chat_id: 13, text: "cog" }).pipe(
+      sendMessage({ chatId: 13, text: "cog" }).pipe(
         Effect.provide(botLayer(fake)),
         Effect.provideService(Tracer.Tracer, tracer),
       ),
@@ -101,7 +101,7 @@ describe("sendMessage", () => {
     expect(error.message).toBe(
       "sendMessage: no Telegram response: Transport: failed POST /bot<token>/sendMessage (POST https://api.telegram.org/bot<token>/sendMessage)",
     );
-    expect(error.retry_safe).toBe(false);
+    expect(error.retrySafe).toBe(false);
     expect(String(error)).toContain("BotApiError: sendMessage: no Telegram response:");
     expect(String(error)).not.toContain(token);
     expect(JSON.stringify(error)).not.toContain(token);
@@ -122,12 +122,12 @@ describe("sendMessage", () => {
     });
 
     const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chat_id: 17, text: "bearing" }).pipe(Effect.provide(botLayer(fake))),
+      sendMessage({ chatId: 17, text: "bearing" }).pipe(Effect.provide(botLayer(fake))),
     ));
 
     expect(error.reason._tag).toBe("InvalidResponse");
     expect(error.message).toContain("sendMessage: Telegram returned an invalid response:");
-    expect(error.retry_safe).toBe(false);
+    expect(error.retrySafe).toBe(false);
   });
 
   test("reports the field path for an invalid method result", async () => {
@@ -137,7 +137,7 @@ describe("sendMessage", () => {
     });
 
     const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chat_id: 23, text: "pinion" }).pipe(Effect.provide(botLayer(fake))),
+      sendMessage({ chatId: 23, text: "pinion" }).pipe(Effect.provide(botLayer(fake))),
     ));
 
     expect(error.reason._tag).toBe("InvalidResponse");
@@ -146,17 +146,15 @@ describe("sendMessage", () => {
   });
 
   test("keeps the raw call as a separate day-zero path", async () => {
-    const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.ok({ first_name: "Telly", id: 23, is_bot: true })],
-      token,
-    });
+    const fake = FakeBotApi.make({ token });
     const program = Effect.gen(function* () {
       const bot = yield* Bot;
-      return yield* bot.callRaw("getMe");
+      return yield* bot.callRaw("sendMessage", { chat_id: 31, text: "raw-call" });
     }).pipe(Effect.provide(botLayer(fake)));
 
     const result = await Effect.runPromise(program);
 
-    expect(Predicate.isObject(result) && result["first_name"]).toBe("Telly");
+    expect(Predicate.isObject(result) && result["message_id"]).toBe(41);
+    expect(fake.requests[0]?.params).toEqual({ chat_id: 31, text: "raw-call" });
   });
 });

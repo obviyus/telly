@@ -18,15 +18,15 @@ const app = Application.make({ token });
 
 try {
   const message = await app.run(
-    sendMessage({ chat_id: 123, text: "Hello from Telly" }),
+    sendMessage({ chatId: 123, text: "Hello from Telly" }),
   );
-  console.log(message.message_id);
+  console.log(message.messageId);
 } finally {
   await app.close();
 }
 ```
 
-`Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retry_safe` states whether retrying can duplicate a side effect.
+`Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
 
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
 

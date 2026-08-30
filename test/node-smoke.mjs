@@ -30,9 +30,9 @@ const token = "123456:node-smoke";
 const fake = testing.FakeBotApi.make({ token });
 const bot = root.Bot.layer({ token: Redacted.make(token) }).pipe(Layer.provide(fake.layer));
 const message = await Effect.runPromise(
-  root.sendMessage({ chat_id: 29, text: "node-smoke" }).pipe(Effect.provide(bot)),
+  root.sendMessage({ chatId: 29, text: "node-smoke" }).pipe(Effect.provide(bot)),
 );
-if (message.message_id !== 41 || message.chat.id !== 29 || message.text !== "node-smoke") {
+if (message.messageId !== 41 || message.chat.id !== 29 || message.text !== "node-smoke") {
   throw new Error("sendMessage failed under Node.js");
 }
 
@@ -45,7 +45,7 @@ const invalidBot = root.Bot.layer({ token: Redacted.make(token) }).pipe(
 );
 const invalidResult = await Effect.runPromise(
   Effect.flip(
-    root.sendMessage({ chat_id: 31, text: "invalid-result" }).pipe(
+    root.sendMessage({ chatId: 31, text: "invalid-result" }).pipe(
       Effect.provide(invalidBot),
     ),
   ),
@@ -53,7 +53,7 @@ const invalidResult = await Effect.runPromise(
 if (!(invalidResult instanceof root.BotApiError)) {
   throw new Error("telly uses different BotApiError classes across root exports");
 }
-if (!invalidResult.message.includes("message_id") || invalidResult.retry_safe !== false) {
+if (!invalidResult.message.includes("message_id") || invalidResult.retrySafe !== false) {
   throw new Error("BotApiError diagnostics failed under Node.js");
 }
 
@@ -67,9 +67,9 @@ const app = root.Application.make({
 });
 try {
   const applicationMessage = await app.run(
-    root.sendMessage({ chat_id: 41, text: "application-node-smoke" }),
+    root.sendMessage({ chatId: 41, text: "application-node-smoke" }),
   );
-  if (applicationMessage.message_id !== 47 || applicationMessage.chat.id !== 41) {
+  if (applicationMessage.messageId !== 47 || applicationMessage.chat.id !== 41) {
     throw new Error("Application failed under Node.js");
   }
 } finally {
