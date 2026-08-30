@@ -11,12 +11,16 @@ import { FetchHttpClient } from "effect/unstable/http";
 
 import {
   Bot,
+  getForumTopicIconStickers,
+  sendAnimation,
   sendChatAction,
   sendContact,
   sendDice,
+  sendDocument,
   sendLocation,
   sendMessage,
   sendPhoto,
+  sendSticker,
   sendVenue,
 } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
@@ -35,9 +39,21 @@ const method = process.env.TELLY_E2E_SEND_METHOD ?? "sendMessage";
 const run = randomUUID();
 const openText = `telly-open-${run}`;
 const sentText = `telly-${method}-${run}`;
+let stickerFileId;
 
 function sendOperation(chatId) {
   switch (method) {
+    case "sendAnimation":
+      return sendAnimation({
+        animation: new File([
+          Buffer.from(
+            "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAICRAEAIfkEAQAAAAAsAAAAAAEAAQAAAgJEAQA7",
+            "base64",
+          ),
+        ], "animation.gif", { type: "image/gif" }),
+        caption: sentText,
+        chatId,
+      });
     case "sendChatAction":
       return sendChatAction({ action: "typing", chatId });
     case "sendContact":
@@ -49,6 +65,12 @@ function sendOperation(chatId) {
       });
     case "sendDice":
       return sendDice({ chatId, emoji: "🎲" });
+    case "sendDocument":
+      return sendDocument({
+        caption: sentText,
+        chatId,
+        document: new File(["Telly proof"], "proof.txt", { type: "text/plain" }),
+      });
     case "sendLocation":
       return sendLocation({ chatId, latitude: 52, longitude: 13 });
     case "sendMessage":
@@ -64,6 +86,9 @@ function sendOperation(chatId) {
           ),
         ], { type: "image/png" }),
       });
+    case "sendSticker":
+      if (stickerFileId === undefined) throw new Error("Sticker proof fixture is unavailable");
+      return sendSticker({ chatId, sticker: stickerFileId });
     case "sendVenue":
       return sendVenue({
         address: "1 Telly Test Street",
@@ -83,10 +108,13 @@ function matchesObservedEvent(event) {
   }
   if (event.kind !== "message" || event.isSut !== true) return false;
   const contentTypes = {
+    sendAnimation: "messageAnimation",
     sendContact: "messageContact",
     sendDice: "messageDice",
+    sendDocument: "messageDocument",
     sendLocation: "messageLocation",
     sendPhoto: "messagePhoto",
+    sendSticker: "messageSticker",
     sendVenue: "messageVenue",
   };
   const contentType = contentTypes[method];
@@ -230,6 +258,13 @@ try {
     apiRoot: proxy.apiRoot,
     token: Redacted.make(credential.sutToken),
   }).pipe(Layer.provide(FetchHttpClient.layer));
+  if (method === "sendSticker") {
+    const stickers = await Effect.runPromise(
+      getForumTopicIconStickers().pipe(Effect.provide(bot)),
+    );
+    stickerFileId = stickers[0]?.fileId;
+    if (stickerFileId === undefined) throw new Error("Telegram returned no sticker proof fixture");
+  }
   const result = await Effect.runPromise(sendOperation(chatId).pipe(Effect.provide(bot)));
   const sendsMessage = method !== "sendChatAction";
   const shouldDelete = sendsMessage && method !== "sendMessage";

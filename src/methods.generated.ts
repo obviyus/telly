@@ -823,6 +823,176 @@ export const getWebhookInfo = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
+export interface SendAnimationParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files » */
+  readonly animation: Types.InputFile | string;
+  /** Duration of sent animation in seconds */
+  readonly duration?: number | undefined;
+  /** Animation width */
+  readonly width?: number | undefined;
+  /** Animation height */
+  readonly height?: number | undefined;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the animation caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Pass True if the animation needs to be covered with a spoiler animation */
+  readonly hasSpoiler?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendAnimationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendAnimationParamsWireKeys = invertKeys(_SendAnimationParamsPublicKeys);
+const _SendAnimationParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  animation: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  duration: Schema.optional(Schema.Int),
+  width: Schema.optional(Schema.Int),
+  height: Schema.optional(Schema.Int),
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  has_spoiler: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendAnimationParamsDecoded = Schema.declare<SendAnimationParams>((input): input is SendAnimationParams => Predicate.isObject(input));
+export const SendAnimationParams: Schema.Codec<SendAnimationParams, Readonly<Record<string, unknown>>> = _SendAnimationParamsEncoded.pipe(
+  Schema.decodeTo(_SendAnimationParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendAnimationParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendAnimationParamsWireKeys)),
+  }),
+);
+
+export const sendAnimation = callMethod({
+  method: "sendAnimation",
+  params: SendAnimationParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future. For sending voice messages, use the sendVoice method instead. */
+export interface SendAudioParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files » */
+  readonly audio: Types.InputFile | string;
+  /** Audio caption, 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the audio caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Duration of the audio in seconds */
+  readonly duration?: number | undefined;
+  /** Performer */
+  readonly performer?: string | undefined;
+  /** Track name */
+  readonly title?: string | undefined;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendAudioParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendAudioParamsWireKeys = invertKeys(_SendAudioParamsPublicKeys);
+const _SendAudioParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  audio: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  duration: Schema.optional(Schema.Int),
+  performer: Schema.optional(Schema.String),
+  title: Schema.optional(Schema.String),
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendAudioParamsDecoded = Schema.declare<SendAudioParams>((input): input is SendAudioParams => Predicate.isObject(input));
+export const SendAudioParams: Schema.Codec<SendAudioParams, Readonly<Record<string, unknown>>> = _SendAudioParamsEncoded.pipe(
+  Schema.decodeTo(_SendAudioParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendAudioParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendAudioParamsWireKeys)),
+  }),
+);
+
+export const sendAudio = callMethod({
+  method: "sendAudio",
+  params: SendAudioParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success. We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
 export interface SendChatActionParams {
   /** Unique identifier of the business connection on behalf of which the action will be sent */
@@ -981,6 +1151,161 @@ export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string
 export const sendDice = callMethod({
   method: "sendDice",
   params: SendDiceParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
+export interface SendDocumentParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files » */
+  readonly document: Types.InputFile | string;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Document caption (may also be used when resending documents by file_id), 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the document caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Disables automatic server-side content type detection for files uploaded using multipart/form-data */
+  readonly disableContentTypeDetection?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendDocumentParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_content_type_detection: "disableContentTypeDetection", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendDocumentParamsWireKeys = invertKeys(_SendDocumentParamsPublicKeys);
+const _SendDocumentParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  document: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  disable_content_type_detection: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendDocumentParamsDecoded = Schema.declare<SendDocumentParams>((input): input is SendDocumentParams => Predicate.isObject(input));
+export const SendDocumentParams: Schema.Codec<SendDocumentParams, Readonly<Record<string, unknown>>> = _SendDocumentParamsEncoded.pipe(
+  Schema.decodeTo(_SendDocumentParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendDocumentParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendDocumentParamsWireKeys)),
+  }),
+);
+
+export const sendDocument = callMethod({
+  method: "sendDocument",
+  params: SendDocumentParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send live photos. On success, the sent Message is returned. */
+export interface SendLivePhotoParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
+  readonly livePhoto: Types.InputFile | string;
+  /** The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending live photos by a URL is currently unsupported. */
+  readonly photo: Types.InputFile | string;
+  /** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the video caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Pass True if the video needs to be covered with a spoiler animation */
+  readonly hasSpoiler?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendLivePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", live_photo: "livePhoto", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendLivePhotoParamsWireKeys = invertKeys(_SendLivePhotoParamsPublicKeys);
+const _SendLivePhotoParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  live_photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  has_spoiler: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendLivePhotoParamsDecoded = Schema.declare<SendLivePhotoParams>((input): input is SendLivePhotoParams => Predicate.isObject(input));
+export const SendLivePhotoParams: Schema.Codec<SendLivePhotoParams, Readonly<Record<string, unknown>>> = _SendLivePhotoParamsEncoded.pipe(
+  Schema.decodeTo(_SendLivePhotoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendLivePhotoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendLivePhotoParamsWireKeys)),
+  }),
+);
+
+export const sendLivePhoto = callMethod({
+  method: "sendLivePhoto",
+  params: SendLivePhotoParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -1207,6 +1532,70 @@ export const sendPhoto = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
+export interface SendStickerParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. More information on Sending Files ». Video and animated stickers can't be sent via an HTTP URL. */
+  readonly sticker: Types.InputFile | string;
+  /** Emoji associated with the sticker; only for just uploaded stickers */
+  readonly emoji?: string | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendStickerParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendStickerParamsWireKeys = invertKeys(_SendStickerParamsPublicKeys);
+const _SendStickerParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  sticker: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  emoji: Schema.optional(Schema.String),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendStickerParamsDecoded = Schema.declare<SendStickerParams>((input): input is SendStickerParams => Predicate.isObject(input));
+export const SendStickerParams: Schema.Codec<SendStickerParams, Readonly<Record<string, unknown>>> = _SendStickerParamsEncoded.pipe(
+  Schema.decodeTo(_SendStickerParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendStickerParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendStickerParamsWireKeys)),
+  }),
+);
+
+export const sendSticker = callMethod({
+  method: "sendSticker",
+  params: SendStickerParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
 /** Use this method to send information about a venue. On success, the sent Message is returned. */
 export interface SendVenueParams {
   /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -1285,6 +1674,246 @@ export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<stri
 export const sendVenue = callMethod({
   method: "sendVenue",
   params: SendVenueParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
+export interface SendVideoParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files » */
+  readonly video: Types.InputFile | string;
+  /** Duration of sent video in seconds */
+  readonly duration?: number | undefined;
+  /** Video width */
+  readonly width?: number | undefined;
+  /** Video height */
+  readonly height?: number | undefined;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files » */
+  readonly cover?: Types.InputFile | string | undefined;
+  /** Start timestamp for the video in the message */
+  readonly startTimestamp?: number | undefined;
+  /** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the video caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Pass True if the caption must be shown above the message media */
+  readonly showCaptionAboveMedia?: boolean | undefined;
+  /** Pass True if the video needs to be covered with a spoiler animation */
+  readonly hasSpoiler?: boolean | undefined;
+  /** Pass True if the uploaded video is suitable for streaming */
+  readonly supportsStreaming?: boolean | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendVideoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", start_timestamp: "startTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", supports_streaming: "supportsStreaming", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendVideoParamsWireKeys = invertKeys(_SendVideoParamsPublicKeys);
+const _SendVideoParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  video: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  duration: Schema.optional(Schema.Int),
+  width: Schema.optional(Schema.Int),
+  height: Schema.optional(Schema.Int),
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  cover: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  start_timestamp: Schema.optional(Schema.Int),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  show_caption_above_media: Schema.optional(Schema.Boolean),
+  has_spoiler: Schema.optional(Schema.Boolean),
+  supports_streaming: Schema.optional(Schema.Boolean),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendVideoParamsDecoded = Schema.declare<SendVideoParams>((input): input is SendVideoParams => Predicate.isObject(input));
+export const SendVideoParams: Schema.Codec<SendVideoParams, Readonly<Record<string, unknown>>> = _SendVideoParamsEncoded.pipe(
+  Schema.decodeTo(_SendVideoParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendVideoParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendVideoParamsWireKeys)),
+  }),
+);
+
+export const sendVideo = callMethod({
+  method: "sendVideo",
+  params: SendVideoParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send a rounded square MPEG4 video of up to 1 minute long. On success, the sent Message is returned. */
+export interface SendVideoNoteParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported. */
+  readonly videoNote: Types.InputFile | string;
+  /** Duration of sent video in seconds */
+  readonly duration?: number | undefined;
+  /** Video width and height, i.e. diameter of the video message */
+  readonly length?: number | undefined;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files » */
+  readonly thumbnail?: Types.InputFile | string | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendVideoNoteParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", video_note: "videoNote", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendVideoNoteParamsWireKeys = invertKeys(_SendVideoNoteParamsPublicKeys);
+const _SendVideoNoteParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  video_note: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  duration: Schema.optional(Schema.Int),
+  length: Schema.optional(Schema.Int),
+  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendVideoNoteParamsDecoded = Schema.declare<SendVideoNoteParams>((input): input is SendVideoNoteParams => Predicate.isObject(input));
+export const SendVideoNoteParams: Schema.Codec<SendVideoNoteParams, Readonly<Record<string, unknown>>> = _SendVideoNoteParamsEncoded.pipe(
+  Schema.decodeTo(_SendVideoNoteParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendVideoNoteParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendVideoNoteParamsWireKeys)),
+  }),
+);
+
+export const sendVideoNote = callMethod({
+  method: "sendVideoNote",
+  params: SendVideoNoteParams,
+  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  retrySafe: false,
+});
+
+/** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
+export interface SendVoiceParams {
+  /** Unique identifier of the business connection on behalf of which the message will be sent */
+  readonly businessConnectionId?: string | undefined;
+  /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+  readonly messageThreadId?: number | undefined;
+  /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+  readonly directMessagesTopicId?: number | undefined;
+  /** A JSON-serialized object containing the parameters of the ephemeral message to send */
+  readonly ephemeralMessageParameters?: Types.EphemeralMessageParameters | undefined;
+  /** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files » */
+  readonly voice: Types.InputFile | string;
+  /** Voice message caption, 0-1024 characters after entities parsing */
+  readonly caption?: string | undefined;
+  /** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+  readonly parseMode?: Types.ParseMode | undefined;
+  /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+  readonly captionEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
+  /** Duration of the voice message in seconds */
+  readonly duration?: number | undefined;
+  /** Sends the message silently. Users will receive a notification with no sound. */
+  readonly disableNotification?: boolean | undefined;
+  /** Protects the contents of the sent message from forwarding and saving */
+  readonly protectContent?: boolean | undefined;
+  /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+  readonly allowPaidBroadcast?: boolean | undefined;
+  /** Unique identifier of the message effect to be added to the message; for private chats only */
+  readonly messageEffectId?: string | undefined;
+  /** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+  readonly suggestedPostParameters?: Types.SuggestedPostParameters | undefined;
+  /** Description of the message to reply to */
+  readonly replyParameters?: Types.ReplyParameters | undefined;
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+  readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
+}
+const _SendVoiceParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+const _SendVoiceParamsWireKeys = invertKeys(_SendVoiceParamsPublicKeys);
+const _SendVoiceParamsEncoded = Schema.Struct({
+  business_connection_id: Schema.optional(Schema.String),
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  message_thread_id: Schema.optional(Schema.Int),
+  direct_messages_topic_id: Schema.optional(Schema.Int),
+  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
+  voice: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
+  caption: Schema.optional(Schema.String),
+  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
+  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+  duration: Schema.optional(Schema.Int),
+  disable_notification: Schema.optional(Schema.Boolean),
+  protect_content: Schema.optional(Schema.Boolean),
+  allow_paid_broadcast: Schema.optional(Schema.Boolean),
+  message_effect_id: Schema.optional(Schema.String),
+  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
+  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+});
+const _SendVoiceParamsDecoded = Schema.declare<SendVoiceParams>((input): input is SendVoiceParams => Predicate.isObject(input));
+export const SendVoiceParams: Schema.Codec<SendVoiceParams, Readonly<Record<string, unknown>>> = _SendVoiceParamsEncoded.pipe(
+  Schema.decodeTo(_SendVoiceParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_SendVoiceParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_SendVoiceParamsWireKeys)),
+  }),
+);
+
+export const sendVoice = callMethod({
+  method: "sendVoice",
+  params: SendVoiceParams,
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
