@@ -159,6 +159,16 @@
     "recorded_time": "2026-08-30T16:49:46.814Z",
     "status": "proven"
   },
+  "sendAnimation": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid animation fixture unavailable: Telegram accepted the generated two-frame GIF but delivered it as 'messageDocument'",
+    "status": "blocked"
+  },
+  "sendAudio": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid MP3 or M4A audio fixture is unavailable in the leased Test Server harness",
+    "status": "blocked"
+  },
   "sendChatAction": {
     "artifact": "bot-api/proofs/sendChatAction/2026-08-30.json",
     "recorded_time": "2026-08-30T18:02:29.569Z",
@@ -172,6 +182,16 @@
   "sendDice": {
     "expires_on": "2026-09-13",
     "reason": "live message cannot be cleaned up immediately: Telegram returned 'message can't be deleted for everyone'; private-chat dice messages must be more than 24 hours old before deletion",
+    "status": "blocked"
+  },
+  "sendDocument": {
+    "artifact": "bot-api/proofs/sendDocument/2026-08-30.json",
+    "recorded_time": "2026-08-30T18:07:06.655Z",
+    "status": "proven"
+  },
+  "sendLivePhoto": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid paired live-photo image and video fixtures are unavailable in the leased Test Server harness",
     "status": "blocked"
   },
   "sendLocation": {
@@ -189,10 +209,30 @@
     "recorded_time": "2026-08-30T17:50:05.765Z",
     "status": "proven"
   },
+  "sendSticker": {
+    "expires_on": "2026-09-13",
+    "reason": "regular sticker fixture unavailable: Telegram rejected the available custom emoji with 'can't send emoji stickers in messages'",
+    "status": "blocked"
+  },
   "sendVenue": {
     "artifact": "bot-api/proofs/sendVenue/2026-08-30.json",
     "recorded_time": "2026-08-30T18:02:15.299Z",
     "status": "proven"
+  },
+  "sendVideo": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid MP4 video fixture is unavailable in the leased Test Server harness",
+    "status": "blocked"
+  },
+  "sendVideoNote": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid round MP4 video-note fixture is unavailable in the leased Test Server harness",
+    "status": "blocked"
+  },
+  "sendVoice": {
+    "expires_on": "2026-09-13",
+    "reason": "format-valid OGG/OPUS voice fixture is unavailable in the leased Test Server harness",
+    "status": "blocked"
   },
   "setMyCommands": {
     "artifact": "bot-api/proofs/setMyCommands/2026-08-30.json",
