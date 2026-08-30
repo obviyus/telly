@@ -12,6 +12,31 @@ export const getAvailableGifts = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success. */
+export interface GetChatMenuButtonParams {
+  /** Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned. */
+  readonly chatId?: number | undefined;
+}
+const _GetChatMenuButtonParamsPublicKeys = { chat_id: "chatId" } as const;
+const _GetChatMenuButtonParamsWireKeys = invertKeys(_GetChatMenuButtonParamsPublicKeys);
+const _GetChatMenuButtonParamsEncoded = Schema.Struct({
+  chat_id: Schema.optional(Schema.Int),
+});
+const _GetChatMenuButtonParamsDecoded = Schema.declare<GetChatMenuButtonParams>((input): input is GetChatMenuButtonParams => Predicate.isObject(input));
+export const GetChatMenuButtonParams: Schema.Codec<GetChatMenuButtonParams, Readonly<Record<string, unknown>>> = _GetChatMenuButtonParamsEncoded.pipe(
+  Schema.decodeTo(_GetChatMenuButtonParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMenuButtonParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMenuButtonParamsWireKeys)),
+  }),
+);
+
+export const getChatMenuButton = callMethod({
+  method: "getChatMenuButton",
+  params: GetChatMenuButtonParams,
+  result: Schema.suspend((): Schema.Codec<Types.MenuButton, unknown> => Types.MenuButton),
+  retrySafe: true,
+});
+
 /** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
 export const getForumTopicIconStickers = callMethod({
   method: "getForumTopicIconStickers",
@@ -26,10 +51,157 @@ export const getMe = callMethod({
   retrySafe: true,
 });
 
+/** Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned. */
+export interface GetMyCommandsParams {
+  /** A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault. */
+  readonly scope?: Types.BotCommandScope | undefined;
+  /** A two-letter ISO 639-1 language code or an empty string */
+  readonly languageCode?: string | undefined;
+}
+const _GetMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
+const _GetMyCommandsParamsWireKeys = invertKeys(_GetMyCommandsParamsPublicKeys);
+const _GetMyCommandsParamsEncoded = Schema.Struct({
+  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
+  language_code: Schema.optional(Schema.String),
+});
+const _GetMyCommandsParamsDecoded = Schema.declare<GetMyCommandsParams>((input): input is GetMyCommandsParams => Predicate.isObject(input));
+export const GetMyCommandsParams: Schema.Codec<GetMyCommandsParams, Readonly<Record<string, unknown>>> = _GetMyCommandsParamsEncoded.pipe(
+  Schema.decodeTo(_GetMyCommandsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyCommandsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyCommandsParamsWireKeys)),
+  }),
+);
+
+export const getMyCommands = callMethod({
+  method: "getMyCommands",
+  params: GetMyCommandsParams,
+  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.BotCommand, unknown> => Types.BotCommand)),
+  retrySafe: true,
+});
+
+/** Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success. */
+export interface GetMyDefaultAdministratorRightsParams {
+  /** Pass True to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned. */
+  readonly forChannels?: boolean | undefined;
+}
+const _GetMyDefaultAdministratorRightsParamsPublicKeys = { for_channels: "forChannels" } as const;
+const _GetMyDefaultAdministratorRightsParamsWireKeys = invertKeys(_GetMyDefaultAdministratorRightsParamsPublicKeys);
+const _GetMyDefaultAdministratorRightsParamsEncoded = Schema.Struct({
+  for_channels: Schema.optional(Schema.Boolean),
+});
+const _GetMyDefaultAdministratorRightsParamsDecoded = Schema.declare<GetMyDefaultAdministratorRightsParams>((input): input is GetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
+export const GetMyDefaultAdministratorRightsParams: Schema.Codec<GetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = _GetMyDefaultAdministratorRightsParamsEncoded.pipe(
+  Schema.decodeTo(_GetMyDefaultAdministratorRightsParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyDefaultAdministratorRightsParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyDefaultAdministratorRightsParamsWireKeys)),
+  }),
+);
+
+export const getMyDefaultAdministratorRights = callMethod({
+  method: "getMyDefaultAdministratorRights",
+  params: GetMyDefaultAdministratorRightsParams,
+  result: Schema.suspend((): Schema.Codec<Types.ChatAdministratorRights, unknown> => Types.ChatAdministratorRights),
+  retrySafe: true,
+});
+
+/** Use this method to get the current bot description for the given user language. Returns BotDescription on success. */
+export interface GetMyDescriptionParams {
+  /** A two-letter ISO 639-1 language code or an empty string */
+  readonly languageCode?: string | undefined;
+}
+const _GetMyDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
+const _GetMyDescriptionParamsWireKeys = invertKeys(_GetMyDescriptionParamsPublicKeys);
+const _GetMyDescriptionParamsEncoded = Schema.Struct({
+  language_code: Schema.optional(Schema.String),
+});
+const _GetMyDescriptionParamsDecoded = Schema.declare<GetMyDescriptionParams>((input): input is GetMyDescriptionParams => Predicate.isObject(input));
+export const GetMyDescriptionParams: Schema.Codec<GetMyDescriptionParams, Readonly<Record<string, unknown>>> = _GetMyDescriptionParamsEncoded.pipe(
+  Schema.decodeTo(_GetMyDescriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyDescriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyDescriptionParamsWireKeys)),
+  }),
+);
+
+export const getMyDescription = callMethod({
+  method: "getMyDescription",
+  params: GetMyDescriptionParams,
+  result: Schema.suspend((): Schema.Codec<Types.BotDescription, unknown> => Types.BotDescription),
+  retrySafe: true,
+});
+
+/** Use this method to get the current bot name for the given user language. Returns BotName on success. */
+export interface GetMyNameParams {
+  /** A two-letter ISO 639-1 language code or an empty string */
+  readonly languageCode?: string | undefined;
+}
+const _GetMyNameParamsPublicKeys = { language_code: "languageCode" } as const;
+const _GetMyNameParamsWireKeys = invertKeys(_GetMyNameParamsPublicKeys);
+const _GetMyNameParamsEncoded = Schema.Struct({
+  language_code: Schema.optional(Schema.String),
+});
+const _GetMyNameParamsDecoded = Schema.declare<GetMyNameParams>((input): input is GetMyNameParams => Predicate.isObject(input));
+export const GetMyNameParams: Schema.Codec<GetMyNameParams, Readonly<Record<string, unknown>>> = _GetMyNameParamsEncoded.pipe(
+  Schema.decodeTo(_GetMyNameParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyNameParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyNameParamsWireKeys)),
+  }),
+);
+
+export const getMyName = callMethod({
+  method: "getMyName",
+  params: GetMyNameParams,
+  result: Schema.suspend((): Schema.Codec<Types.BotName, unknown> => Types.BotName),
+  retrySafe: true,
+});
+
+/** Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success. */
+export interface GetMyShortDescriptionParams {
+  /** A two-letter ISO 639-1 language code or an empty string */
+  readonly languageCode?: string | undefined;
+}
+const _GetMyShortDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
+const _GetMyShortDescriptionParamsWireKeys = invertKeys(_GetMyShortDescriptionParamsPublicKeys);
+const _GetMyShortDescriptionParamsEncoded = Schema.Struct({
+  language_code: Schema.optional(Schema.String),
+});
+const _GetMyShortDescriptionParamsDecoded = Schema.declare<GetMyShortDescriptionParams>((input): input is GetMyShortDescriptionParams => Predicate.isObject(input));
+export const GetMyShortDescriptionParams: Schema.Codec<GetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = _GetMyShortDescriptionParamsEncoded.pipe(
+  Schema.decodeTo(_GetMyShortDescriptionParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyShortDescriptionParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyShortDescriptionParamsWireKeys)),
+  }),
+);
+
+export const getMyShortDescription = callMethod({
+  method: "getMyShortDescription",
+  params: GetMyShortDescriptionParams,
+  result: Schema.suspend((): Schema.Codec<Types.BotShortDescription, unknown> => Types.BotShortDescription),
+  retrySafe: true,
+});
+
 /** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
 export const getMyStarBalance = callMethod({
   method: "getMyStarBalance",
   result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
+  retrySafe: true,
+});
+
+/** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
+export interface GetStarTransactionsParams {
+  /** Number of transactions to skip in the response */
+  readonly offset?: number | undefined;
+  /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+  readonly limit?: number | undefined;
+}
+export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams> = Schema.Struct({
+  offset: Schema.optional(Schema.Int),
+  limit: Schema.optional(Schema.Int),
+});
+
+export const getStarTransactions = callMethod({
+  method: "getStarTransactions",
+  params: GetStarTransactionsParams,
+  result: Schema.suspend((): Schema.Codec<Types.StarTransactions, unknown> => Types.StarTransactions),
   retrySafe: true,
 });
 

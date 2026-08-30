@@ -3,6 +3,9 @@
     "getAvailableGifts": {
       "retrySafe": true
     },
+    "getChatMenuButton": {
+      "retrySafe": true
+    },
     "getForumTopicIconStickers": {
       "retrySafe": true
     },
@@ -10,6 +13,24 @@
       "retrySafe": true
     },
     "getMyStarBalance": {
+      "retrySafe": true
+    },
+    "getMyCommands": {
+      "retrySafe": true
+    },
+    "getMyDefaultAdministratorRights": {
+      "retrySafe": true
+    },
+    "getMyDescription": {
+      "retrySafe": true
+    },
+    "getMyName": {
+      "retrySafe": true
+    },
+    "getMyShortDescription": {
+      "retrySafe": true
+    },
+    "getStarTransactions": {
       "retrySafe": true
     },
     "getWebhookInfo": {

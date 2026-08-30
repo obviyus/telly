@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { Effect, Layer, Predicate, Redacted, Tracer } from "effect";
 
-import { Bot, getMe, sendMessage } from "../index.ts";
+import {
+  Bot,
+  getChatMenuButton,
+  getMe,
+  getStarTransactions,
+  sendMessage,
+} from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
 const token = "123456:fake-token-for-tests";
@@ -200,5 +206,35 @@ describe("getMe", () => {
 
     expect(error.reason._tag).toBe("Transport");
     expect(error.retrySafe).toBe(true);
+  });
+});
+
+describe("read-only methods with optional fields", () => {
+  test("sends an empty object and decodes a discriminated union", async () => {
+    const fake = FakeBotApi.make({
+      replies: [FakeBotApiReply.ok({ type: "default" })],
+      token,
+    });
+
+    const menuButton = await Effect.runPromise(
+      getChatMenuButton({}).pipe(Effect.provide(botLayer(fake))),
+    );
+
+    expect(menuButton).toEqual({ type: "default" });
+    expect(fake.requests[0]?.params).toEqual({});
+  });
+
+  test("sends optional fields that keep their Telegram names", async () => {
+    const fake = FakeBotApi.make({
+      replies: [FakeBotApiReply.ok({ transactions: [] })],
+      token,
+    });
+
+    const transactions = await Effect.runPromise(
+      getStarTransactions({ limit: 5, offset: 3 }).pipe(Effect.provide(botLayer(fake))),
+    );
+
+    expect(transactions.transactions).toEqual([]);
+    expect(fake.requests[0]?.params).toEqual({ limit: 5, offset: 3 });
   });
 });

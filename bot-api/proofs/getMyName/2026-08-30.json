@@ -1,0 +1,15 @@
+{
+  "method": "getMyName",
+  "passed": true,
+  "recorded_time": "2026-08-30T16:57:06.454Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 31,
+      "kind": "bot_api_result",
+      "observation": {
+        "nameLength": 0
+      }
+    }
+  ]
+}

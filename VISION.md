@@ -40,7 +40,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Names use Telegram domain words. Generic names such as `manager`, `helper`, and `util` stay out of the public interface.
 - Known public fields use `camelCase`. Schema codecs translate them to Telegram's `snake_case` wire keys. Unknown day-zero fields keep their wire names until Telly types them.
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
-- A method whose Telegram schema has no fields takes zero arguments.
+- A method whose Telegram schema has no fields takes zero arguments. A method with fields takes exactly one options object, even when every field is optional.
 - Options objects with named fields replace positional variants and overloads.
 - Errors are typed values in the Effect error channel. Each error has a useful message and a `retrySafe` value that states whether retrying can duplicate a side effect.
 - Every documented feature has an executable example that runs in tests.
