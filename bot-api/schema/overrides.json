@@ -80,6 +80,33 @@
     "addStickerToSet": {
       "retrySafe": false
     },
+    "answerCallbackQuery": {
+      "retrySafe": true
+    },
+    "answerChatJoinRequestQuery": {
+      "retrySafe": true
+    },
+    "answerGuestQuery": {
+      "retrySafe": true
+    },
+    "answerInlineQuery": {
+      "retrySafe": true
+    },
+    "answerPreCheckoutQuery": {
+      "retrySafe": true
+    },
+    "answerShippingQuery": {
+      "retrySafe": true
+    },
+    "answerWebAppQuery": {
+      "retrySafe": true
+    },
+    "approveChatJoinRequest": {
+      "retrySafe": true
+    },
+    "approveSuggestedPost": {
+      "retrySafe": true
+    },
     "copyMessage": {
       "retrySafe": false
     },
@@ -99,6 +126,12 @@
       "retrySafe": false
     },
     "deleteMyCommands": {
+      "retrySafe": true
+    },
+    "declineChatJoinRequest": {
+      "retrySafe": true
+    },
+    "declineSuggestedPost": {
       "retrySafe": true
     },
     "exportChatInviteLink": {

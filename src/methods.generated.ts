@@ -36,6 +36,294 @@ export const addStickerToSet = callMethod({
   retrySafe: false,
 });
 
+/** Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned. */
+export interface AnswerCallbackQueryParams {
+  /** Unique identifier for the query to be answered */
+  readonly callbackQueryId: string;
+  /** Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters. */
+  readonly text?: string | undefined;
+  /** If True, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to False. */
+  readonly showAlert?: boolean | undefined;
+  /** URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @BotFather, specify the URL that opens your game - note that this will only work if the query comes from a callback_game button.
+
+Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
+  readonly url?: string | undefined;
+  /** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Defaults to 0. */
+  readonly cacheTime?: number | undefined;
+}
+const _AnswerCallbackQueryParamsPublicKeys = { callback_query_id: "callbackQueryId", show_alert: "showAlert", cache_time: "cacheTime" } as const;
+const _AnswerCallbackQueryParamsWireKeys = invertKeys(_AnswerCallbackQueryParamsPublicKeys);
+const _AnswerCallbackQueryParamsEncoded = Schema.Struct({
+  callback_query_id: Schema.String,
+  text: Schema.optional(Schema.String),
+  show_alert: Schema.optional(Schema.Boolean),
+  url: Schema.optional(Schema.String),
+  cache_time: Schema.optional(Schema.Int),
+});
+const _AnswerCallbackQueryParamsDecoded = Schema.declare<AnswerCallbackQueryParams>((input): input is AnswerCallbackQueryParams => Predicate.isObject(input));
+export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, Readonly<Record<string, unknown>>> = _AnswerCallbackQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerCallbackQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerCallbackQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerCallbackQueryParamsWireKeys)),
+  }),
+);
+
+export const answerCallbackQuery = callMethod({
+  method: "answerCallbackQuery",
+  params: AnswerCallbackQueryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to process a received chat join request query. Returns True on success. */
+export interface AnswerChatJoinRequestQueryParams {
+  /** Unique identifier of the join request query */
+  readonly chatJoinRequestQueryId: string;
+  /** Result of the query. Must be either “approve” to allow the user to join the chat, “decline” to disallow the user to join the chat, or “queue” to leave the decision to other administrators. */
+  readonly result: string;
+}
+const _AnswerChatJoinRequestQueryParamsPublicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId" } as const;
+const _AnswerChatJoinRequestQueryParamsWireKeys = invertKeys(_AnswerChatJoinRequestQueryParamsPublicKeys);
+const _AnswerChatJoinRequestQueryParamsEncoded = Schema.Struct({
+  chat_join_request_query_id: Schema.String,
+  result: Schema.String,
+});
+const _AnswerChatJoinRequestQueryParamsDecoded = Schema.declare<AnswerChatJoinRequestQueryParams>((input): input is AnswerChatJoinRequestQueryParams => Predicate.isObject(input));
+export const AnswerChatJoinRequestQueryParams: Schema.Codec<AnswerChatJoinRequestQueryParams, Readonly<Record<string, unknown>>> = _AnswerChatJoinRequestQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerChatJoinRequestQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerChatJoinRequestQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerChatJoinRequestQueryParamsWireKeys)),
+  }),
+);
+
+export const answerChatJoinRequestQuery = callMethod({
+  method: "answerChatJoinRequestQuery",
+  params: AnswerChatJoinRequestQueryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to reply to a received guest message. On success, a SentGuestMessage object is returned. */
+export interface AnswerGuestQueryParams {
+  /** Unique identifier for the query to be answered */
+  readonly guestQueryId: string;
+  /** A JSON-serialized object describing the message to be sent */
+  readonly result: Types.InlineQueryResult;
+}
+const _AnswerGuestQueryParamsPublicKeys = { guest_query_id: "guestQueryId" } as const;
+const _AnswerGuestQueryParamsWireKeys = invertKeys(_AnswerGuestQueryParamsPublicKeys);
+const _AnswerGuestQueryParamsEncoded = Schema.Struct({
+  guest_query_id: Schema.String,
+  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
+});
+const _AnswerGuestQueryParamsDecoded = Schema.declare<AnswerGuestQueryParams>((input): input is AnswerGuestQueryParams => Predicate.isObject(input));
+export const AnswerGuestQueryParams: Schema.Codec<AnswerGuestQueryParams, Readonly<Record<string, unknown>>> = _AnswerGuestQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerGuestQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerGuestQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerGuestQueryParamsWireKeys)),
+  }),
+);
+
+export const answerGuestQuery = callMethod({
+  method: "answerGuestQuery",
+  params: AnswerGuestQueryParams,
+  result: Schema.suspend((): Schema.Codec<Types.SentGuestMessage, unknown> => Types.SentGuestMessage),
+  retrySafe: true,
+});
+
+/** Use this method to send answers to an inline query. On success, True is returned.
+No more than 50 results per query are allowed. */
+export interface AnswerInlineQueryParams {
+  /** Unique identifier for the answered query */
+  readonly inlineQueryId: string;
+  /** A JSON-serialized Array of results for the inline query */
+  readonly results: ReadonlyArray<Types.InlineQueryResult>;
+  /** The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300. */
+  readonly cacheTime?: number | undefined;
+  /** Pass True if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query. */
+  readonly isPersonal?: boolean | undefined;
+  /** Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don't support pagination. Offset length can't exceed 64 bytes. */
+  readonly nextOffset?: string | undefined;
+  /** A JSON-serialized object describing a button to be shown above inline query results */
+  readonly button?: Types.InlineQueryResultsButton | undefined;
+}
+const _AnswerInlineQueryParamsPublicKeys = { inline_query_id: "inlineQueryId", cache_time: "cacheTime", is_personal: "isPersonal", next_offset: "nextOffset" } as const;
+const _AnswerInlineQueryParamsWireKeys = invertKeys(_AnswerInlineQueryParamsPublicKeys);
+const _AnswerInlineQueryParamsEncoded = Schema.Struct({
+  inline_query_id: Schema.String,
+  results: Schema.Array(Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult)),
+  cache_time: Schema.optional(Schema.Int),
+  is_personal: Schema.optional(Schema.Boolean),
+  next_offset: Schema.optional(Schema.String),
+  button: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineQueryResultsButton, unknown> => Types.InlineQueryResultsButton)),
+});
+const _AnswerInlineQueryParamsDecoded = Schema.declare<AnswerInlineQueryParams>((input): input is AnswerInlineQueryParams => Predicate.isObject(input));
+export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Readonly<Record<string, unknown>>> = _AnswerInlineQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerInlineQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerInlineQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerInlineQueryParamsWireKeys)),
+  }),
+);
+
+export const answerInlineQuery = callMethod({
+  method: "answerInlineQuery",
+  params: AnswerInlineQueryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
+export interface AnswerPreCheckoutQueryParams {
+  /** Unique identifier for the query to be answered */
+  readonly preCheckoutQueryId: string;
+  /** Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems. */
+  readonly ok: boolean;
+  /** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
+  readonly errorMessage?: string | undefined;
+}
+const _AnswerPreCheckoutQueryParamsPublicKeys = { pre_checkout_query_id: "preCheckoutQueryId", error_message: "errorMessage" } as const;
+const _AnswerPreCheckoutQueryParamsWireKeys = invertKeys(_AnswerPreCheckoutQueryParamsPublicKeys);
+const _AnswerPreCheckoutQueryParamsEncoded = Schema.Struct({
+  pre_checkout_query_id: Schema.String,
+  ok: Schema.Boolean,
+  error_message: Schema.optional(Schema.String),
+});
+const _AnswerPreCheckoutQueryParamsDecoded = Schema.declare<AnswerPreCheckoutQueryParams>((input): input is AnswerPreCheckoutQueryParams => Predicate.isObject(input));
+export const AnswerPreCheckoutQueryParams: Schema.Codec<AnswerPreCheckoutQueryParams, Readonly<Record<string, unknown>>> = _AnswerPreCheckoutQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerPreCheckoutQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerPreCheckoutQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerPreCheckoutQueryParamsWireKeys)),
+  }),
+);
+
+export const answerPreCheckoutQuery = callMethod({
+  method: "answerPreCheckoutQuery",
+  params: AnswerPreCheckoutQueryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
+export interface AnswerShippingQueryParams {
+  /** Unique identifier for the query to be answered */
+  readonly shippingQueryId: string;
+  /** Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible) */
+  readonly ok: boolean;
+  /** Required if ok is True. A JSON-serialized Array of available shipping options. */
+  readonly shippingOptions?: ReadonlyArray<Types.ShippingOption> | undefined;
+  /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. “Sorry, delivery to your desired address is unavailable”). Telegram will display this message to the user. */
+  readonly errorMessage?: string | undefined;
+}
+const _AnswerShippingQueryParamsPublicKeys = { shipping_query_id: "shippingQueryId", shipping_options: "shippingOptions", error_message: "errorMessage" } as const;
+const _AnswerShippingQueryParamsWireKeys = invertKeys(_AnswerShippingQueryParamsPublicKeys);
+const _AnswerShippingQueryParamsEncoded = Schema.Struct({
+  shipping_query_id: Schema.String,
+  ok: Schema.Boolean,
+  shipping_options: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.ShippingOption, unknown> => Types.ShippingOption))),
+  error_message: Schema.optional(Schema.String),
+});
+const _AnswerShippingQueryParamsDecoded = Schema.declare<AnswerShippingQueryParams>((input): input is AnswerShippingQueryParams => Predicate.isObject(input));
+export const AnswerShippingQueryParams: Schema.Codec<AnswerShippingQueryParams, Readonly<Record<string, unknown>>> = _AnswerShippingQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerShippingQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerShippingQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerShippingQueryParamsWireKeys)),
+  }),
+);
+
+export const answerShippingQuery = callMethod({
+  method: "answerShippingQuery",
+  params: AnswerShippingQueryParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
+export interface AnswerWebAppQueryParams {
+  /** Unique identifier for the query to be answered */
+  readonly webAppQueryId: string;
+  /** A JSON-serialized object describing the message to be sent */
+  readonly result: Types.InlineQueryResult;
+}
+const _AnswerWebAppQueryParamsPublicKeys = { web_app_query_id: "webAppQueryId" } as const;
+const _AnswerWebAppQueryParamsWireKeys = invertKeys(_AnswerWebAppQueryParamsPublicKeys);
+const _AnswerWebAppQueryParamsEncoded = Schema.Struct({
+  web_app_query_id: Schema.String,
+  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
+});
+const _AnswerWebAppQueryParamsDecoded = Schema.declare<AnswerWebAppQueryParams>((input): input is AnswerWebAppQueryParams => Predicate.isObject(input));
+export const AnswerWebAppQueryParams: Schema.Codec<AnswerWebAppQueryParams, Readonly<Record<string, unknown>>> = _AnswerWebAppQueryParamsEncoded.pipe(
+  Schema.decodeTo(_AnswerWebAppQueryParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerWebAppQueryParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerWebAppQueryParamsWireKeys)),
+  }),
+);
+
+export const answerWebAppQuery = callMethod({
+  method: "answerWebAppQuery",
+  params: AnswerWebAppQueryParams,
+  result: Schema.suspend((): Schema.Codec<Types.SentWebAppMessage, unknown> => Types.SentWebAppMessage),
+  retrySafe: true,
+});
+
+/** Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
+export interface ApproveChatJoinRequestParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+}
+const _ApproveChatJoinRequestParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+const _ApproveChatJoinRequestParamsWireKeys = invertKeys(_ApproveChatJoinRequestParamsPublicKeys);
+const _ApproveChatJoinRequestParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+});
+const _ApproveChatJoinRequestParamsDecoded = Schema.declare<ApproveChatJoinRequestParams>((input): input is ApproveChatJoinRequestParams => Predicate.isObject(input));
+export const ApproveChatJoinRequestParams: Schema.Codec<ApproveChatJoinRequestParams, Readonly<Record<string, unknown>>> = _ApproveChatJoinRequestParamsEncoded.pipe(
+  Schema.decodeTo(_ApproveChatJoinRequestParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ApproveChatJoinRequestParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ApproveChatJoinRequestParamsWireKeys)),
+  }),
+);
+
+export const approveChatJoinRequest = callMethod({
+  method: "approveChatJoinRequest",
+  params: ApproveChatJoinRequestParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to approve a suggested post in a direct messages chat. The bot must have the 'can_post_messages' administrator right in the corresponding channel chat. Returns True on success. */
+export interface ApproveSuggestedPostParams {
+  /** Unique identifier for the target direct messages chat */
+  readonly chatId: number;
+  /** Identifier of a suggested post message to approve */
+  readonly messageId: number;
+  /** Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future. */
+  readonly sendDate?: number | undefined;
+}
+const _ApproveSuggestedPostParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", send_date: "sendDate" } as const;
+const _ApproveSuggestedPostParamsWireKeys = invertKeys(_ApproveSuggestedPostParamsPublicKeys);
+const _ApproveSuggestedPostParamsEncoded = Schema.Struct({
+  chat_id: Schema.Int,
+  message_id: Schema.Int,
+  send_date: Schema.optional(Schema.Int),
+});
+const _ApproveSuggestedPostParamsDecoded = Schema.declare<ApproveSuggestedPostParams>((input): input is ApproveSuggestedPostParams => Predicate.isObject(input));
+export const ApproveSuggestedPostParams: Schema.Codec<ApproveSuggestedPostParams, Readonly<Record<string, unknown>>> = _ApproveSuggestedPostParamsEncoded.pipe(
+  Schema.decodeTo(_ApproveSuggestedPostParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_ApproveSuggestedPostParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_ApproveSuggestedPostParamsWireKeys)),
+  }),
+);
+
+export const approveSuggestedPost = callMethod({
+  method: "approveSuggestedPost",
+  params: ApproveSuggestedPostParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
 /** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
 export interface CopyMessageParams {
   /** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
@@ -346,6 +634,65 @@ export const createInvoiceLink = callMethod({
   params: CreateInvoiceLinkParams,
   result: Schema.String,
   retrySafe: false,
+});
+
+/** Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
+export interface DeclineChatJoinRequestParams {
+  /** Unique identifier for the target chat or username of the target channel in the format @username */
+  readonly chatId: number | string;
+  /** Unique identifier of the target user */
+  readonly userId: number;
+}
+const _DeclineChatJoinRequestParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+const _DeclineChatJoinRequestParamsWireKeys = invertKeys(_DeclineChatJoinRequestParamsPublicKeys);
+const _DeclineChatJoinRequestParamsEncoded = Schema.Struct({
+  chat_id: Schema.Union([Schema.Int, Schema.String]),
+  user_id: Schema.Int,
+});
+const _DeclineChatJoinRequestParamsDecoded = Schema.declare<DeclineChatJoinRequestParams>((input): input is DeclineChatJoinRequestParams => Predicate.isObject(input));
+export const DeclineChatJoinRequestParams: Schema.Codec<DeclineChatJoinRequestParams, Readonly<Record<string, unknown>>> = _DeclineChatJoinRequestParamsEncoded.pipe(
+  Schema.decodeTo(_DeclineChatJoinRequestParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeclineChatJoinRequestParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeclineChatJoinRequestParamsWireKeys)),
+  }),
+);
+
+export const declineChatJoinRequest = callMethod({
+  method: "declineChatJoinRequest",
+  params: DeclineChatJoinRequestParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
+});
+
+/** Use this method to decline a suggested post in a direct messages chat. The bot must have the 'can_manage_direct_messages' administrator right in the corresponding channel chat. Returns True on success. */
+export interface DeclineSuggestedPostParams {
+  /** Unique identifier for the target direct messages chat */
+  readonly chatId: number;
+  /** Identifier of a suggested post message to decline */
+  readonly messageId: number;
+  /** Comment for the creator of the suggested post; 0-128 characters */
+  readonly comment?: string | undefined;
+}
+const _DeclineSuggestedPostParamsPublicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
+const _DeclineSuggestedPostParamsWireKeys = invertKeys(_DeclineSuggestedPostParamsPublicKeys);
+const _DeclineSuggestedPostParamsEncoded = Schema.Struct({
+  chat_id: Schema.Int,
+  message_id: Schema.Int,
+  comment: Schema.optional(Schema.String),
+});
+const _DeclineSuggestedPostParamsDecoded = Schema.declare<DeclineSuggestedPostParams>((input): input is DeclineSuggestedPostParams => Predicate.isObject(input));
+export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams, Readonly<Record<string, unknown>>> = _DeclineSuggestedPostParamsEncoded.pipe(
+  Schema.decodeTo(_DeclineSuggestedPostParamsDecoded, {
+    decode: SchemaGetter.transform(Struct.renameKeys(_DeclineSuggestedPostParamsPublicKeys)),
+    encode: SchemaGetter.transform(Struct.renameKeys(_DeclineSuggestedPostParamsWireKeys)),
+  }),
+);
+
+export const declineSuggestedPost = callMethod({
+  method: "declineSuggestedPost",
+  params: DeclineSuggestedPostParams,
+  result: Schema.Literal(true),
+  retrySafe: true,
 });
 
 /** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
