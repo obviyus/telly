@@ -20,6 +20,11 @@ import {
   getMyShortDescription,
   getMyStarBalance,
   getStarTransactions,
+  getUserChatBoosts,
+  getUserGifts,
+  getUserPersonalChatMessages,
+  getUserProfileAudios,
+  getUserProfilePhotos,
   getWebhookInfo,
 } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
@@ -136,6 +141,31 @@ try {
       name: "getStarTransactions",
       operation: () => getStarTransactions({ limit: 1, offset: 0 }),
       summarize: (result) => ({ transactionCount: result.transactions.length }),
+    },
+    {
+      name: "getUserChatBoosts",
+      operation: () => getUserChatBoosts({ chatId: groupId, userId: testerUserId }),
+      summarize: (result) => ({ boostCount: result.boosts.length }),
+    },
+    {
+      name: "getUserGifts",
+      operation: () => getUserGifts({ limit: 1, userId: testerUserId }),
+      summarize: (result) => ({ giftCount: result.gifts.length, totalCount: result.totalCount }),
+    },
+    {
+      name: "getUserPersonalChatMessages",
+      operation: () => getUserPersonalChatMessages({ limit: 1, userId: testerUserId }),
+      summarize: (result) => ({ messageCount: result.length }),
+    },
+    {
+      name: "getUserProfileAudios",
+      operation: () => getUserProfileAudios({ limit: 1, userId: testerUserId }),
+      summarize: (result) => ({ audioCount: result.audios.length, totalCount: result.totalCount }),
+    },
+    {
+      name: "getUserProfilePhotos",
+      operation: () => getUserProfilePhotos({ limit: 1, userId: testerUserId }),
+      summarize: (result) => ({ photoCount: result.photos.length, totalCount: result.totalCount }),
     },
     {
       name: "getWebhookInfo",

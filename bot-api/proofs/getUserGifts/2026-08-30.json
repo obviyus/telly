@@ -1,0 +1,16 @@
+{
+  "method": "getUserGifts",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:09:04.639Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 92,
+      "kind": "bot_api_result",
+      "observation": {
+        "giftCount": 0,
+        "totalCount": 0
+      }
+    }
+  ]
+}

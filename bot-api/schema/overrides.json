@@ -48,6 +48,21 @@
     "getStarTransactions": {
       "retrySafe": true
     },
+    "getUserChatBoosts": {
+      "retrySafe": true
+    },
+    "getUserGifts": {
+      "retrySafe": true
+    },
+    "getUserPersonalChatMessages": {
+      "retrySafe": true
+    },
+    "getUserProfileAudios": {
+      "retrySafe": true
+    },
+    "getUserProfilePhotos": {
+      "retrySafe": true
+    },
     "getWebhookInfo": {
       "retrySafe": true
     },
