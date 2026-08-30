@@ -9,6 +9,7 @@ import {
   getStarTransactions,
   getUserProfilePhotos,
   sendMessage,
+  sendVenue,
   setMyDefaultAdministratorRights,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
@@ -316,5 +317,35 @@ test("setMyDefaultAdministratorRights encodes nested camelCase fields", async ()
       can_send_welcome_messages: true,
       is_anonymous: false,
     },
+  });
+});
+
+test("sendVenue maps its public location fields to Telegram", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok({
+      chat: { id: 113, type: "private" },
+      date: 1_700_000_113,
+      message_id: 113,
+    })],
+    token,
+  });
+
+  const message = await Effect.runPromise(
+    sendVenue({
+      address: "113 Gear Street",
+      chatId: 113,
+      latitude: 12,
+      longitude: 34,
+      title: "Gear Hall",
+    }).pipe(Effect.provide(botLayer(fake))),
+  );
+
+  expect(message.messageId).toBe(113);
+  expect(fake.requests[0]?.params).toEqual({
+    address: "113 Gear Street",
+    chat_id: 113,
+    latitude: 12,
+    longitude: 34,
+    title: "Gear Hall",
   });
 });

@@ -9,7 +9,16 @@ import { fileURLToPath } from "node:url";
 import { Effect, Layer, Redacted } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 
-import { Bot, sendMessage, sendPhoto } from "../../index.ts";
+import {
+  Bot,
+  sendChatAction,
+  sendContact,
+  sendDice,
+  sendLocation,
+  sendMessage,
+  sendPhoto,
+  sendVenue,
+} from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
 import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
 
@@ -23,12 +32,66 @@ const scenarioPath = path.join(proofDir, "scenario.json");
 const recorderStdoutPath = path.join(proofDir, "recorder.stdout.log");
 const recorderStderrPath = path.join(proofDir, "recorder.stderr.log");
 const method = process.env.TELLY_E2E_SEND_METHOD ?? "sendMessage";
-if (!["sendMessage", "sendPhoto"].includes(method)) {
-  throw new Error(`Unsupported send proof method ${method}`);
-}
 const run = randomUUID();
 const openText = `telly-open-${run}`;
 const sentText = `telly-${method}-${run}`;
+
+function sendOperation(chatId) {
+  switch (method) {
+    case "sendChatAction":
+      return sendChatAction({ action: "typing", chatId });
+    case "sendContact":
+      return sendContact({
+        chatId,
+        firstName: "Telly",
+        lastName: "Proof",
+        phoneNumber: "+999661234567",
+      });
+    case "sendDice":
+      return sendDice({ chatId, emoji: "🎲" });
+    case "sendLocation":
+      return sendLocation({ chatId, latitude: 52, longitude: 13 });
+    case "sendMessage":
+      return sendMessage({ chatId, text: sentText });
+    case "sendPhoto":
+      return sendPhoto({
+        caption: sentText,
+        chatId,
+        photo: new Blob([
+          Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+            "base64",
+          ),
+        ], { type: "image/png" }),
+      });
+    case "sendVenue":
+      return sendVenue({
+        address: "1 Telly Test Street",
+        chatId,
+        latitude: 52,
+        longitude: 13,
+        title: "Telly Proof",
+      });
+    default:
+      throw new Error(`Unsupported send proof method ${method}`);
+  }
+}
+
+function matchesObservedEvent(event) {
+  if (method === "sendChatAction") {
+    return event.kind === "typing" && event.isSut === true && event.action === "chatActionTyping";
+  }
+  if (event.kind !== "message" || event.isSut !== true) return false;
+  const contentTypes = {
+    sendContact: "messageContact",
+    sendDice: "messageDice",
+    sendLocation: "messageLocation",
+    sendPhoto: "messagePhoto",
+    sendVenue: "messageVenue",
+  };
+  const contentType = contentTypes[method];
+  return contentType === undefined ? event.text === sentText : event.contentType === contentType;
+}
 
 async function readJsonLines(file) {
   try {
@@ -167,46 +230,39 @@ try {
     apiRoot: proxy.apiRoot,
     token: Redacted.make(credential.sutToken),
   }).pipe(Layer.provide(FetchHttpClient.layer));
-  const sent = await Effect.runPromise(
-    (method === "sendPhoto"
-      ? sendPhoto({
-          caption: sentText,
-          chatId,
-          photo: new Blob([
-            Buffer.from(
-              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-              "base64",
-            ),
-          ], { type: "image/png" }),
-        })
-      : sendMessage({ chatId, text: sentText })).pipe(Effect.provide(bot)),
-  );
-  sentMessageId = sent.messageId;
-  const sentContent = sent.text ?? sent.caption;
-  await writeFile(
-    path.join(proofDir, "sent.json"),
-    `${JSON.stringify({ date: sent.date, message_id: sent.messageId, text: sentContent }, null, 2)}\n`,
-    { mode: 0o600 },
-  );
+  const result = await Effect.runPromise(sendOperation(chatId).pipe(Effect.provide(bot)));
+  const sendsMessage = method !== "sendChatAction";
+  const shouldDelete = sendsMessage && method !== "sendMessage";
+  const sentContent = sendsMessage ? result.text ?? result.caption : undefined;
+  if (sendsMessage) {
+    sentMessageId = result.messageId;
+    await writeFile(
+      path.join(proofDir, "sent.json"),
+      `${JSON.stringify({
+        date: result.date,
+        message_id: result.messageId,
+        text: sentContent,
+      }, null, 2)}\n`,
+      { mode: 0o600 },
+    );
+  }
 
   const observed = await Promise.race([
     waitFor(
       eventsPath,
-      (events) => events.find(
-        (event) => event.kind === "message" && event.isSut === true && event.text === sentText,
-      ),
+      (events) => events.find(matchesObservedEvent),
       15_000,
     ),
     recorderStoppedEarly,
   ]);
   let observedDeletion;
-  if (method === "sendPhoto") {
+  if (shouldDelete) {
     await Effect.runPromise(
       Effect.gen(function* () {
         const service = yield* Bot;
         return yield* service.callRaw("deleteMessage", {
           chat_id: chatId,
-          message_id: sent.messageId,
+          message_id: result.messageId,
         });
       }).pipe(Effect.provide(bot)),
     );
@@ -231,11 +287,15 @@ try {
     passed: true,
     recorded_time: new Date().toISOString(),
     schemaVersion: 1,
-    sent: {
-      date: sent.date,
-      senderBotApiMessageId: sent.messageId,
-      text: sentContent,
-    },
+    ...(sendsMessage
+      ? {
+          sent: {
+            date: result.date,
+            senderBotApiMessageId: result.messageId,
+            text: sentContent,
+          },
+        }
+      : { result }),
     timeline: [
       {
         contentType: observed.contentType,
@@ -273,7 +333,13 @@ try {
   console.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error), ok: false, proofDir }));
   throw error;
 } finally {
-  if (method === "sendPhoto" && !deleted && sentMessageId !== undefined && bot !== undefined) {
+  if (
+    method !== "sendMessage" &&
+    method !== "sendChatAction" &&
+    !deleted &&
+    sentMessageId !== undefined &&
+    bot !== undefined
+  ) {
     await Effect.runPromise(
       Effect.gen(function* () {
         const service = yield* Bot;

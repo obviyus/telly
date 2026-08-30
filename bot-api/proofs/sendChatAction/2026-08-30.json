@@ -1,0 +1,15 @@
+{
+  "method": "sendChatAction",
+  "passed": true,
+  "recorded_time": "2026-08-30T18:02:29.569Z",
+  "schemaVersion": 1,
+  "result": true,
+  "timeline": [
+    {
+      "elapsedMs": 60,
+      "isSut": true,
+      "kind": "typing",
+      "observerBotApiMessageId": null
+    }
+  ]
+}

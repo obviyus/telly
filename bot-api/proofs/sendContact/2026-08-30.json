@@ -1,0 +1,27 @@
+{
+  "method": "sendContact",
+  "passed": true,
+  "recorded_time": "2026-08-30T18:01:16.695Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788112864,
+    "senderBotApiMessageId": 759
+  },
+  "timeline": [
+    {
+      "contentType": "messageContact",
+      "elapsedMs": 67,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3147,
+      "text": ""
+    },
+    {
+      "elapsedMs": 96,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3147
+    }
+  ]
+}
