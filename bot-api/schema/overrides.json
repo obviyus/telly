@@ -3,6 +3,21 @@
     "getAvailableGifts": {
       "retrySafe": true
     },
+    "getChat": {
+      "retrySafe": true
+    },
+    "getChatAdministrators": {
+      "retrySafe": true
+    },
+    "getChatGifts": {
+      "retrySafe": true
+    },
+    "getChatMember": {
+      "retrySafe": true
+    },
+    "getChatMemberCount": {
+      "retrySafe": true
+    },
     "getChatMenuButton": {
       "retrySafe": true
     },
@@ -10,9 +25,6 @@
       "retrySafe": true
     },
     "getMe": {
-      "retrySafe": true
-    },
-    "getMyStarBalance": {
       "retrySafe": true
     },
     "getMyCommands": {
@@ -28,6 +40,9 @@
       "retrySafe": true
     },
     "getMyShortDescription": {
+      "retrySafe": true
+    },
+    "getMyStarBalance": {
       "retrySafe": true
     },
     "getStarTransactions": {

@@ -4,6 +4,7 @@ import { Effect, Layer, Predicate, Redacted, Tracer } from "effect";
 import {
   Bot,
   getChatMenuButton,
+  getChatMemberCount,
   getMe,
   getStarTransactions,
   sendMessage,
@@ -237,4 +238,18 @@ describe("read-only methods with optional fields", () => {
     expect(transactions.transactions).toEqual([]);
     expect(fake.requests[0]?.params).toEqual({ limit: 5, offset: 3 });
   });
+});
+
+test("getChatMemberCount sends the required chat identifier", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok(17)],
+    token,
+  });
+
+  const count = await Effect.runPromise(
+    getChatMemberCount({ chatId: -10073 }).pipe(Effect.provide(botLayer(fake))),
+  );
+
+  expect(count).toBe(17);
+  expect(fake.requests[0]?.params).toEqual({ chat_id: -10073 });
 });

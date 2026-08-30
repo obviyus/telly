@@ -16,15 +16,30 @@ export const GeneratorOverrides = Schema.Struct({
   types: Schema.Record(Schema.String, TypeOverride),
 });
 
-const MethodProof = Schema.Struct({
+const ProvenMethodEvidence = Schema.Struct({
   artifact: Schema.String,
   recorded_time: Schema.String,
+  status: Schema.Literal("proven"),
 });
 
-export const MethodProofs = Schema.Record(Schema.String, MethodProof);
+const BlockedMethodEvidence = Schema.Struct({
+  expires_on: Schema.String,
+  reason: Schema.String,
+  status: Schema.Literal("blocked"),
+});
+
+export const MethodEvidence = Schema.Record(
+  Schema.String,
+  Schema.Union([ProvenMethodEvidence, BlockedMethodEvidence]),
+);
+
+export const BotApiCoverage = Schema.Struct({
+  botApiVersion: Schema.String,
+  methods: MethodEvidence,
+});
 
 export type GeneratorOverrides = typeof GeneratorOverrides.Type;
-export type MethodProofs = typeof MethodProofs.Type;
+export type MethodEvidence = typeof MethodEvidence.Type;
 
 const primitiveSchemas: Readonly<Record<string, string>> = {
   Boolean: "Schema.Boolean",
@@ -352,7 +367,7 @@ function renderMethods(
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
 
-function renderCoverage(spec: BotApiSpec, proofs: MethodProofs): string {
+function renderCoverage(spec: BotApiSpec, evidence: MethodEvidence): string {
   const releaseTime = Date.parse(`${spec.release_date}T00:00:00Z`);
   if (!Number.isFinite(releaseTime)) {
     throw new Error(`Invalid Bot API release date ${spec.release_date}`);
@@ -364,12 +379,12 @@ function renderCoverage(spec: BotApiSpec, proofs: MethodProofs): string {
     Object.keys(spec.methods)
       .sort()
       .map((method) => {
-        const proof = proofs[method];
+        const methodEvidence = evidence[method];
         return [
           method,
-          proof === undefined
+          methodEvidence === undefined
             ? { expires_on: blockedExpiry, reason: "no live scenario", status: "blocked" }
-            : { ...proof, status: "proven" },
+            : methodEvidence,
         ];
       }),
   );
@@ -379,7 +394,7 @@ function renderCoverage(spec: BotApiSpec, proofs: MethodProofs): string {
 export function generateSources(
   spec: BotApiSpec,
   overrides: GeneratorOverrides,
-  proofs: MethodProofs,
+  evidence: MethodEvidence,
 ): GeneratedSources {
   for (const name of Object.keys(overrides.types)) {
     if (spec.types[name] === undefined) {
@@ -391,14 +406,14 @@ export function generateSources(
       throw new Error(`Override method ${name} is missing from the schema`);
     }
   }
-  for (const name of Object.keys(proofs)) {
+  for (const name of Object.keys(evidence)) {
     if (spec.methods[name] === undefined) {
-      throw new Error(`Proof method ${name} is missing from the schema`);
+      throw new Error(`Evidence method ${name} is missing from the schema`);
     }
   }
   const targets = fieldTargets(spec);
   return {
-    coverage: renderCoverage(spec, proofs),
+    coverage: renderCoverage(spec, evidence),
     methods: renderMethods(spec, overrides, targets),
     types: renderTypes(spec, overrides, targets),
   };

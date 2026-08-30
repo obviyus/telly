@@ -56,6 +56,7 @@
 - Keep scenario inputs and expected outputs visible. Use narrow assertions and distinct values.
 - Prove each new test can fail before accepting it.
 - Use the hermetic Bot API fake for protocol behavior and Telegram's Test Server for live claims. Record a structured event timeline for every live claim and update the coverage manifest.
+- A live run that cannot execute records a `blocked` entry in `bot-api/proofs/manifest.json` with Telegram's exact error and an absolute `expires_on` date.
 
 ## Safety
 

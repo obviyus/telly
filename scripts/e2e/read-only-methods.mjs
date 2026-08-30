@@ -5,6 +5,11 @@ import { fileURLToPath } from "node:url";
 import {
   Application,
   getAvailableGifts,
+  getChat,
+  getChatAdministrators,
+  getChatGifts,
+  getChatMember,
+  getChatMemberCount,
   getChatMenuButton,
   getForumTopicIconStickers,
   getMe,
@@ -37,12 +42,41 @@ try {
     },
   });
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
-
+  const groupId = Number(credential.groupId);
+  const testerUserId = Number(credential.testerUserId);
+  if (!Number.isSafeInteger(groupId) || !Number.isSafeInteger(testerUserId)) {
+    throw new Error("Leased Telegram identifiers are not safe integers");
+  }
   const methods = [
     {
       name: "getAvailableGifts",
       operation: getAvailableGifts,
       summarize: (result) => ({ giftCount: result.gifts.length }),
+    },
+    {
+      name: "getChat",
+      operation: () => getChat({ chatId: groupId }),
+      summarize: (result) => ({ hasTitle: result.title !== undefined, type: result.type }),
+    },
+    {
+      name: "getChatAdministrators",
+      operation: () => getChatAdministrators({ chatId: groupId, returnBots: true }),
+      summarize: (result) => ({ administratorCount: result.length }),
+    },
+    {
+      name: "getChatGifts",
+      operation: () => getChatGifts({ chatId: groupId, limit: 1 }),
+      summarize: (result) => ({ giftCount: result.gifts.length, totalCount: result.totalCount }),
+    },
+    {
+      name: "getChatMember",
+      operation: () => getChatMember({ chatId: testerUserId, userId: testerUserId }),
+      summarize: (result) => ({ status: result.status }),
+    },
+    {
+      name: "getChatMemberCount",
+      operation: () => getChatMemberCount({ chatId: testerUserId }),
+      summarize: (result) => ({ memberCount: result }),
     },
     {
       name: "getChatMenuButton",

@@ -1,54 +1,92 @@
 {
   "getAvailableGifts": {
     "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:47:23.909Z"
+    "recorded_time": "2026-08-30T16:47:23.909Z",
+    "status": "proven"
+  },
+  "getChat": {
+    "artifact": "bot-api/proofs/getChat/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:00:55.780Z",
+    "status": "proven"
+  },
+  "getChatAdministrators": {
+    "expires_on": "2026-09-13",
+    "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat' then 'chat not found' for the migrated id; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getChatGifts": {
+    "expires_on": "2026-09-13",
+    "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat' then 'chat not found' for the migrated id; credential pool repair is owner-only",
+    "status": "blocked"
+  },
+  "getChatMember": {
+    "artifact": "bot-api/proofs/getChatMember/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:02:30.360Z",
+    "status": "proven"
+  },
+  "getChatMemberCount": {
+    "artifact": "bot-api/proofs/getChatMemberCount/2026-08-30.json",
+    "recorded_time": "2026-08-30T17:02:30.375Z",
+    "status": "proven"
   },
   "getChatMenuButton": {
     "artifact": "bot-api/proofs/getChatMenuButton/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.343Z"
+    "recorded_time": "2026-08-30T16:57:06.343Z",
+    "status": "proven"
   },
   "getForumTopicIconStickers": {
     "artifact": "bot-api/proofs/getForumTopicIconStickers/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:47:23.935Z"
+    "recorded_time": "2026-08-30T16:47:23.935Z",
+    "status": "proven"
   },
   "getMe": {
     "artifact": "bot-api/proofs/getMe/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:47:23.954Z"
+    "recorded_time": "2026-08-30T16:47:23.954Z",
+    "status": "proven"
   },
   "getMyCommands": {
     "artifact": "bot-api/proofs/getMyCommands/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.364Z"
+    "recorded_time": "2026-08-30T16:57:06.364Z",
+    "status": "proven"
   },
   "getMyDefaultAdministratorRights": {
     "artifact": "bot-api/proofs/getMyDefaultAdministratorRights/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.393Z"
+    "recorded_time": "2026-08-30T16:57:06.393Z",
+    "status": "proven"
   },
   "getMyDescription": {
     "artifact": "bot-api/proofs/getMyDescription/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.422Z"
+    "recorded_time": "2026-08-30T16:57:06.422Z",
+    "status": "proven"
   },
   "getMyName": {
     "artifact": "bot-api/proofs/getMyName/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.454Z"
+    "recorded_time": "2026-08-30T16:57:06.454Z",
+    "status": "proven"
   },
   "getMyShortDescription": {
     "artifact": "bot-api/proofs/getMyShortDescription/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.483Z"
+    "recorded_time": "2026-08-30T16:57:06.483Z",
+    "status": "proven"
   },
   "getMyStarBalance": {
     "artifact": "bot-api/proofs/getMyStarBalance/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:47:23.977Z"
+    "recorded_time": "2026-08-30T16:47:23.977Z",
+    "status": "proven"
   },
   "getStarTransactions": {
     "artifact": "bot-api/proofs/getStarTransactions/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:57:06.505Z"
+    "recorded_time": "2026-08-30T16:57:06.505Z",
+    "status": "proven"
   },
   "getWebhookInfo": {
     "artifact": "bot-api/proofs/getWebhookInfo/2026-08-30.json",
-    "recorded_time": "2026-08-30T16:49:46.814Z"
+    "recorded_time": "2026-08-30T16:49:46.814Z",
+    "status": "proven"
   },
   "sendMessage": {
     "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
-    "recorded_time": "2026-08-30T13:55:04.034Z"
+    "recorded_time": "2026-08-30T13:55:04.034Z",
+    "status": "proven"
   }
 }

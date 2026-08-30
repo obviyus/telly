@@ -1,0 +1,16 @@
+{
+  "method": "getChat",
+  "passed": true,
+  "recorded_time": "2026-08-30T17:00:55.780Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 49,
+      "kind": "bot_api_result",
+      "observation": {
+        "hasTitle": true,
+        "type": "group"
+      }
+    }
+  ]
+}
