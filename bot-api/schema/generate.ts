@@ -15,9 +15,9 @@ const program = Effect.gen(function* () {
     read("../proofs/manifest.json"),
   ]);
   const { spec } = yield* checkBotApiSchema({ manifestText, specText });
-  const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides))(
-    overridesText,
-  );
+  const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides), {
+    onExcessProperty: "error",
+  })(overridesText);
   const evidence = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(MethodEvidence), {
     onExcessProperty: "error",
   })(evidenceText);

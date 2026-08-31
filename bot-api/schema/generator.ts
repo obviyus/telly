@@ -2,10 +2,16 @@ import { Schema } from "effect";
 
 import type { BotApiSpec } from "./spec.ts";
 
-const TypeOverride = Schema.Struct({
+const ExactTypeOverride = Schema.Struct({
   schema: Schema.String,
   typescript: Schema.String,
 });
+
+const AdditiveTypeOverride = Schema.Struct({
+  additionalTypes: Schema.Array(Schema.String),
+});
+
+const TypeOverride = Schema.Union([ExactTypeOverride, AdditiveTypeOverride]);
 
 const MethodOverride = Schema.Struct({
   resultSchema: Schema.optionalKey(Schema.String),
@@ -311,11 +317,12 @@ function renderTypes(
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, definition]) => {
       const override = overrides.types[name];
-      if (override !== undefined) {
+      if (override !== undefined && "schema" in override) {
         return `${docComment(definition.description)}export type ${name} = ${override.typescript};\nexport const ${name}: Schema.Codec<${name}> = ${override.schema};\n`;
       }
       if (definition.subtypes !== undefined) {
-        return `${docComment(definition.description)}export type ${name} = ${unionExpression(definition.subtypes, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = ${unionSchema(definition.subtypes, schemaExpression)};\n`;
+        const references = [...definition.subtypes, ...(override?.additionalTypes ?? [])];
+        return `${docComment(definition.description)}export type ${name} = ${unionExpression(references, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = ${unionSchema(references, schemaExpression)};\n`;
       }
       return renderObjectType(name, definition, targets, overrides);
     });
@@ -437,9 +444,33 @@ export function generateSources(
       }
     }
   }
-  for (const name of Object.keys(overrides.types)) {
-    if (spec.types[name] === undefined) {
+  for (const [name, override] of Object.entries(overrides.types)) {
+    const definition = spec.types[name];
+    if (definition === undefined) {
       throw new Error(`Override type ${name} is missing from the schema`);
+    }
+    if (!("additionalTypes" in override)) continue;
+    if (definition.subtypes === undefined) {
+      throw new Error(`Additive type override ${name} requires a subtype union`);
+    }
+    if (override.additionalTypes.length === 0) {
+      throw new Error(`Additive type override ${name} must add at least one type`);
+    }
+    const seen = new Set(definition.subtypes);
+    for (const reference of override.additionalTypes) {
+      if (seen.has(reference)) {
+        throw new Error(`Additive type override ${name} duplicates type ${reference}`);
+      }
+      seen.add(reference);
+      let typeName = reference;
+      for (;;) {
+        const item = arrayItem(typeName);
+        if (item === undefined) break;
+        typeName = item;
+      }
+      if (!declaredTypes.has(typeName)) {
+        throw new Error(`Additive type override ${name} refers to missing type ${typeName}`);
+      }
     }
   }
   for (const name of Object.keys(overrides.methods)) {

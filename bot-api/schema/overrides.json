@@ -705,6 +705,12 @@
     "InputFile": {
       "schema": "Schema.instanceOf(Blob)",
       "typescript": "Blob"
+    },
+    "RichText": {
+      "additionalTypes": [
+        "String",
+        "Array of RichText"
+      ]
     }
   }
 }

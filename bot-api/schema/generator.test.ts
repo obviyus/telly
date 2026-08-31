@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { Effect, Schema } from "effect";
 
-import { generateSources, MethodEvidence } from "./generator.ts";
+import { GeneratorOverrides, generateSources, MethodEvidence } from "./generator.ts";
 import type { BotApiSpec } from "./spec.ts";
 
 const method = (name: string) => ({
@@ -126,6 +126,99 @@ test("field overrides must change an existing schema field", () => {
     },
     completeEvidence,
   )).toThrow("Field override Result.value duplicates the schema");
+});
+
+test("additive type override extends a recursive subtype union", () => {
+  const unionSpec = {
+    ...spec,
+    types: {
+      Child: {
+        description: ["child"],
+        fields: [],
+        href: "#child",
+        name: "Child",
+        subtype_of: ["Parent"],
+      },
+      Parent: {
+        description: ["parent"],
+        href: "#parent",
+        name: "Parent",
+        subtypes: ["Child"],
+      },
+      Result: spec.types.Result,
+    },
+  } satisfies BotApiSpec;
+
+  const sources = generateSources(
+    unionSpec,
+    {
+      fields: {},
+      methods: completeMethods,
+      types: { Parent: { additionalTypes: ["String", "Array of Parent"] } },
+    },
+    completeEvidence,
+  );
+
+  expect(sources.types).toContain("export type Parent = Child | string | ReadonlyArray<Parent>");
+  expect(sources.types).toContain(
+    "Schema.Array(Schema.suspend((): Schema.Codec<Parent, unknown> => Parent))",
+  );
+});
+
+test("additive type overrides reject invalid union members", () => {
+  const unionSpec = {
+    ...spec,
+    types: {
+      Child: {
+        description: ["child"],
+        fields: [],
+        href: "#child",
+        name: "Child",
+        subtype_of: ["Parent"],
+      },
+      Parent: {
+        description: ["parent"],
+        href: "#parent",
+        name: "Parent",
+        subtypes: ["Child"],
+      },
+      Result: spec.types.Result,
+    },
+  } satisfies BotApiSpec;
+  const generate = (name: "Parent" | "Result", additionalTypes: ReadonlyArray<string>) =>
+    generateSources(
+      unionSpec,
+      {
+        fields: {},
+        methods: completeMethods,
+        types: { [name]: { additionalTypes } },
+      },
+      completeEvidence,
+    );
+
+  expect(() => generate("Parent", [])).toThrow("must add at least one type");
+  expect(() => generate("Parent", ["Child"])).toThrow("duplicates type Child");
+  expect(() => generate("Parent", ["String", "String"])).toThrow("duplicates type String");
+  expect(() => generate("Parent", ["Missing"])).toThrow("refers to missing type Missing");
+  expect(() => generate("Result", ["String"])).toThrow("requires a subtype union");
+});
+
+test("type override forms cannot be mixed", async () => {
+  const decoded = await Effect.runPromiseExit(
+    Schema.decodeUnknownEffect(GeneratorOverrides, { onExcessProperty: "error" })({
+      fields: {},
+      methods: {},
+      types: {
+        Result: {
+          additionalTypes: ["String"],
+          schema: "Schema.String",
+          typescript: "string",
+        },
+      },
+    }),
+  );
+
+  expect(decoded._tag).toBe("Failure");
 });
 
 test("nested upload fields require an explicit type correction", () => {

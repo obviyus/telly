@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { Effect, Schema } from "effect";
 
-import { InputFile, MessageOrigin, WebhookInfo } from "../index.ts";
+import { InputFile, MessageOrigin, RichText, WebhookInfo } from "../index.ts";
 
 test("InputFile does not claim Telegram file references are upload bodies", async () => {
   const upload = new Blob([new Uint8Array([3, 1, 4])], { type: "application/octet-stream" });
@@ -70,5 +70,18 @@ test("WebhookInfo keeps the array around its UpdateType enum", async () => {
   }));
 
   expect(webhook.allowedUpdates).toEqual(["message", "callback_query"]);
+  expect(invalid._tag).toBe("Failure");
+});
+
+test("RichText accepts Telegram plain text and recursive arrays", async () => {
+  const plain = await Effect.runPromise(Schema.decodeUnknownEffect(RichText)("plain"));
+  const nested = await Effect.runPromise(Schema.decodeUnknownEffect(RichText)([
+    "first",
+    { text: "bold", type: "bold" },
+  ]));
+  const invalid = await Effect.runPromiseExit(Schema.decodeUnknownEffect(RichText)(42));
+
+  expect(plain).toBe("plain");
+  expect(nested).toEqual(["first", { text: "bold", type: "bold" }]);
   expect(invalid._tag).toBe("Failure");
 });

@@ -57,9 +57,9 @@ const result = await Effect.runPromise(
       readText(new URL("./coverage.json", import.meta.url)),
     ]);
     const result = yield* checkBotApiSchema({ manifestText, specText });
-    const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides))(
-      overridesText,
-    );
+    const overrides = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(GeneratorOverrides), {
+      onExcessProperty: "error",
+    })(overridesText);
     const evidence = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(MethodEvidence), {
       onExcessProperty: "error",
     })(evidenceText);
