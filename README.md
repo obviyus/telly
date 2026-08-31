@@ -47,19 +47,24 @@ Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer
 
 ## Polling
 
-`Application.startPolling` runs updates with bounded concurrency. Updates from one chat stay in order. The returned handle exposes failures and controls graceful shutdown.
+`Application.startPolling` runs updates with bounded concurrency. Updates from one chat stay in order. Routes use Telegram entities and give each handler narrowed data.
 
 ```ts
-import { Application, sendMessage } from "telly";
+import { Application, command, on, routes, sendMessage, text } from "telly";
 
 const token = process.env.BOT_TOKEN;
 if (token === undefined) throw new Error("Set BOT_TOKEN");
 
 const app = Application.make({ token });
-const polling = app.startPolling(
-  (update) => sendMessage({ chatId: 123, text: `Received update ${update.updateId}` }),
-  { concurrency: 16 },
+const handler = routes(
+  on(command("start"), ({ message }) =>
+    sendMessage({ chatId: message.chat.id, text: "Welcome!" })
+  ),
+  on(text(), ({ message, text }) =>
+    sendMessage({ chatId: message.chat.id, text: `You said: ${text}` })
+  ),
 );
+const polling = app.startPolling(handler, { concurrency: 16 });
 
 try {
   await polling.completed;
@@ -69,6 +74,10 @@ try {
 ```
 
 The default `on-complete` acknowledgment confirms only the contiguous prefix of successful updates. Use `on-receipt` when a process crash may lose accepted work.
+
+`command("start")` reads Telegram's `bot_command` entity. It handles `/START`, `/start@this_bot`, `args`, and the original `argText`. `text()` matches ordinary text but excludes commands. `routes` runs the first match. Use `every` to run several route groups for each update.
+
+`command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
 
 ## Bot API schema
 
