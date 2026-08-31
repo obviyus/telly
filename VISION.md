@@ -35,6 +35,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 
 - One canonical path exists for each task.
 - Beginner bots declare commands, text, and callback-query handlers with `defineBot`. Advanced bots compose the same routing engine with filters.
+- Built-in message filters inspect new `update.message` values. Other Telegram update variants require an explicit filter.
 - Production code imports application features, Bot API methods, and Telegram types from the package root. Test tools use the `testing` subpath.
 - Modules are deep: small surface, substantial behavior.
 - Telly uses the fewest concepts that express its behavior without hiding a contract.
@@ -75,6 +76,7 @@ How Telly uses Effect:
 - Handlers are Effects. Effect combinators and Layers are the single composition model for timing, tracing, error reporting, and application policy.
 - `Application` owns the HTTP client and managed runtime. Its `run` method bridges an operation to a Promise only at the application edge. An optional HTTP client Layer replaces the default fetch client without changing the operation.
 - `Application.runPolling` is the beginner lifecycle: it starts polling, exposes failures through its Promise, handles process stop signals, and closes the runtime.
+- `Application.startWebhook` exposes a Web `Request` to `Response` function plus explicit completion and stop handles.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
 - `Message` is generated from Telegram's wire contract and remains the single Message model. Derived facts are pure functions; operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
@@ -126,6 +128,8 @@ Guarantees:
 - Updates with the same conversation key run in order. Updates with different keys run in parallel.
 - Concurrency is bounded. Polling pauses when the in-flight limit is reached. Every queue has a limit.
 - Telly dispatches each update once inside one process, even when an unacknowledged batch is fetched again.
+- Webhooks share concurrent duplicate work and remember the latest 4096 completed update identifiers per process. Restart delivery remains at least once until a durable inbox is configured.
+- A webhook at capacity returns `503`, so Telegram retains ownership and retries instead of growing an internal queue.
 - A handler has no mandatory timeout. A stalled offset raises an observable event that names the blocking update and key.
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
 - Conflict recovery is typed. A `getUpdates` conflict caused by an overlapping poll retries within a bounded budget. A conflict caused by an active webhook fails at once. The policy is configurable.

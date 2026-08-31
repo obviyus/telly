@@ -3,10 +3,21 @@ import { Effect } from "effect";
 import { Bot, type BotApiError } from "./BotApi.js";
 import type { UpdateHandler } from "./Polling.js";
 import type {
+  Animation,
+  Audio,
   CallbackQuery,
+  Chat,
+  ChatType,
+  Document,
   Message,
+  MessageEntity,
+  PhotoSize,
+  Sticker,
   Update,
   User,
+  Video,
+  VideoNote,
+  Voice,
 } from "./types.generated.js";
 
 const FilterTypeId = Symbol.for("telly/Filter");
@@ -43,6 +54,60 @@ export interface TextMatch {
 /** Data extracted from a callback query update. */
 export interface CallbackQueryMatch {
   readonly callbackQuery: CallbackQuery;
+  readonly update: Update;
+}
+
+export interface RepliedMessageMatch {
+  readonly message: Message;
+  readonly repliedMessage: Message;
+  readonly update: Update;
+}
+
+export interface RegexMatch {
+  readonly match: RegExpExecArray;
+  readonly message: Message;
+  readonly text: string;
+  readonly update: Update;
+}
+
+export interface MediaKindMap {
+  readonly animation: Animation;
+  readonly audio: Audio;
+  readonly document: Document;
+  readonly photo: ReadonlyArray<PhotoSize>;
+  readonly sticker: Sticker;
+  readonly video: Video;
+  readonly videoNote: VideoNote;
+  readonly voice: Voice;
+}
+
+export type MediaKind = keyof MediaKindMap;
+
+export interface MediaMatch<Kind extends MediaKind> {
+  readonly kind: Kind;
+  readonly media: MediaKindMap[Kind];
+  readonly message: Message;
+  readonly update: Update;
+}
+
+export type MessageChatType = Exclude<ChatType, "channel">;
+
+export interface ChatTypeMatch {
+  readonly chat: Chat;
+  readonly message: Message;
+  readonly update: Update;
+}
+
+export interface MentionSpan {
+  readonly entity: MessageEntity;
+  readonly text: string;
+  readonly user?: User;
+}
+
+export interface MentionMatch {
+  readonly mentions: ReadonlyArray<MentionSpan>;
+  readonly message: Message;
+  readonly text: string;
   readonly update: Update;
 }
 
@@ -188,6 +253,101 @@ export function callbackQuery(): Filter<CallbackQueryMatch> {
     update.callbackQuery === undefined
       ? undefined
       : { callbackQuery: update.callbackQuery, update });
+}
+
+/** Matches a new message that directly replies to another message. */
+export function repliedMessage(): Filter<RepliedMessageMatch> {
+  return makeFilter((update) => {
+    const message = update.message;
+    if (message?.replyToMessage === undefined) return undefined;
+    return { message, repliedMessage: message.replyToMessage, update };
+  });
+}
+
+/** Matches a regular expression against new message text. */
+export function regex(pattern: RegExp): Filter<RegexMatch> {
+  if (pattern.global || pattern.sticky) {
+    throw new RangeError("Telegram regex filters cannot use global or sticky state");
+  }
+  return makeFilter((update) => {
+    const message = update.message;
+    if (message?.text === undefined) return undefined;
+    const match = pattern.exec(message.text);
+    return match === null ? undefined : { match, message, text: message.text, update };
+  });
+}
+
+function messageMedia<Kind extends MediaKind>(
+  message: Message,
+  kind: Kind,
+): MediaKindMap[Kind] | undefined;
+function messageMedia(
+  message: Message,
+  kind: MediaKind,
+): MediaKindMap[MediaKind] | undefined {
+  switch (kind) {
+    case "animation":
+      return message.animation;
+    case "audio":
+      return message.audio;
+    case "document":
+      return message.document;
+    case "photo":
+      return message.photo;
+    case "sticker":
+      return message.sticker;
+    case "video":
+      return message.video;
+    case "videoNote":
+      return message.videoNote;
+    case "voice":
+      return message.voice;
+  }
+}
+
+/** Matches one media field on a new message. */
+export function media<Kind extends MediaKind>(kind: Kind): Filter<MediaMatch<Kind>> {
+  return makeFilter((update) => {
+    const message = update.message;
+    if (message === undefined) return undefined;
+    const value = messageMedia(message, kind);
+    return value === undefined ? undefined : { kind, media: value, message, update };
+  });
+}
+
+/** Matches a new message whose chat has one of the selected types. */
+export function chatType(
+  first: MessageChatType,
+  ...rest: ReadonlyArray<MessageChatType>
+): Filter<ChatTypeMatch> {
+  const types: ReadonlyArray<ChatType> = [first, ...rest];
+  return makeFilter((update) => {
+    const message = update.message;
+    if (message === undefined || !types.includes(message.chat.type)) {
+      return undefined;
+    }
+    return { chat: message.chat, message, update };
+  });
+}
+
+/** Matches user mentions in new message text and extracts their UTF-16 spans. */
+export function mention(): Filter<MentionMatch> {
+  return makeFilter((update) => {
+    const message = update.message;
+    if (message?.text === undefined || message.entities === undefined) return undefined;
+    const mentions: Array<MentionSpan> = [];
+    for (const entity of message.entities) {
+      if (entity.type !== "mention" && entity.type !== "text_mention") continue;
+      mentions.push({
+        entity,
+        text: message.text.slice(entity.offset, entity.offset + entity.length),
+        ...(entity.user === undefined ? {} : { user: entity.user }),
+      });
+    }
+    return mentions.length === 0
+      ? undefined
+      : { mentions, message, text: message.text, update };
+  });
 }
 
 /** Compiles a declarative bot definition into one reusable update handler. */

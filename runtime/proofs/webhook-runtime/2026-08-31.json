@@ -1,0 +1,19 @@
+{
+  "feature": "webhook-runtime",
+  "passed": true,
+  "recorded_time": "2026-08-31T12:35:56.236Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "telegram_webhook_delivery",
+      "observation": {
+        "sentMessageId": 748,
+        "updateIdIsInteger": true
+      }
+    },
+    {
+      "kind": "user_observed_response",
+      "observed": true
+    }
+  ]
+}

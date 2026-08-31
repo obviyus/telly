@@ -310,3 +310,15 @@ test("polling exposes handler failures through its completion", async () => {
   expect(caught.method).toBe("sendMessage");
   expect(caught.message).toContain("403 Forbidden");
 });
+
+test("polling rejects zero concurrency instead of waiting forever", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const polling = app.startPolling(() => Effect.void, { concurrency: 0 });
+
+  try {
+    await expect(polling.completed).rejects.toThrow("concurrency must be a positive integer");
+  } finally {
+    await app.close().catch(() => undefined);
+  }
+});

@@ -4,10 +4,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
+import { Effect } from "effect";
+
 import {
   Application,
+  defineBot,
   deleteWebhook,
   getWebhookInfo,
+  respond,
   setWebhook,
 } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
@@ -23,13 +27,16 @@ const convexProjectDir =
   process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
   path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
 const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
+const runtimeArtifactPath = process.env.TELLY_E2E_RUNTIME_ARTIFACT_PATH;
 const text = `telly-webhook-${crypto.randomUUID()}`;
+const echoText = `echo:${text}`;
 const secretToken = `telly_${crypto.randomUUID().replaceAll("-", "_")}`;
 let credential;
 let proxy;
 let app;
 let server;
 let tunnel;
+let webhook;
 let webhookSet = false;
 let deliveryResolve;
 let deliveryReject;
@@ -78,7 +85,7 @@ async function waitForWebhook(read, predicate, label) {
 async function waitForPublicTunnel(url) {
   const hostname = new URL(url).hostname;
   let lastError;
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+  for (let attempt = 0; attempt < 240; attempt += 1) {
     try {
       const response = await fetch(
         `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=A`,
@@ -93,7 +100,7 @@ async function waitForPublicTunnel(url) {
       lastError = error;
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
-    if (attempt === 39) {
+    if (attempt === 239) {
       throw new Error("Wrangler tunnel DNS did not become visible", { cause: lastError });
     }
   }
@@ -189,29 +196,32 @@ try {
     throw new Error("Leased bot already has a webhook; its secret settings cannot be restored safely");
   }
 
+  const bot = defineBot({
+    text: ({ message, text: incoming, update }) =>
+      respond(message, `echo:${incoming}`).pipe(
+        Effect.tap((sent) =>
+          incoming === text
+            ? Effect.sync(() => deliveryResolve({
+                sentMessageId: sent.messageId,
+                updateIdIsInteger: Number.isInteger(update.updateId),
+              }))
+            : Effect.void
+        ),
+      ),
+  });
+  webhook = app.startWebhook(bot, { secretToken });
+
   server = Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
-    async fetch(request) {
+    fetch(request) {
       if (request.method !== "POST" || new URL(request.url).pathname !== "/telegram") {
         return new Response("ready");
       }
-      try {
-        const update = await request.json();
-        if (update.message?.text === text) {
-          deliveryResolve({
-            method: request.method,
-            pathMatches: new URL(request.url).pathname === "/telegram",
-            secretMatches:
-              request.headers.get("x-telegram-bot-api-secret-token") === secretToken,
-            updateIdIsInteger: Number.isInteger(update.update_id),
-          });
-        }
-        return new Response("ok");
-      } catch (error) {
+      return webhook.fetch(request).catch((error) => {
         deliveryReject(error);
-        return new Response("bad request", { status: 400 });
-      }
+        return new Response(null, { status: 500 });
+      });
     },
   });
   const publicTunnel = await startPublicTunnel(server.port);
@@ -230,15 +240,18 @@ try {
     (value) => value.url === webhookUrl,
     "setWebhook",
   );
-  await execFile(
+  const probeResult = await execFile(
     "uv",
     [
       "run",
       userDriver,
-      "send",
+      "probe",
       "--json",
+      "--any-sut-reply",
       "--chat",
       `@${credential.sutUsername}`,
+      "--expect",
+      echoText,
       "--text",
       text,
     ],
@@ -250,9 +263,14 @@ try {
       setTimeout(() => reject(new Error("Telegram did not deliver the webhook update")), 30_000)
     ),
   ]);
+  const userObservedResponse = JSON.parse(probeResult.stdout).ok === true;
   const setProof = await writeProof(
     "setWebhook",
-    { hasCustomCertificate: active.hasCustomCertificate, result: setResult },
+    {
+      hasCustomCertificate: active.hasCustomCertificate,
+      result: setResult,
+      userObservedResponse,
+    },
     [{ kind: "webhook_delivery", observation: delivered }],
   );
 
@@ -268,11 +286,31 @@ try {
     { pendingUpdateCount: removed.pendingUpdateCount, result: deleteResult },
     [],
   );
+  if (runtimeArtifactPath !== undefined) {
+    const runtimeProof = {
+      feature: "webhook-runtime",
+      passed: true,
+      recorded_time: new Date().toISOString(),
+      schemaVersion: 1,
+      timeline: [
+        { kind: "telegram_webhook_delivery", observation: delivered },
+        { kind: "user_observed_response", observed: userObservedResponse },
+      ],
+    };
+    const serialized = `${JSON.stringify(runtimeProof, null, 2)}\n`;
+    for (const secret of [credential.sutToken, credential.sutUsername, secretToken]) {
+      if (serialized.includes(secret)) throw new Error("Webhook runtime proof contains a secret");
+    }
+    const target = path.resolve(repoRoot, runtimeArtifactPath);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, serialized);
+  }
   console.log(JSON.stringify({ ok: true, proofs: [setProof, deleteProof] }));
 } finally {
   if (webhookSet) await app?.run(deleteWebhook({ dropPendingUpdates: true })).catch(() => {});
   await stopTunnel(tunnel);
   server?.stop(true);
+  await webhook?.stop().catch(() => {});
   await app?.close();
   await proxy?.close();
   await credential?.release();

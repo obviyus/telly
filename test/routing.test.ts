@@ -6,11 +6,16 @@ import {
   Bot,
   BotApiError,
   callbackQuery,
+  chatType,
   command,
   defineBot,
   every,
   Filter,
+  media,
+  mention,
   on,
+  regex,
+  repliedMessage,
   routes,
   text,
   type Filter as RoutingFilter,
@@ -33,6 +38,7 @@ function messageUpdate(
   textValue: string,
   options: {
     readonly caption?: boolean;
+    readonly chatType?: "group" | "private" | "supergroup";
     readonly edited?: boolean;
     readonly entityLength?: number;
     readonly updateId?: number;
@@ -40,7 +46,7 @@ function messageUpdate(
 ): Update {
   const updateId = options.updateId ?? 101;
   const message = {
-    chat: { id: 501, type: "private" as const },
+    chat: { id: 501, type: options.chatType ?? "private" },
     date: 1_700_000_000,
     messageId: updateId,
     ...(options.caption === true
@@ -414,4 +420,149 @@ test("defineBot routes command, ordinary text, and callback fields", async () =>
 
   expect(handled).toEqual(["start", "plain", "button"]);
   expect(fake.requests).toEqual([]);
+});
+
+test("repliedMessage extracts the current and replied messages", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed: ReadonlyArray<number> = [];
+  const update = messageUpdate("s/old/new", { updateId: 115 });
+  if (update.message === undefined) throw new Error("Expected message update");
+  const repliedUpdate: Update = {
+    message: {
+      ...update.message,
+      replyToMessage: {
+        chat: update.message.chat,
+        date: 1_699_999_999,
+        messageId: 114,
+        text: "old value",
+      },
+    },
+    updateId: update.updateId,
+  };
+  const handler = routes(
+    on(repliedMessage(), ({ message, repliedMessage }) => Effect.sync(() => {
+      observed = [message.messageId, repliedMessage.messageId];
+    })),
+  );
+
+  try {
+    await app.run(handler(repliedUpdate));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toEqual([115, 114]);
+});
+
+test("regex extracts captures from raw message text", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed: ReadonlyArray<string | undefined> = [];
+  const handler = routes(
+    on(regex(/^s\/([^/]+)\/([^/]+)$/u), ({ match }) => Effect.sync(() => {
+      observed = [match[1], match[2]];
+    })),
+  );
+
+  try {
+    await app.run(handler(messageUpdate("s/old/new", { updateId: 116 })));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toEqual(["old", "new"]);
+});
+
+test("regex rejects stateful patterns at definition time", () => {
+  expect(() => regex(/text/g)).toThrow("cannot use global or sticky state");
+  expect(() => regex(/text/y)).toThrow("cannot use global or sticky state");
+});
+
+test("media extracts the selected generated media field", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed: { readonly fileId: string; readonly kind: string } | undefined;
+  const handler = routes(
+    on(media("photo"), ({ kind, media: photos }) => Effect.sync(() => {
+      observed = { fileId: photos[0]?.fileId ?? "missing", kind };
+    })),
+  );
+  const update: Update = {
+    message: {
+      chat: { id: 501, type: "private" },
+      date: 1_700_000_000,
+      messageId: 117,
+      photo: [{ fileId: "photo-file", fileUniqueId: "photo-unique", height: 20, width: 30 }],
+    },
+    updateId: 117,
+  };
+
+  try {
+    await app.run(handler(update));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toEqual({ fileId: "photo-file", kind: "photo" });
+});
+
+test("chatType matches only the selected new-message chat types", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const observed: Array<string> = [];
+  const handler = routes(
+    on(chatType("group", "supergroup"), ({ chat }) => Effect.sync(() => {
+      observed.push(chat.type);
+    })),
+  );
+
+  try {
+    await app.run(handler(messageUpdate("private", { updateId: 118 })));
+    await app.run(handler(messageUpdate("group", { chatType: "group", updateId: 119 })));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toEqual(["group"]);
+});
+
+test("mention extracts mention and text-mention UTF-16 spans", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed: ReadonlyArray<{ readonly text: string; readonly userId?: number }> = [];
+  const handler = routes(
+    on(mention(), ({ mentions }) => Effect.sync(() => {
+      observed = mentions.map((span) => ({
+        text: span.text,
+        ...(span.user === undefined ? {} : { userId: span.user.id }),
+      }));
+    })),
+  );
+  const update: Update = {
+    message: {
+      chat: { id: 501, type: "private" },
+      date: 1_700_000_000,
+      entities: [
+        { length: 4, offset: 6, type: "mention" },
+        {
+          length: 3,
+          offset: 15,
+          type: "text_mention",
+          user: { firstName: "Ada", id: 79, isBot: false },
+        },
+      ],
+      messageId: 120,
+      text: "🙂 hi @ada and Ada",
+    },
+    updateId: 120,
+  };
+
+  try {
+    await app.run(handler(update));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toEqual([{ text: "@ada" }, { text: "Ada", userId: 79 }]);
 });

@@ -69,9 +69,28 @@ The default `on-complete` acknowledgment confirms only the contiguous prefix of 
 
 `respond` sends to the triggering chat without quoting. `reply` quotes the triggering message. Both preserve its business connection, forum thread, and direct-message topic.
 
-Advanced routing uses `command`, `text`, `callbackQuery`, `Filter`, `on`, `routes`, and `every` from the package root.
+Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, and `mention` from the package root. Compose filters with `Filter.and`, `Filter.or`, and `Filter.not`, bind them with `on`, group first-match routes with `routes`, and run overlapping groups with `every`.
 
 `command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
+
+## Webhooks
+
+The same bot definition works with any server that accepts Web `Request` and `Response` values.
+
+```ts
+const app = Application.make({ token });
+const webhook = app.startWebhook(bot, { secretToken });
+const server = Bun.serve({ fetch: webhook.fetch, port: 3000 });
+
+try {
+  await webhook.completed;
+} finally {
+  server.stop(true);
+  await app.close();
+}
+```
+
+Pass the same `secretToken` to Telegram's `setWebhook` method. Telly rejects missing or incorrect secrets before reading the request body.
 
 ## Bot API schema
 

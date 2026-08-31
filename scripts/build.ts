@@ -12,6 +12,7 @@ const entries = [
   ["src/methods.generated.ts", "methods.generated.js", "methods.js"],
   ["src/testing/FakeBotApi.ts", "FakeBotApi.js", "testing.js"],
   ["src/types.generated.ts", "types.generated.js", "types.js"],
+  ["src/Webhook.ts", "Webhook.js", "Webhook.js"],
 ] as const;
 
 const outdir = await mkdtemp(resolve(".telly-dist-"));
@@ -49,7 +50,7 @@ try {
       'export { reply, respond } from "./Conversation.js";',
       'export { downloadFile } from "./Files.js";',
       'export { pollUpdates } from "./Polling.js";',
-      'export { callbackQuery, command, defineBot, every, Filter, on, routes, text } from "./Routing.js";',
+      'export { callbackQuery, chatType, command, defineBot, every, Filter, media, mention, on, regex, repliedMessage, routes, text } from "./Routing.js";',
       'export * from "./methods.js";',
       'export * from "./types.js";',
       "",
