@@ -94,17 +94,24 @@ Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, a
 Pass an `InboxStore` to save every update before Telegram receives an acknowledgment. One fenced worker replays saved updates, keeps each conversation in order, retries typed handler failures, and parks an update after five attempts.
 
 ```ts
-import { Application, MemoryInbox } from "telly";
+import { Application, SqliteInbox } from "telly";
+
+const inbox = await SqliteInbox.open("./telly.db");
 
 const app = Application.make({
   token,
-  inbox: MemoryInbox.make(),
+  inbox,
 });
 
-await app.runPolling(bot);
+try {
+  await app.runPolling(bot);
+} finally {
+  await app.close();
+  inbox.close();
+}
 ```
 
-`MemoryInbox` implements the complete inbox protocol but loses its contents when the process exits. Use it for development and adapter tests, never for a durability claim. Production applications supply a durable `InboxStore`; Telly acknowledges only `Stored` or `Duplicate` updates and applies backpressure when its default 10,000-update capacity is full.
+`SqliteInbox` uses write-ahead logging, full synchronous durability, atomic write transactions, and a five-second busy timeout. `MemoryInbox` implements the same protocol but loses its contents when the process exits; use it only for development and adapter tests. Telly acknowledges only `Stored` or `Duplicate` updates and applies backpressure when its default 10,000-update capacity is full.
 
 Inbox delivery is at least once. A crash after a handler's external side effect but before durable settlement can run that handler again. Use `updateId` as the idempotency key for downstream writes and payments.
 

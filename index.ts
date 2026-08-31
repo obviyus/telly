@@ -21,6 +21,8 @@ import type {
 } from "./src/Inbox.js";
 import { reply, respond } from "./src/Conversation.js";
 import type { ConversationMessageOptions } from "./src/Conversation.js";
+import { SqliteInbox } from "./src/SqliteInbox.js";
+import type { SqliteInboxOptions, SqliteInboxStore } from "./src/SqliteInbox.js";
 import { pollInboxUpdates, pollUpdates } from "./src/Polling.js";
 import type {
   AcknowledgmentMode,
@@ -89,6 +91,7 @@ export {
   repliedMessage,
   respond,
   routes,
+  SqliteInbox,
   text,
 };
 export type {
@@ -121,6 +124,8 @@ export type {
   Route,
   SaveInboxUpdate,
   SettleInboxUpdate,
+  SqliteInboxOptions,
+  SqliteInboxStore,
   RegexMatch,
   RepliedMessageMatch,
   TextMatch,

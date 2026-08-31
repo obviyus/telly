@@ -17,6 +17,7 @@ import {
   pollInboxUpdates,
   retryUnknownOutcome,
   routes,
+  SqliteInbox,
   type PhotoSize,
   type Update,
   type UpdateHandler,
@@ -87,3 +88,8 @@ const webhook = Application.make({ token }).startWebhook(declarativeHandler, {
 });
 webhook.fetch(new Request("https://example.test/telegram"));
 webhook.stop();
+
+SqliteInbox.open("telly.db").then((inbox) => {
+  Application.make({ inbox, token });
+  inbox.close();
+});
