@@ -34,6 +34,7 @@ Qualities we change:
 A coding agent must use a Telly feature correctly with the least context and the fewest decisions. Human ergonomics matter, but agent generation reliability wins ties.
 
 - One canonical path exists for each task.
+- Beginner bots declare commands, text, and callback-query handlers with `defineBot`. Advanced bots compose the same routing engine with filters.
 - Production code imports application features, Bot API methods, and Telegram types from the package root. Test tools use the `testing` subpath.
 - Modules are deep: small surface, substantial behavior.
 - Telly uses the fewest concepts that express its behavior without hiding a contract.
@@ -43,6 +44,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
 - A method whose Telegram schema has no fields takes zero arguments. A method with fields takes exactly one options object, even when every field is optional.
 - Options objects with named fields replace positional variants and overloads.
+- Conversation operations take the triggering message plus text or one options object. `respond` sends without quoting; `reply` quotes the triggering message.
 - Errors are typed values in the Effect error channel. Each error has a useful message and a `retrySafe` value that states whether retrying can duplicate a side effect.
 - Every documented feature has an executable example that runs in tests.
 - Reference data for methods, types, errors, and limits is generated from the schema and shipped in machine-readable form.
@@ -72,6 +74,7 @@ How Telly uses Effect:
 - Operations that Telegram does not define as one method, such as `downloadFile`, are hand-written Effects requiring `Bot` and ship beside generated methods at the package root.
 - Handlers are Effects. Effect combinators and Layers are the single composition model for timing, tracing, error reporting, and application policy.
 - `Application` owns the HTTP client and managed runtime. Its `run` method bridges an operation to a Promise only at the application edge. An optional HTTP client Layer replaces the default fetch client without changing the operation.
+- `Application.runPolling` is the beginner lifecycle: it starts polling, exposes failures through its Promise, handles process stop signals, and closes the runtime.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
 - `Message` is generated from Telegram's wire contract and remains the single Message model. Derived facts are pure functions; operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.

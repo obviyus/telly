@@ -4,6 +4,8 @@ import { Bot, BotApiError } from "./src/BotApi.js";
 import type { BotApiOptions } from "./src/BotApi.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
+import { reply, respond } from "./src/Conversation.js";
+import type { ConversationMessageOptions } from "./src/Conversation.js";
 import { pollUpdates } from "./src/Polling.js";
 import type {
   AcknowledgmentMode,
@@ -13,6 +15,7 @@ import type {
 import {
   callbackQuery,
   command,
+  defineBot,
   every,
   Filter,
   on,
@@ -21,6 +24,7 @@ import {
 } from "./src/Routing.js";
 import type {
   CallbackQueryMatch,
+  BotDefinition,
   CommandMatch,
   Route,
   TextMatch,
@@ -34,11 +38,14 @@ export {
   BotApiError,
   callbackQuery,
   command,
+  defineBot,
   downloadFile,
   every,
   Filter,
   on,
   pollUpdates,
+  reply,
+  respond,
   routes,
   text,
 };
@@ -46,6 +53,8 @@ export type {
   AcknowledgmentMode,
   ApplicationOptions,
   BotApiOptions,
+  BotDefinition,
+  ConversationMessageOptions,
   DownloadFileOptions,
   PollingOptions,
   Polling,

@@ -46,6 +46,17 @@ export interface CallbackQueryMatch {
   readonly update: Update;
 }
 
+type DefinitionHandler<in Match> = (
+  match: Match,
+) => Effect.Effect<unknown, unknown, Bot>;
+
+/** The canonical declarative shape for a bot's common update handlers. */
+export interface BotDefinition {
+  readonly callbackQuery?: DefinitionHandler<CallbackQueryMatch>;
+  readonly commands?: Readonly<Record<string, DefinitionHandler<CommandMatch>>>;
+  readonly text?: DefinitionHandler<TextMatch>;
+}
+
 interface RouteState<out E> {
   readonly run: (
     update: Update,
@@ -60,6 +71,16 @@ export interface Route<out E> {
 
 type RouteError<T> = T extends Route<infer E> ? E : never;
 type HandlerError<T> = T extends UpdateHandler<infer E> ? E : never;
+type EffectError<T> = T extends (
+  ...args: ReadonlyArray<never>
+) => Effect.Effect<unknown, infer E, Bot> ? E : never;
+type CommandDefinitionError<D> = D extends { readonly commands: infer Commands }
+  ? Commands extends Readonly<Record<string, infer Handler>> ? EffectError<Handler> : never
+  : never;
+type DefinitionError<D> =
+  | CommandDefinitionError<D>
+  | (D extends { readonly callbackQuery: infer Handler } ? EffectError<Handler> : never)
+  | (D extends { readonly text: infer Handler } ? EffectError<Handler> : never);
 
 function makeFilter<A>(
   match: FilterState<A>["match"],
@@ -167,6 +188,22 @@ export function callbackQuery(): Filter<CallbackQueryMatch> {
     update.callbackQuery === undefined
       ? undefined
       : { callbackQuery: update.callbackQuery, update });
+}
+
+/** Compiles a declarative bot definition into one reusable update handler. */
+export function defineBot<const Definition extends BotDefinition>(
+  definition: Definition,
+): UpdateHandler<BotApiError | DefinitionError<Definition>>;
+export function defineBot(definition: BotDefinition): UpdateHandler<unknown> {
+  const routeList: Array<Route<unknown>> = [];
+  for (const [name, handler] of Object.entries(definition.commands ?? {})) {
+    routeList.push(on(command(name), handler));
+  }
+  if (definition.text !== undefined) routeList.push(on(text(), definition.text));
+  if (definition.callbackQuery !== undefined) {
+    routeList.push(on(callbackQuery(), definition.callbackQuery));
+  }
+  return routes(...routeList);
 }
 
 /** Binds one filter to the Effect that handles its extracted value. */

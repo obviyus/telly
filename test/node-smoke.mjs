@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { once } from "node:events";
+import { spawn } from "node:child_process";
 
 const [root, testing] = await Promise.all([
   import("telly"),
@@ -8,7 +10,16 @@ const [root, testing] = await Promise.all([
 if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
 }
-if (!root.command || !root.every || !root.on || !root.routes || !root.text) {
+if (
+  !root.command ||
+  !root.defineBot ||
+  !root.every ||
+  !root.on ||
+  !root.reply ||
+  !root.respond ||
+  !root.routes ||
+  !root.text
+) {
   throw new Error("telly routing exports are incomplete");
 }
 if (!root.getMe || !root.sendMessage || !root.SendMessageParams) {
@@ -125,10 +136,6 @@ try {
   await app.close();
 }
 
-let resolveHandled;
-const handled = new Promise((resolve) => {
-  resolveHandled = resolve;
-});
 const pollingFake = testing.FakeBotApi.make({
   replies: [
     testing.FakeBotApiReply.ok([{
@@ -154,20 +161,53 @@ const pollingApp = root.Application.make({
   httpClient: pollingFake.layer,
   token,
 });
-const routingHandler = root.routes(
-  root.on(root.command("ping"), (match) => Effect.sync(() => resolveHandled(match))),
-);
-const polling = pollingApp.startPolling(
-  routingHandler,
+const definedBot = root.defineBot({
+  commands: {
+    ping: ({ message, argText }) => root.respond(message, `pong ${argText}`),
+  },
+});
+const running = pollingApp.runPolling(
+  definedBot,
   { concurrency: 1 },
 );
 try {
-  const match = await handled;
-  if (match.update.updateId !== 117 || match.argText !== "node-polling") {
+  const sent = await pollingFake.whenCalled("sendMessage");
+  if (sent.params.chat_id !== 53 || sent.params.text !== "pong node-polling") {
     throw new Error("Application polling failed under Node.js");
   }
-  await polling.stop();
-  await polling.completed;
+  await pollingApp.stop();
+  await running;
 } finally {
   await pollingApp.close();
+}
+
+const signalChild = spawn(
+  process.execPath,
+  [new URL("./run-polling-signal-smoke.mjs", import.meta.url).pathname],
+  { stdio: ["ignore", "pipe", "pipe"], timeout: 5_000 },
+);
+signalChild.stdout.setEncoding("utf8");
+signalChild.stderr.setEncoding("utf8");
+let signalOutput = "";
+let signalError = "";
+const signalReady = new Promise((resolve) => {
+  signalChild.stdout.on("data", (chunk) => {
+    signalOutput += chunk;
+    if (signalOutput.includes("ready\n")) resolve();
+  });
+});
+signalChild.stderr.on("data", (chunk) => {
+  signalError += chunk;
+});
+const signalExited = once(signalChild, "exit");
+await Promise.race([
+  signalReady,
+  signalExited.then(() => {
+    throw new Error(`runPolling signal child exited before ready: ${signalError}`);
+  }),
+]);
+signalChild.kill("SIGTERM");
+const [signalExitCode] = await signalExited;
+if (signalExitCode !== 0 || !signalOutput.includes("stopped\n")) {
+  throw new Error(`runPolling signal smoke failed: stdout=${signalOutput} stderr=${signalError}`);
 }
