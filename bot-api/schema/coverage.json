@@ -193,7 +193,7 @@
     },
     "deleteWebhook": {
       "artifact": "bot-api/proofs/deleteWebhook/2026-08-31.json",
-      "recorded_time": "2026-08-31T03:48:16.426Z",
+      "recorded_time": "2026-08-31T07:38:03.675Z",
       "status": "proven"
     },
     "editChatInviteLink": {
@@ -848,7 +848,7 @@
     },
     "setWebhook": {
       "artifact": "bot-api/proofs/setWebhook/2026-08-31.json",
-      "recorded_time": "2026-08-31T03:48:16.390Z",
+      "recorded_time": "2026-08-31T07:38:03.644Z",
       "status": "proven"
     },
     "stopMessageLiveLocation": {

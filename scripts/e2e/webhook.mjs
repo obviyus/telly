@@ -41,13 +41,17 @@ const delivery = new Promise((resolve, reject) => {
 function waitForTunnelUrl(child) {
   return new Promise((resolve, reject) => {
     let output = "";
-    const timeout = setTimeout(() => reject(new Error("SSH tunnel did not publish a URL")), 30_000);
+    let tunnelUrl;
+    const timeout = setTimeout(
+      () => reject(new Error("Wrangler tunnel did not publish a URL")),
+      60_000,
+    );
     const inspect = (chunk) => {
       output = `${output}${chunk}`.slice(-64_000);
-      const url = output.match(/https:\/\/[a-z0-9]+\.lhr\.life/u)?.[0];
-      if (url !== undefined) {
+      tunnelUrl ??= output.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/u)?.[0];
+      if (tunnelUrl !== undefined && output.includes("Registered tunnel connection")) {
         clearTimeout(timeout);
-        resolve(url);
+        resolve(tunnelUrl);
       }
     };
     child.stdout.setEncoding("utf8");
@@ -57,7 +61,7 @@ function waitForTunnelUrl(child) {
     child.once("error", reject);
     child.once("exit", (code) => {
       clearTimeout(timeout);
-      reject(new Error(`SSH tunnel exited before readiness with code ${String(code)}`));
+      reject(new Error(`Wrangler tunnel exited before readiness with code ${String(code)}`));
     });
   });
 }
@@ -72,17 +76,83 @@ async function waitForWebhook(read, predicate, label) {
 }
 
 async function waitForPublicTunnel(url) {
+  const hostname = new URL(url).hostname;
   let lastError;
-  for (let attempt = 0; attempt < 60; attempt += 1) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
     try {
-      await fetch(url, { signal: AbortSignal.timeout(2_000) });
-      return;
+      const response = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=A`,
+        {
+          headers: { accept: "application/dns-json" },
+          signal: AbortSignal.timeout(2_000),
+        },
+      );
+      const result = await response.json();
+      if (result.Status === 0 && result.Answer?.length > 0) break;
     } catch (error) {
       lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    if (attempt === 39) {
+      throw new Error("Wrangler tunnel DNS did not become visible", { cause: lastError });
     }
   }
-  throw new Error("SSH tunnel URL did not become reachable", { cause: lastError });
+  try {
+    await fetch(url, { signal: AbortSignal.timeout(10_000) });
+  } catch (error) {
+    throw new Error("Wrangler tunnel URL did not become reachable", { cause: error });
+  }
+}
+
+function spawnWranglerTunnel(port) {
+  return spawn(
+    "bunx",
+    [
+      "wrangler@4.127.1",
+      "tunnel",
+      "quick-start",
+      `http://127.0.0.1:${port}`,
+    ],
+    { detached: true, stdio: ["ignore", "pipe", "pipe"] },
+  );
+}
+
+function signalTunnel(child, signal) {
+  if (child?.pid === undefined) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch (error) {
+    if (error?.code !== "ESRCH") throw error;
+  }
+}
+
+async function stopTunnel(child) {
+  if (child === undefined) return;
+  signalTunnel(child, "SIGTERM");
+  if (child.exitCode === null) {
+    const exited = new Promise((resolve) => child.once("exit", resolve));
+    await Promise.race([
+      exited,
+      new Promise((resolve) => setTimeout(resolve, 5_000)),
+    ]);
+  }
+  signalTunnel(child, "SIGKILL");
+}
+
+async function startPublicTunnel(port) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const child = spawnWranglerTunnel(port);
+    try {
+      const url = await waitForTunnelUrl(child);
+      await waitForPublicTunnel(url);
+      return { child, url };
+    } catch (error) {
+      lastError = error;
+      await stopTunnel(child);
+    }
+  }
+  throw new Error("Wrangler failed to create a reachable Quick Tunnel", { cause: lastError });
 }
 
 async function writeProof(method, observation, timeline) {
@@ -144,21 +214,9 @@ try {
       }
     },
   });
-  tunnel = spawn(
-    "ssh",
-    [
-      "-o",
-      "StrictHostKeyChecking=accept-new",
-      "-o",
-      "ServerAliveInterval=10",
-      "-R",
-      `80:localhost:${server.port}`,
-      "nokey@localhost.run",
-    ],
-    { stdio: ["ignore", "pipe", "pipe"] },
-  );
-  const tunnelUrl = await waitForTunnelUrl(tunnel);
-  await waitForPublicTunnel(tunnelUrl);
+  const publicTunnel = await startPublicTunnel(server.port);
+  tunnel = publicTunnel.child;
+  const tunnelUrl = publicTunnel.url;
   const webhookUrl = `${tunnelUrl}/telegram`;
   const setResult = await app.run(setWebhook({
     allowedUpdates: ["message"],
@@ -213,7 +271,7 @@ try {
   console.log(JSON.stringify({ ok: true, proofs: [setProof, deleteProof] }));
 } finally {
   if (webhookSet) await app?.run(deleteWebhook({ dropPendingUpdates: true })).catch(() => {});
-  if (tunnel?.exitCode === null) tunnel.kill("SIGTERM");
+  await stopTunnel(tunnel);
   server?.stop(true);
   await app?.close();
   await proxy?.close();
