@@ -1,0 +1,16 @@
+{
+  "method": "replaceStickerInSet",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:09.760Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true,
+        "stickerCount": 2,
+        "blueStickerPresent": true
+      }
+    }
+  ]
+}

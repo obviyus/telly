@@ -1,0 +1,32 @@
+{
+  "method": "answerCallbackQuery",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:18:15.247Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": 3234,
+      "buttonTexts": [
+        "Acknowledge"
+      ],
+      "contentType": "messageText",
+      "elapsedMs": 128,
+      "hasReplyMarkup": true,
+      "isSut": true,
+      "kind": "message",
+      "pollIsClosed": null,
+      "text": "telly-callback-49ce4174-70c5-4590-8ac9-6ff66e1e6305"
+    },
+    {
+      "botApiMessageId": 3234,
+      "elapsedMs": 594,
+      "kind": "action"
+    }
+  ]
+}

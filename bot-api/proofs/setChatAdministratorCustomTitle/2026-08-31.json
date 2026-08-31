@@ -1,0 +1,15 @@
+{
+  "method": "setChatAdministratorCustomTitle",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:43.205Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "customTitleMatches": true,
+        "result": true
+      }
+    }
+  ]
+}

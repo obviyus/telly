@@ -1,0 +1,14 @@
+{
+  "method": "editGeneralForumTopic",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:22:51.987Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    }
+  ]
+}

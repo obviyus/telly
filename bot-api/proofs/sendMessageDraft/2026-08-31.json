@@ -1,0 +1,21 @@
+{
+  "method": "sendMessageDraft",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:56:02.785Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": null,
+      "contentType": "messageText",
+      "elapsedMs": 80095,
+      "kind": "draft",
+      "text": "telly-draft-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    }
+  ]
+}

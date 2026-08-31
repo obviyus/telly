@@ -1,0 +1,15 @@
+{
+  "method": "unbanChatMember",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:44.824Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true,
+        "status": "left"
+      }
+    }
+  ]
+}

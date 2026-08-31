@@ -1,0 +1,14 @@
+{
+  "method": "logOut",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:57:46.522Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    }
+  ]
+}

@@ -441,6 +441,15 @@ class UserDriver:
                 elif state == "authorizationStateWaitPassword":
                     password = getattr(args, "password", "") or prompt_secret("Telegram 2FA password: ")
                     self.client.send({"@type": "checkAuthenticationPassword", "password": password})
+                elif state == "authorizationStateWaitRegistration":
+                    self.client.send(
+                        {
+                            "@type": "registerUser",
+                            "first_name": getattr(args, "first_name", "") or "Telly",
+                            "last_name": getattr(args, "last_name", "") or "Guest",
+                            "disable_notification": True,
+                        }
+                    )
                 elif state == "authorizationStateReady":
                     return True
                 elif state in {"authorizationStateClosing", "authorizationStateClosed", "authorizationStateLoggingOut"}:
@@ -824,6 +833,22 @@ def command_status(args):
     )
 
 
+def command_join(args):
+    config, bot_config = load_config()
+    user = UserDriver(config, bot_config)
+    user.authorize(argparse.Namespace(timeout_ms=args.timeout_ms))
+    result = user.client.request(
+        {"@type": "joinChatByInviteLink", "invite_link": args.invite_link},
+        timeout=30,
+    )
+    me = user.client.request({"@type": "getMe"})
+    print_result(
+        {"ok": True, "chatId": result.get("id"), "user": public_user(me)},
+        args.json,
+        getattr(args, "output", ""),
+    )
+
+
 def command_confirm_qr(args):
     config, bot_config = load_config()
     driver = UserDriver(config, bot_config)
@@ -1127,11 +1152,18 @@ def main():
     login.add_argument("--phone", default="")
     login.add_argument("--code", default="")
     login.add_argument("--password", default="")
+    login.add_argument("--first-name", default="")
+    login.add_argument("--last-name", default="")
     login.set_defaults(func=command_login)
 
     status = sub.add_parser("status")
     add_common(status)
     status.set_defaults(func=command_status)
+
+    join = sub.add_parser("join")
+    add_common(join)
+    join.add_argument("--invite-link", required=True)
+    join.set_defaults(func=command_join)
 
     confirm_qr = sub.add_parser("confirm-qr")
     add_common(confirm_qr)

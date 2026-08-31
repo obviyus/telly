@@ -1,0 +1,27 @@
+{
+  "method": "sendVideoNote",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:14:21.175Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788142449,
+    "senderBotApiMessageId": 770
+  },
+  "timeline": [
+    {
+      "contentType": "messageVideoNote",
+      "elapsedMs": 185,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3229,
+      "text": ""
+    },
+    {
+      "elapsedMs": 218,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3229
+    }
+  ]
+}

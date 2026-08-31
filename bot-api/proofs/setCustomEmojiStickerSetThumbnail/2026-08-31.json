@@ -1,0 +1,14 @@
+{
+  "method": "setCustomEmojiStickerSetThumbnail",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:35:40.551Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    }
+  ]
+}

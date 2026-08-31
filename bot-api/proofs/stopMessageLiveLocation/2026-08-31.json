@@ -1,0 +1,30 @@
+{
+  "method": "stopMessageLiveLocation",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:21.862Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageId": 789
+      }
+    },
+    {
+      "botApiMessageId": 3612,
+      "buttonTexts": [],
+      "contentType": "messageLiveLocation",
+      "elapsedMs": 36114,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": 52.700015,
+      "longitude": 13.599985,
+      "livePeriod": 60,
+      "expiresIn": 60,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": ""
+    }
+  ]
+}

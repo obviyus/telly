@@ -1,0 +1,44 @@
+{
+  "method": "editMessageLiveLocation",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:15.760Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageId": 788
+      }
+    },
+    {
+      "botApiMessageId": 3611,
+      "buttonTexts": [],
+      "contentType": "messageLiveLocation",
+      "elapsedMs": 33009,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": 52.500005,
+      "longitude": 13.399982,
+      "livePeriod": 60,
+      "expiresIn": 60,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": ""
+    },
+    {
+      "botApiMessageId": 3611,
+      "contentType": "messageLiveLocation",
+      "elapsedMs": 33043,
+      "isSut": true,
+      "kind": "edit",
+      "latitude": 52.600006,
+      "longitude": 13.499976,
+      "livePeriod": 60,
+      "expiresIn": 60,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": ""
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "method": "sendDice",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:17:52.515Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788142660,
+    "senderBotApiMessageId": 115
+  },
+  "timeline": [
+    {
+      "contentType": "messageDice",
+      "elapsedMs": 91,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 115,
+      "text": ""
+    },
+    {
+      "elapsedMs": 1722,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 115
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "method": "setMyProfilePhoto",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:44.733Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "afterCount": 1,
+        "beforeCount": 0,
+        "result": true
+      }
+    }
+  ]
+}

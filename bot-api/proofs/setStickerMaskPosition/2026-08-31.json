@@ -1,0 +1,15 @@
+{
+  "method": "setStickerMaskPosition",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:10.606Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "pointMatches": true,
+        "result": true
+      }
+    }
+  ]
+}

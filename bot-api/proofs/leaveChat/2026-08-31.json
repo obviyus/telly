@@ -1,0 +1,15 @@
+{
+  "method": "leaveChat",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:45.184Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true,
+        "status": "left"
+      }
+    }
+  ]
+}

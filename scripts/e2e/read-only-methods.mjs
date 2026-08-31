@@ -69,10 +69,17 @@ try {
     },
   });
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
-  const groupId = Number(credential.groupId);
+  let groupId = Number(credential.groupId);
   const testerUserId = Number(credential.testerUserId);
   if (!Number.isSafeInteger(groupId) || !Number.isSafeInteger(testerUserId)) {
     throw new Error("Leased Telegram identifiers are not safe integers");
+  }
+  try {
+    await app.run(getChat({ chatId: groupId }));
+  } catch (error) {
+    const migratedId = error?.reason?.migrateToChatId;
+    if (!Number.isSafeInteger(migratedId)) throw error;
+    groupId = migratedId;
   }
   const inlineResult = {
     id: "missing-result",
@@ -234,8 +241,12 @@ try {
       name: "getMe",
       operation: getMe,
       summarize: (result) => ({
+        canConnectToBusiness: result.canConnectToBusiness ?? false,
+        canManageBots: result.canManageBots ?? false,
         hasUsername: result.username !== undefined,
         isBot: result.isBot,
+        supportsGuestQueries: result.supportsGuestQueries ?? false,
+        supportsJoinRequestQueries: result.supportsJoinRequestQueries ?? false,
       }),
     },
     {
@@ -376,7 +387,15 @@ try {
   for (const method of selectedMethods) {
     credential.assertLeaseHealthy();
     const start = performance.now();
-    const result = await app.run(method.operation());
+    let result;
+    try {
+      result = await app.run(method.operation());
+    } catch (error) {
+      const migratedId = error?.reason?.migrateToChatId;
+      if (!Number.isSafeInteger(migratedId) || migratedId === groupId) throw error;
+      groupId = migratedId;
+      result = await app.run(method.operation());
+    }
     const verdict = {
       method: method.name,
       passed: true,

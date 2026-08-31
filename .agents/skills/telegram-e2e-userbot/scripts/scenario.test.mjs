@@ -18,6 +18,7 @@ test("normalizes Telegram and gateway actions", () => {
           messageText: "Select a provider",
           buttonText: "OpenAI",
         },
+        { type: "inlineQuery", atMs: 600, query: "find proof" },
         { type: "patchConfig", atMs: 750, patch: { channels: { telegram: { historyLimit: 9 } } } },
         { type: "systemEvent", atMs: 900, text: "heartbeat proof" },
         { type: "cron", atMs: 950, message: "deliver the schedule" },
@@ -42,6 +43,7 @@ test("normalizes Telegram and gateway actions", () => {
           buttonText: "OpenAI",
           timeoutMs: 15_000,
         },
+        { type: "inlineQuery", atMs: 600, query: "find proof", timeoutMs: 15_000 },
         {
           type: "patchConfig",
           atMs: 750,

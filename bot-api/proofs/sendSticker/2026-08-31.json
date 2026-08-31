@@ -1,0 +1,27 @@
+{
+  "method": "sendSticker",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:14:21.351Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788142449,
+    "senderBotApiMessageId": 775
+  },
+  "timeline": [
+    {
+      "contentType": "messageSticker",
+      "elapsedMs": 258,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3230,
+      "text": ""
+    },
+    {
+      "elapsedMs": 295,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3230
+    }
+  ]
+}

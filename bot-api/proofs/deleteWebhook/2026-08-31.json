@@ -1,0 +1,15 @@
+{
+  "method": "deleteWebhook",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:48:16.426Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "pendingUpdateCount": 0,
+        "result": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "method": "deleteMessageReaction",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:43.931Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "reactionCount": 0,
+        "result": true
+      }
+    }
+  ]
+}

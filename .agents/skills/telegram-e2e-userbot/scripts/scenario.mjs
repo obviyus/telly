@@ -6,6 +6,7 @@ const RECORDER_READY_KEYS = new Set(["schemaVersion", "startedAtUnixMs", "chatId
 const ACTION_KEYS = {
   send: new Set(["type", "atMs", "text"]),
   click: new Set(["type", "atMs", "messageText", "buttonText", "timeoutMs"]),
+  inlineQuery: new Set(["type", "atMs", "query", "timeoutMs"]),
   restartGateway: new Set(["type", "atMs", "graceMs"]),
   patchConfig: new Set(["type", "atMs", "patch"]),
   systemEvent: new Set(["type", "atMs", "text"]),
@@ -140,6 +141,14 @@ export function parseScenario(value) {
         atMs,
         messageText: nonEmptyString(action.messageText, `${label}.messageText`),
         buttonText: nonEmptyString(action.buttonText, `${label}.buttonText`),
+        timeoutMs: positiveInteger(action.timeoutMs, `${label}.timeoutMs`, 15_000),
+      };
+    }
+    if (action.type === "inlineQuery") {
+      return {
+        type: action.type,
+        atMs,
+        query: nonEmptyString(action.query, `${label}.query`),
         timeoutMs: positiveInteger(action.timeoutMs, `${label}.timeoutMs`, 15_000),
       };
     }

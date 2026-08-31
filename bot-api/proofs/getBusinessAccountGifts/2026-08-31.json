@@ -1,0 +1,15 @@
+{
+  "method": "getBusinessAccountGifts",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:59:18.418Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "resultCount": 0,
+        "totalCount": 0
+      }
+    }
+  ]
+}

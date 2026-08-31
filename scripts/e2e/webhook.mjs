@@ -1,0 +1,221 @@
+import { execFile as execFileCallback, spawn } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+
+import {
+  Application,
+  deleteWebhook,
+  getWebhookInfo,
+  setWebhook,
+} from "../../index.ts";
+import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
+import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+
+const execFile = promisify(execFileCallback);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const userDriver = path.join(
+  repoRoot,
+  ".agents/skills/telegram-e2e-userbot/scripts/user-driver.py",
+);
+const convexProjectDir =
+  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
+  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
+const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
+const text = `telly-webhook-${crypto.randomUUID()}`;
+const secretToken = `telly_${crypto.randomUUID().replaceAll("-", "_")}`;
+let credential;
+let proxy;
+let app;
+let server;
+let tunnel;
+let webhookSet = false;
+let deliveryResolve;
+let deliveryReject;
+const delivery = new Promise((resolve, reject) => {
+  deliveryResolve = resolve;
+  deliveryReject = reject;
+});
+
+function waitForTunnelUrl(child) {
+  return new Promise((resolve, reject) => {
+    let output = "";
+    const timeout = setTimeout(() => reject(new Error("SSH tunnel did not publish a URL")), 30_000);
+    const inspect = (chunk) => {
+      output = `${output}${chunk}`.slice(-64_000);
+      const url = output.match(/https:\/\/[a-z0-9]+\.lhr\.life/u)?.[0];
+      if (url !== undefined) {
+        clearTimeout(timeout);
+        resolve(url);
+      }
+    };
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", inspect);
+    child.stderr.on("data", inspect);
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      clearTimeout(timeout);
+      reject(new Error(`SSH tunnel exited before readiness with code ${String(code)}`));
+    });
+  });
+}
+
+async function waitForWebhook(read, predicate, label) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const value = await read();
+    if (predicate(value)) return value;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error(`${label} did not become visible`);
+}
+
+async function waitForPublicTunnel(url) {
+  let lastError;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    try {
+      await fetch(url, { signal: AbortSignal.timeout(2_000) });
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+  throw new Error("SSH tunnel URL did not become reachable", { cause: lastError });
+}
+
+async function writeProof(method, observation, timeline) {
+  const proof = {
+    method,
+    passed: true,
+    recorded_time: new Date().toISOString(),
+    schemaVersion: 1,
+    timeline: [{ kind: "bot_api_result", observation }, ...timeline],
+  };
+  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
+  for (const secret of [credential.sutToken, credential.sutUsername, secretToken]) {
+    if (serialized.includes(secret)) throw new Error(`${method} proof contains a secret`);
+  }
+  if (artifactDir !== undefined) {
+    const methodDir = path.resolve(repoRoot, artifactDir, method);
+    await mkdir(methodDir, { recursive: true });
+    await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
+  }
+  return proof;
+}
+
+try {
+  credential = await acquireTelegramTestCredential({ convexProjectDir });
+  proxy = await startTelegramTestApiProxy({
+    leaseHealth: {
+      assertHealthy: credential.assertLeaseHealthy,
+      whenUnhealthy: credential.whenLeaseUnhealthy,
+    },
+  });
+  app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
+  const snapshot = await app.run(getWebhookInfo());
+  if (snapshot.url !== "") {
+    throw new Error("Leased bot already has a webhook; its secret settings cannot be restored safely");
+  }
+
+  server = Bun.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    async fetch(request) {
+      if (request.method !== "POST" || new URL(request.url).pathname !== "/telegram") {
+        return new Response("ready");
+      }
+      try {
+        const update = await request.json();
+        if (update.message?.text === text) {
+          deliveryResolve({
+            method: request.method,
+            pathMatches: new URL(request.url).pathname === "/telegram",
+            secretMatches:
+              request.headers.get("x-telegram-bot-api-secret-token") === secretToken,
+            updateIdIsInteger: Number.isInteger(update.update_id),
+          });
+        }
+        return new Response("ok");
+      } catch (error) {
+        deliveryReject(error);
+        return new Response("bad request", { status: 400 });
+      }
+    },
+  });
+  tunnel = spawn(
+    "ssh",
+    [
+      "-o",
+      "StrictHostKeyChecking=accept-new",
+      "-o",
+      "ServerAliveInterval=10",
+      "-R",
+      `80:localhost:${server.port}`,
+      "nokey@localhost.run",
+    ],
+    { stdio: ["ignore", "pipe", "pipe"] },
+  );
+  const tunnelUrl = await waitForTunnelUrl(tunnel);
+  await waitForPublicTunnel(tunnelUrl);
+  const webhookUrl = `${tunnelUrl}/telegram`;
+  const setResult = await app.run(setWebhook({
+    allowedUpdates: ["message"],
+    dropPendingUpdates: true,
+    secretToken,
+    url: webhookUrl,
+  }));
+  webhookSet = true;
+  const active = await waitForWebhook(
+    () => app.run(getWebhookInfo()),
+    (value) => value.url === webhookUrl,
+    "setWebhook",
+  );
+  await execFile(
+    "uv",
+    [
+      "run",
+      userDriver,
+      "send",
+      "--json",
+      "--chat",
+      `@${credential.sutUsername}`,
+      "--text",
+      text,
+    ],
+    { cwd: repoRoot, env: { ...process.env, ...credential.driverEnv }, timeout: 30_000 },
+  );
+  const delivered = await Promise.race([
+    delivery,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Telegram did not deliver the webhook update")), 30_000)
+    ),
+  ]);
+  const setProof = await writeProof(
+    "setWebhook",
+    { hasCustomCertificate: active.hasCustomCertificate, result: setResult },
+    [{ kind: "webhook_delivery", observation: delivered }],
+  );
+
+  const deleteResult = await app.run(deleteWebhook({ dropPendingUpdates: true }));
+  webhookSet = false;
+  const removed = await waitForWebhook(
+    () => app.run(getWebhookInfo()),
+    (value) => value.url === "",
+    "deleteWebhook",
+  );
+  const deleteProof = await writeProof(
+    "deleteWebhook",
+    { pendingUpdateCount: removed.pendingUpdateCount, result: deleteResult },
+    [],
+  );
+  console.log(JSON.stringify({ ok: true, proofs: [setProof, deleteProof] }));
+} finally {
+  if (webhookSet) await app?.run(deleteWebhook({ dropPendingUpdates: true })).catch(() => {});
+  if (tunnel?.exitCode === null) tunnel.kill("SIGTERM");
+  server?.stop(true);
+  await app?.close();
+  await proxy?.close();
+  await credential?.release();
+}

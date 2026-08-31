@@ -1,0 +1,15 @@
+{
+  "method": "setChatPhoto",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:40.386Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "hasPhoto": true,
+        "result": true
+      }
+    }
+  ]
+}

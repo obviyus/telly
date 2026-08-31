@@ -1,0 +1,16 @@
+{
+  "method": "setChatMenuButton",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:15:42.161Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "elapsedMs": 41,
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true,
+        "type": "commands"
+      }
+    }
+  ]
+}

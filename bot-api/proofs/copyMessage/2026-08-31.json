@@ -1,0 +1,46 @@
+{
+  "method": "copyMessage",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:31.311Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageId": 794
+      }
+    },
+    {
+      "botApiMessageId": 3616,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 45530,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-copy-one-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3618,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 48578,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-copy-one-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    }
+  ]
+}

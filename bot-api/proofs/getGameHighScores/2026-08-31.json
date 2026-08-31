@@ -1,0 +1,15 @@
+{
+  "method": "getGameHighScores",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:31:47.842Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "scoreCount": 1,
+        "scoreFound": true
+      }
+    }
+  ]
+}

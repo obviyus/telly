@@ -1,0 +1,24 @@
+{
+  "method": "setWebhook",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:48:16.390Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "hasCustomCertificate": false,
+        "result": true
+      }
+    },
+    {
+      "kind": "webhook_delivery",
+      "observation": {
+        "method": "POST",
+        "pathMatches": true,
+        "secretMatches": true,
+        "updateIdIsInteger": true
+      }
+    }
+  ]
+}

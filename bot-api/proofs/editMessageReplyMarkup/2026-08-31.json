@@ -1,0 +1,43 @@
+{
+  "method": "editMessageReplyMarkup",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:03.290Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageId": 785
+      }
+    },
+    {
+      "botApiMessageId": 3608,
+      "buttonTexts": [
+        "Before"
+      ],
+      "contentType": "messageText",
+      "elapsedMs": 20494,
+      "hasReplyMarkup": true,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-markup-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3608,
+      "buttonTexts": [
+        "After"
+      ],
+      "elapsedMs": 20577,
+      "hasReplyMarkup": true,
+      "isSut": true,
+      "kind": "edit-meta",
+      "ephemeralMessageId": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "method": "sendRichMessageDraft",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:50.190Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": null,
+      "contentType": "messageRichMessage",
+      "elapsedMs": 67499,
+      "kind": "draft",
+      "text": "telly-rich-draft-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    }
+  ]
+}

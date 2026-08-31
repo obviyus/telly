@@ -1,0 +1,45 @@
+{
+  "method": "setMessageReaction",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:43.894Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": 3605,
+      "elapsedMs": 28,
+      "kind": "action",
+      "text": "telly-open-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3605,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 28,
+      "hasReplyMarkup": false,
+      "isSut": false,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-open-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3605,
+      "elapsedMs": 61183,
+      "isSut": false,
+      "kind": "reaction",
+      "ephemeralMessageId": 0,
+      "reactionCount": 1,
+      "reactionText": "👍"
+    }
+  ]
+}

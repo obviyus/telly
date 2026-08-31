@@ -1,0 +1,14 @@
+{
+  "method": "editChatSubscriptionInviteLink",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:47:07.458Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "nameMatches": true
+      }
+    }
+  ]
+}

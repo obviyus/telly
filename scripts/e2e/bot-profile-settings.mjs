@@ -7,11 +7,13 @@ import {
   Application,
   deleteMyCommands,
   getMyCommands,
+  getChatMenuButton,
   getMyDefaultAdministratorRights,
   getMyDescription,
   getMyName,
   getMyShortDescription,
   setMyCommands,
+  setChatMenuButton,
   setMyDefaultAdministratorRights,
   setMyDescription,
   setMyName,
@@ -34,6 +36,8 @@ const proxy = await startTelegramTestApiProxy({
 });
 const app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
 const scope = { type: "default" };
+const menuChatId = Number(credential.testerUserId);
+if (!Number.isSafeInteger(menuChatId)) throw new Error("Leased Telegram tester id is not a safe integer");
 let snapshot;
 let runError;
 
@@ -72,7 +76,6 @@ async function record(method, operation, verify) {
     await writeFile(
       path.join(methodDir, `${verdict.recorded_time.slice(0, 10)}.json`),
       serialized,
-      { flag: "wx" },
     );
   }
   return verdict;
@@ -81,6 +84,7 @@ async function record(method, operation, verify) {
 try {
   snapshot = {
     commands: await app.run(getMyCommands({ scope })),
+    menuButton: await app.run(getChatMenuButton({ chatId: menuChatId })),
     description: (await app.run(getMyDescription({}))).description,
     name: (await app.run(getMyName({}))).name,
     rights: await app.run(getMyDefaultAdministratorRights({})),
@@ -92,6 +96,7 @@ try {
     description: `Telly description proof ${suffix}`,
     name: `Telly Proof ${suffix}`,
     shortDescription: `Telly short proof ${suffix}`,
+    menuButton: snapshot.menuButton.type === "commands" ? { type: "default" } : { type: "commands" },
   };
   const verdicts = [];
 
@@ -152,6 +157,18 @@ try {
     },
   ));
   verdicts.push(await record(
+    "setChatMenuButton",
+    setChatMenuButton({ chatId: menuChatId, menuButton: temporary.menuButton }),
+    async (result) => {
+      const menuButton = await waitForRead(
+        () => app.run(getChatMenuButton({ chatId: menuChatId })),
+        (value) => value.type === temporary.menuButton.type,
+        "setChatMenuButton",
+      );
+      return { result, type: menuButton.type };
+    },
+  ));
+  verdicts.push(await record(
     "setMyDefaultAdministratorRights",
     setMyDefaultAdministratorRights({ rights: snapshot.rights }),
     async (result) => {
@@ -177,6 +194,7 @@ try {
       app.run(setMyName({ name: snapshot.name })),
       app.run(setMyDescription({ description: snapshot.description })),
       app.run(setMyShortDescription({ shortDescription: snapshot.shortDescription })),
+      app.run(setChatMenuButton({ chatId: menuChatId, menuButton: snapshot.menuButton })),
       app.run(commandRestore),
       app.run(setMyDefaultAdministratorRights({ rights: snapshot.rights })),
     ]);
@@ -192,13 +210,15 @@ try {
             app.run(getMyName({})),
             app.run(getMyDefaultAdministratorRights({})),
             app.run(getMyShortDescription({})),
+            app.run(getChatMenuButton({ chatId: menuChatId })),
           ]),
-          ([commands, description, name, rights, shortDescription]) =>
+          ([commands, description, name, rights, shortDescription, menuButton]) =>
             JSON.stringify(commands) === JSON.stringify(snapshot.commands) &&
             description.description === snapshot.description &&
             name.name === snapshot.name &&
             JSON.stringify(rights) === JSON.stringify(snapshot.rights) &&
-            shortDescription.shortDescription === snapshot.shortDescription,
+            shortDescription.shortDescription === snapshot.shortDescription &&
+            JSON.stringify(menuButton) === JSON.stringify(snapshot.menuButton),
           "bot profile cleanup",
         );
       } catch (error) {

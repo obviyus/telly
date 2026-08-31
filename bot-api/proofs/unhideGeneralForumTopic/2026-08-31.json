@@ -1,0 +1,14 @@
+{
+  "method": "unhideGeneralForumTopic",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:22:52.119Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    }
+  ]
+}

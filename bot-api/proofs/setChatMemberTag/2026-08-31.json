@@ -1,0 +1,15 @@
+{
+  "method": "setChatMemberTag",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:43.068Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true,
+        "tagMatches": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "method": "sendAnimation",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:14:44.144Z",
+  "schemaVersion": 1,
+  "sent": {
+    "date": 1788142472,
+    "senderBotApiMessageId": 762,
+    "text": "telly-sendAnimation-27df9020-9e31-4e4e-8ebc-26883ae4c0be"
+  },
+  "timeline": [
+    {
+      "contentType": "messageAnimation",
+      "elapsedMs": 186,
+      "isSut": true,
+      "kind": "message",
+      "observerBotApiMessageId": 3232,
+      "text": "telly-sendAnimation-27df9020-9e31-4e4e-8ebc-26883ae4c0be"
+    },
+    {
+      "elapsedMs": 234,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "observerBotApiMessageId": 3232
+    }
+  ]
+}

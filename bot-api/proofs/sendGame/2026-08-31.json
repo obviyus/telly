@@ -1,0 +1,14 @@
+{
+  "method": "sendGame",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:31:47.786Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "contentType": "messageGame"
+      }
+    }
+  ]
+}

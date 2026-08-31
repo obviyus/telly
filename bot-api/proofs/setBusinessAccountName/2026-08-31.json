@@ -1,0 +1,15 @@
+{
+  "method": "setBusinessAccountName",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:59:18.495Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "accepted": true,
+        "result": true
+      }
+    }
+  ]
+}

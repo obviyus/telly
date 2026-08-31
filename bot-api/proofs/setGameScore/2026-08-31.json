@@ -1,0 +1,15 @@
+{
+  "method": "setGameScore",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:31:47.819Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageReturned": true,
+        "score": 42
+      }
+    }
+  ]
+}

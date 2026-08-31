@@ -1,0 +1,15 @@
+{
+  "method": "removeMyProfilePhoto",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:44.733Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "restoredCount": 0,
+        "result": true
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { watch } from "node:fs";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
@@ -11,17 +11,21 @@ import { FetchHttpClient } from "effect/unstable/http";
 
 import {
   Bot,
-  getForumTopicIconStickers,
   sendAnimation,
+  sendAudio,
   sendChatAction,
   sendContact,
   sendDice,
   sendDocument,
   sendLocation,
+  sendLivePhoto,
   sendMessage,
   sendPhoto,
   sendSticker,
   sendVenue,
+  sendVideo,
+  sendVideoNote,
+  sendVoice,
 } from "../../index.ts";
 import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
 import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
@@ -36,21 +40,81 @@ const scenarioPath = path.join(proofDir, "scenario.json");
 const recorderStdoutPath = path.join(proofDir, "recorder.stdout.log");
 const recorderStderrPath = path.join(proofDir, "recorder.stderr.log");
 const method = process.env.TELLY_E2E_SEND_METHOD ?? "sendMessage";
+const chatMode = process.env.TELLY_E2E_CHAT ?? "dm";
 const run = randomUUID();
 const openText = `telly-open-${run}`;
 const sentText = `telly-${method}-${run}`;
-let stickerFileId;
+let mediaBytes;
+let livePhotoBytes;
+let livePhotoImageBytes;
+
+const mediaFixtures = {
+  sendAnimation: {
+    args: ["-f", "lavfi", "-i", "color=c=red:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    name: "animation.mp4",
+  },
+  sendAudio: {
+    args: ["-f", "lavfi", "-i", "sine=frequency=440:duration=0.3", "-codec:a", "libmp3lame", "-b:a", "32k"],
+    name: "audio.mp3",
+  },
+  sendSticker: {
+    args: ["-f", "lavfi", "-i", "color=c=green:s=64x64:d=0.1", "-frames:v", "1", "-c:v", "libwebp", "-lossless", "1"],
+    name: "sticker.webp",
+  },
+  sendVideo: {
+    args: ["-f", "lavfi", "-i", "color=c=blue:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    name: "video.mp4",
+  },
+  sendVideoNote: {
+    args: ["-f", "lavfi", "-i", "color=c=blue:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    name: "video-note.mp4",
+  },
+  sendVoice: {
+    args: ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=mono", "-t", "0.3", "-c:a", "libopus", "-b:a", "16k"],
+    name: "voice.ogg",
+  },
+};
+
+const mediaFixture = mediaFixtures[method];
+if (mediaFixture !== undefined) {
+  const mediaPath = path.join(proofDir, mediaFixture.name);
+  execFileSync(
+    "ffmpeg",
+    ["-hide_banner", "-loglevel", "error", ...mediaFixture.args, mediaPath],
+    { stdio: "inherit" },
+  );
+  mediaBytes = await readFile(mediaPath);
+}
+if (method === "sendLivePhoto") {
+  const imagePath = path.join(proofDir, "live-photo.jpg");
+  const videoPath = path.join(proofDir, "live-photo.mp4");
+  execFileSync(
+    "ffmpeg",
+    ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=orange:s=512x512:d=0.1", "-frames:v", "1", imagePath],
+    { stdio: "inherit" },
+  );
+  execFileSync(
+    "ffmpeg",
+    ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=orange:s=512x512:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", videoPath],
+    { stdio: "inherit" },
+  );
+  [livePhotoImageBytes, livePhotoBytes] = await Promise.all([
+    readFile(imagePath),
+    readFile(videoPath),
+  ]);
+}
 
 function sendOperation(chatId) {
   switch (method) {
     case "sendAnimation":
       return sendAnimation({
-        animation: new File([
-          Buffer.from(
-            "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAICRAEAIfkEAQAAAAAsAAAAAAEAAQAAAgJEAQA7",
-            "base64",
-          ),
-        ], "animation.gif", { type: "image/gif" }),
+        animation: new File([mediaBytes], "animation.mp4", { type: "video/mp4" }),
+        caption: sentText,
+        chatId,
+      });
+    case "sendAudio":
+      return sendAudio({
+        audio: new File([mediaBytes], "audio.mp3", { type: "audio/mpeg" }),
         caption: sentText,
         chatId,
       });
@@ -73,6 +137,13 @@ function sendOperation(chatId) {
       });
     case "sendLocation":
       return sendLocation({ chatId, latitude: 52, longitude: 13 });
+    case "sendLivePhoto":
+      return sendLivePhoto({
+        caption: sentText,
+        chatId,
+        livePhoto: new File([livePhotoBytes], "live-photo.mp4", { type: "video/mp4" }),
+        photo: new File([livePhotoImageBytes], "live-photo.jpg", { type: "image/jpeg" }),
+      });
     case "sendMessage":
       return sendMessage({ chatId, text: sentText });
     case "sendPhoto":
@@ -87,8 +158,10 @@ function sendOperation(chatId) {
         ], { type: "image/png" }),
       });
     case "sendSticker":
-      if (stickerFileId === undefined) throw new Error("Sticker proof fixture is unavailable");
-      return sendSticker({ chatId, sticker: stickerFileId });
+      return sendSticker({
+        chatId,
+        sticker: new File([mediaBytes], "sticker.webp", { type: "image/webp" }),
+      });
     case "sendVenue":
       return sendVenue({
         address: "1 Telly Test Street",
@@ -96,6 +169,23 @@ function sendOperation(chatId) {
         latitude: 52,
         longitude: 13,
         title: "Telly Proof",
+      });
+    case "sendVideo":
+      return sendVideo({
+        caption: sentText,
+        chatId,
+        video: new File([mediaBytes], "video.mp4", { type: "video/mp4" }),
+      });
+    case "sendVideoNote":
+      return sendVideoNote({
+        chatId,
+        videoNote: new File([mediaBytes], "video-note.mp4", { type: "video/mp4" }),
+      });
+    case "sendVoice":
+      return sendVoice({
+        caption: sentText,
+        chatId,
+        voice: new File([mediaBytes], "voice.ogg", { type: "audio/ogg" }),
       });
     default:
       throw new Error(`Unsupported send proof method ${method}`);
@@ -107,8 +197,12 @@ function matchesObservedEvent(event) {
     return event.kind === "typing" && event.isSut === true && event.action === "chatActionTyping";
   }
   if (event.kind !== "message" || event.isSut !== true) return false;
+  if (method === "sendLivePhoto") {
+    return event.contentType === "messagePhoto" && event.isLivePhoto === true;
+  }
   const contentTypes = {
     sendAnimation: "messageAnimation",
+    sendAudio: "messageAudio",
     sendContact: "messageContact",
     sendDice: "messageDice",
     sendDocument: "messageDocument",
@@ -116,6 +210,9 @@ function matchesObservedEvent(event) {
     sendPhoto: "messagePhoto",
     sendSticker: "messageSticker",
     sendVenue: "messageVenue",
+    sendVideo: "messageVideo",
+    sendVideoNote: "messageVideoNote",
+    sendVoice: "messageVoiceNote",
   };
   const contentType = contentTypes[method];
   return contentType === undefined ? event.text === sentText : event.contentType === contentType;
@@ -137,15 +234,21 @@ async function waitFor(file, predicate, timeoutMs) {
   return new Promise((resolve, reject) => {
     const directory = path.dirname(file);
     let checking = false;
+    let pending = false;
     const finish = (result, error) => {
       clearTimeout(timeout);
+      clearInterval(poll);
       watcher.close();
       if (error) reject(error);
       else resolve(result);
     };
     const check = async () => {
-      if (checking) return;
+      if (checking) {
+        pending = true;
+        return;
+      }
       checking = true;
+      pending = false;
       try {
         const result = predicate(await readJsonLines(file));
         if (result) finish(result);
@@ -153,6 +256,7 @@ async function waitFor(file, predicate, timeoutMs) {
         finish(undefined, error);
       } finally {
         checking = false;
+        if (pending) void check();
       }
     };
     const watcher = watch(directory, () => void check());
@@ -161,6 +265,7 @@ async function waitFor(file, predicate, timeoutMs) {
       () => finish(undefined, new Error(`Timed out waiting for ${path.basename(file)}`)),
       timeoutMs,
     );
+    const poll = setInterval(() => void check(), 50);
     void check();
   });
 }
@@ -219,7 +324,7 @@ try {
       "--output",
       summaryPath,
       "--chat",
-      `@${credential.sutUsername}`,
+      chatMode === "group" ? credential.groupId : `@${credential.sutUsername}`,
     ],
     {
       cwd: repoRoot,
@@ -250,7 +355,7 @@ try {
     recorderStoppedEarly,
   ]);
   credential.assertLeaseHealthy();
-  const chatId = Number(credential.testerUserId);
+  const chatId = Number(chatMode === "group" ? credential.groupId : credential.testerUserId);
   if (!Number.isSafeInteger(chatId)) {
     throw new Error("Leased Telegram tester id is not a safe integer");
   }
@@ -258,13 +363,6 @@ try {
     apiRoot: proxy.apiRoot,
     token: Redacted.make(credential.sutToken),
   }).pipe(Layer.provide(FetchHttpClient.layer));
-  if (method === "sendSticker") {
-    const stickers = await Effect.runPromise(
-      getForumTopicIconStickers().pipe(Effect.provide(bot)),
-    );
-    stickerFileId = stickers[0]?.fileId;
-    if (stickerFileId === undefined) throw new Error("Telegram returned no sticker proof fixture");
-  }
   const result = await Effect.runPromise(sendOperation(chatId).pipe(Effect.provide(bot)));
   const sendsMessage = method !== "sendChatAction";
   const shouldDelete = sendsMessage && method !== "sendMessage";
@@ -337,6 +435,7 @@ try {
         elapsedMs: observed.elapsedMs,
         isSut: true,
         kind: observed.kind,
+        isLivePhoto: observed.isLivePhoto,
         observerBotApiMessageId: observed.botApiMessageId,
         text: observed.text,
       },
@@ -379,7 +478,7 @@ try {
       Effect.gen(function* () {
         const service = yield* Bot;
         yield* service.callRaw("deleteMessage", {
-          chat_id: Number(credential.testerUserId),
+          chat_id: Number(chatMode === "group" ? credential.groupId : credential.testerUserId),
           message_id: sentMessageId,
         });
       }).pipe(Effect.provide(bot)),

@@ -15,7 +15,9 @@ export async function runTelegramTestDoctor({
   runCommandImpl = runCommand,
   startProxy = startTelegramTestApiProxy,
 } = {}) {
-  const credential = await acquireCredential();
+  const credential = await acquireCredential({
+    convexProjectDir: process.env.TELEGRAM_E2E_CONVEX_PROJECT_DIR,
+  });
   const leaseFailure = credential.whenLeaseUnhealthy.then((error) => ({
     type: "lease-failure",
     error,

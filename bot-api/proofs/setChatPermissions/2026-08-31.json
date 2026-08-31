@@ -1,0 +1,15 @@
+{
+  "method": "setChatPermissions",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:40.190Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "canSendMessages": false,
+        "result": true
+      }
+    }
+  ]
+}

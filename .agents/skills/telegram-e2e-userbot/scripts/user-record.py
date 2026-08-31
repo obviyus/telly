@@ -26,6 +26,15 @@ import time
 from pathlib import Path
 
 DRIVER_PATH = Path(__file__).with_name("user-driver.py")
+HANDLED_UPDATE_TYPES = {
+    "updateNewMessage",
+    "updateMessageContent",
+    "updateMessageEdited",
+    "updateDeleteMessages",
+    "updateMessageInteractionInfo",
+    "updateChatAction",
+    "updatePendingMessage",
+}
 _spec = importlib.util.spec_from_file_location("tg_user_driver", DRIVER_PATH)
 driver = importlib.util.module_from_spec(_spec)
 sys.modules["tg_user_driver"] = driver
@@ -93,6 +102,43 @@ def content_kind(message):
     return (message.get("content") or {}).get("@type", "")
 
 
+def reply_markup_fields(value):
+    if not isinstance(value, dict):
+        return {"hasReplyMarkup": False, "buttonTexts": []}
+    return {
+        "hasReplyMarkup": bool(value),
+        "buttonTexts": [
+            button.get("text", "")
+            for row in value.get("rows") or []
+            for button in row
+            if isinstance(button, dict) and isinstance(button.get("text"), str)
+        ],
+    }
+
+
+def content_fields(content):
+    poll = content.get("poll") if isinstance(content, dict) else None
+    location_value = content.get("location") if isinstance(content, dict) else None
+    live_location = (
+        location_value
+        if isinstance(location_value, dict) and location_value.get("@type") == "liveLocation"
+        else None
+    )
+    location = live_location.get("location") if live_location else location_value
+    return {
+        "pollIsClosed": poll.get("is_closed") if isinstance(poll, dict) else None,
+        "latitude": location.get("latitude") if isinstance(location, dict) else None,
+        "longitude": location.get("longitude") if isinstance(location, dict) else None,
+        "livePeriod": live_location.get("live_period") if live_location else None,
+        "expiresIn": content.get("expires_in") if isinstance(content, dict) else None,
+        "isLivePhoto": (
+            content.get("@type") == "messagePhoto" and isinstance(content.get("video"), dict)
+            if isinstance(content, dict)
+            else False
+        ),
+    }
+
+
 class EventRecorder:
     def __init__(self, client, chat_id, record_path, sut_user_id=None):
         self.client = client
@@ -155,6 +201,7 @@ class EventRecorder:
             "senderId": sender,
             "isSut": self.sut_user_id is not None and sender == self.sut_user_id,
             "isOutgoing": bool(message.get("is_outgoing")),
+            "ephemeralMessageId": message.get("ephemeral_message_id"),
             **self._reply_fields(message),
         }
         self.messages[message_id] = message
@@ -170,8 +217,16 @@ class EventRecorder:
     def ingest(self, update):
         if self._chat_id_of(update) != self.chat_id:
             return
-        for kind, message_id, fields in self._events_for(update):
+        events = list(self._events_for(update))
+        for kind, message_id, fields in events:
             self._append(kind, message_id, **fields)
+        if not events and update.get("@type") not in HANDLED_UPDATE_TYPES:
+            self._append(
+                "update",
+                update.get("message_id"),
+                raw=update,
+                updateType=update.get("@type", ""),
+            )
 
     def _chat_id_of(self, update):
         """updateNewMessage nests chat_id under message; the rest keep it top level."""
@@ -201,10 +256,13 @@ class EventRecorder:
                     "senderId": sender,
                     "isSut": self.sut_user_id is not None and sender == self.sut_user_id,
                     "isOutgoing": bool(message.get("is_outgoing")),
+                    "ephemeralMessageId": message.get("ephemeral_message_id"),
                     "contentType": content_kind(message),
                     "textLen": len(text),
                     "text": text,
                     "richMessageIsFull": rich_message.get("is_full") if isinstance(rich_message, dict) else None,
+                    **content_fields(content),
+                    **reply_markup_fields(message.get("reply_markup")),
                     **self._reply_fields(message),
                 },
             )
@@ -223,6 +281,7 @@ class EventRecorder:
                     "textLen": len(text),
                     "text": text,
                     "richMessageIsFull": rich_message.get("is_full") if isinstance(rich_message, dict) else None,
+                    **content_fields(content),
                 },
             )
         elif kind == "updateMessageEdited":
@@ -236,7 +295,7 @@ class EventRecorder:
                     "raw": update,
                     **self._known_message_fields(message_id),
                     "editDate": update.get("edit_date"),
-                    "hasReplyMarkup": bool(update.get("reply_markup")),
+                    **reply_markup_fields(update.get("reply_markup")),
                 },
             )
         elif kind == "updateDeleteMessages":
@@ -292,6 +351,22 @@ class EventRecorder:
                     "action": (update.get("action") or {}).get("@type", ""),
                     "senderId": sender,
                     "isSut": self.sut_user_id is not None and sender == self.sut_user_id,
+                },
+            )
+        elif kind == "updatePendingMessage":
+            content = update.get("content") or {}
+            text = content_text(content)
+            yield (
+                "draft",
+                None,
+                {
+                    "raw": update,
+                    "contentType": content.get("@type", ""),
+                    "textLen": len(text),
+                    "text": text,
+                    "draftId": update.get("draft_id"),
+                    "canStop": bool(update.get("can_stop")),
+                    "keepOnStop": bool(update.get("keep_on_stop")),
                 },
             )
 
@@ -355,17 +430,30 @@ class EventRecorder:
                     "senderId": e.get("senderId"),
                     "isSut": e.get("isSut"),
                     "isOutgoing": e.get("isOutgoing"),
+                    "ephemeralMessageId": e.get("ephemeralMessageId"),
                     "replyToMessageId": e.get("replyToMessageId"),
                     "quoteText": e.get("quoteText"),
                     "topicType": e.get("topicType"),
                     "topicId": e.get("topicId"),
                     "reactionText": e.get("reactionText"),
                     "reactionCount": e.get("reactionCount"),
+                    "pollIsClosed": e.get("pollIsClosed"),
+                    "hasReplyMarkup": e.get("hasReplyMarkup"),
+                    "buttonTexts": e.get("buttonTexts"),
                     "actionType": e.get("actionType"),
                     "status": e.get("status"),
                     "buttonText": e.get("buttonText"),
                     "durationMs": e.get("durationMs"),
                     "error": e.get("error"),
+                    "updateType": e.get("updateType"),
+                    "draftId": e.get("draftId"),
+                    "canStop": e.get("canStop"),
+                    "keepOnStop": e.get("keepOnStop"),
+                    "latitude": e.get("latitude"),
+                    "longitude": e.get("longitude"),
+                    "livePeriod": e.get("livePeriod"),
+                    "expiresIn": e.get("expiresIn"),
+                    "isLivePhoto": e.get("isLivePhoto"),
                 }
                 for e in self.events
             ],
@@ -393,19 +481,30 @@ def scenario_barriers_ready(actions, action_index, barrier_dir):
     )
 
 
-def run_scenario(recorder, driver_obj, sut, actions, seconds, barrier_dir=""):
+def record_sent_action(recorder, message, text):
+    recorder.ingest({"@type": "updateNewMessage", "message": message})
+    recorder._append(
+        "action",
+        message.get("id"),
+        actionType="send",
+        status="completed",
+        text=text,
+    )
+
+
+def run_scenario(recorder, driver_obj, sut, actions, seconds, barrier_dir="", stop_file=""):
     telegram_actions = sorted(
         (
             (index, action)
             for index, action in enumerate(actions)
-            if action["type"] in {"send", "click"}
+            if action["type"] in {"send", "click", "inlineQuery"}
         ),
         key=lambda item: item[1]["atMs"],
     )
     sent_ids = []
     next_action = 0
     deadline = recorder.started_at + seconds
-    while time.time() < deadline:
+    while time.time() < deadline and not (stop_file and Path(stop_file).exists()):
         now_ms = int((time.time() - recorder.started_at) * 1000)
         if next_action < len(telegram_actions):
             action_index, action = telegram_actions[next_action]
@@ -417,13 +516,41 @@ def run_scenario(recorder, driver_obj, sut, actions, seconds, barrier_dir=""):
                     result = driver_obj.send_text(recorder.chat_id, text)
                     message_id = (result or {}).get("id")
                     sent_ids.append(message_id)
-                    recorder._append(
-                        "action",
-                        message_id,
-                        actionType="send",
-                        status="completed",
-                        text=text,
-                    )
+                    record_sent_action(recorder, result or {}, text)
+                    next_action += 1
+                    continue
+
+                if action["type"] == "inlineQuery":
+                    query, _run = driver.apply_template(action["query"], sut)
+                    started = time.time()
+                    try:
+                        response = driver_obj.client.request(
+                            {
+                                "@type": "getInlineQueryResults",
+                                "bot_user_id": int(sut["id"]),
+                                "chat_id": recorder.chat_id,
+                                "query": query,
+                                "offset": "",
+                            },
+                            timeout=action["timeoutMs"] / 1000,
+                        )
+                        recorder._append(
+                            "action",
+                            None,
+                            raw=response,
+                            actionType="inlineQuery",
+                            status="completed",
+                            durationMs=int((time.time() - started) * 1000),
+                        )
+                    except driver.DriverError as error:
+                        recorder._append(
+                            "action",
+                            None,
+                            actionType="inlineQuery",
+                            status="failed",
+                            durationMs=int((time.time() - started) * 1000),
+                            error=str(error),
+                        )
                     next_action += 1
                     continue
 
@@ -503,6 +630,7 @@ def main():
     parser.add_argument("--send-caption", default="", help="caption for the first photo")
     parser.add_argument("--scenario", default="", help="normalized scenario JSON from the runner")
     parser.add_argument("--ready-file", default="", help=argparse.SUPPRESS)
+    parser.add_argument("--stop-file", default="", help=argparse.SUPPRESS)
     parser.add_argument("--barrier-dir", default="", help=argparse.SUPPRESS)
     parser.add_argument("--seconds", type=float, default=30.0)
     parser.add_argument("--record", default="/tmp/tg-user-events.ndjson")
@@ -539,6 +667,7 @@ def main():
                     scenario["actions"],
                     args.seconds,
                     args.barrier_dir,
+                    args.stop_file,
                 )
             )
         elif args.send:

@@ -1,13 +1,13 @@
 {
   "addStickerToSet": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can add a duplicate sticker, and no isolated regular sticker-set fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/addStickerToSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.257Z",
+    "status": "proven"
   },
   "answerCallbackQuery": {
-    "expires_on": "2026-09-13",
-    "reason": "active callback query fixture unavailable: Telegram returned 'query is too old and response timeout expired or query ID is invalid'",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/answerCallbackQuery/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:18:15.247Z",
+    "status": "proven"
   },
   "answerChatJoinRequestQuery": {
     "expires_on": "2026-09-13",
@@ -20,9 +20,9 @@
     "status": "blocked"
   },
   "answerInlineQuery": {
-    "expires_on": "2026-09-13",
-    "reason": "inline query fixture unavailable: Telegram returned 'USER_BOT_INVALID'",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/answerInlineQuery/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:38:10.582Z",
+    "status": "proven"
   },
   "answerPreCheckoutQuery": {
     "expires_on": "2026-09-13",
@@ -40,8 +40,8 @@
     "status": "blocked"
   },
   "approveChatJoinRequest": {
-    "expires_on": "2026-09-13",
-    "reason": "join-request administrator fixture unavailable: Telegram returned 'not enough rights to manage chat join requests'",
+    "expires_on": "2026-09-01",
+    "reason": "second Test Server user authorization is throttled: Telegram returned 'Too Many Requests: retry after 32'",
     "status": "blocked"
   },
   "approveSuggestedPost": {
@@ -50,73 +50,73 @@
     "status": "blocked"
   },
   "banChatMember": {
-    "expires_on": "2026-09-13",
-    "reason": "leased group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/banChatMember/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:44.763Z",
+    "status": "proven"
   },
   "banChatSenderChat": {
-    "expires_on": "2026-09-13",
-    "reason": "leased group and sender-chat fixtures unavailable after migration; credential pool repair is owner-only",
+    "expires_on": "2026-09-14",
+    "reason": "the reusable QA group has no real channel sender: TDLib returned 'Personal channel is not an available group sender'",
     "status": "blocked"
   },
   "close": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for close: execution disrupts the leased cloud bot and starts a 10-minute cooldown",
+    "expires_on": "2026-09-01",
+    "reason": "local Bot API fixture is ready, but Test BotFather blocked fresh disposable-bot creation with 'Sorry, too many attempts. Please try again in 16681 seconds.'",
     "status": "blocked"
   },
   "closeForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/closeForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:50.802Z",
+    "status": "proven"
   },
   "closeGeneralForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/closeGeneralForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:52.024Z",
+    "status": "proven"
   },
   "convertGiftToStars": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for convertGiftToStars: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "copyMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create a duplicate copied message",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/copyMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:31.311Z",
+    "status": "proven"
   },
   "copyMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create duplicate copied messages",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/copyMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:37.468Z",
+    "status": "proven"
   },
   "createChatInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry mints another invite link, and the leased group fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/createChatInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:46.093Z",
+    "status": "proven"
   },
   "createChatSubscriptionInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry mints another paid invite link, and the leased channel fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/createChatSubscriptionInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:47:07.432Z",
+    "status": "proven"
   },
   "createForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry creates another topic, and the leased forum fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/createForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:50.733Z",
+    "status": "proven"
   },
   "createInvoiceLink": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry mints another payable invoice link, and no isolated payment fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/createInvoiceLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:03.026Z",
+    "status": "proven"
   },
   "createNewStickerSet": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for createNewStickerSet: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/createNewStickerSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:08.882Z",
+    "status": "proven"
   },
   "declineChatJoinRequest": {
-    "expires_on": "2026-09-13",
-    "reason": "join-request group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'",
+    "expires_on": "2026-09-01",
+    "reason": "second Test Server user authorization is throttled: Telegram returned 'Too Many Requests: retry after 32'",
     "status": "blocked"
   },
   "declineSuggestedPost": {
@@ -125,169 +125,169 @@
     "status": "blocked"
   },
   "deleteAllMessageReactions": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteAllMessageReactions: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteAllMessageReactions/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:44.279Z",
+    "status": "proven"
   },
   "deleteBusinessMessages": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteBusinessMessages: the leased bot has no business connection or story fixture",
+    "reason": "business connection is proven, but a second Test Server user is required to create a deletable managed private-chat message",
     "status": "blocked"
   },
   "deleteChatPhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator chat fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteChatPhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.445Z",
+    "status": "proven"
   },
   "deleteChatStickerSet": {
-    "expires_on": "2026-09-13",
-    "reason": "leased supergroup sticker-set fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteChatStickerSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:43:55.746Z",
+    "status": "proven"
   },
   "deleteEphemeralMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteEphemeralMessage: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteEphemeralMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.574Z",
+    "status": "proven"
   },
   "deleteForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:51.954Z",
+    "status": "proven"
   },
   "deleteMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteMessage: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:22.024Z",
+    "status": "proven"
   },
   "deleteMessageReaction": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteMessageReaction: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteMessageReaction/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:43.931Z",
+    "status": "proven"
   },
   "deleteMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteMessages: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:25.174Z",
+    "status": "proven"
   },
   "deleteMyCommands": {
-    "artifact": "bot-api/proofs/deleteMyCommands/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:36.326Z",
+    "artifact": "bot-api/proofs/deleteMyCommands/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:42.121Z",
     "status": "proven"
   },
   "deleteStickerFromSet": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteStickerFromSet: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteStickerFromSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:10.186Z",
+    "status": "proven"
   },
   "deleteStickerSet": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteStickerSet: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteStickerSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:10.210Z",
+    "status": "proven"
   },
   "deleteStory": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteStory: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteStory/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:25.327Z",
+    "status": "proven"
   },
   "deleteWebhook": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for deleteWebhook: an isolated HTTPS webhook endpoint and restorable webhook snapshot are not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/deleteWebhook/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:48:16.426Z",
+    "status": "proven"
   },
   "editChatInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "administrator chat and bot-created invite-link fixtures are unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editChatInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:46.118Z",
+    "status": "proven"
   },
   "editChatSubscriptionInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "channel and subscription invite-link fixtures are unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editChatSubscriptionInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:47:07.458Z",
+    "status": "proven"
   },
   "editEphemeralMessageCaption": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editEphemeralMessageCaption: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editEphemeralMessageCaption/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.630Z",
+    "status": "proven"
   },
   "editEphemeralMessageMedia": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editEphemeralMessageMedia: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editEphemeralMessageMedia/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.657Z",
+    "status": "proven"
   },
   "editEphemeralMessageReplyMarkup": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editEphemeralMessageReplyMarkup: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editEphemeralMessageReplyMarkup/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.549Z",
+    "status": "proven"
   },
   "editEphemeralMessageText": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editEphemeralMessageText: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editEphemeralMessageText/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.522Z",
+    "status": "proven"
   },
   "editForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum topic fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:50.767Z",
+    "status": "proven"
   },
   "editGeneralForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editGeneralForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:51.987Z",
+    "status": "proven"
   },
   "editMessageCaption": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageCaption: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editMessageCaption/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:09.406Z",
+    "status": "proven"
   },
   "editMessageChecklist": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageChecklist: a matching restorable message-state fixture is not active",
+    "reason": "business connection is proven, but a second Test Server user is required to create a managed private-chat checklist",
     "status": "blocked"
   },
   "editMessageLiveLocation": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageLiveLocation: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editMessageLiveLocation/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:15.760Z",
+    "status": "proven"
   },
   "editMessageMedia": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageMedia: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editMessageMedia/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:12.524Z",
+    "status": "proven"
   },
   "editMessageReplyMarkup": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageReplyMarkup: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editMessageReplyMarkup/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:03.290Z",
+    "status": "proven"
   },
   "editMessageText": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editMessageText: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editMessageText/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:03.148Z",
+    "status": "proven"
   },
   "editStory": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editStory: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/editStory/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:25.305Z",
+    "status": "proven"
   },
   "editUserStarSubscription": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for editUserStarSubscription: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "exportChatInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry revokes the link returned by the lost response, and the leased group fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/exportChatInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:46.283Z",
+    "status": "proven"
   },
   "forwardMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create a duplicate forwarded message",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/forwardMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:40.640Z",
+    "status": "proven"
   },
   "forwardMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create duplicate forwarded messages",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/forwardMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:43.839Z",
+    "status": "proven"
   },
   "getAvailableGifts": {
     "artifact": "bot-api/proofs/getAvailableGifts/2026-08-30.json",
@@ -295,19 +295,19 @@
     "status": "proven"
   },
   "getBusinessAccountGifts": {
-    "expires_on": "2026-09-13",
-    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getBusinessAccountGifts/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.418Z",
+    "status": "proven"
   },
   "getBusinessAccountStarBalance": {
-    "expires_on": "2026-09-13",
-    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getBusinessAccountStarBalance/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.398Z",
+    "status": "proven"
   },
   "getBusinessConnection": {
-    "expires_on": "2026-09-13",
-    "reason": "leased bot has no business connection fixture: Telegram returned 'business connection not found'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getBusinessConnection/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.370Z",
+    "status": "proven"
   },
   "getChat": {
     "artifact": "bot-api/proofs/getChat/2026-08-30.json",
@@ -315,14 +315,14 @@
     "status": "proven"
   },
   "getChatAdministrators": {
-    "expires_on": "2026-09-13",
-    "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat' then 'chat not found' for the migrated id; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getChatAdministrators/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:39.996Z",
+    "status": "proven"
   },
   "getChatGifts": {
-    "expires_on": "2026-09-13",
-    "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat' then 'chat not found' for the migrated id; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getChatGifts/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:12:00.838Z",
+    "status": "proven"
   },
   "getChatMember": {
     "artifact": "bot-api/proofs/getChatMember/2026-08-30.json",
@@ -355,18 +355,18 @@
     "status": "proven"
   },
   "getGameHighScores": {
-    "expires_on": "2026-09-13",
-    "reason": "leased bot has no game message fixture: Telegram returned 'message to get game high scores not found'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getGameHighScores/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:31:47.842Z",
+    "status": "proven"
   },
   "getManagedBotAccessSettings": {
-    "expires_on": "2026-09-13",
-    "reason": "leased user is not a managed bot fixture: Telegram returned 'user is not a bot'; credential pool repair is owner-only",
+    "expires_on": "2026-09-01",
+    "reason": "Bot Management Mode is enabled, but reusable child creation returned 'Too Many Requests: retry after 13397'",
     "status": "blocked"
   },
   "getManagedBotToken": {
-    "expires_on": "2026-09-13",
-    "reason": "leased user is not a managed bot fixture: Telegram returned 'user is not a bot'; credential pool repair is owner-only",
+    "expires_on": "2026-09-01",
+    "reason": "Bot Management Mode is enabled, but reusable child creation returned 'Too Many Requests: retry after 13397'",
     "status": "blocked"
   },
   "getMe": {
@@ -415,14 +415,14 @@
     "status": "proven"
   },
   "getUpdates": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for getUpdates: polling behavior is outside the active project scope",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getUpdates/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:54:42.742Z",
+    "status": "proven"
   },
   "getUserChatBoosts": {
-    "expires_on": "2026-09-13",
-    "reason": "leased group fixture unavailable: Telegram reported 'group chat was upgraded to a supergroup chat'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getUserChatBoosts/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.022Z",
+    "status": "proven"
   },
   "getUserGifts": {
     "artifact": "bot-api/proofs/getUserGifts/2026-08-30.json",
@@ -430,9 +430,9 @@
     "status": "proven"
   },
   "getUserPersonalChatMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "leased user fixture has no personal channel: Telegram returned 'USER_PERSONAL_CHANNEL_MISSING'; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/getUserPersonalChatMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:47:07.350Z",
+    "status": "proven"
   },
   "getUserProfileAudios": {
     "artifact": "bot-api/proofs/getUserProfileAudios/2026-08-30.json",
@@ -451,123 +451,123 @@
   },
   "giftPremiumSubscription": {
     "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can purchase another subscription, and no isolated payment fixture is available",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "hideGeneralForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum fixture unavailable after group migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/hideGeneralForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:52.086Z",
+    "status": "proven"
   },
   "leaveChat": {
-    "expires_on": "2026-09-13",
-    "reason": "live execution would remove the leased bot from shared state that only the credential owner can repair",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/leaveChat/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:45.184Z",
+    "status": "proven"
   },
   "logOut": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for logOut: execution disrupts the leased cloud bot and starts a 10-minute cooldown",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/logOut/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:57:46.522Z",
+    "status": "proven"
   },
   "pinChatMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can repeat a member notification, and the leased group fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/pinChatMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:56.365Z",
+    "status": "proven"
   },
   "postStory": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry creates another story, and no business connection with format-valid story media is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/postStory/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:25.194Z",
+    "status": "proven"
   },
   "promoteChatMember": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/promoteChatMember/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:43.132Z",
+    "status": "proven"
   },
   "readBusinessMessage": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for readBusinessMessage: the leased bot has no business connection or story fixture",
+    "reason": "business connection is proven, but a second Test Server user is required to send an unread managed private-chat message",
     "status": "blocked"
   },
   "refundStarPayment": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for refundStarPayment: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "removeBusinessAccountProfilePhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for removeBusinessAccountProfilePhoto: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/removeBusinessAccountProfilePhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:25.021Z",
+    "status": "proven"
   },
   "removeChatVerification": {
     "expires_on": "2026-09-13",
-    "reason": "verified chat and verification-rights fixtures are unavailable",
+    "reason": "documented Test Server setup was applied, but Telegram returned 'BOT_VERIFIER_FORBIDDEN'",
     "status": "blocked"
   },
   "removeMyProfilePhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for removeMyProfilePhoto: the leased bot has no restorable profile-photo fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/removeMyProfilePhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:44.733Z",
+    "status": "proven"
   },
   "removeUserVerification": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for removeUserVerification: the leased bot has no verified-user fixture or verification rights",
+    "reason": "documented Test Server setup was applied, but Telegram returned 'BOT_VERIFIER_FORBIDDEN'",
     "status": "blocked"
   },
   "reopenForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased closed forum topic fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/reopenForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:50.834Z",
+    "status": "proven"
   },
   "reopenGeneralForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased closed forum fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/reopenGeneralForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:52.055Z",
+    "status": "proven"
   },
   "replaceManagedBotToken": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry rotates the credential again, and no isolated managed-bot fixture is available",
+    "expires_on": "2026-09-01",
+    "reason": "Bot Management Mode is enabled, but reusable child creation returned 'Too Many Requests: retry after 13397'",
     "status": "blocked"
   },
   "replaceStickerInSet": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for replaceStickerInSet: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/replaceStickerInSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.760Z",
+    "status": "proven"
   },
   "repostStory": {
     "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry creates another reposted story, and no business story fixture is available",
+    "reason": "postStory is proven, but repostStory requires a second business account managed by the same bot",
     "status": "blocked"
   },
   "restrictChatMember": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/restrictChatMember/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:44.659Z",
+    "status": "proven"
   },
   "revokeChatInviteLink": {
-    "expires_on": "2026-09-13",
-    "reason": "administrator chat and bot-created invite-link fixtures are unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/revokeChatInviteLink/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:17:21.926Z",
+    "status": "proven"
   },
   "savePreparedInlineMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry stores another prepared message ID, and no isolated Mini App fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/savePreparedInlineMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:38:10.603Z",
+    "status": "proven"
   },
   "savePreparedKeyboardButton": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry stores another prepared button ID, and no isolated Mini App fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/savePreparedKeyboardButton/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:38:10.625Z",
+    "status": "proven"
   },
   "sendAnimation": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid animation fixture unavailable: Telegram accepted the generated two-frame GIF but delivered it as 'messageDocument'",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendAnimation/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:14:44.144Z",
+    "status": "proven"
   },
   "sendAudio": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid MP3 or M4A audio fixture is unavailable in the leased Test Server harness",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendAudio/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:13:56.366Z",
+    "status": "proven"
   },
   "sendChatAction": {
     "artifact": "bot-api/proofs/sendChatAction/2026-08-30.json",
@@ -581,7 +581,7 @@
   },
   "sendChecklist": {
     "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another checklist, and no isolated business connection fixture is available",
+    "reason": "business connection is proven, but a second Test Server user is required to create an eligible managed private chat",
     "status": "blocked"
   },
   "sendContact": {
@@ -590,9 +590,9 @@
     "status": "proven"
   },
   "sendDice": {
-    "expires_on": "2026-09-13",
-    "reason": "live message cannot be cleaned up immediately: Telegram returned 'message can't be deleted for everyone'; private-chat dice messages must be more than 24 hours old before deletion",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendDice/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:17:52.515Z",
+    "status": "proven"
   },
   "sendDocument": {
     "artifact": "bot-api/proofs/sendDocument/2026-08-30.json",
@@ -600,24 +600,24 @@
     "status": "proven"
   },
   "sendGame": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another game, and no BotFather game fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendGame/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:31:47.786Z",
+    "status": "proven"
   },
   "sendGift": {
     "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can transfer another paid gift, and no isolated gift balance fixture is available",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "sendInvoice": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another payable invoice, and no isolated payment fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendInvoice/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:47.094Z",
+    "status": "proven"
   },
   "sendLivePhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid paired live-photo image and video fixtures are unavailable in the leased Test Server harness",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendLivePhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:24:57.196Z",
+    "status": "proven"
   },
   "sendLocation": {
     "artifact": "bot-api/proofs/sendLocation/2026-08-30.json",
@@ -625,9 +625,9 @@
     "status": "proven"
   },
   "sendMediaGroup": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another media album; public nested multipart behavior is proven hermetically",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendMediaGroup/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:47.034Z",
+    "status": "proven"
   },
   "sendMessage": {
     "artifact": "bot-api/proofs/sendMessage/2026-08-30.json",
@@ -635,14 +635,14 @@
     "status": "proven"
   },
   "sendMessageDraft": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for sendMessageDraft: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendMessageDraft/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:56:02.785Z",
+    "status": "proven"
   },
   "sendPaidMedia": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another monetized message, and no isolated paid-media fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendPaidMedia/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:58:28.531Z",
+    "status": "proven"
   },
   "sendPhoto": {
     "artifact": "bot-api/proofs/sendPhoto/2026-08-30.json",
@@ -650,24 +650,24 @@
     "status": "proven"
   },
   "sendPoll": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create another poll message",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendPoll/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:46.953Z",
+    "status": "proven"
   },
   "sendRichMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can send another rich message, and no isolated rich-message fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendRichMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:50.164Z",
+    "status": "proven"
   },
   "sendRichMessageDraft": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for sendRichMessageDraft: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendRichMessageDraft/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:50.190Z",
+    "status": "proven"
   },
   "sendSticker": {
-    "expires_on": "2026-09-13",
-    "reason": "regular sticker fixture unavailable: Telegram rejected the available custom emoji with 'can't send emoji stickers in messages'",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendSticker/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:14:21.351Z",
+    "status": "proven"
   },
   "sendVenue": {
     "artifact": "bot-api/proofs/sendVenue/2026-08-30.json",
@@ -675,253 +675,253 @@
     "status": "proven"
   },
   "sendVideo": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid MP4 video fixture is unavailable in the leased Test Server harness",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendVideo/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:13:56.367Z",
+    "status": "proven"
   },
   "sendVideoNote": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid round MP4 video-note fixture is unavailable in the leased Test Server harness",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendVideoNote/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:14:21.175Z",
+    "status": "proven"
   },
   "sendVoice": {
-    "expires_on": "2026-09-13",
-    "reason": "format-valid OGG/OPUS voice fixture is unavailable in the leased Test Server harness",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/sendVoice/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:14:20.945Z",
+    "status": "proven"
   },
   "setBusinessAccountBio": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setBusinessAccountBio: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setBusinessAccountBio/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.444Z",
+    "status": "proven"
   },
   "setBusinessAccountGiftSettings": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setBusinessAccountGiftSettings: the leased bot has no business connection or story fixture",
+    "reason": "connected business account rejected the documented full-rights fixture with 'BOT_ACCESS_FORBIDDEN'",
     "status": "blocked"
   },
   "setBusinessAccountName": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setBusinessAccountName: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setBusinessAccountName/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.495Z",
+    "status": "proven"
   },
   "setBusinessAccountProfilePhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can append another profile-photo history entry, and no business connection fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setBusinessAccountProfilePhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:24.984Z",
+    "status": "proven"
   },
   "setBusinessAccountUsername": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setBusinessAccountUsername: the leased bot has no business connection or story fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setBusinessAccountUsername/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:59:18.677Z",
+    "status": "proven"
   },
   "setChatAdministratorCustomTitle": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatAdministratorCustomTitle/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:43.205Z",
+    "status": "proven"
   },
   "setChatDescription": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator chat fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatDescription/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.138Z",
+    "status": "proven"
   },
   "setChatMemberTag": {
-    "expires_on": "2026-09-13",
-    "reason": "leased tagged-member group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatMemberTag/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:43.068Z",
+    "status": "proven"
   },
   "setChatMenuButton": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setChatMenuButton: the default menu-button snapshot scenario is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatMenuButton/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:42.161Z",
+    "status": "proven"
   },
   "setChatPermissions": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatPermissions/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.190Z",
+    "status": "proven"
   },
   "setChatPhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can emit another service message, and the leased group fixture is unavailable",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatPhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.386Z",
+    "status": "proven"
   },
   "setChatStickerSet": {
-    "expires_on": "2026-09-13",
-    "reason": "leased supergroup and bot-owned sticker-set fixtures are unavailable after migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatStickerSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:43:55.704Z",
+    "status": "proven"
   },
   "setChatTitle": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator chat fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setChatTitle/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:40.088Z",
+    "status": "proven"
   },
   "setCustomEmojiStickerSetThumbnail": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setCustomEmojiStickerSetThumbnail: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setCustomEmojiStickerSetThumbnail/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:35:40.551Z",
+    "status": "proven"
   },
   "setGameScore": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setGameScore: the leased bot has no BotFather game message fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setGameScore/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:31:47.819Z",
+    "status": "proven"
   },
   "setManagedBotAccessSettings": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setManagedBotAccessSettings: the leased account has no managed-bot fixture",
+    "expires_on": "2026-09-01",
+    "reason": "Bot Management Mode is enabled, but reusable child creation returned 'Too Many Requests: retry after 13397'",
     "status": "blocked"
   },
   "setMessageReaction": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setMessageReaction: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setMessageReaction/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:43.894Z",
+    "status": "proven"
   },
   "setMyCommands": {
-    "artifact": "bot-api/proofs/setMyCommands/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:36.159Z",
+    "artifact": "bot-api/proofs/setMyCommands/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:41.956Z",
     "status": "proven"
   },
   "setMyDefaultAdministratorRights": {
-    "artifact": "bot-api/proofs/setMyDefaultAdministratorRights/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:36.381Z",
+    "artifact": "bot-api/proofs/setMyDefaultAdministratorRights/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:42.207Z",
     "status": "proven"
   },
   "setMyDescription": {
-    "artifact": "bot-api/proofs/setMyDescription/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:35.883Z",
+    "artifact": "bot-api/proofs/setMyDescription/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:41.848Z",
     "status": "proven"
   },
   "setMyName": {
-    "artifact": "bot-api/proofs/setMyName/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:35.673Z",
+    "artifact": "bot-api/proofs/setMyName/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:41.786Z",
     "status": "proven"
   },
   "setMyProfilePhoto": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can append another profile-photo history entry, and no format-valid profile media fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setMyProfilePhoto/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:44.733Z",
+    "status": "proven"
   },
   "setMyShortDescription": {
-    "artifact": "bot-api/proofs/setMyShortDescription/2026-08-30.json",
-    "recorded_time": "2026-08-30T17:33:35.969Z",
+    "artifact": "bot-api/proofs/setMyShortDescription/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:15:41.911Z",
     "status": "proven"
   },
   "setPassportDataErrors": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setPassportDataErrors: the leased bot has no Telegram Passport data fixture",
+    "reason": "pooled Test Server user has no two-step password or Passport data; changing shared account security is unsafe",
     "status": "blocked"
   },
   "setStickerEmojiList": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerEmojiList: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerEmojiList/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.373Z",
+    "status": "proven"
   },
   "setStickerKeywords": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerKeywords: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerKeywords/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.401Z",
+    "status": "proven"
   },
   "setStickerMaskPosition": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerMaskPosition: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerMaskPosition/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:10.606Z",
+    "status": "proven"
   },
   "setStickerPositionInSet": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerPositionInSet: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerPositionInSet/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.295Z",
+    "status": "proven"
   },
   "setStickerSetThumbnail": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerSetThumbnail: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerSetThumbnail/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:10.140Z",
+    "status": "proven"
   },
   "setStickerSetTitle": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setStickerSetTitle: the leased bot has no owned sticker-set fixture",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setStickerSetTitle/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:09.330Z",
+    "status": "proven"
   },
   "setUserEmojiStatus": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setUserEmojiStatus: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "setWebhook": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for setWebhook: an isolated HTTPS webhook endpoint and restorable webhook snapshot are not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/setWebhook/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:48:16.390Z",
+    "status": "proven"
   },
   "stopMessageLiveLocation": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for stopMessageLiveLocation: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/stopMessageLiveLocation/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:21.862Z",
+    "status": "proven"
   },
   "stopPoll": {
-    "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for stopPoll: a matching restorable message-state fixture is not active",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/stopPoll/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:53.292Z",
+    "status": "proven"
   },
   "transferBusinessAccountStars": {
     "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can transfer Stars twice, and no isolated business balance fixture is available",
+    "reason": "business connection is proven, but its zero balance cannot be seeded because Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "transferGift": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for transferGift: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "unbanChatMember": {
-    "expires_on": "2026-09-13",
-    "reason": "leased banned-member group fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unbanChatMember/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:21:44.824Z",
+    "status": "proven"
   },
   "unbanChatSenderChat": {
-    "expires_on": "2026-09-13",
-    "reason": "leased banned sender-chat fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unbanChatSenderChat/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:17:19.349Z",
+    "status": "proven"
   },
   "unhideGeneralForumTopic": {
-    "expires_on": "2026-09-13",
-    "reason": "leased hidden forum fixture unavailable after migration; credential pool repair is owner-only",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unhideGeneralForumTopic/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:52.119Z",
+    "status": "proven"
   },
   "unpinAllChatMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator chat with pinned-message state is unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unpinAllChatMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:56:02.760Z",
+    "status": "proven"
   },
   "unpinAllForumTopicMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "leased forum topic with pinned-message state is unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unpinAllForumTopicMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:50.947Z",
+    "status": "proven"
   },
   "unpinAllGeneralForumTopicMessages": {
-    "expires_on": "2026-09-13",
-    "reason": "leased general forum topic with pinned-message state is unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unpinAllGeneralForumTopicMessages/2026-08-31.json",
+    "recorded_time": "2026-08-31T04:22:52.215Z",
+    "status": "proven"
   },
   "unpinChatMessage": {
-    "expires_on": "2026-09-13",
-    "reason": "leased administrator chat with a pinned-message fixture is unavailable after group migration",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/unpinChatMessage/2026-08-31.json",
+    "recorded_time": "2026-08-31T03:55:59.541Z",
+    "status": "proven"
   },
   "upgradeGift": {
     "expires_on": "2026-09-13",
-    "reason": "live proof unavailable for upgradeGift: the leased bot has no isolated gift or payment fixture",
+    "reason": "Test Server Star seeding reached Stripe tokenization, then Telegram returned 'BOT_PRECHECKOUT_TIMEOUT'",
     "status": "blocked"
   },
   "uploadStickerFile": {
-    "expires_on": "2026-09-13",
-    "reason": "unsafe live scenario: retry can create another reusable upload, and no format-valid sticker file fixture is available",
-    "status": "blocked"
+    "artifact": "bot-api/proofs/uploadStickerFile/2026-08-31.json",
+    "recorded_time": "2026-08-31T02:23:08.526Z",
+    "status": "proven"
   },
   "verifyChat": {
     "expires_on": "2026-09-13",
-    "reason": "verification-rights and eligible chat fixtures are unavailable",
+    "reason": "documented Test Server setup was applied, but Telegram returned 'BOT_VERIFIER_FORBIDDEN'",
     "status": "blocked"
   },
   "verifyUser": {
     "expires_on": "2026-09-13",
-    "reason": "verification-rights and eligible user fixtures are unavailable",
+    "reason": "documented Test Server setup was applied, but Telegram returned 'BOT_VERIFIER_FORBIDDEN'",
     "status": "blocked"
   }
 }

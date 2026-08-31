@@ -1,0 +1,15 @@
+{
+  "method": "setStickerSetThumbnail",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:10.140Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "hasThumbnail": true,
+        "result": true
+      }
+    }
+  ]
+}

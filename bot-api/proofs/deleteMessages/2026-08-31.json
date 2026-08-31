@@ -1,0 +1,62 @@
+{
+  "method": "deleteMessages",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:25.174Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": 3614,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 42376,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-delete-many-a-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3615,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 42410,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-delete-many-b-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    },
+    {
+      "botApiMessageId": 3614,
+      "elapsedMs": 42436,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "ephemeralMessageId": 0
+    },
+    {
+      "botApiMessageId": 3615,
+      "elapsedMs": 42436,
+      "isPermanent": true,
+      "isSut": true,
+      "kind": "delete",
+      "ephemeralMessageId": 0
+    }
+  ]
+}

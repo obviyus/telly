@@ -1,0 +1,15 @@
+{
+  "method": "setStickerPositionInSet",
+  "passed": true,
+  "recorded_time": "2026-08-31T02:23:09.295Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "firstStickerMatches": true,
+        "result": true
+      }
+    }
+  ]
+}

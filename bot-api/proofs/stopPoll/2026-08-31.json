@@ -1,0 +1,44 @@
+{
+  "method": "stopPoll",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:53.292Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "isClosed": true
+      }
+    },
+    {
+      "botApiMessageId": 3634,
+      "buttonTexts": [],
+      "contentType": "messagePoll",
+      "elapsedMs": 70553,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": false,
+      "text": ""
+    },
+    {
+      "botApiMessageId": 3634,
+      "contentType": "messagePoll",
+      "elapsedMs": 70581,
+      "isSut": true,
+      "kind": "edit",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": true,
+      "text": ""
+    }
+  ]
+}

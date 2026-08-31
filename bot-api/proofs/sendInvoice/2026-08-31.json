@@ -1,0 +1,32 @@
+{
+  "method": "sendInvoice",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:47.094Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "messageId": 808
+      }
+    },
+    {
+      "botApiMessageId": 3632,
+      "buttonTexts": [
+        "Pay ⭐️1"
+      ],
+      "contentType": "messageInvoice",
+      "elapsedMs": 64378,
+      "hasReplyMarkup": true,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": ""
+    }
+  ]
+}

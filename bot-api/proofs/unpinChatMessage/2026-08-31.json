@@ -1,0 +1,30 @@
+{
+  "method": "unpinChatMessage",
+  "passed": true,
+  "recorded_time": "2026-08-31T03:55:59.541Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "result": true
+      }
+    },
+    {
+      "botApiMessageId": 3637,
+      "buttonTexts": [],
+      "contentType": "messageText",
+      "elapsedMs": 76719,
+      "hasReplyMarkup": false,
+      "isSut": true,
+      "kind": "message",
+      "latitude": null,
+      "longitude": null,
+      "livePeriod": null,
+      "expiresIn": null,
+      "ephemeralMessageId": 0,
+      "pollIsClosed": null,
+      "text": "telly-unpin-c8f2e9cf-2971-4e19-95b3-01ea8491db0e"
+    }
+  ]
+}

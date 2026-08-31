@@ -1,0 +1,15 @@
+{
+  "method": "createChatInviteLink",
+  "passed": true,
+  "recorded_time": "2026-08-31T04:21:46.093Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "kind": "bot_api_result",
+      "observation": {
+        "expiresInFuture": true,
+        "hasHttpsLink": true
+      }
+    }
+  ]
+}

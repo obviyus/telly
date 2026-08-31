@@ -61,6 +61,17 @@ Require an authenticated `convex` command on `PATH`. When it is missing or
 cannot access the broker project, stop and ask the user to install and
 authenticate the Convex CLI. Runtime setup must never install or log in.
 
+A project-local copy outside OpenClaw can point only the lease lookup at the
+broker checkout:
+
+```bash
+TELEGRAM_E2E_CONVEX_PROJECT_DIR=/path/to/openclaw/qa/convex-credential-broker \
+  node "$TELEGRAM_E2E_SKILL_DIR/scripts/telegram-test-doctor.mjs"
+```
+
+The tested code, harness, recorder, and proof artifacts stay in the active
+project.
+
 CI or another non-interactive worker can instead provide the broker pair:
 
 ```bash
@@ -89,6 +100,18 @@ Treat the harness as an extension point. When its current actions, recorder
 fields, or recipes cannot expose the claim, extend them in the tested checkout.
 Use the leased TDLib session or any Telegram Test Bot API method needed to cover
 the behavior.
+
+For administrator or forum methods, run `scripts/isolated-group.py ensure`.
+It reuses the group owned by the leased tester whose only other member is the
+leased bot. It repairs forum mode and bot administrator rights, or creates the
+fixture once when none exists. Normalize changed state after each proof and
+keep the group. The configured credential-pool group stays untouched.
+
+When the broker rotates SUT bots, use `scripts/isolated-group.py find` before
+`ensure`. Release unmatched leases without creating another group.
+
+Use `scripts/isolated-group.py delete --chat-id ID` only for a disposable
+membership test or legacy fixture cleanup.
 
 For a non-default backend or timed scenario, read the matching section of the
 [runtime reference](features/runtime-reference.md).
@@ -139,6 +162,11 @@ the credential during cleanup.
 
 Recording captures facts and rejects probe assertions such as `--expect` and
 `--any-sut-reply`. Use probe mode only for a quick reply check.
+
+Project-local harnesses that start `user-record.py` directly can pass
+`--stop-file PATH`. Creating that file ends a scenario after the current TDLib
+poll and writes the normal summary. This avoids fixed waits after the expected
+evidence is present.
 
 Done when the runner exits zero and the proof directory contains
 `events.ndjson`, `summary.json`, `gateway.log`, and
