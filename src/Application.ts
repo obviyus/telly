@@ -1,7 +1,8 @@
-import { type Effect, Layer, ManagedRuntime, Redacted } from "effect";
+import { Cause, Effect, Fiber, Layer, ManagedRuntime, Redacted } from "effect";
 import { FetchHttpClient, HttpClient } from "effect/unstable/http";
 
 import { Bot } from "./BotApi.js";
+import { pollUpdates, type PollingOptions, type UpdateHandler } from "./Polling.js";
 
 export interface ApplicationOptions {
   readonly apiRoot?: string;
@@ -12,6 +13,16 @@ export interface ApplicationOptions {
 export interface Application {
   readonly close: () => Promise<void>;
   readonly run: <A, E>(effect: Effect.Effect<A, E, Bot>) => Promise<A>;
+  readonly startPolling: <E>(
+    handler: UpdateHandler<E>,
+    options?: PollingOptions,
+  ) => Polling;
+  readonly stop: () => Promise<void>;
+}
+
+export interface Polling {
+  readonly completed: Promise<void>;
+  readonly stop: () => Promise<void>;
 }
 
 export const Application = {
@@ -22,10 +33,51 @@ export const Application = {
         token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
       }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer)),
     );
+    let pollingStop: (() => Promise<void>) | undefined;
+
+    const stop = async () => {
+      if (pollingStop !== undefined) await pollingStop();
+    };
 
     return {
-      close: runtime.dispose,
+      async close() {
+        await stop();
+        await runtime.dispose();
+      },
       run: runtime.runPromise,
+      startPolling(handler, pollingOptions) {
+        if (pollingStop !== undefined) throw new Error("Application is already polling");
+        const fiber = runtime.runFork(pollUpdates(handler, pollingOptions));
+        let completed: Promise<void> | undefined;
+        const stopCurrent = async () => {
+          try {
+            await Effect.runPromise(Fiber.interrupt(fiber));
+            await completed;
+          } finally {
+            if (pollingStop === stopCurrent) pollingStop = undefined;
+          }
+        };
+        pollingStop = stopCurrent;
+        completed = runtime.runPromise(
+          Fiber.join(fiber).pipe(
+            Effect.catchCause((cause) =>
+              Cause.hasInterruptsOnly(cause) ? Effect.void : Effect.failCause(cause)
+            ),
+            Effect.ensuring(
+              Effect.sync(() => {
+                if (pollingStop === stopCurrent) pollingStop = undefined;
+              }),
+            ),
+          ),
+        );
+        // A caller may only use stop(). Keep an unobserved runtime failure from becoming a process rejection.
+        void completed.catch(() => undefined);
+        return {
+          completed,
+          stop: stopCurrent,
+        };
+      },
+      stop,
     };
   },
 };
