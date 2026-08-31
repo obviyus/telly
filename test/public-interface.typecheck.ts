@@ -8,10 +8,12 @@ import {
   defineBot,
   every,
   Filter,
+  media,
   getMe,
   getMyName,
   on,
   routes,
+  type PhotoSize,
   type Update,
   type UpdateHandler,
 } from "../index.ts";
@@ -61,3 +63,17 @@ const declarativeHandler: UpdateHandler<
 declarativeHandler(update);
 declare const token: string;
 Application.make({ token }).runPolling(declarativeHandler);
+
+const mediaHandler = routes(
+  on(media("photo"), ({ media: photos }) => {
+    photos satisfies ReadonlyArray<PhotoSize>;
+    return firstHandlerEffect;
+  }),
+);
+mediaHandler(update);
+
+const webhook = Application.make({ token }).startWebhook(declarativeHandler, {
+  secretToken: "typecheck_secret",
+});
+webhook.fetch(new Request("https://example.test/telegram"));
+webhook.stop();

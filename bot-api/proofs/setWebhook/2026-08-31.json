@@ -1,22 +1,21 @@
 {
   "method": "setWebhook",
   "passed": true,
-  "recorded_time": "2026-08-31T07:38:03.644Z",
+  "recorded_time": "2026-08-31T12:35:56.209Z",
   "schemaVersion": 1,
   "timeline": [
     {
       "kind": "bot_api_result",
       "observation": {
         "hasCustomCertificate": false,
-        "result": true
+        "result": true,
+        "userObservedResponse": true
       }
     },
     {
       "kind": "webhook_delivery",
       "observation": {
-        "method": "POST",
-        "pathMatches": true,
-        "secretMatches": true,
+        "sentMessageId": 748,
         "updateIdIsInteger": true
       }
     }

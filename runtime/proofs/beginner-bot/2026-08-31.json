@@ -1,0 +1,42 @@
+{
+  "feature": "beginner-bot",
+  "passed": true,
+  "recorded_time": "2026-08-31T11:34:21.668Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "botApiMessageId": 3695,
+      "kind": "user_command",
+      "text": "/start"
+    },
+    {
+      "botApiMessageId": 3696,
+      "kind": "bot_response",
+      "quoted": false,
+      "text": "telly-start-e0185c5e-fa49-484c-8f84-03f91570bf34"
+    },
+    {
+      "botApiMessageId": 3697,
+      "kind": "user_message",
+      "text": "telly-echo-input-e0185c5e-fa49-484c-8f84-03f91570bf34"
+    },
+    {
+      "botApiMessageId": 3698,
+      "kind": "bot_reply",
+      "quotedBotApiMessageId": 3697,
+      "text": "echo:telly-echo-input-e0185c5e-fa49-484c-8f84-03f91570bf34"
+    },
+    {
+      "botApiMessageId": 3699,
+      "kind": "ignored_command",
+      "observation": "no later SUT response",
+      "observationWindowMs": 3000
+    },
+    {
+      "durationMs": 3047,
+      "exitCode": 0,
+      "kind": "graceful_shutdown",
+      "signal": "SIGTERM"
+    }
+  ]
+}

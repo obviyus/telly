@@ -211,3 +211,38 @@ const [signalExitCode] = await signalExited;
 if (signalExitCode !== 0 || !signalOutput.includes("stopped\n")) {
   throw new Error(`runPolling signal smoke failed: stdout=${signalOutput} stderr=${signalError}`);
 }
+
+const webhookFake = testing.FakeBotApi.make({ token });
+const webhookApp = root.Application.make({ httpClient: webhookFake.layer, token });
+const webhookBot = root.defineBot({
+  text: ({ message, text }) => root.respond(message, `webhook:${text}`),
+});
+const webhook = webhookApp.startWebhook(webhookBot, { secretToken: "node_webhook_secret" });
+try {
+  const delivered = await webhook.fetch(new Request("https://example.test/telegram", {
+    body: JSON.stringify({
+      message: {
+        chat: { id: 63, type: "private" },
+        date: 1_700_000_000,
+        message_id: 118,
+        text: "node-webhook",
+      },
+      update_id: 118,
+    }),
+    headers: {
+      "content-type": "application/json",
+      "x-telegram-bot-api-secret-token": "node_webhook_secret",
+    },
+    method: "POST",
+  }));
+  if (
+    delivered.status !== 200 ||
+    webhookFake.requests.at(-1)?.params.text !== "webhook:node-webhook"
+  ) {
+    throw new Error("Application webhook failed under Node.js");
+  }
+  await webhook.stop();
+  await webhook.completed;
+} finally {
+  await webhookApp.close();
+}

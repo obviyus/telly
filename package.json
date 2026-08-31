@@ -29,6 +29,7 @@
     "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
     "e2e:read-only-methods": "bun run ./scripts/e2e/read-only-methods.mjs",
     "e2e:bot-profile-settings": "bun run ./scripts/e2e/bot-profile-settings.mjs",
+    "e2e:beginner-bot": "bun run ./scripts/e2e/beginner-bot.mjs",
     "e2e:botfather-fixtures": "bun run ./scripts/e2e/botfather-fixtures.mjs",
     "e2e:custom-emoji": "bun run ./scripts/e2e/custom-emoji.mjs",
     "e2e:disposable-bots": "bun run ./scripts/e2e/disposable-bots.mjs",
