@@ -50,6 +50,7 @@
     "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json"
   },
   "dependencies": {
+    "@libsql/client": "0.17.4",
     "effect": "4.0.0-rc.112"
   },
   "devDependencies": {

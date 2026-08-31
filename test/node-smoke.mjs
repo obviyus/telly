@@ -1,6 +1,8 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const [root, testing] = await Promise.all([
   import("telly"),
@@ -245,4 +247,31 @@ try {
   await webhook.completed;
 } finally {
   await webhookApp.close();
+}
+
+const sqliteDirectory = mkdtempSync(join(tmpdir(), "telly-node-sqlite."));
+const sqlitePath = join(sqliteDirectory, "inbox.db");
+let sqliteInbox = await root.SqliteInbox.open(sqlitePath);
+try {
+  const saved = await Effect.runPromise(sqliteInbox.save({
+    botId: 123456,
+    capacity: 10,
+    conversationKey: "chat:node",
+    payload: { update_id: 501 },
+    updateId: 501,
+  }));
+  if (saved._tag !== "Stored") throw new Error("Node SQLite inbox did not save");
+  sqliteInbox.close();
+  sqliteInbox = await root.SqliteInbox.open(sqlitePath);
+  const lease = await Effect.runPromise(sqliteInbox.acquire({ botId: 123456, leaseMs: 30_000 }));
+  if (lease._tag !== "Acquired") throw new Error("Node SQLite inbox lease was not acquired");
+  const claimed = await Effect.runPromise(sqliteInbox.claim({
+    botId: 123456,
+    fencingToken: lease.fencingToken,
+    limit: 1,
+  }));
+  if (claimed[0]?.updateId !== 501) throw new Error("Node SQLite inbox did not replay");
+} finally {
+  sqliteInbox.close();
+  rmSync(sqliteDirectory, { force: true, recursive: true });
 }
