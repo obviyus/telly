@@ -4,11 +4,27 @@ import { Bot, BotApiError, retryUnknownOutcome } from "./src/BotApi.js";
 import type { BotApiOptions } from "./src/BotApi.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
+import { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
+import type {
+  ClaimedUpdate,
+  ClaimInboxUpdates,
+  DispatchLeaseOptions,
+  DispatchLeaseResult,
+  FencedInboxOperation,
+  InboxSaveResult,
+  InboxOptions,
+  InboxSettlement,
+  InboxStoreService,
+  PruneInboxUpdates,
+  SaveInboxUpdate,
+  SettleInboxUpdate,
+} from "./src/Inbox.js";
 import { reply, respond } from "./src/Conversation.js";
 import type { ConversationMessageOptions } from "./src/Conversation.js";
-import { pollUpdates } from "./src/Polling.js";
+import { pollInboxUpdates, pollUpdates } from "./src/Polling.js";
 import type {
   AcknowledgmentMode,
+  InboxPollingOptions,
   PollingOptions,
   UpdateHandler,
 } from "./src/Polling.js";
@@ -56,11 +72,16 @@ export {
   command,
   defineBot,
   downloadFile,
+  DispatchLeaseLost,
   every,
   Filter,
+  InboxStore,
+  InboxStoreError,
   media,
   mention,
+  MemoryInbox,
   on,
+  pollInboxUpdates,
   pollUpdates,
   reply,
   retryUnknownOutcome,
@@ -75,9 +96,19 @@ export type {
   ApplicationOptions,
   BotApiOptions,
   BotDefinition,
+  ClaimedUpdate,
+  ClaimInboxUpdates,
   ChatTypeMatch,
   ConversationMessageOptions,
+  DispatchLeaseOptions,
+  DispatchLeaseResult,
   DownloadFileOptions,
+  FencedInboxOperation,
+  InboxSaveResult,
+  InboxOptions,
+  InboxPollingOptions,
+  InboxSettlement,
+  InboxStoreService,
   MediaKind,
   MediaKindMap,
   MediaMatch,
@@ -86,7 +117,10 @@ export type {
   MessageChatType,
   PollingOptions,
   Polling,
+  PruneInboxUpdates,
   Route,
+  SaveInboxUpdate,
+  SettleInboxUpdate,
   RegexMatch,
   RepliedMessageMatch,
   TextMatch,

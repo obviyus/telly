@@ -8,10 +8,13 @@ import {
   defineBot,
   every,
   Filter,
+  InboxStore,
   media,
+  MemoryInbox,
   getMe,
   getMyName,
   on,
+  pollInboxUpdates,
   retryUnknownOutcome,
   routes,
   type PhotoSize,
@@ -65,7 +68,11 @@ declarativeHandler(update);
 declare const token: string;
 Application.make({ token }).runPolling(declarativeHandler);
 Application.make({ rateLimit: false, token });
+Application.make({ inbox: MemoryInbox.make(), token }).runPolling(declarativeHandler);
 getMe().pipe(retryUnknownOutcome);
+pollInboxUpdates(declarativeHandler).pipe(
+  Effect.provideService(InboxStore, MemoryInbox.make()),
+);
 
 const mediaHandler = routes(
   on(media("photo"), ({ media: photos }) => {

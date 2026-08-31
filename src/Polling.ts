@@ -2,14 +2,20 @@ import { Effect } from "effect";
 
 import { Bot, BotApiError } from "./BotApi.js";
 import { getUpdates } from "./methods.generated.js";
+import { InboxStore, type InboxOptions, type InboxStoreError } from "./Inbox.js";
 import { defaultConversationKey, makeDispatcher } from "./internal/Dispatch.js";
+import {
+  inboxDefaults,
+  runInboxWorker,
+  saveInboxUpdate,
+} from "./internal/InboxRuntime.js";
 import type { Update, UpdateType } from "./types.generated.js";
 
 export type AcknowledgmentMode = "on-complete" | "on-receipt";
 
-export type UpdateHandler<E = never> = (
+export type UpdateHandler<E = never, A = unknown> = (
   update: Update,
-) => Effect.Effect<unknown, E, Bot>;
+) => Effect.Effect<A, E, Bot>;
 
 export interface PollingOptions {
   readonly acknowledgment?: AcknowledgmentMode;
@@ -20,6 +26,8 @@ export interface PollingOptions {
   readonly gracePeriodMs?: number;
   readonly pollTimeoutSeconds?: number;
 }
+
+export type InboxPollingOptions = Omit<PollingOptions, "acknowledgment"> & InboxOptions;
 
 interface PendingUpdate {
   complete: boolean;
@@ -134,4 +142,51 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
     Effect.forever(poll),
     dispatcher.join,
   ).pipe(Effect.onExit(() => shutdown));
+});
+
+export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
+  handler: UpdateHandler<E>,
+  options: InboxPollingOptions = {},
+): Effect.fn.Return<never, BotApiError | InboxStoreError, Bot | InboxStore> {
+  const batchSize = options.batchSize ?? 100;
+  const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
+  let nextOffset = 0;
+
+  const receive = Effect.forever(Effect.gen(function* () {
+    const updates = yield* getUpdates({
+      ...(options.allowedUpdates === undefined
+        ? {}
+        : { allowedUpdates: options.allowedUpdates }),
+      ...(nextOffset === 0 ? {} : { offset: nextOffset }),
+      limit: Math.min(100, batchSize),
+      timeout: pollTimeoutSeconds,
+    });
+    for (const update of updates) {
+      const saved = yield* saveInboxUpdate(update, options);
+      if (saved._tag === "Full") {
+        yield* Effect.logWarning("Telegram inbox is full").pipe(
+          Effect.annotateLogs({ capacity: options.capacity ?? inboxDefaults.capacity }),
+        );
+        yield* Effect.sleep(inboxDefaults.pollIntervalMs);
+        return;
+      }
+    }
+    const last = updates.at(-1);
+    if (last !== undefined) nextOffset = last.updateId + 1;
+  }));
+
+  const flush = Effect.suspend(() => nextOffset === 0
+    ? Effect.void
+    : getUpdates({ limit: 1, offset: nextOffset, timeout: 0 }).pipe(
+        Effect.asVoid,
+        Effect.timeoutOrElse({
+          duration: acknowledgmentFlushTimeoutMs,
+          orElse: () => Effect.fail(acknowledgmentFlushTimeout()),
+        }),
+      ));
+
+  return yield* Effect.raceFirst(
+    receive,
+    runInboxWorker(handler, options),
+  ).pipe(Effect.onExit(() => flush));
 });

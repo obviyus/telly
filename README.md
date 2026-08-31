@@ -28,6 +28,8 @@ try {
 }
 ```
 
+Telly validates the standard Telegram token prefix as the numeric bot identifier. It uses that identifier to isolate inbox rows without storing or hashing the secret token.
+
 `Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
 
 Telly retries a request at most twice after the first attempt. It honors Telegram's `retryAfter` value, retries Telegram `5xx` failures, and retries unknown outcomes only when the method is safe. A send may have succeeded before its connection failed. Opt into that duplicate risk for one call only:
@@ -86,6 +88,25 @@ The default `on-complete` acknowledgment confirms only the contiguous prefix of 
 Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, and `mention` from the package root. Compose filters with `Filter.and`, `Filter.or`, and `Filter.not`, bind them with `on`, group first-match routes with `routes`, and run overlapping groups with `every`.
 
 `command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
+
+## Durable inbox
+
+Pass an `InboxStore` to save every update before Telegram receives an acknowledgment. One fenced worker replays saved updates, keeps each conversation in order, retries typed handler failures, and parks an update after five attempts.
+
+```ts
+import { Application, MemoryInbox } from "telly";
+
+const app = Application.make({
+  token,
+  inbox: MemoryInbox.make(),
+});
+
+await app.runPolling(bot);
+```
+
+`MemoryInbox` implements the complete inbox protocol but loses its contents when the process exits. Use it for development and adapter tests, never for a durability claim. Production applications supply a durable `InboxStore`; Telly acknowledges only `Stored` or `Duplicate` updates and applies backpressure when its default 10,000-update capacity is full.
+
+Inbox delivery is at least once. A crash after a handler's external side effect but before durable settlement can run that handler again. Use `updateId` as the idempotency key for downstream writes and payments.
 
 ## Webhooks
 
