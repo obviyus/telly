@@ -60,10 +60,10 @@ const completeEvidence: MethodEvidence = {
   },
 };
 const completeMethods = {
-  absent: { retrySafe: true },
-  blocked: { retrySafe: true },
-  proven: { resultSchema, retrySafe: true },
-};
+  absent: { rateLimit: "none", retrySafe: true },
+  blocked: { rateLimit: "none", retrySafe: true },
+  proven: { rateLimit: "none", resultSchema, retrySafe: true },
+} satisfies GeneratorOverrides["methods"];
 
 test("coverage copies explicit proven and blocked evidence", () => {
   const evidence: MethodEvidence = {
@@ -90,6 +90,7 @@ test("coverage copies explicit proven and blocked evidence", () => {
   expect(coverage.methods["blocked"]).toEqual(evidence["blocked"]);
   expect(coverage.methods["absent"]).toEqual(evidence["absent"]);
   expect(sources.methods).toContain(`result: ${resultSchema}`);
+  expect(sources.methods).toContain('rateLimit: "none"');
   expect(sources.types).toContain("readonly value: number");
 });
 
@@ -245,7 +246,7 @@ test("nested upload fields require an explicit type correction", () => {
   )).toThrow("Nested upload field Result.value needs a field override");
 });
 
-test("every schema method requires retry metadata", () => {
+test("every schema method requires request metadata", () => {
   const incompleteMethods = Object.fromEntries(
     Object.entries(completeMethods).filter(([name]) => name !== "absent"),
   );
@@ -254,7 +255,7 @@ test("every schema method requires retry metadata", () => {
     spec,
     { fields: {}, methods: incompleteMethods, types: {} },
     completeEvidence,
-  )).toThrow("Methods missing retry metadata: absent");
+  )).toThrow("Methods missing request metadata: absent");
 });
 
 test("every schema method requires explicit evidence", () => {

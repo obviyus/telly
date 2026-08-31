@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Effect, Fiber, Layer, Redacted, Tracer } from "effect";
+import { TestClock } from "effect/testing";
 
 import { Bot, downloadFile } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
@@ -114,15 +115,26 @@ describe("downloadFile", () => {
           file_unique_id: "unique-89",
         }),
         FakeBotApiReply.transportFailure(`failed GET /file/bot${token}/documents/private.bin`),
+        FakeBotApiReply.transportFailure(`failed GET /file/bot${token}/documents/private.bin`),
+        FakeBotApiReply.transportFailure(`failed GET /file/bot${token}/documents/private.bin`),
       ],
       token,
     });
+    const program = Effect.gen(function* () {
+      const fiber = yield* Effect.flip(downloadFile({ fileId: "file-89" })).pipe(
+        Effect.forkChild,
+      );
+      yield* Effect.promise(() => fake.whenFileRequested);
+      yield* Effect.yieldNow;
+      yield* TestClock.adjust("1 second");
+      yield* TestClock.adjust("2 seconds");
+      return yield* Fiber.join(fiber);
+    });
 
-    const error = await Effect.runPromise(Effect.flip(
-      downloadFile({ fileId: "file-89" }).pipe(
-        Effect.provide(botLayer(fake)),
-        Effect.provideService(Tracer.Tracer, tracer),
-      ),
+    const error = await Effect.runPromise(program.pipe(
+      Effect.provide(botLayer(fake)),
+      Effect.provideService(Tracer.Tracer, tracer),
+      Effect.provide(TestClock.layer()),
     ));
     const serializedSpans = JSON.stringify(spans.map((span) => ({
       attributes: Object.fromEntries(span.attributes),

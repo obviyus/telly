@@ -46,7 +46,7 @@ try {
     resolve(outdir, "index.js"),
     [
       'export { Application } from "./Application.js";',
-      'export { Bot, BotApiError } from "./BotApi.js";',
+      'export { Bot, BotApiError, retryUnknownOutcome } from "./BotApi.js";',
       'export { reply, respond } from "./Conversation.js";',
       'export { downloadFile } from "./Files.js";',
       'export { pollUpdates } from "./Polling.js";',

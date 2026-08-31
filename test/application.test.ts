@@ -143,7 +143,7 @@ test("runPolling waits for stop and removes its process listeners", async () => 
 
 test("runPolling rejects with its polling failure and removes listeners", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.transportFailure("polling unavailable")],
+    replies: [FakeBotApiReply.reject({ description: "polling unavailable", errorCode: 403 })],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });

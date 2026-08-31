@@ -144,561 +144,746 @@
   },
   "methods": {
     "addStickerToSet": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "answerCallbackQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerChatJoinRequestQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerGuestQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerInlineQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerPreCheckoutQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerShippingQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "answerWebAppQuery": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "message"
     },
     "approveChatJoinRequest": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "approveSuggestedPost": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "banChatMember": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "banChatSenderChat": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "close": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "closeForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "closeGeneralForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "convertGiftToStars": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "copyMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "copyMessages": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message-id-array"
     },
     "createChatInviteLink": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "createChatSubscriptionInviteLink": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "createForumTopic": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "createInvoiceLink": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "createNewStickerSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "declineChatJoinRequest": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "declineSuggestedPost": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteAllMessageReactions": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteBusinessMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteChatPhoto": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteChatStickerSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteEphemeralMessage": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteMessage": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteMessageReaction": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteMyCommands": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteStickerFromSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteStickerSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteStory": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "deleteWebhook": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editChatInviteLink": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editChatSubscriptionInviteLink": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editEphemeralMessageCaption": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editEphemeralMessageMedia": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editEphemeralMessageReplyMarkup": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editEphemeralMessageText": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editGeneralForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageCaption": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageChecklist": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageLiveLocation": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageMedia": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageReplyMarkup": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editMessageText": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editStory": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "editUserStarSubscription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "exportChatInviteLink": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "forwardMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "forwardMessages": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message-id-array"
     },
     "getAvailableGifts": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getBusinessAccountGifts": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getBusinessAccountStarBalance": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getBusinessConnection": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChat": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChatAdministrators": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChatGifts": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChatMember": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChatMemberCount": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getChatMenuButton": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getCustomEmojiStickers": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getFile": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getForumTopicIconStickers": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getGameHighScores": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getManagedBotAccessSettings": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getManagedBotToken": {
       "resultSchema": "Schema.RedactedFromValue(Schema.String, { label: \"Telegram bot token\" })",
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMe": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyCommands": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyDefaultAdministratorRights": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyDescription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyName": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyShortDescription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getMyStarBalance": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getStarTransactions": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getStickerSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUpdates": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUserChatBoosts": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUserGifts": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUserPersonalChatMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUserProfileAudios": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getUserProfilePhotos": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "getWebhookInfo": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "giftPremiumSubscription": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "hideGeneralForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "leaveChat": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "logOut": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "pinChatMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "postStory": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "promoteChatMember": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "readBusinessMessage": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "refundStarPayment": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "removeBusinessAccountProfilePhoto": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "removeChatVerification": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "removeMyProfilePhoto": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "removeUserVerification": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "reopenForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "reopenGeneralForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "replaceManagedBotToken": {
       "resultSchema": "Schema.RedactedFromValue(Schema.String, { label: \"Telegram bot token\" })",
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "replaceStickerInSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "repostStory": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "restrictChatMember": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "revokeChatInviteLink": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "savePreparedInlineMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "savePreparedKeyboardButton": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "sendAnimation": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendAudio": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendChatAction": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "sendChatJoinRequestWebApp": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "sendChecklist": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendContact": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendDice": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendDocument": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendGame": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendGift": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendInvoice": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendLivePhoto": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendLocation": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendMediaGroup": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "media-array"
     },
     "sendMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendMessageDraft": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "sendPaidMedia": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendPhoto": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendPoll": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendRichMessage": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendRichMessageDraft": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "sendSticker": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendVenue": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendVideo": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendVideoNote": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "sendVoice": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "message"
     },
     "setBusinessAccountBio": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setBusinessAccountGiftSettings": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setBusinessAccountName": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setBusinessAccountProfilePhoto": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "setBusinessAccountUsername": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatAdministratorCustomTitle": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatDescription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatMemberTag": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatMenuButton": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatPermissions": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatPhoto": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "setChatStickerSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setChatTitle": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setCustomEmojiStickerSetThumbnail": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setGameScore": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setManagedBotAccessSettings": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMessageReaction": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMyCommands": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMyDefaultAdministratorRights": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMyDescription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMyName": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setMyProfilePhoto": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "setMyShortDescription": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setPassportDataErrors": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerEmojiList": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerKeywords": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerMaskPosition": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerPositionInSet": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerSetThumbnail": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setStickerSetTitle": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setUserEmojiStatus": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "setWebhook": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "stopMessageLiveLocation": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "stopPoll": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "transferBusinessAccountStars": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "transferGift": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unbanChatMember": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unbanChatSenderChat": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unhideGeneralForumTopic": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unpinAllChatMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unpinAllForumTopicMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unpinAllGeneralForumTopicMessages": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "unpinChatMessage": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "upgradeGift": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "uploadStickerFile": {
-      "retrySafe": false
+      "retrySafe": false,
+      "rateLimit": "none"
     },
     "verifyChat": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     },
     "verifyUser": {
-      "retrySafe": true
+      "retrySafe": true,
+      "rateLimit": "none"
     }
   },
   "types": {
