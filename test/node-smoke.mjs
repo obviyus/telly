@@ -5,8 +5,11 @@ const [root, testing] = await Promise.all([
   import("telly/testing"),
 ]);
 
-if (!root.Application || !root.Bot || !root.BotApiError) {
+if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
+}
+if (!root.command || !root.every || !root.on || !root.routes || !root.text) {
+  throw new Error("telly routing exports are incomplete");
 }
 if (!root.getMe || !root.sendMessage || !root.SendMessageParams) {
   throw new Error("telly method exports are incomplete");
@@ -132,11 +135,18 @@ const pollingFake = testing.FakeBotApi.make({
       message: {
         chat: { id: 53, type: "private" },
         date: 1_700_000_000,
+        entities: [{ length: 22, offset: 0, type: "bot_command" }],
         message_id: 117,
-        text: "node-polling",
+        text: "/ping@node_polling_bot node-polling",
       },
       update_id: 117,
     }]),
+    testing.FakeBotApiReply.ok({
+      first_name: "Node Polling Bot",
+      id: 7002,
+      is_bot: true,
+      username: "node_polling_bot",
+    }),
   ],
   token,
 });
@@ -144,13 +154,16 @@ const pollingApp = root.Application.make({
   httpClient: pollingFake.layer,
   token,
 });
+const routingHandler = root.routes(
+  root.on(root.command("ping"), (match) => Effect.sync(() => resolveHandled(match))),
+);
 const polling = pollingApp.startPolling(
-  (update) => Effect.sync(() => resolveHandled(update)),
+  routingHandler,
   { concurrency: 1 },
 );
 try {
-  const handledUpdate = await handled;
-  if (handledUpdate.updateId !== 117 || handledUpdate.message?.text !== "node-polling") {
+  const match = await handled;
+  if (match.update.updateId !== 117 || match.argText !== "node-polling") {
     throw new Error("Application polling failed under Node.js");
   }
   await polling.stop();

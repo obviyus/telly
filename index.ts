@@ -10,10 +10,38 @@ import type {
   PollingOptions,
   UpdateHandler,
 } from "./src/Polling.js";
+import {
+  callbackQuery,
+  command,
+  every,
+  Filter,
+  on,
+  routes,
+  text,
+} from "./src/Routing.js";
+import type {
+  CallbackQueryMatch,
+  CommandMatch,
+  Route,
+  TextMatch,
+} from "./src/Routing.js";
 
 export * from "./src/methods.generated.js";
 export * from "./src/types.generated.js";
-export { Application, Bot, BotApiError, downloadFile, pollUpdates };
+export {
+  Application,
+  Bot,
+  BotApiError,
+  callbackQuery,
+  command,
+  downloadFile,
+  every,
+  Filter,
+  on,
+  pollUpdates,
+  routes,
+  text,
+};
 export type {
   AcknowledgmentMode,
   ApplicationOptions,
@@ -21,5 +49,9 @@ export type {
   DownloadFileOptions,
   PollingOptions,
   Polling,
+  Route,
+  TextMatch,
   UpdateHandler,
+  CallbackQueryMatch,
+  CommandMatch,
 };

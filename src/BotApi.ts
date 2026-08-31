@@ -1,4 +1,4 @@
-import { Context, Effect, Layer, Redacted, Schema } from "effect";
+import { Cause, Context, Deferred, Effect, Layer, Redacted, Schema } from "effect";
 import {
   HttpClient,
   HttpClientRequest,
@@ -6,6 +6,7 @@ import {
 } from "effect/unstable/http";
 
 import { requestBody } from "./internal/Multipart.js";
+import { User, type User as UserType } from "./types.generated.js";
 
 const TelegramResponseParameters = Schema.Struct({
   migrate_to_chat_id: Schema.optionalKey(Schema.Int),
@@ -69,6 +70,11 @@ export interface BotApiOptions {
   readonly apiRoot?: string;
   readonly token: Redacted.Redacted<string>;
 }
+
+type BotIdentityState =
+  | { readonly _tag: "Empty" }
+  | { readonly _tag: "Pending"; readonly request: Deferred.Deferred<UserType, BotApiError> }
+  | { readonly _tag: "Ready"; readonly user: UserType };
 
 const defaultApiRoot = "https://api.telegram.org";
 
@@ -156,6 +162,8 @@ export class Bot extends Context.Service<
     readonly downloadRaw: (
       filePath: string,
     ) => Effect.Effect<Uint8Array, BotApiError>;
+    /** This bot's identity. Successful lookups are cached; failed lookups may retry. */
+    readonly me: Effect.Effect<UserType, BotApiError>;
   }
 >()("telly/Bot") {
   static layer(options: BotApiOptions): Layer.Layer<Bot, never, HttpClient.HttpClient> {
@@ -166,9 +174,10 @@ export class Bot extends Context.Service<
         const token = Redacted.value(options.token);
         const apiRoot = (options.apiRoot ?? defaultApiRoot).replace(/\/+$/u, "");
 
-        const callRaw = Effect.fn("Bot.callRaw")(function* (
+        const call = Effect.fn("Bot.call")(function* (
           method: string,
-          params: object = {},
+          params: object,
+          retrySafe: boolean,
         ) {
           yield* Effect.annotateCurrentSpan({ method });
           const body = requestBody(params);
@@ -181,13 +190,20 @@ export class Bot extends Context.Service<
           );
           const response = yield* client.execute(request).pipe(
             Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
-            Effect.mapError((error) => transportError(method, error, token, false)),
+            Effect.mapError((error) => transportError(method, error, token, retrySafe)),
           );
-          const envelope = yield* decodeEnvelope(response, method, token, false);
+          const envelope = yield* decodeEnvelope(response, method, token, retrySafe);
           if (!envelope.ok) {
             return yield* telegramRejected(method, envelope, token);
           }
           return envelope.result;
+        });
+
+        const callRaw = Effect.fn("Bot.callRaw")(function* (
+          method: string,
+          params: object = {},
+        ) {
+          return yield* call(method, params, false);
         });
 
         const downloadRaw = Effect.fn("Bot.downloadRaw")(function* (filePath: string) {
@@ -216,7 +232,35 @@ export class Bot extends Context.Service<
           );
         });
 
-        return Bot.of({ callRaw, downloadRaw });
+        const fetchMe = Effect.fn("Bot.me")(function* () {
+          const body = yield* call("getMe", {}, true);
+          return yield* Schema.decodeUnknownEffect(User)(body).pipe(
+            Effect.mapError((error) => invalidResponse("getMe", error.message, token, true)),
+          );
+        });
+        let identityState: BotIdentityState = { _tag: "Empty" };
+        const me = Effect.suspend(() => {
+          if (identityState._tag === "Ready") return Effect.succeed(identityState.user);
+          if (identityState._tag === "Pending") return Deferred.await(identityState.request);
+          const pending = Deferred.makeUnsafe<UserType, BotApiError>();
+          identityState = { _tag: "Pending", request: pending };
+          return fetchMe().pipe(
+            Effect.onExit((exit) =>
+              Effect.sync(() => {
+                if (identityState._tag !== "Pending" || identityState.request !== pending) return;
+                identityState = exit._tag === "Success"
+                  ? { _tag: "Ready", user: exit.value }
+                  : { _tag: "Empty" };
+                Deferred.doneUnsafe(
+                  pending,
+                  exit._tag === "Failure" && Cause.hasInterruptsOnly(exit.cause) ? me : exit,
+                );
+              })
+            ),
+          );
+        });
+
+        return Bot.of({ callRaw, downloadRaw, me });
       }),
     );
   }
