@@ -13,7 +13,15 @@ const AdditiveTypeOverride = Schema.Struct({
 
 const TypeOverride = Schema.Union([ExactTypeOverride, AdditiveTypeOverride]);
 
+const RateLimitClass = Schema.Union([
+  Schema.Literal("media-array"),
+  Schema.Literal("message"),
+  Schema.Literal("message-id-array"),
+  Schema.Literal("none"),
+]);
+
 const MethodOverride = Schema.Struct({
+  rateLimit: RateLimitClass,
   resultSchema: Schema.optionalKey(Schema.String),
   retrySafe: Schema.Boolean,
 });
@@ -380,7 +388,7 @@ function renderMethods(
         ? ""
         : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
       const descriptorParams = fields.length === 0 ? "" : `  params: ${paramsName},\n`;
-      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
+      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
@@ -400,7 +408,7 @@ export function generateSources(
   const schemaMethods = Object.keys(spec.methods).sort();
   const missingOverrides = schemaMethods.filter((name) => overrides.methods[name] === undefined);
   if (missingOverrides.length > 0) {
-    throw new Error(`Methods missing retry metadata: ${missingOverrides.join(", ")}`);
+    throw new Error(`Methods missing request metadata: ${missingOverrides.join(", ")}`);
   }
   const missingEvidence = schemaMethods.filter((name) => evidence[name] === undefined);
   if (missingEvidence.length > 0) {

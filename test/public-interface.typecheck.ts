@@ -12,6 +12,7 @@ import {
   getMe,
   getMyName,
   on,
+  retryUnknownOutcome,
   routes,
   type PhotoSize,
   type Update,
@@ -63,6 +64,8 @@ const declarativeHandler: UpdateHandler<
 declarativeHandler(update);
 declare const token: string;
 Application.make({ token }).runPolling(declarativeHandler);
+Application.make({ rateLimit: false, token });
+getMe().pipe(retryUnknownOutcome);
 
 const mediaHandler = routes(
   on(media("photo"), ({ media: photos }) => {

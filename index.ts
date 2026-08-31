@@ -1,6 +1,6 @@
 import { Application } from "./src/Application.js";
 import type { ApplicationOptions, Polling } from "./src/Application.js";
-import { Bot, BotApiError } from "./src/BotApi.js";
+import { Bot, BotApiError, retryUnknownOutcome } from "./src/BotApi.js";
 import type { BotApiOptions } from "./src/BotApi.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
@@ -63,6 +63,7 @@ export {
   on,
   pollUpdates,
   reply,
+  retryUnknownOutcome,
   regex,
   repliedMessage,
   respond,

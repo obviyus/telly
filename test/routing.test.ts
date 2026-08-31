@@ -150,7 +150,7 @@ test("command accepts this bot target and rejects another bot target", async () 
 test("bot identity retries after a failed lookup", async () => {
   const fake = FakeBotApi.make({
     replies: [
-      FakeBotApiReply.transportFailure("temporary identity failure"),
+      FakeBotApiReply.reject({ description: "temporary identity failure", errorCode: 400 }),
       FakeBotApiReply.ok(botIdentity()),
     ],
     token,

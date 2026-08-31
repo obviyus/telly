@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Effect, Layer, Predicate, Redacted, Tracer } from "effect";
+import { Effect, Fiber, Layer, Predicate, Redacted, Tracer } from "effect";
+import { TestClock } from "effect/testing";
 
 import {
   answerCallbackQuery,
@@ -44,18 +45,30 @@ describe("sendMessage", () => {
     ]);
   });
 
-  test("returns Telegram rejection details without retrying", async () => {
+  test("returns Telegram rejection details after exhausting retries", async () => {
+    const limited = () => FakeBotApiReply.reject({
+      description: "Too Many Requests",
+      errorCode: 429,
+      parameters: { retryAfter: 9 },
+    });
     const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.reject({
-        description: "Too Many Requests",
-        errorCode: 429,
-        parameters: { retryAfter: 9 },
-      })],
+      replies: [limited(), limited(), limited()],
       token,
     });
+    const program = Effect.gen(function* () {
+      const fiber = yield* Effect.flip(
+        sendMessage({ chatId: 11, text: "ratchet" }),
+      ).pipe(Effect.forkChild);
+      yield* Effect.promise(() => fake.whenCalled("sendMessage"));
+      yield* Effect.yieldNow;
+      yield* TestClock.adjust("9 seconds");
+      yield* TestClock.adjust("9 seconds");
+      return yield* Fiber.join(fiber);
+    });
 
-    const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chatId: 11, text: "ratchet" }).pipe(Effect.provide(botLayer(fake))),
+    const error = await Effect.runPromise(program.pipe(
+      Effect.provide(botLayer(fake)),
+      Effect.provide(TestClock.layer()),
     ));
 
     expect(error.reason).toEqual({
@@ -68,7 +81,7 @@ describe("sendMessage", () => {
       "sendMessage: Telegram rejected the call: 429 Too Many Requests (retry after 9s)",
     );
     expect(error.retrySafe).toBe(true);
-    expect(fake.requests).toHaveLength(1);
+    expect(fake.requests).toHaveLength(3);
   });
 
   test("omits optional parameters set to undefined", async () => {
@@ -200,19 +213,6 @@ describe("getMe", () => {
     ]);
   });
 
-  test("marks a transport failure as safe to retry", async () => {
-    const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.transportFailure("connection reset")],
-      token,
-    });
-
-    const error = await Effect.runPromise(
-      Effect.flip(getMe().pipe(Effect.provide(botLayer(fake)))),
-    );
-
-    expect(error.reason._tag).toBe("Transport");
-    expect(error.retrySafe).toBe(true);
-  });
 });
 
 describe("read-only methods with optional fields", () => {

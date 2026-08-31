@@ -6,7 +6,14 @@ import {
 } from "effect/unstable/http";
 
 import { requestBody } from "./internal/Multipart.js";
+import {
+  makeRequestPolicy,
+  retryUnknownOutcome,
+  type RequestMetadata,
+} from "./internal/RequestPolicy.js";
 import { User, type User as UserType } from "./types.generated.js";
+
+export { retryUnknownOutcome };
 
 const TelegramResponseParameters = Schema.Struct({
   migrate_to_chat_id: Schema.optionalKey(Schema.Int),
@@ -68,6 +75,7 @@ export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError"
 
 export interface BotApiOptions {
   readonly apiRoot?: string;
+  readonly rateLimit?: boolean;
   readonly token: Redacted.Redacted<string>;
 }
 
@@ -155,6 +163,12 @@ function decodeEnvelope(
 export class Bot extends Context.Service<
   Bot,
   {
+    readonly call: <A>(
+      method: string,
+      params: object,
+      metadata: RequestMetadata,
+      decode: (value: unknown) => Effect.Effect<A, BotApiError>,
+    ) => Effect.Effect<A, BotApiError>;
     readonly callRaw: (
       method: string,
       params?: object,
@@ -173,8 +187,9 @@ export class Bot extends Context.Service<
         const client = yield* HttpClient.HttpClient;
         const token = Redacted.value(options.token);
         const apiRoot = (options.apiRoot ?? defaultApiRoot).replace(/\/+$/u, "");
+        const policy = makeRequestPolicy({ rateLimit: options.rateLimit !== false });
 
-        const call = Effect.fn("Bot.call")(function* (
+        const request = Effect.fn("Bot.request")(function* (
           method: string,
           params: object,
           retrySafe: boolean,
@@ -199,43 +214,75 @@ export class Bot extends Context.Service<
           return envelope.result;
         });
 
+        const call = Effect.fn("Bot.call")(function* <A>(
+          method: string,
+          params: object,
+          metadata: RequestMetadata,
+          decode: (value: unknown) => Effect.Effect<A, BotApiError>,
+        ) {
+          return yield* policy.execute(
+            method,
+            params,
+            metadata,
+            () => request(method, params, metadata.retrySafe).pipe(Effect.flatMap(decode)),
+          );
+        });
+
         const callRaw = Effect.fn("Bot.callRaw")(function* (
           method: string,
           params: object = {},
         ) {
-          return yield* call(method, params, false);
+          return yield* call(
+            method,
+            params,
+            { rateLimit: "none", retrySafe: false },
+            Effect.succeed,
+          );
         });
 
         const downloadRaw = Effect.fn("Bot.downloadRaw")(function* (filePath: string) {
-          yield* Effect.annotateCurrentSpan({ method: "downloadFile" });
-          const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
-          const request = HttpClientRequest.get(`${apiRoot}/file/bot${token}/${encodedPath}`);
-          const response = yield* client.execute(request).pipe(
-            Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
-            Effect.mapError((error) => transportError("downloadFile", error, token, true)),
-          );
-          if (response.status === 200) {
-            const buffer = yield* response.arrayBuffer.pipe(
-              Effect.mapError((error) => transportError("downloadFile", error, token, true)),
-            );
-            return new Uint8Array(buffer);
-          }
-          const envelope = yield* decodeEnvelope(response, "downloadFile", token, true);
-          if (!envelope.ok) {
-            return yield* telegramRejected("downloadFile", envelope, token);
-          }
-          return yield* invalidResponse(
+          return yield* policy.execute(
             "downloadFile",
-            `file endpoint returned an unexpected success envelope with status ${response.status}`,
-            token,
-            true,
+            {},
+            { rateLimit: "none", retrySafe: true },
+            Effect.fn("Bot.downloadRequest")(function* () {
+              yield* Effect.annotateCurrentSpan({ method: "downloadFile" });
+              const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
+              const fileRequest = HttpClientRequest.get(
+                `${apiRoot}/file/bot${token}/${encodedPath}`,
+              );
+              const response = yield* client.execute(fileRequest).pipe(
+                Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
+                Effect.mapError((error) => transportError("downloadFile", error, token, true)),
+              );
+              if (response.status === 200) {
+                const buffer = yield* response.arrayBuffer.pipe(
+                  Effect.mapError((error) => transportError("downloadFile", error, token, true)),
+                );
+                return new Uint8Array(buffer);
+              }
+              const envelope = yield* decodeEnvelope(response, "downloadFile", token, true);
+              if (!envelope.ok) {
+                return yield* telegramRejected("downloadFile", envelope, token);
+              }
+              return yield* invalidResponse(
+                "downloadFile",
+                `file endpoint returned an unexpected success envelope with status ${response.status}`,
+                token,
+                true,
+              );
+            }),
           );
         });
 
         const fetchMe = Effect.fn("Bot.me")(function* () {
-          const body = yield* call("getMe", {}, true);
-          return yield* Schema.decodeUnknownEffect(User)(body).pipe(
-            Effect.mapError((error) => invalidResponse("getMe", error.message, token, true)),
+          return yield* call(
+            "getMe",
+            {},
+            { rateLimit: "none", retrySafe: true },
+            (body) => Schema.decodeUnknownEffect(User)(body).pipe(
+              Effect.mapError((error) => invalidResponse("getMe", error.message, token, true)),
+            ),
           );
         });
         let identityState: BotIdentityState = { _tag: "Empty" };
@@ -260,7 +307,7 @@ export class Bot extends Context.Service<
           );
         });
 
-        return Bot.of({ callRaw, downloadRaw, me });
+        return Bot.of({ call, callRaw, downloadRaw, me });
       }),
     );
   }

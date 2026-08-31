@@ -1,9 +1,11 @@
 import { Effect, Schema } from "effect";
 
 import { Bot, BotApiError } from "../BotApi.js";
+import type { RateLimitClass } from "./RequestPolicy.js";
 
 interface MethodDescriptorBase<A, EncodedA> {
   readonly method: string;
+  readonly rateLimit: RateLimitClass;
   readonly result: Schema.Codec<A, EncodedA>;
   readonly retrySafe: boolean;
 }
@@ -17,36 +19,31 @@ interface ParameterlessMethodDescriptor<A, EncodedA> extends MethodDescriptorBas
   readonly params?: undefined;
 }
 
-function applyRetrySafety(error: BotApiError, retrySafe: boolean): BotApiError {
-  return error.retrySafe || !retrySafe
-    ? error
-    : new BotApiError({
-        method: error.method,
-        reason: error.reason,
-        retrySafe: true,
-      });
-}
-
 function invokeMethod<A, EncodedA>(
   descriptor: MethodDescriptorBase<A, EncodedA>,
   encoded?: object,
 ): Effect.Effect<A, BotApiError, Bot> {
   return Effect.gen(function* () {
     const bot = yield* Bot;
-    const result = yield* bot.callRaw(descriptor.method, encoded).pipe(
-      Effect.mapError((error) => applyRetrySafety(error, descriptor.retrySafe)),
-    );
-    return yield* Schema.decodeUnknownEffect(descriptor.result)(result).pipe(
-      Effect.mapError(
-        (error) =>
-          new BotApiError({
-            method: descriptor.method,
-            reason: {
-              _tag: "InvalidResponse",
-              description: error.message,
-            },
-            retrySafe: descriptor.retrySafe,
-          }),
+    return yield* bot.call(
+      descriptor.method,
+      encoded ?? {},
+      {
+        rateLimit: descriptor.rateLimit,
+        retrySafe: descriptor.retrySafe,
+      },
+      (result) => Schema.decodeUnknownEffect(descriptor.result)(result).pipe(
+        Effect.mapError(
+          (error) =>
+            new BotApiError({
+              method: descriptor.method,
+              reason: {
+                _tag: "InvalidResponse",
+                description: error.message,
+              },
+              retrySafe: descriptor.retrySafe,
+            }),
+        ),
       ),
     );
   });

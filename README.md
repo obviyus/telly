@@ -30,6 +30,20 @@ try {
 
 `Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
 
+Telly retries a request at most twice after the first attempt. It honors Telegram's `retryAfter` value, retries Telegram `5xx` failures, and retries unknown outcomes only when the method is safe. A send may have succeeded before its connection failed. Opt into that duplicate risk for one call only:
+
+```ts
+import { retryUnknownOutcome, sendMessage } from "telly";
+
+await app.run(
+  sendMessage({ chatId: 123, text: "Retry even if this may send twice" }).pipe(
+    retryUnknownOutcome,
+  ),
+);
+```
+
+Message calls use Telegram's documented limits by default: 30 messages per second overall, one per second in one chat, and 20 per minute in one group. `allowPaidBroadcast: true` uses Telegram's paid 1000-per-second overall limit. Set `rateLimit: false` on `Application.make` only when another system owns message pacing.
+
 A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
 
 `downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.

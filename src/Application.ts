@@ -10,6 +10,7 @@ import { makeWebhook, type Webhook, type WebhookOptions } from "./Webhook.js";
 export interface ApplicationOptions {
   readonly apiRoot?: string;
   readonly httpClient?: Layer.Layer<HttpClient.HttpClient>;
+  readonly rateLimit?: boolean;
   readonly token: string | Redacted.Redacted<string>;
 }
 
@@ -42,6 +43,7 @@ export const Application = {
     const runtime = ManagedRuntime.make(
       Bot.layer({
         ...(options.apiRoot === undefined ? {} : { apiRoot: options.apiRoot }),
+        ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
         token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
       }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer)),
     );

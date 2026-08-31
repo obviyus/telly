@@ -32,6 +32,7 @@ export const AddStickerToSetParams: Schema.Codec<AddStickerToSetParams, Readonly
 export const addStickerToSet = callMethod({
   method: "addStickerToSet",
   params: AddStickerToSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -71,6 +72,7 @@ export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, 
 export const answerCallbackQuery = callMethod({
   method: "answerCallbackQuery",
   params: AnswerCallbackQueryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -99,6 +101,7 @@ export const AnswerChatJoinRequestQueryParams: Schema.Codec<AnswerChatJoinReques
 export const answerChatJoinRequestQuery = callMethod({
   method: "answerChatJoinRequestQuery",
   params: AnswerChatJoinRequestQueryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -127,6 +130,7 @@ export const AnswerGuestQueryParams: Schema.Codec<AnswerGuestQueryParams, Readon
 export const answerGuestQuery = callMethod({
   method: "answerGuestQuery",
   params: AnswerGuestQueryParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.SentGuestMessage, unknown> => Types.SentGuestMessage),
   retrySafe: true,
 });
@@ -168,6 +172,7 @@ export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Read
 export const answerInlineQuery = callMethod({
   method: "answerInlineQuery",
   params: AnswerInlineQueryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -199,6 +204,7 @@ export const AnswerPreCheckoutQueryParams: Schema.Codec<AnswerPreCheckoutQueryPa
 export const answerPreCheckoutQuery = callMethod({
   method: "answerPreCheckoutQuery",
   params: AnswerPreCheckoutQueryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -233,6 +239,7 @@ export const AnswerShippingQueryParams: Schema.Codec<AnswerShippingQueryParams, 
 export const answerShippingQuery = callMethod({
   method: "answerShippingQuery",
   params: AnswerShippingQueryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -261,6 +268,7 @@ export const AnswerWebAppQueryParams: Schema.Codec<AnswerWebAppQueryParams, Read
 export const answerWebAppQuery = callMethod({
   method: "answerWebAppQuery",
   params: AnswerWebAppQueryParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.SentWebAppMessage, unknown> => Types.SentWebAppMessage),
   retrySafe: true,
 });
@@ -289,6 +297,7 @@ export const ApproveChatJoinRequestParams: Schema.Codec<ApproveChatJoinRequestPa
 export const approveChatJoinRequest = callMethod({
   method: "approveChatJoinRequest",
   params: ApproveChatJoinRequestParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -320,6 +329,7 @@ export const ApproveSuggestedPostParams: Schema.Codec<ApproveSuggestedPostParams
 export const approveSuggestedPost = callMethod({
   method: "approveSuggestedPost",
   params: ApproveSuggestedPostParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -354,6 +364,7 @@ export const BanChatMemberParams: Schema.Codec<BanChatMemberParams, Readonly<Rec
 export const banChatMember = callMethod({
   method: "banChatMember",
   params: BanChatMemberParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -382,6 +393,7 @@ export const BanChatSenderChatParams: Schema.Codec<BanChatSenderChatParams, Read
 export const banChatSenderChat = callMethod({
   method: "banChatSenderChat",
   params: BanChatSenderChatParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -389,6 +401,7 @@ export const banChatSenderChat = callMethod({
 /** Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters. */
 export const close = callMethod({
   method: "close",
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -417,6 +430,7 @@ export const CloseForumTopicParams: Schema.Codec<CloseForumTopicParams, Readonly
 export const closeForumTopic = callMethod({
   method: "closeForumTopic",
   params: CloseForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -442,6 +456,7 @@ export const CloseGeneralForumTopicParams: Schema.Codec<CloseGeneralForumTopicPa
 export const closeGeneralForumTopic = callMethod({
   method: "closeGeneralForumTopic",
   params: CloseGeneralForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -470,6 +485,7 @@ export const ConvertGiftToStarsParams: Schema.Codec<ConvertGiftToStarsParams, Re
 export const convertGiftToStars = callMethod({
   method: "convertGiftToStars",
   params: ConvertGiftToStarsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -543,6 +559,7 @@ export const CopyMessageParams: Schema.Codec<CopyMessageParams, Readonly<Record<
 export const copyMessage = callMethod({
   method: "copyMessage",
   params: CopyMessageParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId),
   retrySafe: false,
 });
@@ -589,6 +606,7 @@ export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Recor
 export const copyMessages = callMethod({
   method: "copyMessages",
   params: CopyMessagesParams,
+  rateLimit: "message-id-array",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
   retrySafe: false,
 });
@@ -626,6 +644,7 @@ export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams
 export const createChatInviteLink = callMethod({
   method: "createChatInviteLink",
   params: CreateChatInviteLinkParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
   retrySafe: false,
 });
@@ -660,6 +679,7 @@ export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubs
 export const createChatSubscriptionInviteLink = callMethod({
   method: "createChatSubscriptionInviteLink",
   params: CreateChatSubscriptionInviteLinkParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
   retrySafe: false,
 });
@@ -694,6 +714,7 @@ export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readon
 export const createForumTopic = callMethod({
   method: "createForumTopic",
   params: CreateForumTopicParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ForumTopic, unknown> => Types.ForumTopic),
   retrySafe: false,
 });
@@ -782,6 +803,7 @@ export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Read
 export const createInvoiceLink = callMethod({
   method: "createInvoiceLink",
   params: CreateInvoiceLinkParams,
+  rateLimit: "none",
   result: Schema.String,
   retrySafe: false,
 });
@@ -822,6 +844,7 @@ export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, 
 export const createNewStickerSet = callMethod({
   method: "createNewStickerSet",
   params: CreateNewStickerSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -850,6 +873,7 @@ export const DeclineChatJoinRequestParams: Schema.Codec<DeclineChatJoinRequestPa
 export const declineChatJoinRequest = callMethod({
   method: "declineChatJoinRequest",
   params: DeclineChatJoinRequestParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -881,6 +905,7 @@ export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams
 export const declineSuggestedPost = callMethod({
   method: "declineSuggestedPost",
   params: DeclineSuggestedPostParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -912,6 +937,7 @@ export const DeleteAllMessageReactionsParams: Schema.Codec<DeleteAllMessageReact
 export const deleteAllMessageReactions = callMethod({
   method: "deleteAllMessageReactions",
   params: DeleteAllMessageReactionsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -940,6 +966,7 @@ export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesPa
 export const deleteBusinessMessages = callMethod({
   method: "deleteBusinessMessages",
   params: DeleteBusinessMessagesParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -965,6 +992,7 @@ export const DeleteChatPhotoParams: Schema.Codec<DeleteChatPhotoParams, Readonly
 export const deleteChatPhoto = callMethod({
   method: "deleteChatPhoto",
   params: DeleteChatPhotoParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -990,6 +1018,7 @@ export const DeleteChatStickerSetParams: Schema.Codec<DeleteChatStickerSetParams
 export const deleteChatStickerSet = callMethod({
   method: "deleteChatStickerSet",
   params: DeleteChatStickerSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1021,6 +1050,7 @@ export const DeleteEphemeralMessageParams: Schema.Codec<DeleteEphemeralMessagePa
 export const deleteEphemeralMessage = callMethod({
   method: "deleteEphemeralMessage",
   params: DeleteEphemeralMessageParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1049,6 +1079,7 @@ export const DeleteForumTopicParams: Schema.Codec<DeleteForumTopicParams, Readon
 export const deleteForumTopic = callMethod({
   method: "deleteForumTopic",
   params: DeleteForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1087,6 +1118,7 @@ export const DeleteMessageParams: Schema.Codec<DeleteMessageParams, Readonly<Rec
 export const deleteMessage = callMethod({
   method: "deleteMessage",
   params: DeleteMessageParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1121,6 +1153,7 @@ export const DeleteMessageReactionParams: Schema.Codec<DeleteMessageReactionPara
 export const deleteMessageReaction = callMethod({
   method: "deleteMessageReaction",
   params: DeleteMessageReactionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1149,6 +1182,7 @@ export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<R
 export const deleteMessages = callMethod({
   method: "deleteMessages",
   params: DeleteMessagesParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1177,6 +1211,7 @@ export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readon
 export const deleteMyCommands = callMethod({
   method: "deleteMyCommands",
   params: DeleteMyCommandsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1193,6 +1228,7 @@ export const DeleteStickerFromSetParams: Schema.Codec<DeleteStickerFromSetParams
 export const deleteStickerFromSet = callMethod({
   method: "deleteStickerFromSet",
   params: DeleteStickerFromSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1209,6 +1245,7 @@ export const DeleteStickerSetParams: Schema.Codec<DeleteStickerSetParams, Readon
 export const deleteStickerSet = callMethod({
   method: "deleteStickerSet",
   params: DeleteStickerSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1237,6 +1274,7 @@ export const DeleteStoryParams: Schema.Codec<DeleteStoryParams, Readonly<Record<
 export const deleteStory = callMethod({
   method: "deleteStory",
   params: DeleteStoryParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1262,6 +1300,7 @@ export const DeleteWebhookParams: Schema.Codec<DeleteWebhookParams, Readonly<Rec
 export const deleteWebhook = callMethod({
   method: "deleteWebhook",
   params: DeleteWebhookParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1302,6 +1341,7 @@ export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Re
 export const editChatInviteLink = callMethod({
   method: "editChatInviteLink",
   params: EditChatInviteLinkParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
   retrySafe: true,
 });
@@ -1333,6 +1373,7 @@ export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscrip
 export const editChatSubscriptionInviteLink = callMethod({
   method: "editChatSubscriptionInviteLink",
   params: EditChatSubscriptionInviteLinkParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
   retrySafe: true,
 });
@@ -1379,6 +1420,7 @@ export const EditEphemeralMessageCaptionParams: Schema.Codec<EditEphemeralMessag
 export const editEphemeralMessageCaption = callMethod({
   method: "editEphemeralMessageCaption",
   params: EditEphemeralMessageCaptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1416,6 +1458,7 @@ export const EditEphemeralMessageMediaParams: Schema.Codec<EditEphemeralMessageM
 export const editEphemeralMessageMedia = callMethod({
   method: "editEphemeralMessageMedia",
   params: EditEphemeralMessageMediaParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1450,6 +1493,7 @@ export const EditEphemeralMessageReplyMarkupParams: Schema.Codec<EditEphemeralMe
 export const editEphemeralMessageReplyMarkup = callMethod({
   method: "editEphemeralMessageReplyMarkup",
   params: EditEphemeralMessageReplyMarkupParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1499,6 +1543,7 @@ export const EditEphemeralMessageTextParams: Schema.Codec<EditEphemeralMessageTe
 export const editEphemeralMessageText = callMethod({
   method: "editEphemeralMessageText",
   params: EditEphemeralMessageTextParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1533,6 +1578,7 @@ export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<R
 export const editForumTopic = callMethod({
   method: "editForumTopic",
   params: EditForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1561,6 +1607,7 @@ export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicPara
 export const editGeneralForumTopic = callMethod({
   method: "editGeneralForumTopic",
   params: EditGeneralForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1610,6 +1657,7 @@ export const EditMessageCaptionParams: Schema.Codec<EditMessageCaptionParams, Re
 export const editMessageCaption = callMethod({
   method: "editMessageCaption",
   params: EditMessageCaptionParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -1647,6 +1695,7 @@ export const EditMessageChecklistParams: Schema.Codec<EditMessageChecklistParams
 export const editMessageChecklist = callMethod({
   method: "editMessageChecklist",
   params: EditMessageChecklistParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: true,
 });
@@ -1702,6 +1751,7 @@ export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocation
 export const editMessageLiveLocation = callMethod({
   method: "editMessageLiveLocation",
   params: EditMessageLiveLocationParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -1742,6 +1792,7 @@ export const EditMessageMediaParams: Schema.Codec<EditMessageMediaParams, Readon
 export const editMessageMedia = callMethod({
   method: "editMessageMedia",
   params: EditMessageMediaParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -1779,6 +1830,7 @@ export const EditMessageReplyMarkupParams: Schema.Codec<EditMessageReplyMarkupPa
 export const editMessageReplyMarkup = callMethod({
   method: "editMessageReplyMarkup",
   params: EditMessageReplyMarkupParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -1831,6 +1883,7 @@ export const EditMessageTextParams: Schema.Codec<EditMessageTextParams, Readonly
 export const editMessageText = callMethod({
   method: "editMessageText",
   params: EditMessageTextParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -1874,6 +1927,7 @@ export const EditStoryParams: Schema.Codec<EditStoryParams, Readonly<Record<stri
 export const editStory = callMethod({
   method: "editStory",
   params: EditStoryParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
   retrySafe: true,
 });
@@ -1905,6 +1959,7 @@ export const EditUserStarSubscriptionParams: Schema.Codec<EditUserStarSubscripti
 export const editUserStarSubscription = callMethod({
   method: "editUserStarSubscription",
   params: EditUserStarSubscriptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -1930,6 +1985,7 @@ export const ExportChatInviteLinkParams: Schema.Codec<ExportChatInviteLinkParams
 export const exportChatInviteLink = callMethod({
   method: "exportChatInviteLink",
   params: ExportChatInviteLinkParams,
+  rateLimit: "none",
   result: Schema.String,
   retrySafe: false,
 });
@@ -1982,6 +2038,7 @@ export const ForwardMessageParams: Schema.Codec<ForwardMessageParams, Readonly<R
 export const forwardMessage = callMethod({
   method: "forwardMessage",
   params: ForwardMessageParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -2025,6 +2082,7 @@ export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly
 export const forwardMessages = callMethod({
   method: "forwardMessages",
   params: ForwardMessagesParams,
+  rateLimit: "message-id-array",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
   retrySafe: false,
 });
@@ -2032,6 +2090,7 @@ export const forwardMessages = callMethod({
 /** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
 export const getAvailableGifts = callMethod({
   method: "getAvailableGifts",
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Gifts, unknown> => Types.Gifts),
   retrySafe: true,
 });
@@ -2087,6 +2146,7 @@ export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGifts
 export const getBusinessAccountGifts = callMethod({
   method: "getBusinessAccountGifts",
   params: GetBusinessAccountGiftsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
   retrySafe: true,
 });
@@ -2112,6 +2172,7 @@ export const GetBusinessAccountStarBalanceParams: Schema.Codec<GetBusinessAccoun
 export const getBusinessAccountStarBalance = callMethod({
   method: "getBusinessAccountStarBalance",
   params: GetBusinessAccountStarBalanceParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
   retrySafe: true,
 });
@@ -2137,6 +2198,7 @@ export const GetBusinessConnectionParams: Schema.Codec<GetBusinessConnectionPara
 export const getBusinessConnection = callMethod({
   method: "getBusinessConnection",
   params: GetBusinessConnectionParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.BusinessConnection, unknown> => Types.BusinessConnection),
   retrySafe: true,
 });
@@ -2162,6 +2224,7 @@ export const GetChatParams: Schema.Codec<GetChatParams, Readonly<Record<string, 
 export const getChat = callMethod({
   method: "getChat",
   params: GetChatParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatFullInfo, unknown> => Types.ChatFullInfo),
   retrySafe: true,
 });
@@ -2190,6 +2253,7 @@ export const GetChatAdministratorsParams: Schema.Codec<GetChatAdministratorsPara
 export const getChatAdministrators = callMethod({
   method: "getChatAdministrators",
   params: GetChatAdministratorsParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember)),
   retrySafe: true,
 });
@@ -2245,6 +2309,7 @@ export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Recor
 export const getChatGifts = callMethod({
   method: "getChatGifts",
   params: GetChatGiftsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
   retrySafe: true,
 });
@@ -2273,6 +2338,7 @@ export const GetChatMemberParams: Schema.Codec<GetChatMemberParams, Readonly<Rec
 export const getChatMember = callMethod({
   method: "getChatMember",
   params: GetChatMemberParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember),
   retrySafe: true,
 });
@@ -2298,6 +2364,7 @@ export const GetChatMemberCountParams: Schema.Codec<GetChatMemberCountParams, Re
 export const getChatMemberCount = callMethod({
   method: "getChatMemberCount",
   params: GetChatMemberCountParams,
+  rateLimit: "none",
   result: Schema.Int,
   retrySafe: true,
 });
@@ -2323,6 +2390,7 @@ export const GetChatMenuButtonParams: Schema.Codec<GetChatMenuButtonParams, Read
 export const getChatMenuButton = callMethod({
   method: "getChatMenuButton",
   params: GetChatMenuButtonParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.MenuButton, unknown> => Types.MenuButton),
   retrySafe: true,
 });
@@ -2348,6 +2416,7 @@ export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersPa
 export const getCustomEmojiStickers = callMethod({
   method: "getCustomEmojiStickers",
   params: GetCustomEmojiStickersParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
   retrySafe: true,
 });
@@ -2373,6 +2442,7 @@ export const GetFileParams: Schema.Codec<GetFileParams, Readonly<Record<string, 
 export const getFile = callMethod({
   method: "getFile",
   params: GetFileParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
   retrySafe: true,
 });
@@ -2380,6 +2450,7 @@ export const getFile = callMethod({
 /** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
 export const getForumTopicIconStickers = callMethod({
   method: "getForumTopicIconStickers",
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
   retrySafe: true,
 });
@@ -2414,6 +2485,7 @@ export const GetGameHighScoresParams: Schema.Codec<GetGameHighScoresParams, Read
 export const getGameHighScores = callMethod({
   method: "getGameHighScores",
   params: GetGameHighScoresParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.GameHighScore, unknown> => Types.GameHighScore)),
   retrySafe: true,
 });
@@ -2439,6 +2511,7 @@ export const GetManagedBotAccessSettingsParams: Schema.Codec<GetManagedBotAccess
 export const getManagedBotAccessSettings = callMethod({
   method: "getManagedBotAccessSettings",
   params: GetManagedBotAccessSettingsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.BotAccessSettings, unknown> => Types.BotAccessSettings),
   retrySafe: true,
 });
@@ -2464,6 +2537,7 @@ export const GetManagedBotTokenParams: Schema.Codec<GetManagedBotTokenParams, Re
 export const getManagedBotToken = callMethod({
   method: "getManagedBotToken",
   params: GetManagedBotTokenParams,
+  rateLimit: "none",
   result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
   retrySafe: true,
 });
@@ -2471,6 +2545,7 @@ export const getManagedBotToken = callMethod({
 /** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object. */
 export const getMe = callMethod({
   method: "getMe",
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.User, unknown> => Types.User),
   retrySafe: true,
 });
@@ -2499,6 +2574,7 @@ export const GetMyCommandsParams: Schema.Codec<GetMyCommandsParams, Readonly<Rec
 export const getMyCommands = callMethod({
   method: "getMyCommands",
   params: GetMyCommandsParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.BotCommand, unknown> => Types.BotCommand)),
   retrySafe: true,
 });
@@ -2524,6 +2600,7 @@ export const GetMyDefaultAdministratorRightsParams: Schema.Codec<GetMyDefaultAdm
 export const getMyDefaultAdministratorRights = callMethod({
   method: "getMyDefaultAdministratorRights",
   params: GetMyDefaultAdministratorRightsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatAdministratorRights, unknown> => Types.ChatAdministratorRights),
   retrySafe: true,
 });
@@ -2549,6 +2626,7 @@ export const GetMyDescriptionParams: Schema.Codec<GetMyDescriptionParams, Readon
 export const getMyDescription = callMethod({
   method: "getMyDescription",
   params: GetMyDescriptionParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.BotDescription, unknown> => Types.BotDescription),
   retrySafe: true,
 });
@@ -2574,6 +2652,7 @@ export const GetMyNameParams: Schema.Codec<GetMyNameParams, Readonly<Record<stri
 export const getMyName = callMethod({
   method: "getMyName",
   params: GetMyNameParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.BotName, unknown> => Types.BotName),
   retrySafe: true,
 });
@@ -2599,6 +2678,7 @@ export const GetMyShortDescriptionParams: Schema.Codec<GetMyShortDescriptionPara
 export const getMyShortDescription = callMethod({
   method: "getMyShortDescription",
   params: GetMyShortDescriptionParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.BotShortDescription, unknown> => Types.BotShortDescription),
   retrySafe: true,
 });
@@ -2606,6 +2686,7 @@ export const getMyShortDescription = callMethod({
 /** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
 export const getMyStarBalance = callMethod({
   method: "getMyStarBalance",
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
   retrySafe: true,
 });
@@ -2625,6 +2706,7 @@ export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, 
 export const getStarTransactions = callMethod({
   method: "getStarTransactions",
   params: GetStarTransactionsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.StarTransactions, unknown> => Types.StarTransactions),
   retrySafe: true,
 });
@@ -2641,6 +2723,7 @@ export const GetStickerSetParams: Schema.Codec<GetStickerSetParams, Readonly<Rec
 export const getStickerSet = callMethod({
   method: "getStickerSet",
   params: GetStickerSetParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.StickerSet, unknown> => Types.StickerSet),
   retrySafe: true,
 });
@@ -2677,6 +2760,7 @@ export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<st
 export const getUpdates = callMethod({
   method: "getUpdates",
   params: GetUpdatesParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Update, unknown> => Types.Update)),
   retrySafe: true,
 });
@@ -2705,6 +2789,7 @@ export const GetUserChatBoostsParams: Schema.Codec<GetUserChatBoostsParams, Read
 export const getUserChatBoosts = callMethod({
   method: "getUserChatBoosts",
   params: GetUserChatBoostsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.UserChatBoosts, unknown> => Types.UserChatBoosts),
   retrySafe: true,
 });
@@ -2754,6 +2839,7 @@ export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Recor
 export const getUserGifts = callMethod({
   method: "getUserGifts",
   params: GetUserGiftsParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
   retrySafe: true,
 });
@@ -2782,6 +2868,7 @@ export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChat
 export const getUserPersonalChatMessages = callMethod({
   method: "getUserPersonalChatMessages",
   params: GetUserPersonalChatMessagesParams,
+  rateLimit: "none",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
   retrySafe: true,
 });
@@ -2813,6 +2900,7 @@ export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams
 export const getUserProfileAudios = callMethod({
   method: "getUserProfileAudios",
   params: GetUserProfileAudiosParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.UserProfileAudios, unknown> => Types.UserProfileAudios),
   retrySafe: true,
 });
@@ -2844,6 +2932,7 @@ export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams
 export const getUserProfilePhotos = callMethod({
   method: "getUserProfilePhotos",
   params: GetUserProfilePhotosParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.UserProfilePhotos, unknown> => Types.UserProfilePhotos),
   retrySafe: true,
 });
@@ -2851,6 +2940,7 @@ export const getUserProfilePhotos = callMethod({
 /** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
 export const getWebhookInfo = callMethod({
   method: "getWebhookInfo",
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.WebhookInfo, unknown> => Types.WebhookInfo),
   retrySafe: true,
 });
@@ -2891,6 +2981,7 @@ export const GiftPremiumSubscriptionParams: Schema.Codec<GiftPremiumSubscription
 export const giftPremiumSubscription = callMethod({
   method: "giftPremiumSubscription",
   params: GiftPremiumSubscriptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -2916,6 +3007,7 @@ export const HideGeneralForumTopicParams: Schema.Codec<HideGeneralForumTopicPara
 export const hideGeneralForumTopic = callMethod({
   method: "hideGeneralForumTopic",
   params: HideGeneralForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -2941,6 +3033,7 @@ export const LeaveChatParams: Schema.Codec<LeaveChatParams, Readonly<Record<stri
 export const leaveChat = callMethod({
   method: "leaveChat",
   params: LeaveChatParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -2948,6 +3041,7 @@ export const leaveChat = callMethod({
 /** Use this method to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters. */
 export const logOut = callMethod({
   method: "logOut",
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -2982,6 +3076,7 @@ export const PinChatMessageParams: Schema.Codec<PinChatMessageParams, Readonly<R
 export const pinChatMessage = callMethod({
   method: "pinChatMessage",
   params: PinChatMessageParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -3031,6 +3126,7 @@ export const PostStoryParams: Schema.Codec<PostStoryParams, Readonly<Record<stri
 export const postStory = callMethod({
   method: "postStory",
   params: PostStoryParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
   retrySafe: false,
 });
@@ -3113,6 +3209,7 @@ export const PromoteChatMemberParams: Schema.Codec<PromoteChatMemberParams, Read
 export const promoteChatMember = callMethod({
   method: "promoteChatMember",
   params: PromoteChatMemberParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3144,6 +3241,7 @@ export const ReadBusinessMessageParams: Schema.Codec<ReadBusinessMessageParams, 
 export const readBusinessMessage = callMethod({
   method: "readBusinessMessage",
   params: ReadBusinessMessageParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3172,6 +3270,7 @@ export const RefundStarPaymentParams: Schema.Codec<RefundStarPaymentParams, Read
 export const refundStarPayment = callMethod({
   method: "refundStarPayment",
   params: RefundStarPaymentParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3200,6 +3299,7 @@ export const RemoveBusinessAccountProfilePhotoParams: Schema.Codec<RemoveBusines
 export const removeBusinessAccountProfilePhoto = callMethod({
   method: "removeBusinessAccountProfilePhoto",
   params: RemoveBusinessAccountProfilePhotoParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3225,6 +3325,7 @@ export const RemoveChatVerificationParams: Schema.Codec<RemoveChatVerificationPa
 export const removeChatVerification = callMethod({
   method: "removeChatVerification",
   params: RemoveChatVerificationParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3232,6 +3333,7 @@ export const removeChatVerification = callMethod({
 /** Removes the profile photo of the bot. Requires no parameters. Returns True on success. */
 export const removeMyProfilePhoto = callMethod({
   method: "removeMyProfilePhoto",
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3257,6 +3359,7 @@ export const RemoveUserVerificationParams: Schema.Codec<RemoveUserVerificationPa
 export const removeUserVerification = callMethod({
   method: "removeUserVerification",
   params: RemoveUserVerificationParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3285,6 +3388,7 @@ export const ReopenForumTopicParams: Schema.Codec<ReopenForumTopicParams, Readon
 export const reopenForumTopic = callMethod({
   method: "reopenForumTopic",
   params: ReopenForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3310,6 +3414,7 @@ export const ReopenGeneralForumTopicParams: Schema.Codec<ReopenGeneralForumTopic
 export const reopenGeneralForumTopic = callMethod({
   method: "reopenGeneralForumTopic",
   params: ReopenGeneralForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3335,6 +3440,7 @@ export const ReplaceManagedBotTokenParams: Schema.Codec<ReplaceManagedBotTokenPa
 export const replaceManagedBotToken = callMethod({
   method: "replaceManagedBotToken",
   params: ReplaceManagedBotTokenParams,
+  rateLimit: "none",
   result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
   retrySafe: false,
 });
@@ -3369,6 +3475,7 @@ export const ReplaceStickerInSetParams: Schema.Codec<ReplaceStickerInSetParams, 
 export const replaceStickerInSet = callMethod({
   method: "replaceStickerInSet",
   params: ReplaceStickerInSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3409,6 +3516,7 @@ export const RepostStoryParams: Schema.Codec<RepostStoryParams, Readonly<Record<
 export const repostStory = callMethod({
   method: "repostStory",
   params: RepostStoryParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
   retrySafe: false,
 });
@@ -3446,6 +3554,7 @@ export const RestrictChatMemberParams: Schema.Codec<RestrictChatMemberParams, Re
 export const restrictChatMember = callMethod({
   method: "restrictChatMember",
   params: RestrictChatMemberParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3474,6 +3583,7 @@ export const RevokeChatInviteLinkParams: Schema.Codec<RevokeChatInviteLinkParams
 export const revokeChatInviteLink = callMethod({
   method: "revokeChatInviteLink",
   params: RevokeChatInviteLinkParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
   retrySafe: true,
 });
@@ -3514,6 +3624,7 @@ export const SavePreparedInlineMessageParams: Schema.Codec<SavePreparedInlineMes
 export const savePreparedInlineMessage = callMethod({
   method: "savePreparedInlineMessage",
   params: SavePreparedInlineMessageParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.PreparedInlineMessage, unknown> => Types.PreparedInlineMessage),
   retrySafe: false,
 });
@@ -3542,6 +3653,7 @@ export const SavePreparedKeyboardButtonParams: Schema.Codec<SavePreparedKeyboard
 export const savePreparedKeyboardButton = callMethod({
   method: "savePreparedKeyboardButton",
   params: SavePreparedKeyboardButtonParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.PreparedKeyboardButton, unknown> => Types.PreparedKeyboardButton),
   retrySafe: false,
 });
@@ -3630,6 +3742,7 @@ export const SendAnimationParams: Schema.Codec<SendAnimationParams, Readonly<Rec
 export const sendAnimation = callMethod({
   method: "sendAnimation",
   params: SendAnimationParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -3712,6 +3825,7 @@ export const SendAudioParams: Schema.Codec<SendAudioParams, Readonly<Record<stri
 export const sendAudio = callMethod({
   method: "sendAudio",
   params: SendAudioParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -3746,6 +3860,7 @@ export const SendChatActionParams: Schema.Codec<SendChatActionParams, Readonly<R
 export const sendChatAction = callMethod({
   method: "sendChatAction",
   params: SendChatActionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -3774,6 +3889,7 @@ export const SendChatJoinRequestWebAppParams: Schema.Codec<SendChatJoinRequestWe
 export const sendChatJoinRequestWebApp = callMethod({
   method: "sendChatJoinRequestWebApp",
   params: SendChatJoinRequestWebAppParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -3820,6 +3936,7 @@ export const SendChecklistParams: Schema.Codec<SendChecklistParams, Readonly<Rec
 export const sendChecklist = callMethod({
   method: "sendChecklist",
   params: SendChecklistParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -3890,6 +4007,7 @@ export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<
 export const sendContact = callMethod({
   method: "sendContact",
   params: SendContactParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -3948,6 +4066,7 @@ export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string
 export const sendDice = callMethod({
   method: "sendDice",
   params: SendDiceParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4024,6 +4143,7 @@ export const SendDocumentParams: Schema.Codec<SendDocumentParams, Readonly<Recor
 export const sendDocument = callMethod({
   method: "sendDocument",
   params: SendDocumentParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4076,6 +4196,7 @@ export const SendGameParams: Schema.Codec<SendGameParams, Readonly<Record<string
 export const sendGame = callMethod({
   method: "sendGame",
   params: SendGameParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4119,6 +4240,7 @@ export const SendGiftParams: Schema.Codec<SendGiftParams, Readonly<Record<string
 export const sendGift = callMethod({
   method: "sendGift",
   params: SendGiftParams,
+  rateLimit: "message",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -4234,6 +4356,7 @@ export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<
 export const sendInvoice = callMethod({
   method: "sendInvoice",
   params: SendInvoiceParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4313,6 +4436,7 @@ export const SendLivePhotoParams: Schema.Codec<SendLivePhotoParams, Readonly<Rec
 export const sendLivePhoto = callMethod({
   method: "sendLivePhoto",
   params: SendLivePhotoParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4389,6 +4513,7 @@ export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Recor
 export const sendLocation = callMethod({
   method: "sendLocation",
   params: SendLocationParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4441,6 +4566,7 @@ export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<R
 export const sendMediaGroup = callMethod({
   method: "sendMediaGroup",
   params: SendMediaGroupParams,
+  rateLimit: "media-array",
   result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
   retrySafe: false,
 });
@@ -4511,6 +4637,7 @@ export const SendMessageParams: Schema.Codec<SendMessageParams, Readonly<Record<
 export const sendMessage = callMethod({
   method: "sendMessage",
   params: SendMessageParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4557,6 +4684,7 @@ export const SendMessageDraftParams: Schema.Codec<SendMessageDraftParams, Readon
 export const sendMessageDraft = callMethod({
   method: "sendMessageDraft",
   params: SendMessageDraftParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -4630,6 +4758,7 @@ export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Rec
 export const sendPaidMedia = callMethod({
   method: "sendPaidMedia",
   params: SendPaidMediaParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4706,6 +4835,7 @@ export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<stri
 export const sendPhoto = callMethod({
   method: "sendPhoto",
   params: SendPhotoParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4830,6 +4960,7 @@ export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string
 export const sendPoll = callMethod({
   method: "sendPoll",
   params: SendPollParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4891,6 +5022,7 @@ export const SendRichMessageParams: Schema.Codec<SendRichMessageParams, Readonly
 export const sendRichMessage = callMethod({
   method: "sendRichMessage",
   params: SendRichMessageParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -4931,6 +5063,7 @@ export const SendRichMessageDraftParams: Schema.Codec<SendRichMessageDraftParams
 export const sendRichMessageDraft = callMethod({
   method: "sendRichMessageDraft",
   params: SendRichMessageDraftParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -4995,6 +5128,7 @@ export const SendStickerParams: Schema.Codec<SendStickerParams, Readonly<Record<
 export const sendSticker = callMethod({
   method: "sendSticker",
   params: SendStickerParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -5077,6 +5211,7 @@ export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<stri
 export const sendVenue = callMethod({
   method: "sendVenue",
   params: SendVenueParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -5174,6 +5309,7 @@ export const SendVideoParams: Schema.Codec<SendVideoParams, Readonly<Record<stri
 export const sendVideo = callMethod({
   method: "sendVideo",
   params: SendVideoParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -5244,6 +5380,7 @@ export const SendVideoNoteParams: Schema.Codec<SendVideoNoteParams, Readonly<Rec
 export const sendVideoNote = callMethod({
   method: "sendVideoNote",
   params: SendVideoNoteParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -5317,6 +5454,7 @@ export const SendVoiceParams: Schema.Codec<SendVoiceParams, Readonly<Record<stri
 export const sendVoice = callMethod({
   method: "sendVoice",
   params: SendVoiceParams,
+  rateLimit: "message",
   result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
   retrySafe: false,
 });
@@ -5345,6 +5483,7 @@ export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioPara
 export const setBusinessAccountBio = callMethod({
   method: "setBusinessAccountBio",
   params: SetBusinessAccountBioParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5376,6 +5515,7 @@ export const SetBusinessAccountGiftSettingsParams: Schema.Codec<SetBusinessAccou
 export const setBusinessAccountGiftSettings = callMethod({
   method: "setBusinessAccountGiftSettings",
   params: SetBusinessAccountGiftSettingsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5407,6 +5547,7 @@ export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNamePa
 export const setBusinessAccountName = callMethod({
   method: "setBusinessAccountName",
   params: SetBusinessAccountNameParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5438,6 +5579,7 @@ export const SetBusinessAccountProfilePhotoParams: Schema.Codec<SetBusinessAccou
 export const setBusinessAccountProfilePhoto = callMethod({
   method: "setBusinessAccountProfilePhoto",
   params: SetBusinessAccountProfilePhotoParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -5466,6 +5608,7 @@ export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUs
 export const setBusinessAccountUsername = callMethod({
   method: "setBusinessAccountUsername",
   params: SetBusinessAccountUsernameParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5497,6 +5640,7 @@ export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdminist
 export const setChatAdministratorCustomTitle = callMethod({
   method: "setChatAdministratorCustomTitle",
   params: SetChatAdministratorCustomTitleParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5525,6 +5669,7 @@ export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Re
 export const setChatDescription = callMethod({
   method: "setChatDescription",
   params: SetChatDescriptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5556,6 +5701,7 @@ export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readon
 export const setChatMemberTag = callMethod({
   method: "setChatMemberTag",
   params: SetChatMemberTagParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5584,6 +5730,7 @@ export const SetChatMenuButtonParams: Schema.Codec<SetChatMenuButtonParams, Read
 export const setChatMenuButton = callMethod({
   method: "setChatMenuButton",
   params: SetChatMenuButtonParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5615,6 +5762,7 @@ export const SetChatPermissionsParams: Schema.Codec<SetChatPermissionsParams, Re
 export const setChatPermissions = callMethod({
   method: "setChatPermissions",
   params: SetChatPermissionsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5643,6 +5791,7 @@ export const SetChatPhotoParams: Schema.Codec<SetChatPhotoParams, Readonly<Recor
 export const setChatPhoto = callMethod({
   method: "setChatPhoto",
   params: SetChatPhotoParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -5671,6 +5820,7 @@ export const SetChatStickerSetParams: Schema.Codec<SetChatStickerSetParams, Read
 export const setChatStickerSet = callMethod({
   method: "setChatStickerSet",
   params: SetChatStickerSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5699,6 +5849,7 @@ export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Recor
 export const setChatTitle = callMethod({
   method: "setChatTitle",
   params: SetChatTitleParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5727,6 +5878,7 @@ export const SetCustomEmojiStickerSetThumbnailParams: Schema.Codec<SetCustomEmoj
 export const setCustomEmojiStickerSetThumbnail = callMethod({
   method: "setCustomEmojiStickerSetThumbnail",
   params: SetCustomEmojiStickerSetThumbnailParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5770,6 +5922,7 @@ export const SetGameScoreParams: Schema.Codec<SetGameScoreParams, Readonly<Recor
 export const setGameScore = callMethod({
   method: "setGameScore",
   params: SetGameScoreParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -5801,6 +5954,7 @@ export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccess
 export const setManagedBotAccessSettings = callMethod({
   method: "setManagedBotAccessSettings",
   params: SetManagedBotAccessSettingsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5835,6 +5989,7 @@ export const SetMessageReactionParams: Schema.Codec<SetMessageReactionParams, Re
 export const setMessageReaction = callMethod({
   method: "setMessageReaction",
   params: SetMessageReactionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5866,6 +6021,7 @@ export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Rec
 export const setMyCommands = callMethod({
   method: "setMyCommands",
   params: SetMyCommandsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5894,6 +6050,7 @@ export const SetMyDefaultAdministratorRightsParams: Schema.Codec<SetMyDefaultAdm
 export const setMyDefaultAdministratorRights = callMethod({
   method: "setMyDefaultAdministratorRights",
   params: SetMyDefaultAdministratorRightsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5922,6 +6079,7 @@ export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readon
 export const setMyDescription = callMethod({
   method: "setMyDescription",
   params: SetMyDescriptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5950,6 +6108,7 @@ export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<stri
 export const setMyName = callMethod({
   method: "setMyName",
   params: SetMyNameParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -5966,6 +6125,7 @@ export const SetMyProfilePhotoParams: Schema.Codec<SetMyProfilePhotoParams, Read
 export const setMyProfilePhoto = callMethod({
   method: "setMyProfilePhoto",
   params: SetMyProfilePhotoParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -5994,6 +6154,7 @@ export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionPara
 export const setMyShortDescription = callMethod({
   method: "setMyShortDescription",
   params: SetMyShortDescriptionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6022,6 +6183,7 @@ export const SetPassportDataErrorsParams: Schema.Codec<SetPassportDataErrorsPara
 export const setPassportDataErrors = callMethod({
   method: "setPassportDataErrors",
   params: SetPassportDataErrorsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6050,6 +6212,7 @@ export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, 
 export const setStickerEmojiList = callMethod({
   method: "setStickerEmojiList",
   params: SetStickerEmojiListParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6069,6 +6232,7 @@ export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Re
 export const setStickerKeywords = callMethod({
   method: "setStickerKeywords",
   params: SetStickerKeywordsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6097,6 +6261,7 @@ export const SetStickerMaskPositionParams: Schema.Codec<SetStickerMaskPositionPa
 export const setStickerMaskPosition = callMethod({
   method: "setStickerMaskPosition",
   params: SetStickerMaskPositionParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6116,6 +6281,7 @@ export const SetStickerPositionInSetParams: Schema.Codec<SetStickerPositionInSet
 export const setStickerPositionInSet = callMethod({
   method: "setStickerPositionInSet",
   params: SetStickerPositionInSetParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6150,6 +6316,7 @@ export const SetStickerSetThumbnailParams: Schema.Codec<SetStickerSetThumbnailPa
 export const setStickerSetThumbnail = callMethod({
   method: "setStickerSetThumbnail",
   params: SetStickerSetThumbnailParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6169,6 +6336,7 @@ export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Re
 export const setStickerSetTitle = callMethod({
   method: "setStickerSetTitle",
   params: SetStickerSetTitleParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6200,6 +6368,7 @@ export const SetUserEmojiStatusParams: Schema.Codec<SetUserEmojiStatusParams, Re
 export const setUserEmojiStatus = callMethod({
   method: "setUserEmojiStatus",
   params: SetUserEmojiStatusParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6244,6 +6413,7 @@ export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<st
 export const setWebhook = callMethod({
   method: "setWebhook",
   params: SetWebhookParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6281,6 +6451,7 @@ export const StopMessageLiveLocationParams: Schema.Codec<StopMessageLiveLocation
 export const stopMessageLiveLocation = callMethod({
   method: "stopMessageLiveLocation",
   params: StopMessageLiveLocationParams,
+  rateLimit: "none",
   result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
   retrySafe: true,
 });
@@ -6315,6 +6486,7 @@ export const StopPollParams: Schema.Codec<StopPollParams, Readonly<Record<string
 export const stopPoll = callMethod({
   method: "stopPoll",
   params: StopPollParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.Poll, unknown> => Types.Poll),
   retrySafe: true,
 });
@@ -6343,6 +6515,7 @@ export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAc
 export const transferBusinessAccountStars = callMethod({
   method: "transferBusinessAccountStars",
   params: TransferBusinessAccountStarsParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: false,
 });
@@ -6377,6 +6550,7 @@ export const TransferGiftParams: Schema.Codec<TransferGiftParams, Readonly<Recor
 export const transferGift = callMethod({
   method: "transferGift",
   params: TransferGiftParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6408,6 +6582,7 @@ export const UnbanChatMemberParams: Schema.Codec<UnbanChatMemberParams, Readonly
 export const unbanChatMember = callMethod({
   method: "unbanChatMember",
   params: UnbanChatMemberParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6436,6 +6611,7 @@ export const UnbanChatSenderChatParams: Schema.Codec<UnbanChatSenderChatParams, 
 export const unbanChatSenderChat = callMethod({
   method: "unbanChatSenderChat",
   params: UnbanChatSenderChatParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6461,6 +6637,7 @@ export const UnhideGeneralForumTopicParams: Schema.Codec<UnhideGeneralForumTopic
 export const unhideGeneralForumTopic = callMethod({
   method: "unhideGeneralForumTopic",
   params: UnhideGeneralForumTopicParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6486,6 +6663,7 @@ export const UnpinAllChatMessagesParams: Schema.Codec<UnpinAllChatMessagesParams
 export const unpinAllChatMessages = callMethod({
   method: "unpinAllChatMessages",
   params: UnpinAllChatMessagesParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6514,6 +6692,7 @@ export const UnpinAllForumTopicMessagesParams: Schema.Codec<UnpinAllForumTopicMe
 export const unpinAllForumTopicMessages = callMethod({
   method: "unpinAllForumTopicMessages",
   params: UnpinAllForumTopicMessagesParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6539,6 +6718,7 @@ export const UnpinAllGeneralForumTopicMessagesParams: Schema.Codec<UnpinAllGener
 export const unpinAllGeneralForumTopicMessages = callMethod({
   method: "unpinAllGeneralForumTopicMessages",
   params: UnpinAllGeneralForumTopicMessagesParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6570,6 +6750,7 @@ export const UnpinChatMessageParams: Schema.Codec<UnpinChatMessageParams, Readon
 export const unpinChatMessage = callMethod({
   method: "unpinChatMessage",
   params: UnpinChatMessageParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6604,6 +6785,7 @@ export const UpgradeGiftParams: Schema.Codec<UpgradeGiftParams, Readonly<Record<
 export const upgradeGift = callMethod({
   method: "upgradeGift",
   params: UpgradeGiftParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6635,6 +6817,7 @@ export const UploadStickerFileParams: Schema.Codec<UploadStickerFileParams, Read
 export const uploadStickerFile = callMethod({
   method: "uploadStickerFile",
   params: UploadStickerFileParams,
+  rateLimit: "none",
   result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
   retrySafe: false,
 });
@@ -6663,6 +6846,7 @@ export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<st
 export const verifyChat = callMethod({
   method: "verifyChat",
   params: VerifyChatParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
@@ -6691,6 +6875,7 @@ export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<st
 export const verifyUser = callMethod({
   method: "verifyUser",
   params: VerifyUserParams,
+  rateLimit: "none",
   result: Schema.Literal(true),
   retrySafe: true,
 });
