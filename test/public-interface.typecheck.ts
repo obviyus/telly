@@ -1,9 +1,11 @@
 import { Effect } from "effect";
 
 import {
+  Application,
   Bot,
   BotApiError,
   command,
+  defineBot,
   every,
   Filter,
   getMe,
@@ -47,3 +49,15 @@ const combinedHandler: UpdateHandler<
 declare const update: Update;
 routedHandler(update);
 combinedHandler(update);
+
+const declarativeHandler: UpdateHandler<
+  BotApiError | FirstHandlerError | SecondHandlerError
+> = defineBot({
+  commands: {
+    start: () => firstHandlerEffect,
+  },
+  text: () => secondHandlerEffect,
+});
+declarativeHandler(update);
+declare const token: string;
+Application.make({ token }).runPolling(declarativeHandler);

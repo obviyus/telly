@@ -7,6 +7,7 @@ import {
   BotApiError,
   callbackQuery,
   command,
+  defineBot,
   every,
   Filter,
   on,
@@ -375,4 +376,42 @@ test("command rejects an invalid Telegram command name at construction", () => {
   expect(() => command("contains-dash")).toThrow(
     "Invalid Telegram bot command: contains-dash",
   );
+});
+
+test("defineBot routes command, ordinary text, and callback fields", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const handled: Array<string> = [];
+  const bot = defineBot({
+    callbackQuery: ({ callbackQuery: query }) => Effect.sync(() => {
+      handled.push(query.data ?? "missing-data");
+    }),
+    commands: {
+      start: ({ command: name }) => Effect.sync(() => {
+        handled.push(name);
+      }),
+    },
+    text: ({ text: body }) => Effect.sync(() => {
+      handled.push(body);
+    }),
+  });
+
+  try {
+    await app.run(bot(messageUpdate("/start", { entityLength: 6, updateId: 112 })));
+    await app.run(bot(messageUpdate("plain", { updateId: 113 })));
+    await app.run(bot({
+      callbackQuery: {
+        chatInstance: "defined-bot",
+        data: "button",
+        from: { firstName: "Lin", id: 78, isBot: false },
+        id: "callback-2",
+      },
+      updateId: 114,
+    }));
+  } finally {
+    await app.close();
+  }
+
+  expect(handled).toEqual(["start", "plain", "button"]);
+  expect(fake.requests).toEqual([]);
 });

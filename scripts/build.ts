@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const entries = [
   ["src/Application.ts", "Application.js", "Application.js"],
   ["src/BotApi.ts", "BotApi.js", "BotApi.js"],
+  ["src/Conversation.ts", "Conversation.js", "Conversation.js"],
   ["src/Files.ts", "Files.js", "Files.js"],
   ["src/Polling.ts", "Polling.js", "Polling.js"],
   ["src/Routing.ts", "Routing.js", "Routing.js"],
@@ -45,9 +46,10 @@ try {
     [
       'export { Application } from "./Application.js";',
       'export { Bot, BotApiError } from "./BotApi.js";',
+      'export { reply, respond } from "./Conversation.js";',
       'export { downloadFile } from "./Files.js";',
       'export { pollUpdates } from "./Polling.js";',
-      'export { callbackQuery, command, every, Filter, on, routes, text } from "./Routing.js";',
+      'export { callbackQuery, command, defineBot, every, Filter, on, routes, text } from "./Routing.js";',
       'export * from "./methods.js";',
       'export * from "./types.js";',
       "",

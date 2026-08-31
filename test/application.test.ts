@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { Redacted } from "effect";
+import { Effect, Redacted } from "effect";
 
 import {
   Application,
@@ -111,4 +111,47 @@ test("a rotated managed bot token is redacted", async () => {
   } finally {
     await app.close();
   }
+});
+
+test("runPolling waits for stop and removes its process listeners", async () => {
+  const { promise: handled, resolve } = Promise.withResolvers<void>();
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok([{
+      message: {
+        chat: { id: 89, type: "private" },
+        date: 1_700_000_000,
+        message_id: 201,
+        text: "run-polling",
+      },
+      update_id: 201,
+    }])],
+    token,
+  });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const sigintListeners = process.listenerCount("SIGINT");
+  const sigtermListeners = process.listenerCount("SIGTERM");
+  const running = app.runPolling(() => Effect.sync(resolve), { concurrency: 1 });
+
+  await handled;
+  await app.stop();
+  await running;
+
+  expect(process.listenerCount("SIGINT")).toBe(sigintListeners);
+  expect(process.listenerCount("SIGTERM")).toBe(sigtermListeners);
+  expect(fake.requests.at(-1)?.params).toMatchObject({ offset: 202, timeout: 0 });
+});
+
+test("runPolling rejects with its polling failure and removes listeners", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.transportFailure("polling unavailable")],
+    token,
+  });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const sigintListeners = process.listenerCount("SIGINT");
+  const sigtermListeners = process.listenerCount("SIGTERM");
+
+  await expect(app.runPolling(() => Effect.void)).rejects.toBeInstanceOf(BotApiError);
+
+  expect(process.listenerCount("SIGINT")).toBe(sigintListeners);
+  expect(process.listenerCount("SIGTERM")).toBe(sigtermListeners);
 });
