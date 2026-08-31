@@ -121,3 +121,40 @@ try {
 } finally {
   await app.close();
 }
+
+let resolveHandled;
+const handled = new Promise((resolve) => {
+  resolveHandled = resolve;
+});
+const pollingFake = testing.FakeBotApi.make({
+  replies: [
+    testing.FakeBotApiReply.ok([{
+      message: {
+        chat: { id: 53, type: "private" },
+        date: 1_700_000_000,
+        message_id: 117,
+        text: "node-polling",
+      },
+      update_id: 117,
+    }]),
+  ],
+  token,
+});
+const pollingApp = root.Application.make({
+  httpClient: pollingFake.layer,
+  token,
+});
+const polling = pollingApp.startPolling(
+  (update) => Effect.sync(() => resolveHandled(update)),
+  { concurrency: 1 },
+);
+try {
+  const handledUpdate = await handled;
+  if (handledUpdate.updateId !== 117 || handledUpdate.message?.text !== "node-polling") {
+    throw new Error("Application polling failed under Node.js");
+  }
+  await polling.stop();
+  await polling.completed;
+} finally {
+  await pollingApp.close();
+}

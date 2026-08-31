@@ -45,6 +45,31 @@ const managedApp = Application.make({ token: managedToken });
 
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
 
+## Polling
+
+`Application.startPolling` runs updates with bounded concurrency. Updates from one chat stay in order. The returned handle exposes failures and controls graceful shutdown.
+
+```ts
+import { Application, sendMessage } from "telly";
+
+const token = process.env.BOT_TOKEN;
+if (token === undefined) throw new Error("Set BOT_TOKEN");
+
+const app = Application.make({ token });
+const polling = app.startPolling(
+  (update) => sendMessage({ chatId: 123, text: `Received update ${update.updateId}` }),
+  { concurrency: 16 },
+);
+
+try {
+  await polling.completed;
+} finally {
+  await app.close();
+}
+```
+
+The default `on-complete` acknowledgment confirms only the contiguous prefix of successful updates. Use `on-receipt` when a process crash may lose accepted work.
+
 ## Bot API schema
 
 Development uses Bun 1.4. Published packages run on supported Node.js versions without Bun.

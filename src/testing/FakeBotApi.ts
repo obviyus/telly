@@ -66,9 +66,11 @@ export interface FakeBotApiOptions {
 
 export interface FakeBotApi {
   readonly abortedFilePaths: ReadonlyArray<string>;
+  readonly abortedMethods: ReadonlyArray<string>;
   readonly enqueue: (reply: FakeBotApiReply) => void;
   readonly layer: Layer.Layer<HttpClient.HttpClient>;
   readonly requests: ReadonlyArray<FakeBotApiCall>;
+  readonly whenCalled: (method: string, ordinal?: number) => Promise<FakeBotApiCall>;
   readonly whenFileRequested: Promise<void>;
 }
 
@@ -168,13 +170,30 @@ function rejectedResponse(
 export const FakeBotApi = {
   make(options: FakeBotApiOptions): FakeBotApi {
     const abortedFilePaths = new Set<string>();
+    const abortedMethods = new Set<string>();
     const calls: Array<FakeBotApiCall> = [];
+    const callWaiters: Array<{
+      readonly method: string;
+      readonly ordinal: number;
+      readonly resolve: (call: FakeBotApiCall) => void;
+    }> = [];
     const fileRequestWaiters: Array<() => void> = [];
     const whenFileRequested = new Promise<void>((resolve) => {
       fileRequestWaiters.push(resolve);
     });
     const replies = [...(options.replies ?? [])];
     let nextMessageId = options.nextMessageId ?? 41;
+
+    const recordCall = (call: FakeBotApiCall) => {
+      calls.push(call);
+      const matching = calls.filter((item) => item.method === call.method);
+      for (const waiter of [...callWaiters]) {
+        const matched = matching[waiter.ordinal - 1];
+        if (waiter.method !== call.method || matched === undefined) continue;
+        callWaiters.splice(callWaiters.indexOf(waiter), 1);
+        waiter.resolve(matched);
+      }
+    };
 
     const client = HttpClient.make(
       Effect.fnUntraced(function* (request, url, signal, fiber) {
@@ -188,13 +207,13 @@ export const FakeBotApi = {
         const details = bodyDetails(request.body);
         const params = details.params;
         if (method !== undefined) {
-          calls.push({
+          recordCall({
             ...details,
             method,
             tracingDisabled: fiber.getRef(HttpClient.TracerDisabledWhen)(request),
           });
         } else if (filePath !== undefined) {
-          calls.push({
+          recordCall({
             filePath,
             method: "downloadFile",
             tracingDisabled: fiber.getRef(HttpClient.TracerDisabledWhen)(request),
@@ -229,6 +248,7 @@ export const FakeBotApi = {
         if (scripted?._tag === "Hang") {
           signal.addEventListener("abort", () => {
             if (filePath !== undefined) abortedFilePaths.add(filePath);
+            if (method !== undefined) abortedMethods.add(method);
           }, { once: true });
           return yield* Effect.never;
         }
@@ -242,6 +262,13 @@ export const FakeBotApi = {
         }
         if (scripted?._tag === "Ok") {
           return response(request, 200, JSON.stringify({ ok: true, result: scripted.result }));
+        }
+        if (method === "getUpdates" && Predicate.isObject(params)) {
+          if (params["timeout"] === 0) {
+            return response(request, 200, JSON.stringify({ ok: true, result: [] }));
+          }
+          signal.addEventListener("abort", () => abortedMethods.add(method), { once: true });
+          return yield* Effect.never;
         }
         if (method !== "sendMessage" || !Predicate.isObject(params)) {
           return rejectedResponse(request, 404, "Not Found");
@@ -273,12 +300,20 @@ export const FakeBotApi = {
       get abortedFilePaths() {
         return [...abortedFilePaths];
       },
+      get abortedMethods() {
+        return [...abortedMethods];
+      },
       enqueue: (reply: FakeBotApiReply) => {
         replies.push(reply);
       },
       layer: Layer.succeed(HttpClient.HttpClient, client),
       get requests() {
         return [...calls];
+      },
+      whenCalled(method, ordinal = 1) {
+        const existing = calls.filter((call) => call.method === method)[ordinal - 1];
+        if (existing !== undefined) return Promise.resolve(existing);
+        return new Promise((resolve) => callWaiters.push({ method, ordinal, resolve }));
       },
       whenFileRequested,
     } satisfies FakeBotApi;
