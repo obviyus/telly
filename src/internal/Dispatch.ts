@@ -22,14 +22,16 @@ export interface DispatchOptions {
   readonly gracePeriodMs: number;
 }
 
-export interface Dispatcher<E> {
+export interface Dispatcher<E, A = unknown> {
   readonly awaitCapacity: Effect.Effect<number>;
   readonly awaitCompletion: Effect.Effect<void>;
+  readonly cancel: Effect.Effect<void>;
   readonly drain: Effect.Effect<void>;
   readonly join: Effect.Effect<never, E>;
   readonly submit: (
     update: Update,
-  ) => Effect.Effect<Effect.Effect<Exit.Exit<unknown, E>>, DispatchFull, Bot>;
+    conversationKey?: number | string,
+  ) => Effect.Effect<Effect.Effect<Exit.Exit<A, E>>, DispatchFull, Bot>;
 }
 
 interface Lane {
@@ -76,10 +78,10 @@ export function defaultConversationKey(update: Update): number | string {
   return `update:${update.updateId}`;
 }
 
-export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E>(
-  handler: UpdateHandler<E>,
+export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E, A>(
+  handler: UpdateHandler<E, A>,
   options: DispatchOptions,
-): Effect.fn.Return<Dispatcher<E>> {
+): Effect.fn.Return<Dispatcher<E, A>> {
   if (!Number.isInteger(options.concurrency) || options.concurrency < 1) {
     throw new RangeError("Dispatch concurrency must be a positive integer");
   }
@@ -105,10 +107,10 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E>(
     active === 0 ? Effect.void : Deferred.await(nextCompletion)
   );
 
-  const submit = (update: Update) =>
+  const submit = (update: Update, conversationKey?: number | string) =>
     Effect.suspend(() => {
       if (!accepting || active >= options.concurrency) return Effect.fail(new DispatchFull());
-      const key = options.conversationKey(update);
+      const key = conversationKey ?? options.conversationKey(update);
       let lane = lanes.get(key);
       if (lane === undefined) {
         const tail = Deferred.makeUnsafe<void>();
@@ -118,7 +120,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E>(
       }
       const previous = lane.tail;
       const done = Deferred.makeUnsafe<void>();
-      const result = Deferred.makeUnsafe<Exit.Exit<unknown, E>>();
+      const result = Deferred.makeUnsafe<Exit.Exit<A, E>>();
       lane.tail = done;
       lane.pending += 1;
       active += 1;
@@ -157,9 +159,17 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E>(
     );
   });
 
+  const cancel = Effect.suspend(() => {
+    accepting = false;
+    return FiberSet.clear(handlers).pipe(
+      Effect.andThen(Scope.close(handlerScope, Exit.void)),
+    );
+  });
+
   return {
     awaitCapacity,
     awaitCompletion,
+    cancel,
     drain,
     join: FiberSet.join(handlers).pipe(Effect.andThen(Effect.never)),
     submit,

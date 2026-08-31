@@ -124,9 +124,10 @@ Terms:
 Guarantees:
 
 - Acknowledgment mode is explicit. `on-receipt` advances the offset when Telly fetches an update. `on-complete` advances the offset past the contiguous prefix of completed updates. `inbox` writes each update to a durable store and then advances the offset.
-- The durable inbox is optional. Telly defines the interface. The consumer supplies the store. A replayer dispatches stored updates with per-key ordering and marks completion. Restart replays incomplete updates. Delivery is at least once, bounded by Telegram's update retention and the supplied store's durability.
+- The durable inbox is optional. Telly defines the interface. The consumer supplies the durable store. A receiver acknowledges only an atomic `Stored` or `Duplicate` result; `Full` applies backpressure. One fenced dispatch lease per bot claims the oldest eligible update for each conversation key. Restart or lease succession reclaims incomplete updates. Delivery is at least once, bounded by Telegram's update retention before save and by the supplied store's durability after save.
+- Inbox attempts have four settlements: done, retry, parked, or interrupted. Typed handler failures retry with persisted backoff and park after a bounded attempt count. Graceful interruption refunds its attempt. Defects remain defects and leave the update reclaimable.
 - Updates with the same conversation key run in order. Updates with different keys run in parallel.
-- Concurrency is bounded. Polling pauses when the in-flight limit is reached. Every queue has a limit.
+- Concurrency is bounded. Polling pauses when the in-flight limit is reached. Every queue has a limit; the inbox default is 10,000 non-terminal updates.
 - Telly dispatches each update once inside one process, even when an unacknowledged batch is fetched again.
 - Webhooks share concurrent duplicate work and remember the latest 4096 completed update identifiers per process. Restart delivery remains at least once until a durable inbox is configured.
 - A webhook at capacity returns `503`, so Telegram retains ownership and retries instead of growing an internal queue.

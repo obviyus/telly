@@ -67,19 +67,41 @@ function equalDigest(left: Uint8Array, right: Uint8Array): boolean {
   return difference === 0;
 }
 
+export function makeWebhookFetch<E, R>(
+  secretToken: string | Redacted.Redacted<string>,
+  processUpdate: (update: UpdateType) => Effect.Effect<number, E, R>,
+  isAccepting: () => boolean = () => true,
+): (request: Request) => Effect.Effect<Response, E, R> {
+  const secret = Redacted.isRedacted(secretToken) ? Redacted.value(secretToken) : secretToken;
+  if (!/^[A-Za-z0-9_-]{1,256}$/u.test(secret)) {
+    throw new RangeError("Webhook secretToken must use 1-256 letters, digits, underscores, or dashes");
+  }
+  const expectedDigest = digest(secret);
+  return Effect.fn("Webhook.fetch")(function* (request: Request) {
+    if (request.method !== "POST") return response(405);
+    const suppliedSecret = request.headers.get(secretHeader);
+    if (suppliedSecret === null) return response(401);
+    const suppliedDigest = yield* Effect.promise(() => digest(suppliedSecret));
+    if (!equalDigest(yield* Effect.promise(() => expectedDigest), suppliedDigest)) {
+      return response(401);
+    }
+    if (!isAccepting()) return response(503);
+    const parsed = yield* Effect.result(
+      Effect.tryPromise({ try: () => request.json(), catch: (error) => error }),
+    );
+    if (Result.isFailure(parsed)) return response(400);
+    const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(parsed.success));
+    if (Result.isFailure(decoded)) return response(400);
+    return response(yield* processUpdate(decoded.success));
+  });
+}
+
 export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
   handler: UpdateHandler<E>,
   options: WebhookOptions,
 ): Effect.fn.Return<WebhookRuntime<E>> {
   const concurrency = options.concurrency ?? 16;
   const gracePeriodMs = options.gracePeriodMs ?? 30_000;
-  const secret = Redacted.isRedacted(options.secretToken)
-    ? Redacted.value(options.secretToken)
-    : options.secretToken;
-  if (!/^[A-Za-z0-9_-]{1,256}$/u.test(secret)) {
-    throw new RangeError("Webhook secretToken must use 1-256 letters, digits, underscores, or dashes");
-  }
-  const expectedDigest = digest(secret);
   const dispatcher = yield* makeDispatcher(handler, {
     concurrency,
     conversationKey: options.conversationKey ?? defaultConversationKey,
@@ -151,23 +173,11 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
     return finish(update.updateId, requestClaim.result, 500);
   });
 
-  const fetch = Effect.fn("Webhook.fetch")(function* (request: Request) {
-    if (request.method !== "POST") return response(405);
-    const suppliedSecret = request.headers.get(secretHeader);
-    if (suppliedSecret === null) return response(401);
-    const suppliedDigest = yield* Effect.promise(() => digest(suppliedSecret));
-    if (!equalDigest(yield* Effect.promise(() => expectedDigest), suppliedDigest)) {
-      return response(401);
-    }
-    if (state !== "running") return response(503);
-    const parsed = yield* Effect.result(
-      Effect.tryPromise({ try: () => request.json(), catch: (error) => error }),
-    );
-    if (Result.isFailure(parsed)) return response(400);
-    const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(parsed.success));
-    if (Result.isFailure(decoded)) return response(400);
-    return response(yield* processUpdate(decoded.success));
-  });
+  const fetch = makeWebhookFetch(
+    options.secretToken,
+    processUpdate,
+    () => state === "running",
+  );
 
   const stop = Effect.suspend(() => {
     if (stopping !== undefined) return Deferred.await(stopping);

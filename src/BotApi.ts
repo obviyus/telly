@@ -94,6 +94,17 @@ function scrub(description: string, token: string): string {
   return description.replaceAll(token, "<token>");
 }
 
+function botIdFromToken(token: string): number {
+  const separator = token.indexOf(":");
+  const prefix = separator === -1 ? token : token.slice(0, separator);
+  if (!/^\d+$/u.test(prefix)) throw new RangeError("Bot token must start with a numeric bot id");
+  const botId = Number(prefix);
+  if (!Number.isSafeInteger(botId) || botId < 1) {
+    throw new RangeError("Bot token must start with a positive safe bot id");
+  }
+  return botId;
+}
+
 function invalidResponse(
   method: string,
   description: string,
@@ -163,6 +174,7 @@ function decodeEnvelope(
 export class Bot extends Context.Service<
   Bot,
   {
+    readonly id: number;
     readonly call: <A>(
       method: string,
       params: object,
@@ -186,6 +198,7 @@ export class Bot extends Context.Service<
       Effect.gen(function* () {
         const client = yield* HttpClient.HttpClient;
         const token = Redacted.value(options.token);
+        const id = botIdFromToken(token);
         const apiRoot = (options.apiRoot ?? defaultApiRoot).replace(/\/+$/u, "");
         const policy = makeRequestPolicy({ rateLimit: options.rateLimit !== false });
 
@@ -307,7 +320,7 @@ export class Bot extends Context.Service<
           );
         });
 
-        return Bot.of({ call, callRaw, downloadRaw, me });
+        return Bot.of({ call, callRaw, downloadRaw, id, me });
       }),
     );
   }

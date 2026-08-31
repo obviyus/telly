@@ -3,13 +3,30 @@ import type { EventEmitter } from "node:events";
 import { Cause, Effect, Fiber, Layer, ManagedRuntime, Redacted } from "effect";
 import { FetchHttpClient, HttpClient } from "effect/unstable/http";
 
-import { Bot } from "./BotApi.js";
-import { pollUpdates, type PollingOptions, type UpdateHandler } from "./Polling.js";
+import { Bot, type BotApiError } from "./BotApi.js";
+import {
+  InboxStore,
+  type InboxOptions,
+  type InboxStoreError,
+  type InboxStoreService,
+} from "./Inbox.js";
+import {
+  makeInboxWebhook,
+  makeInboxWake,
+} from "./internal/InboxRuntime.js";
+import {
+  pollInboxUpdates,
+  pollUpdates,
+  type PollingOptions,
+  type UpdateHandler,
+} from "./Polling.js";
 import { makeWebhook, type Webhook, type WebhookOptions } from "./Webhook.js";
 
 export interface ApplicationOptions {
   readonly apiRoot?: string;
   readonly httpClient?: Layer.Layer<HttpClient.HttpClient>;
+  readonly inbox?: InboxStoreService;
+  readonly inboxOptions?: InboxOptions;
   readonly rateLimit?: boolean;
   readonly token: string | Redacted.Redacted<string>;
 }
@@ -40,13 +57,13 @@ export interface Polling {
 
 export const Application = {
   make(options: ApplicationOptions): Application {
-    const runtime = ManagedRuntime.make(
-      Bot.layer({
-        ...(options.apiRoot === undefined ? {} : { apiRoot: options.apiRoot }),
-        ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
-        token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
-      }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer)),
-    );
+    const botLayer = Bot.layer({
+      ...(options.apiRoot === undefined ? {} : { apiRoot: options.apiRoot }),
+      ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
+      token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
+    }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer));
+    const runtime = ManagedRuntime.make(botLayer);
+    const inboxWake = options.inbox === undefined ? undefined : makeInboxWake();
     let activeStop: (() => Promise<void>) | undefined;
 
     const stop = async () => {
@@ -63,7 +80,18 @@ export const Application = {
       pollingOptions?: PollingOptions,
     ): Polling => {
       if (activeStop !== undefined) throw new Error("Application already has an active runtime");
-      const fiber = runtime.runFork(pollUpdates(handler, pollingOptions));
+      const fiber: Fiber.Fiber<never, E | BotApiError | InboxStoreError> =
+        options.inbox !== undefined && pollingOptions?.acknowledgment === undefined
+        ? runtime.runFork(
+            pollInboxUpdates(handler, {
+              ...options.inboxOptions,
+              ...pollingOptions,
+              ...(inboxWake === undefined ? {} : { wake: inboxWake }),
+            }).pipe(
+              Effect.provideService(InboxStore, options.inbox),
+            ),
+          )
+        : runtime.runFork(pollUpdates(handler, pollingOptions));
       let completed: Promise<void> | undefined;
       const stopCurrent = async () => {
         try {
@@ -119,7 +147,17 @@ export const Application = {
       webhookOptions: WebhookOptions,
     ): Webhook => {
       if (activeStop !== undefined) throw new Error("Application already has an active runtime");
-      const webhook = Effect.runSync(makeWebhook(handler, webhookOptions));
+      const webhook = options.inbox === undefined
+        ? Effect.runSync(makeWebhook(handler, webhookOptions))
+        : runtime.runSync(
+            makeInboxWebhook(handler, webhookOptions.secretToken, {
+              ...options.inboxOptions,
+              ...webhookOptions,
+              ...(inboxWake === undefined ? {} : { wake: inboxWake }),
+            }).pipe(
+              Effect.provideService(InboxStore, options.inbox),
+            ),
+          );
       let completed: Promise<void> | undefined;
       const stopCurrent = async () => {
         try {
@@ -130,7 +168,8 @@ export const Application = {
         }
       };
       activeStop = stopCurrent;
-      completed = runtime.runPromise(webhook.completed);
+      const completion: Effect.Effect<void, E | InboxStoreError, Bot> = webhook.completed;
+      completed = runtime.runPromise(completion);
       void completed.catch(() => {
         void runtime.runPromise(webhook.stop).catch(() => undefined).finally(() => {
           if (activeStop === stopCurrent) activeStop = undefined;
