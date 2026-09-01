@@ -1,7 +1,5 @@
 import { execFile as execFileCallback } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import {
@@ -13,49 +11,22 @@ import {
   sendInvoice,
   sendPaidMedia,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import { openTelegramTestHarness, repoRoot, writeMethodProof } from "./harness.mjs";
 
 const run = promisify(execFileCallback);
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const helper = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/payment-fixtures.py",
 );
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
-const credential = await acquireTelegramTestCredential({ convexProjectDir });
-let proxy;
+const harness = await openTelegramTestHarness();
+const { credential, proxy } = harness;
+const writeProof = (method, observation) =>
+  writeMethodProof(credential, method, observation);
 let app;
 let payment;
 let invoiceMessage;
 
-async function writeProof(method, observation) {
-  const proof = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }],
-  };
-  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-  }
-  return proof;
-}
-
 try {
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const chatId = Number(credential.testerUserId);
   const userId = Number(credential.testerUserId);
@@ -135,6 +106,5 @@ try {
     })).catch(() => {});
   }
   await app?.close();
-  await proxy?.close();
-  await credential.release();
+  await harness.close();
 }

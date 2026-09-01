@@ -3,15 +3,15 @@ import { randomUUID } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const skillScripts = path.join(repoRoot, ".agents/skills/telegram-e2e-userbot/scripts");
-const convexProjectDir = process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
+import {
+  openTelegramTestHarness,
+  repoRoot,
+  requireEvent,
+  skillScripts,
+  waitForChild,
+  waitForReady,
+} from "./harness.mjs";
 const scratch = await mkdtemp(path.join(tmpdir(), "telly-sed-e2e."));
 const eventsPath = path.join(scratch, "events.ndjson");
 const summaryPath = path.join(scratch, "summary.json");
@@ -21,53 +21,14 @@ const run = randomUUID();
 const sourceText = `old wheel old axle ${run}`;
 const correctedText = `new wheel new axle ${run}`;
 let credential;
+let harness;
 let proxy;
 let recorder;
 let sut;
 
-function waitForChild(child, label) {
-  return new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      if (code === 0) resolve({ code, signal });
-      else reject(new Error(`${label} exited with code ${String(code)} signal ${String(signal)}`));
-    });
-  });
-}
-
-function waitForReady(child) {
-  return new Promise((resolve, reject) => {
-    let output = "";
-    const timeout = setTimeout(() => reject(new Error("Sed bot did not become ready")), 15_000);
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      output += chunk;
-      if (output.includes("ready\n")) {
-        clearTimeout(timeout);
-        resolve();
-      }
-    });
-    child.once("exit", () => {
-      clearTimeout(timeout);
-      reject(new Error("Sed bot exited before readiness"));
-    });
-  });
-}
-
-function requireEvent(events, predicate, label) {
-  const event = events.find(predicate);
-  if (event === undefined) throw new Error(`Missing Telegram event: ${label}`);
-  return event;
-}
-
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   await proxy.drainUpdates(credential.sutToken);
   sut = spawn("bun", ["run", "./scripts/e2e/fixtures/superseriousbot-sed-sut.mjs"], {
     cwd: repoRoot,
@@ -81,7 +42,7 @@ try {
   });
   const sutCompletion = waitForChild(sut, "Sed bot");
   void sutCompletion.catch(() => undefined);
-  await waitForReady(sut);
+  await waitForReady(sut, "Sed bot");
 
   await writeFile(scenarioPath, `${JSON.stringify({
     actions: [
@@ -191,7 +152,6 @@ try {
 } finally {
   if (recorder?.exitCode === null) recorder.kill("SIGTERM");
   if (sut?.exitCode === null) sut.kill("SIGTERM");
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
   await rm(scratch, { force: true, recursive: true });
 }

@@ -1,31 +1,29 @@
 import { execFile as execFileCallback } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { Application, close as closeBot, getMe, logOut } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import {
+  openTelegramTestHarness,
+  repoRoot,
+  startTestApiProxy,
+  writeMethodProof,
+} from "./harness.mjs";
 
 const run = promisify(execFileCallback);
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const helper = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/botfather-fixtures.py",
 );
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 const selected = new Set(
   process.env.TELLY_E2E_METHODS?.split(",").filter(Boolean) ?? ["close", "logOut"],
 );
 const localServerImage =
   "aiogram/telegram-bot-api@sha256:3f92622be7b5bbf56ae98711901c1f42e4d9bc5e388167e4ee8d4cb2f899c5cb";
-const credential = await acquireTelegramTestCredential({ convexProjectDir });
+const harness = await openTelegramTestHarness();
+const { credential, proxy } = harness;
 const bots = [];
-let proxy;
 let localProxy;
 let localServer;
 
@@ -51,20 +49,7 @@ async function deleteDisposableBot(bot) {
 }
 
 async function writeProof(method, result) {
-  const proof = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation: { result } }],
-  };
-  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-  }
-  return proof;
+  return writeMethodProof(credential, method, { result });
 }
 
 async function startLocalBotApiServer() {
@@ -126,12 +111,6 @@ async function startLocalBotApiServer() {
 }
 
 try {
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
   const proofs = [];
   if (selected.has("logOut")) {
     const logoutFixture = await makeDisposableBot("logout");
@@ -145,7 +124,7 @@ try {
   if (selected.has("close")) {
     const closeFixture = await makeDisposableBot("close");
     localServer = await startLocalBotApiServer();
-    localProxy = await startTelegramTestApiProxy({ upstream: localServer.apiRoot });
+    localProxy = await startTestApiProxy(undefined, { upstream: localServer.apiRoot });
     const closeApp = Application.make({ apiRoot: localProxy.apiRoot, token: closeFixture.token });
     await closeApp.run(getMe());
     let closeResult;
@@ -166,6 +145,5 @@ try {
   for (const bot of [...bots]) await deleteDisposableBot(bot).catch(() => {});
   await localProxy?.close();
   await localServer?.close().catch(() => {});
-  await proxy?.close();
-  await credential.release();
+  await harness.close();
 }

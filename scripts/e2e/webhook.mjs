@@ -1,7 +1,6 @@
 import { execFile as execFileCallback, spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { Effect } from "effect";
@@ -14,24 +13,24 @@ import {
   respond,
   setWebhook,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import {
+  createMethodProof,
+  openTelegramTestHarness,
+  publishMethodProof,
+  repoRoot,
+} from "./harness.mjs";
 
 const execFile = promisify(execFileCallback);
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const userDriver = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/user-driver.py",
 );
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 const runtimeArtifactPath = process.env.TELLY_E2E_RUNTIME_ARTIFACT_PATH;
 const text = `telly-webhook-${crypto.randomUUID()}`;
 const echoText = `echo:${text}`;
 const secretToken = `telly_${crypto.randomUUID().replaceAll("-", "_")}`;
 let credential;
+let harness;
 let proxy;
 let app;
 let server;
@@ -163,33 +162,19 @@ async function startPublicTunnel(port) {
 }
 
 async function writeProof(method, observation, timeline) {
-  const proof = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }, ...timeline],
-  };
-  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-  for (const secret of [credential.sutToken, credential.sutUsername, secretToken]) {
-    if (serialized.includes(secret)) throw new Error(`${method} proof contains a secret`);
-  }
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-  }
-  return proof;
+  return publishMethodProof(
+    createMethodProof(method, observation, [
+      { kind: "bot_api_result", observation },
+      ...timeline,
+    ]),
+    credential,
+    { secrets: [secretToken] },
+  );
 }
 
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const snapshot = await app.run(getWebhookInfo());
   if (snapshot.url !== "") {
@@ -312,6 +297,5 @@ try {
   server?.stop(true);
   await webhook?.stop().catch(() => {});
   await app?.close();
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
 }

@@ -2,7 +2,6 @@ import { execFile as execFileCallback, execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import {
@@ -61,11 +60,15 @@ import {
   unpinAllForumTopicMessages,
   unpinAllGeneralForumTopicMessages,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import {
+  acquireTestCredential,
+  createMethodProof,
+  publishMethodProof,
+  repoRoot,
+  startTestApiProxy,
+} from "./harness.mjs";
 
 const run = promisify(execFileCallback);
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const helper = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/isolated-group.py",
@@ -74,10 +77,6 @@ const userDriver = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/user-driver.py",
 );
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 const fixtureDir = await mkdtemp(path.join(tmpdir(), "telly-isolated-group."));
 const pendingProofs = [];
 const failures = [];
@@ -110,13 +109,7 @@ const baselinePermissions = {
 };
 
 function record(method, observation) {
-  pendingProofs.push({
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }],
-  });
+  pendingProofs.push(createMethodProof(method, observation));
 }
 
 async function attempt(method, proof) {
@@ -131,15 +124,7 @@ async function attempt(method, proof) {
 
 async function publishProofs() {
   for (const proof of pendingProofs) {
-    const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-    for (const secret of [credential.sutToken, credential.sutUsername]) {
-      if (serialized.includes(secret)) throw new Error(`${proof.method} proof contains leased identity data`);
-    }
-    if (artifactDir !== undefined) {
-      const methodDir = path.resolve(repoRoot, artifactDir, proof.method);
-      await mkdir(methodDir, { recursive: true });
-      await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-    }
+    await publishMethodProof(proof, credential);
   }
 }
 
@@ -181,7 +166,7 @@ async function normalizeBotApiFixture(userId) {
 async function acquireReusableFixture() {
   const seen = new Set();
   for (let attempt = 0; attempt < 12; attempt += 1) {
-    const candidate = await acquireTelegramTestCredential({ convexProjectDir });
+    const candidate = await acquireTestCredential();
     seen.add(candidate.credentialId);
     const driverEnv = { ...process.env, ...candidate.driverEnv };
     try {
@@ -287,12 +272,7 @@ try {
   credential = fixture.credential;
   const driverEnv = fixture.driverEnv;
   chatId = fixture.chatId;
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  proxy = await startTestApiProxy(credential);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const botId = Number(credential.sutBotId);
   const userId = Number(credential.testerUserId);
@@ -505,7 +485,7 @@ try {
   }
 
   const helperOptions = { cwd: repoRoot, env: driverEnv, timeout: 60_000 };
-  secondaryCredential = await acquireTelegramTestCredential({ convexProjectDir });
+  secondaryCredential = await acquireTestCredential();
   const secondaryId = Number(secondaryCredential.sutBotId);
   if (!Number.isSafeInteger(secondaryId)) {
     throw new Error("Secondary Telegram bot id is not a safe integer");
