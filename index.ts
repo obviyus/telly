@@ -98,7 +98,7 @@ import type {
   SqliteConversationStore,
 } from "./src/SqliteConversations.js";
 import { runJobWorker } from "./src/internal/JobRuntime.js";
-import { pollInboxUpdates, pollUpdates } from "./src/Polling.js";
+import { PollingConflictError, pollInboxUpdates, pollUpdates } from "./src/Polling.js";
 import type {
   AcknowledgmentMode,
   InboxPollingOptions,
@@ -182,6 +182,7 @@ export {
   on,
   pollInboxUpdates,
   pollUpdates,
+  PollingConflictError,
   reply,
   retryUnknownOutcome,
   regex,

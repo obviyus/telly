@@ -22,6 +22,7 @@ import {
   getMyName,
   on,
   pollInboxUpdates,
+  PollingConflictError,
   retryUnknownOutcome,
   routes,
   Schema,
@@ -83,6 +84,10 @@ Application.make({ inbox: MemoryInbox.make(), token }).runPolling(declarativeHan
 getMe().pipe(retryUnknownOutcome);
 pollInboxUpdates(declarativeHandler).pipe(
   Effect.provideService(InboxStore, MemoryInbox.make()),
+  Effect.catchTag("PollingConflictError", (error) => {
+    error satisfies PollingConflictError;
+    return Effect.void;
+  }),
 );
 
 const mediaHandler = routes(

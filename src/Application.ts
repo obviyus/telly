@@ -25,6 +25,7 @@ import { runJobWorker } from "./internal/JobRuntime.js";
 import {
   pollInboxUpdates,
   pollUpdates,
+  type PollingConflictError,
   type PollingOptions,
   type UpdateHandler,
 } from "./Polling.js";
@@ -96,7 +97,7 @@ export const Application = {
       if (activeStop !== undefined) throw new Error("Application already has an active runtime");
       const updates: Effect.Effect<
         never,
-        E | BotApiError | InboxStoreError,
+        E | BotApiError | InboxStoreError | PollingConflictError,
         Bot
       > =
         options.inbox !== undefined && pollingOptions?.acknowledgment === undefined
@@ -113,7 +114,7 @@ export const Application = {
         : Effect.raceFirst(updates, runJobWorker(options.jobs));
       const fiber: Fiber.Fiber<
         never,
-        E | BotApiError | InboxStoreError | JobStoreError
+        E | BotApiError | InboxStoreError | JobStoreError | PollingConflictError
       > = runtime.runFork(program);
       let completed: Promise<void> | undefined;
       const stopCurrent = async () => {

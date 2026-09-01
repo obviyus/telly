@@ -1,9 +1,12 @@
 import * as Effect from "effect/Effect";
 
-import { Bot, BotApiError } from "./BotApi.js";
-import { getUpdates } from "./methods.generated.js";
+import { Bot, type BotApiError } from "./BotApi.js";
 import { InboxStore, type InboxOptions, type InboxStoreError } from "./Inbox.js";
 import { defaultConversationKey, makeDispatcher } from "./internal/Dispatch.js";
+import {
+  makePollingRequests,
+  PollingConflictError,
+} from "./internal/GetUpdatesConflict.js";
 import {
   inboxDefaults,
   runInboxWorker,
@@ -22,6 +25,8 @@ export interface PollingOptions {
   readonly allowedUpdates?: ReadonlyArray<UpdateType>;
   readonly batchSize?: number;
   readonly concurrency?: number;
+  /** Time allowed for retrying conflicts caused by another getUpdates consumer. Zero disables recovery. */
+  readonly conflictRetryBudgetMs?: number;
   readonly conversationKey?: (update: Update) => number | string;
   readonly gracePeriodMs?: number;
   readonly pollTimeoutSeconds?: number;
@@ -34,29 +39,19 @@ interface PendingUpdate {
   readonly updateId: number;
 }
 
-const acknowledgmentFlushTimeoutMs = 5_000;
-
-function acknowledgmentFlushTimeout() {
-  return new BotApiError({
-    method: "getUpdates",
-    reason: {
-      _tag: "Transport",
-      description: `shutdown acknowledgment timed out after ${acknowledgmentFlushTimeoutMs}ms`,
-    },
-    retrySafe: true,
-  });
-}
+export { PollingConflictError };
 
 export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
   handler: UpdateHandler<E>,
   options: PollingOptions = {},
-): Effect.fn.Return<never, BotApiError | E, Bot> {
+): Effect.fn.Return<never, BotApiError | E | PollingConflictError, Bot> {
   const acknowledgment = options.acknowledgment ?? "on-complete";
   const batchSize = options.batchSize ?? 100;
   const concurrency = options.concurrency ?? 16;
   const conversationKey = options.conversationKey ?? defaultConversationKey;
   const gracePeriodMs = options.gracePeriodMs ?? 30_000;
   const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
+  const polling = makePollingRequests(options.conflictRetryBudgetMs);
   const seen = new Set<number>();
   const pending: Array<PendingUpdate> = [];
   const pendingById = new Map<number, PendingUpdate>();
@@ -90,7 +85,7 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
   const poll = Effect.gen(function* () {
     const available = yield* dispatcher.awaitCapacity;
     const requestOffset = nextOffset;
-    const updates = yield* getUpdates({
+    const updates = yield* polling.getUpdates({
       ...(options.allowedUpdates === undefined
         ? {}
         : { allowedUpdates: options.allowedUpdates }),
@@ -130,13 +125,7 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
   const shutdown = Effect.gen(function* () {
     yield* dispatcher.drain;
     if (nextOffset > 0) {
-      yield* getUpdates({ limit: 1, offset: nextOffset, timeout: 0 }).pipe(
-        Effect.asVoid,
-        Effect.timeoutOrElse({
-          duration: acknowledgmentFlushTimeoutMs,
-          orElse: () => Effect.fail(acknowledgmentFlushTimeout()),
-        }),
-      );
+      yield* polling.confirmOffset(nextOffset);
     }
   });
 
@@ -149,14 +138,19 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
 export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
   handler: UpdateHandler<E>,
   options: InboxPollingOptions = {},
-): Effect.fn.Return<never, BotApiError | InboxStoreError, Bot | InboxStore> {
+): Effect.fn.Return<
+  never,
+  BotApiError | InboxStoreError | PollingConflictError,
+  Bot | InboxStore
+> {
   const batchSize = options.batchSize ?? 100;
   const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
+  const polling = makePollingRequests(options.conflictRetryBudgetMs);
   let nextOffset = 0;
   yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
   const receive = Effect.forever(Effect.gen(function* () {
-    const updates = yield* getUpdates({
+    const updates = yield* polling.getUpdates({
       ...(options.allowedUpdates === undefined
         ? {}
         : { allowedUpdates: options.allowedUpdates }),
@@ -180,13 +174,7 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
 
   const flush = Effect.suspend(() => nextOffset === 0
     ? Effect.void
-    : getUpdates({ limit: 1, offset: nextOffset, timeout: 0 }).pipe(
-        Effect.asVoid,
-        Effect.timeoutOrElse({
-          duration: acknowledgmentFlushTimeoutMs,
-          orElse: () => Effect.fail(acknowledgmentFlushTimeout()),
-        }),
-      ));
+    : polling.confirmOffset(nextOffset));
 
   return yield* Effect.raceFirst(
     receive,

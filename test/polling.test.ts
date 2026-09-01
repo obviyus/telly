@@ -1,10 +1,39 @@
 import { expect, test } from "bun:test";
-import { Deferred, Effect } from "effect";
+import { Deferred, Effect, Fiber, Layer, Redacted } from "effect";
+import { TestClock } from "effect/testing";
 
-import { Application, BotApiError, sendMessage } from "../index.ts";
+import {
+  Application,
+  Bot,
+  BotApiError,
+  PollingConflictError,
+  pollUpdates,
+  sendMessage,
+} from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
 const token = "123456:polling-test";
+
+function botLayer(fake: FakeBotApi) {
+  return Bot.layer({ rateLimit: false, token: Redacted.make(token) }).pipe(
+    Layer.provide(fake.layer),
+  );
+}
+
+function conflict() {
+  return FakeBotApiReply.reject({
+    description: "Conflict",
+    errorCode: 409,
+  });
+}
+
+function webhookInfo(url: string) {
+  return FakeBotApiReply.ok({
+    has_custom_certificate: false,
+    pending_update_count: 0,
+    url,
+  });
+}
 
 function update(updateId: number, chatId: number) {
   return {
@@ -321,4 +350,139 @@ test("polling rejects zero concurrency instead of waiting forever", async () => 
   } finally {
     await app.close().catch(() => undefined);
   }
+});
+
+test("polling fails at once when Telegram reports an active webhook", async () => {
+  const fake = FakeBotApi.make({
+    replies: [conflict(), webhookInfo("https://bot.example/telegram")],
+    token,
+  });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const polling = app.startPolling(() => Effect.void);
+  let caught: unknown;
+
+  try {
+    await polling.completed;
+  } catch (error) {
+    caught = error;
+  } finally {
+    await app.close().catch(() => undefined);
+  }
+
+  expect(caught).toBeInstanceOf(PollingConflictError);
+  if (!(caught instanceof PollingConflictError)) throw new Error("Expected polling conflict");
+  expect(caught.conflict).toBe("active-webhook");
+  expect(caught.message).toContain("delete the webhook");
+  expect(caught.rejection.reason).toMatchObject({ errorCode: 409 });
+  expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(1);
+});
+
+test("polling retries an overlapping poll with the same offset", async () => {
+  const handled = Deferred.makeUnsafe<void>();
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok([update(101, 1_001)]), conflict()],
+    token,
+  });
+  const retried = await Effect.runPromise(Effect.gen(function* () {
+    const polling = yield* pollUpdates(
+      () => Deferred.succeed(handled, undefined),
+    ).pipe(Effect.forkChild);
+    yield* Deferred.await(handled);
+    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
+    yield* Effect.yieldNow;
+    yield* TestClock.adjust("1 second");
+    const request = yield* Effect.promise(() => fake.whenCalled("getUpdates", 3));
+    yield* Fiber.interrupt(polling);
+    return request;
+  }).pipe(
+    Effect.provide(botLayer(fake)),
+    Effect.provide(TestClock.layer()),
+  ));
+
+  expect(retried.params).toMatchObject({ offset: 102 });
+});
+
+test("polling stops retrying when the conflict budget expires", async () => {
+  const fake = FakeBotApi.make({
+    replies: [conflict(), webhookInfo(""), conflict(), webhookInfo("")],
+    token,
+  });
+  const caught = await Effect.runPromise(Effect.gen(function* () {
+    const polling = yield* pollUpdates(
+      () => Effect.void,
+      { conflictRetryBudgetMs: 3_000 },
+    ).pipe(Effect.forkChild);
+    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
+    yield* Effect.yieldNow;
+    yield* TestClock.adjust("1 second");
+    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo", 2));
+    yield* Effect.yieldNow;
+    yield* TestClock.adjust("2 seconds");
+    return yield* Fiber.join(polling).pipe(Effect.flip);
+  }).pipe(
+    Effect.provide(botLayer(fake)),
+    Effect.provide(TestClock.layer()),
+  ));
+
+  expect(caught).toBeInstanceOf(PollingConflictError);
+  if (!(caught instanceof PollingConflictError)) throw new Error("Expected polling conflict");
+  expect(caught.conflict).toBe("overlapping-poll");
+  expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(2);
+});
+
+test("polling preserves the original conflict when classification fails", async () => {
+  const fake = FakeBotApi.make({
+    replies: [
+      conflict(),
+      FakeBotApiReply.reject({ description: "Not Found", errorCode: 404 }),
+    ],
+    token,
+  });
+  const caught = await Effect.runPromise(
+    pollUpdates(() => Effect.void).pipe(
+      Effect.provide(botLayer(fake)),
+      Effect.flip,
+    ),
+  );
+
+  expect(caught).toBeInstanceOf(BotApiError);
+  expect(caught).not.toBeInstanceOf(PollingConflictError);
+  if (!(caught instanceof BotApiError)) throw new Error("Expected BotApiError");
+  expect(caught.reason).toMatchObject({ errorCode: 409 });
+  expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(1);
+});
+
+test("a zero conflict budget disables classification and retries", async () => {
+  const fake = FakeBotApi.make({ replies: [conflict()], token });
+  const caught = await Effect.runPromise(
+    pollUpdates(() => Effect.void, { conflictRetryBudgetMs: 0 }).pipe(
+      Effect.provide(botLayer(fake)),
+      Effect.flip,
+    ),
+  );
+
+  expect(caught).toBeInstanceOf(BotApiError);
+  expect(fake.requests.some((call) => call.method === "getWebhookInfo")).toBe(false);
+});
+
+test("polling shutdown completes when another consumer owns acknowledgment", async () => {
+  const gate = Deferred.makeUnsafe<void>();
+  const started = signal();
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok([update(111, 1_101)]), conflict()],
+    token,
+  });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const polling = app.startPolling(
+    () => Effect.sync(started.resolve).pipe(Effect.andThen(Deferred.await(gate))),
+    { concurrency: 1 },
+  );
+
+  await started.promise;
+  const stopping = polling.stop();
+  Effect.runSync(Deferred.succeed(gate, undefined));
+  await stopping;
+
+  expect(fake.requests.at(-1)?.params).toMatchObject({ offset: 112, timeout: 0 });
+  await app.close();
 });

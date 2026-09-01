@@ -83,6 +83,8 @@ await Application.make({ token }).runPolling(bot);
 
 The default `on-complete` acknowledgment confirms only the contiguous prefix of successful updates. Use `on-receipt` when a process crash may lose accepted work.
 
+If another process briefly owns `getUpdates`, Telly checks that no webhook is active and retries for up to 60 seconds. An active webhook fails at once with `PollingConflictError`. Set `conflictRetryBudgetMs: 0` to disable conflict recovery.
+
 `respond` sends to the triggering chat without quoting. `reply` quotes the triggering message. Both preserve its business connection, forum thread, and direct-message topic.
 
 Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, and `mention` from the package root. Compose filters with `Filter.and`, `Filter.or`, and `Filter.not`, bind them with `on`, group first-match routes with `routes`, and run overlapping groups with `every`.
