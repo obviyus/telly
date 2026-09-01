@@ -562,6 +562,16 @@ class UserDriver:
             "clear_draft": True,
         }
 
+    def reply_target(self, message_id):
+        if not message_id:
+            return None
+        return {
+            "@type": "inputMessageReplyToMessage",
+            "message_id": int(message_id),
+            "quote": None,
+            "checklist_task_id": 0,
+        }
+
     def photo_content(self, path, caption=""):
         photo_path = Path(path).expanduser().resolve()
         if not photo_path.is_file():
@@ -590,7 +600,7 @@ class UserDriver:
                     "@type": "sendMessage",
                     "chat_id": chat_id,
                     "message_thread_id": int(thread_id or 0),
-                    "reply_to_message_id": int(reply_to or 0),
+                    "reply_to": self.reply_target(reply_to),
                     "options": {
                         "@type": "messageSendOptions",
                         "disable_notification": True,
@@ -612,7 +622,7 @@ class UserDriver:
         payload = {
             "chat_id": chat_id,
             "message_thread_id": int(thread_id or 0),
-            "reply_to_message_id": int(reply_to or 0),
+            "reply_to": self.reply_target(reply_to),
             "options": {
                 "@type": "messageSendOptions",
                 "disable_notification": True,

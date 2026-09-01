@@ -92,6 +92,20 @@ class PhotoContentTest(unittest.TestCase):
         self.assertEqual(formatted["entities"][0]["offset"], 3)
         self.assertEqual(formatted["entities"][0]["length"], 8)
 
+    def test_builds_current_tdlib_reply_target(self):
+        instance = driver.UserDriver.__new__(driver.UserDriver)
+
+        self.assertEqual(
+            instance.reply_target(7),
+            {
+                "@type": "inputMessageReplyToMessage",
+                "message_id": 7,
+                "quote": None,
+                "checklist_task_id": 0,
+            },
+        )
+        self.assertIsNone(instance.reply_target(None))
+
     def test_normalizes_serve_messages_and_edits(self):
         known = {}
         message_id = 42 << 20

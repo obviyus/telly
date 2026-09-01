@@ -1,0 +1,34 @@
+{
+  "feature": "superseriousbot-sed",
+  "passed": true,
+  "recorded_time": "2026-08-31T15:08:36.107Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "botApiMessageId": 3730,
+      "kind": "source_message",
+      "text": "old wheel old axle a990355a-82ee-497f-91e2-4fbbecccb480"
+    },
+    {
+      "botApiMessageId": 3731,
+      "kind": "sed_reply",
+      "quotedBotApiMessageId": 3730,
+      "text": "s/old/new"
+    },
+    {
+      "botApiMessageId": 3732,
+      "kind": "corrected_reply",
+      "quotedBotApiMessageId": 3730,
+      "text": "new wheel new axle a990355a-82ee-497f-91e2-4fbbecccb480"
+    },
+    {
+      "kind": "invalid_expression",
+      "observation": "no later SUT response"
+    },
+    {
+      "exitCode": 0,
+      "kind": "graceful_shutdown",
+      "signal": "SIGTERM"
+    }
+  ]
+}

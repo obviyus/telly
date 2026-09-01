@@ -513,7 +513,17 @@ def run_scenario(recorder, driver_obj, sut, actions, seconds, barrier_dir="", st
             ):
                 if action["type"] == "send":
                     text, _run = driver.apply_template(action["text"], sut)
-                    result = driver_obj.send_text(recorder.chat_id, text)
+                    reply_index = action.get("replyToAction")
+                    reply_to = None
+                    if reply_index is not None:
+                        if (
+                            not isinstance(reply_index, int)
+                            or reply_index < 0
+                            or reply_index >= len(sent_ids)
+                        ):
+                            raise driver.DriverError("replyToAction must name an earlier send action")
+                        reply_to = sent_ids[reply_index]
+                    result = driver_obj.send_text(recorder.chat_id, text, reply_to=reply_to)
                     message_id = (result or {}).get("id")
                     sent_ids.append(message_id)
                     record_sent_action(recorder, result or {}, text)
