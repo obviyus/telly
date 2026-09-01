@@ -89,9 +89,11 @@ test("coverage copies explicit proven and blocked evidence", () => {
   expect(coverage.methods["proven"]).toEqual(evidence["proven"]);
   expect(coverage.methods["blocked"]).toEqual(evidence["blocked"]);
   expect(coverage.methods["absent"]).toEqual(evidence["absent"]);
-  expect(sources.methods).toContain(`result: ${resultSchema}`);
+  expect(sources.methods).toContain(`result: Schema.suspend(() => ${resultSchema})`);
   expect(sources.methods).toContain('rateLimit: "none"');
   expect(sources.types).toContain("readonly value: number");
+  expect(sources.decoders).toContain("export function _decodeResult");
+  expect(sources.decoders).toContain('case "value"');
 });
 
 test("evidence tags reject fields from the other state", async () => {
@@ -162,7 +164,7 @@ test("additive type override extends a recursive subtype union", () => {
 
   expect(sources.types).toContain("export type Parent = Child | string | ReadonlyArray<Parent>");
   expect(sources.types).toContain(
-    "Schema.Array(Schema.suspend((): Schema.Codec<Parent, unknown> => Parent))",
+    "Schema.Array(Parent)",
   );
 });
 

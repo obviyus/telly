@@ -78,6 +78,7 @@ const primitiveTypes: Readonly<Record<string, string>> = {
 
 interface GeneratedSources {
   readonly coverage: string;
+  readonly decoders: string;
   readonly methods: string;
   readonly types: string;
 }
@@ -119,8 +120,7 @@ function schemaExpression(reference: string, qualifier = ""): string {
   if (item !== undefined) {
     return `Schema.Array(${schemaExpression(item, qualifier)})`;
   }
-  return primitiveSchemas[reference] ??
-    `Schema.suspend((): Schema.Codec<${qualifier}${reference}, unknown> => ${qualifier}${reference})`;
+  return primitiveSchemas[reference] ?? `${qualifier}${reference}`;
 }
 
 function unionExpression(references: ReadonlyArray<string>, render: (reference: string) => string) {
@@ -212,6 +212,27 @@ function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
   return targets;
 }
 
+type DecoderTarget =
+  | { readonly _tag: "Literal"; readonly value: string }
+  | { readonly _tag: "References"; readonly references: ReadonlyArray<string> };
+
+function decoderTarget(
+  owner: string,
+  field: NonNullable<BotApiSpec["types"][string]["fields"]>[number],
+  targets: ReadonlyMap<string, FieldTarget>,
+  overrides: GeneratorOverrides,
+): DecoderTarget {
+  const target = targets.get(`${owner}.${field.name}`);
+  const references = overrides.fields[`${owner}.${field.name}`]?.types ?? field.types;
+  if (target?._tag === "Literal") return { _tag: "Literal", value: target.value };
+  return {
+    _tag: "References",
+    references: target?._tag === "Enum"
+      ? references.map((reference) => enumReference(reference, target.name))
+      : references,
+  };
+}
+
 function fieldExpressions(
   owner: string,
   field: NonNullable<BotApiSpec["types"][string]["fields"]>[number],
@@ -219,22 +240,14 @@ function fieldExpressions(
   overrides: GeneratorOverrides,
   qualifier = "",
 ) {
-  const target = targets.get(`${owner}.${field.name}`);
-  const references = overrides.fields[`${owner}.${field.name}`]?.types ?? field.types;
-  if (target === undefined) {
-    return {
-      schema: unionSchema(references, (reference) => schemaExpression(reference, qualifier)),
-      type: unionExpression(references, (reference) => typeExpression(reference, qualifier)),
-    };
-  }
+  const target = decoderTarget(owner, field, targets, overrides);
   if (target._tag === "Literal") {
     const literal = JSON.stringify(target.value);
     return { schema: `Schema.Literal(${literal})`, type: literal };
   }
-  const enumReferences = references.map((reference) => enumReference(reference, target.name));
   return {
-    schema: unionSchema(enumReferences, (reference) => schemaExpression(reference, qualifier)),
-    type: unionExpression(enumReferences, (reference) => typeExpression(reference, qualifier)),
+    schema: unionSchema(target.references, (reference) => schemaExpression(reference, qualifier)),
+    type: unionExpression(target.references, (reference) => typeExpression(reference, qualifier)),
   };
 }
 
@@ -265,9 +278,224 @@ function renderEnums(spec: BotApiSpec): string {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, definition]) => {
       const values = definition.values.map((value) => JSON.stringify(value));
-      return `${docComment([definition.description])}export type ${name} = ${values.join(" | ")};\nexport const ${name}: Schema.Codec<${name}> = Schema.Literals([${values.join(", ")}]);\n`;
+      return `${docComment([definition.description])}export type ${name} = ${values.join(" | ")};\nexport const ${name}: Schema.Codec<${name}> = Schema.suspend(() => Schema.Literals([${values.join(", ")}]));\n`;
     })
     .join("\n");
+}
+
+function decoderName(reference: string): string {
+  const item = arrayItem(reference);
+  return item === undefined
+    ? `_decode${reference}`
+    : `_decodeArrayOf${decoderName(item).slice("_decode".length)}`;
+}
+
+function decodedValue(target: DecoderTarget, raw: string): string {
+  if (target._tag === "Literal") {
+    return `const decoded = ${raw} === ${JSON.stringify(target.value)} ? ${raw} : decodeFailure;`;
+  }
+  if (target.references.length === 1) {
+    return `const decoded = ${decoderName(target.references[0] ?? "missing")}(${raw});`;
+  }
+  return [
+    "let decoded: unknown = decodeFailure;",
+    ...target.references.map((reference) =>
+      `if (decoded === decodeFailure) decoded = ${decoderName(reference)}(${raw});`
+    ),
+  ].join("\n      ");
+}
+
+function renderObjectDecoder(
+  name: string,
+  definition: BotApiSpec["types"][string],
+  targets: ReadonlyMap<string, FieldTarget>,
+  overrides: GeneratorOverrides,
+): string {
+  const fields = definition.fields ?? [];
+  const alwaysClone = fields.some((field) =>
+    field.required && publicFieldName(field.name) !== field.name
+  );
+  let requiredIndex = 0;
+  const cases = fields.map((field) => {
+    const publicName = publicFieldName(field.name);
+    const target = decoderTarget(name, field, targets, overrides);
+    const bit = field.required ? 2 ** requiredIndex++ : undefined;
+    const assign = alwaysClone
+      ? `output[${JSON.stringify(publicName)}] = decoded;`
+      : publicName === field.name
+      ? `if (decoded !== raw) {
+        output ??= { ...source };
+        output[${JSON.stringify(publicName)}] = decoded;
+      }`
+      : `output ??= { ...source };
+      output[${JSON.stringify(publicName)}] = decoded;
+      delete output[${JSON.stringify(field.name)}];`;
+    return `    case ${JSON.stringify(field.name)}: {
+      const raw = source[key];
+      ${decodedValue(target, "raw")}
+      if (decoded === decodeFailure) return decodeFailure;
+      ${assign}${bit === undefined ? "" : `
+      seen |= ${bit};`}
+      break;
+    }`;
+  });
+  const requiredMask = requiredIndex === 0 ? 0 : 2 ** requiredIndex - 1;
+  return `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
+  if (typeof input !== "object" || input === null || Array.isArray(input)) return decodeFailure;
+  const source = input as Readonly<Record<string, unknown>>;
+  ${alwaysClone ? "const output: Record<string, unknown> = {};" : "let output: Record<string, unknown> | undefined;"}
+  let seen = 0;
+  for (const key of Object.keys(source)) {
+    switch (key) {
+${cases.join("\n")}
+${alwaysClone ? "    default:\n      output[key] = source[key];\n      break;" : ""}
+    }
+  }
+  if (seen !== ${requiredMask}) return decodeFailure;
+  return ${alwaysClone ? "output" : "(output ?? source)"} as Types.${name};
+}`;
+}
+
+function renderUnionDecoder(
+  name: string,
+  references: ReadonlyArray<string>,
+): string {
+  const attempts = references.map((reference, index) =>
+    `  const member${index} = ${decoderName(reference)}(input);
+  if (member${index} !== decodeFailure) return member${index};`
+  ).join("\n");
+  return `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
+${attempts}
+  return decodeFailure;
+}`;
+}
+
+function collectArrayReferences(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  targets: ReadonlyMap<string, FieldTarget>,
+): ReadonlyArray<string> {
+  const references = new Set<string>();
+  const add = (reference: string) => {
+    const item = arrayItem(reference);
+    if (item === undefined) return;
+    references.add(reference);
+    add(item);
+  };
+  for (const [name, definition] of Object.entries(spec.types)) {
+    for (const field of definition.fields ?? []) {
+      const target = decoderTarget(name, field, targets, overrides);
+      if (target._tag === "References") target.references.forEach(add);
+    }
+    const override = overrides.types[name];
+    if (definition.subtypes !== undefined && !(override !== undefined && "schema" in override)) {
+      [...definition.subtypes, ...(override?.additionalTypes ?? [])].forEach(add);
+    }
+  }
+  return [...references].sort((left, right) => left.length - right.length);
+}
+
+function renderDecoders(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  targets: ReadonlyMap<string, FieldTarget>,
+): string {
+  const primitiveDecoders = `export function _decodeBoolean(input: unknown): boolean | typeof decodeFailure {
+  return typeof input === "boolean" ? input : decodeFailure;
+}
+
+export function _decodeFloat(input: unknown): number | typeof decodeFailure {
+  return typeof input === "number" ? input : decodeFailure;
+}
+
+export function _decodeInteger(input: unknown): number | typeof decodeFailure {
+  return typeof input === "number" && Number.isSafeInteger(input) ? input : decodeFailure;
+}
+
+export function _decodeString(input: unknown): string | typeof decodeFailure {
+  return typeof input === "string" ? input : decodeFailure;
+}
+
+export function _decodeTrue(input: unknown): true | typeof decodeFailure {
+  return input === true ? input : decodeFailure;
+}
+
+export function _decodeArray<A>(
+  input: unknown,
+  decode: (input: unknown) => A | typeof decodeFailure,
+): ReadonlyArray<A> | typeof decodeFailure {
+  if (!Array.isArray(input)) return decodeFailure;
+  const source: ReadonlyArray<unknown> = input;
+  let output: Array<A> | undefined;
+  for (let index = 0; index < source.length; index += 1) {
+    const raw = source[index];
+    const decoded = decode(raw);
+    if (decoded === decodeFailure) return decodeFailure;
+    if (decoded !== raw) {
+      output ??= source.slice() as Array<A>;
+      output[index] = decoded;
+    }
+  }
+  return output ?? source as ReadonlyArray<A>;
+}`;
+  const enumDecoders = Object.entries(spec.enums)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, definition]) => `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
+  switch (input) {
+${definition.values.map((value) => `    case ${JSON.stringify(value)}:`).join("\n")}
+      return input;
+    default:
+      return decodeFailure;
+  }
+}`)
+    .join("\n\n");
+  const arrayDecoders = collectArrayReferences(spec, overrides, targets)
+    .map((reference) => {
+      const item = arrayItem(reference);
+      if (item === undefined) throw new Error(`Expected array reference, found ${reference}`);
+      return `export function ${decoderName(reference)}(input: unknown): ${typeExpression(reference, "Types.")} | typeof decodeFailure {
+  return _decodeArray(input, ${decoderName(item)});
+}`;
+    })
+    .join("\n\n");
+  const typeDecoders = Object.entries(spec.types)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, definition]) => {
+      const override = overrides.types[name];
+      if (override !== undefined && "schema" in override) {
+        return override.schema === "Schema.instanceOf(Blob)"
+          ? `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
+  return input instanceof Blob ? input : decodeFailure;
+}`
+          : `export function _decode${name}(_input: unknown): Types.${name} | typeof decodeFailure {
+  return decodeFailure;
+}`;
+      }
+      if (definition.subtypes !== undefined) {
+        return renderUnionDecoder(name, [
+          ...definition.subtypes,
+          ...(override?.additionalTypes ?? []),
+        ]);
+      }
+      return renderObjectDecoder(name, definition, targets, overrides);
+    })
+    .join("\n\n");
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import type * as Types from "../types.generated.js";
+
+export const decodeFailure = Symbol("telly/FastDecodeFailure");
+
+${primitiveDecoders}
+
+${enumDecoders}
+
+${arrayDecoders}
+
+${typeDecoders}
+
+export function decodeUpdate(input: unknown): Types.Update | typeof decodeFailure {
+  return _decodeUpdate(input);
+}
+`;
 }
 
 function renderObjectType(
@@ -310,10 +538,13 @@ function renderObjectType(
   const encodedBody = encodedFields.length === 0 ? "" : `\n${encodedFields}\n  `;
   const renamed = rendered.filter((field) => field.publicName !== field.wireName);
   if (renamed.length === 0) {
-    return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\n`;
+    return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n));\n`;
+  }
+  if (name === "Update") {
+    return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => {\n  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n  const encoded = Schema.StructWithRest(\n    Schema.Struct({${encodedBody.replaceAll("\n", "\n  ")}}),\n    [Schema.Record(Schema.String, Schema.Unknown)],\n  );\n  const decodedSchema = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\n  const interpreted: Schema.Codec<${name}, unknown> = encoded.pipe(\n    Schema.decodeTo(decodedSchema, {\n      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),\n      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),\n    }),\n  );\n  const decodeInterpreted = SchemaParser.decodeUnknownEffect(interpreted);\n  const encodeInterpreted = SchemaParser.encodeUnknownEffect(interpreted);\n  return Schema.Unknown.pipe(\n    Schema.decodeTo(decodedSchema, {\n      decode: SchemaGetter.transformOrFail((input, options) => {\n        const decoded = decode${name}(input);\n        return decoded === decodeFailure\n          ? decodeInterpreted(input, options)\n          : Effect.succeed(decoded);\n      }),\n      encode: SchemaGetter.transformOrFail((input, options) =>\n        encodeInterpreted(input, options)\n      ),\n    }),\n  );\n});\n`;
   }
   // The encoded schema validates both directions; the declared target carries the camelCase type without validating every field twice.
-  return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nconst _${name}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${name}WireKeys = invertKeys(_${name}PublicKeys);\nconst _${name}Encoded = Schema.StructWithRest(\n  Schema.Struct({${encodedBody}}),\n  [Schema.Record(Schema.String, Schema.Unknown)],\n);\nconst _${name}Decoded = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\nexport const ${name}: Schema.Codec<${name}, unknown> = _${name}Encoded.pipe(\n  Schema.decodeTo(_${name}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${name}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${name}WireKeys)),\n  }),\n);\n`;
+  return `${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => {\n  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n  const encoded = Schema.StructWithRest(\n    Schema.Struct({${encodedBody.replaceAll("\n", "\n  ")}}),\n    [Schema.Record(Schema.String, Schema.Unknown)],\n  );\n  const decoded = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\n  return encoded.pipe(\n    Schema.decodeTo(decoded, {\n      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),\n      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),\n    }),\n  );\n});\n`;
 }
 
 function renderTypes(
@@ -326,15 +557,15 @@ function renderTypes(
     .map(([name, definition]) => {
       const override = overrides.types[name];
       if (override !== undefined && "schema" in override) {
-        return `${docComment(definition.description)}export type ${name} = ${override.typescript};\nexport const ${name}: Schema.Codec<${name}> = ${override.schema};\n`;
+        return `${docComment(definition.description)}export type ${name} = ${override.typescript};\nexport const ${name}: Schema.Codec<${name}> = Schema.suspend(() => ${override.schema});\n`;
       }
       if (definition.subtypes !== undefined) {
         const references = [...definition.subtypes, ...(override?.additionalTypes ?? [])];
-        return `${docComment(definition.description)}export type ${name} = ${unionExpression(references, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = ${unionSchema(references, schemaExpression)};\n`;
+        return `${docComment(definition.description)}export type ${name} = ${unionExpression(references, typeExpression)};\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => ${unionSchema(references, schemaExpression)});\n`;
       }
       return renderObjectType(name, definition, targets, overrides);
     });
-  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { invertKeys } from "./internal/SchemaKeys.js";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import * as Effect from "effect/Effect";\nimport * as Predicate from "effect/Predicate";\nimport * as Schema from "effect/Schema";\nimport * as SchemaGetter from "effect/SchemaGetter";\nimport * as SchemaParser from "effect/SchemaParser";\nimport * as Struct from "effect/Struct";\n\nimport { decodeFailure, decodeUpdate } from "./internal/decoders.generated.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\n\n${renderEnums(spec)}\n${sections.join("\n")}`;
 }
 
 function renderMethods(
@@ -380,17 +611,17 @@ function renderMethods(
       const renamed = rendered.filter((field) => field.publicName !== field.wireName);
       // Nested codecs can transform even when every top-level key is unchanged.
       const paramsSchema = renamed.length === 0
-        ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.Struct({\n${encodedFields}\n});`
-        : `const _${paramsName}PublicKeys = { ${publicKeyMapping(renamed)} } as const;\nconst _${paramsName}WireKeys = invertKeys(_${paramsName}PublicKeys);\nconst _${paramsName}Encoded = Schema.Struct({\n${encodedFields}\n});\nconst _${paramsName}Decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\nexport const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = _${paramsName}Encoded.pipe(\n  Schema.decodeTo(_${paramsName}Decoded, {\n    decode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}PublicKeys)),\n    encode: SchemaGetter.transform(Struct.renameKeys(_${paramsName}WireKeys)),\n  }),\n);`;
+        ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({\n${encodedFields}\n}));`
+        : `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => {\n  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n  const encoded = Schema.Struct({\n${encodedFields.replaceAll("\n", "\n  ")}\n  });\n  const decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\n  return encoded.pipe(\n    Schema.decodeTo(decoded, {\n      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),\n      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),\n    }),\n  );\n});`;
       const result = override.resultSchema ??
         unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
       const parameterDeclaration = fields.length === 0
         ? ""
         : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
       const descriptorParams = fields.length === 0 ? "" : `  params: ${paramsName},\n`;
-      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: ${result},\n  retrySafe: ${override.retrySafe},\n});\n`;
+      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: Schema.suspend(() => ${result}),\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
-  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import { Predicate, Schema, SchemaGetter, Struct } from "effect";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
+  return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import * as Predicate from "effect/Predicate";\nimport * as Schema from "effect/Schema";\nimport * as SchemaGetter from "effect/SchemaGetter";\nimport * as Struct from "effect/Struct";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
 
 function renderCoverage(spec: BotApiSpec, evidence: MethodEvidence): string {
@@ -494,6 +725,7 @@ export function generateSources(
   const targets = fieldTargets(spec);
   return {
     coverage: renderCoverage(spec, evidence),
+    decoders: renderDecoders(spec, overrides, targets),
     methods: renderMethods(spec, overrides, targets),
     types: renderTypes(spec, overrides, targets),
   };

@@ -71,7 +71,8 @@ try {
       'export { callbackQuery, chatType, command, defineBot, every, Filter, media, mention, on, regex, repliedMessage, routes, text } from "./Routing.js";',
       'export * from "./methods.js";',
       'export * from "./types.js";',
-      'export { Effect, Schema } from "effect";',
+      'export * as Effect from "effect/Effect";',
+      'export * as Schema from "effect/Schema";',
       "",
     ].join("\n"),
   );

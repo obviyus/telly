@@ -1,5 +1,8 @@
 // Generated from bot-api/schema/sources/dofer/spec.json. Edit schema inputs or overrides, then regenerate.
-import { Predicate, Schema, SchemaGetter, Struct } from "effect";
+import * as Predicate from "effect/Predicate";
+import * as Schema from "effect/Schema";
+import * as SchemaGetter from "effect/SchemaGetter";
+import * as Struct from "effect/Struct";
 
 import { callMethod } from "./internal/CallMethod.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
@@ -14,26 +17,28 @@ export interface AddStickerToSetParams {
   /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed. */
   readonly sticker: Types.InputSticker;
 }
-const _AddStickerToSetParamsPublicKeys = { user_id: "userId" } as const;
-const _AddStickerToSetParamsWireKeys = invertKeys(_AddStickerToSetParamsPublicKeys);
-const _AddStickerToSetParamsEncoded = Schema.Struct({
+export const AddStickerToSetParams: Schema.Codec<AddStickerToSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  name: Schema.String,
-  sticker: Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker),
+    name: Schema.String,
+    sticker: Types.InputSticker,
+  });
+  const decoded = Schema.declare<AddStickerToSetParams>((input): input is AddStickerToSetParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AddStickerToSetParamsDecoded = Schema.declare<AddStickerToSetParams>((input): input is AddStickerToSetParams => Predicate.isObject(input));
-export const AddStickerToSetParams: Schema.Codec<AddStickerToSetParams, Readonly<Record<string, unknown>>> = _AddStickerToSetParamsEncoded.pipe(
-  Schema.decodeTo(_AddStickerToSetParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AddStickerToSetParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AddStickerToSetParamsWireKeys)),
-  }),
-);
 
 export const addStickerToSet = callMethod({
   method: "addStickerToSet",
   params: AddStickerToSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -52,28 +57,30 @@ Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot wi
   /** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Defaults to 0. */
   readonly cacheTime?: number | undefined;
 }
-const _AnswerCallbackQueryParamsPublicKeys = { callback_query_id: "callbackQueryId", show_alert: "showAlert", cache_time: "cacheTime" } as const;
-const _AnswerCallbackQueryParamsWireKeys = invertKeys(_AnswerCallbackQueryParamsPublicKeys);
-const _AnswerCallbackQueryParamsEncoded = Schema.Struct({
+export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { callback_query_id: "callbackQueryId", show_alert: "showAlert", cache_time: "cacheTime" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   callback_query_id: Schema.String,
-  text: Schema.optional(Schema.String),
-  show_alert: Schema.optional(Schema.Boolean),
-  url: Schema.optional(Schema.String),
-  cache_time: Schema.optional(Schema.Int),
+    text: Schema.optional(Schema.String),
+    show_alert: Schema.optional(Schema.Boolean),
+    url: Schema.optional(Schema.String),
+    cache_time: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<AnswerCallbackQueryParams>((input): input is AnswerCallbackQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerCallbackQueryParamsDecoded = Schema.declare<AnswerCallbackQueryParams>((input): input is AnswerCallbackQueryParams => Predicate.isObject(input));
-export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, Readonly<Record<string, unknown>>> = _AnswerCallbackQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerCallbackQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerCallbackQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerCallbackQueryParamsWireKeys)),
-  }),
-);
 
 export const answerCallbackQuery = callMethod({
   method: "answerCallbackQuery",
   params: AnswerCallbackQueryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -84,25 +91,27 @@ export interface AnswerChatJoinRequestQueryParams {
   /** Result of the query. Must be either “approve” to allow the user to join the chat, “decline” to disallow the user to join the chat, or “queue” to leave the decision to other administrators. */
   readonly result: string;
 }
-const _AnswerChatJoinRequestQueryParamsPublicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId" } as const;
-const _AnswerChatJoinRequestQueryParamsWireKeys = invertKeys(_AnswerChatJoinRequestQueryParamsPublicKeys);
-const _AnswerChatJoinRequestQueryParamsEncoded = Schema.Struct({
+export const AnswerChatJoinRequestQueryParams: Schema.Codec<AnswerChatJoinRequestQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_join_request_query_id: Schema.String,
-  result: Schema.String,
+    result: Schema.String,
+  });
+  const decoded = Schema.declare<AnswerChatJoinRequestQueryParams>((input): input is AnswerChatJoinRequestQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerChatJoinRequestQueryParamsDecoded = Schema.declare<AnswerChatJoinRequestQueryParams>((input): input is AnswerChatJoinRequestQueryParams => Predicate.isObject(input));
-export const AnswerChatJoinRequestQueryParams: Schema.Codec<AnswerChatJoinRequestQueryParams, Readonly<Record<string, unknown>>> = _AnswerChatJoinRequestQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerChatJoinRequestQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerChatJoinRequestQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerChatJoinRequestQueryParamsWireKeys)),
-  }),
-);
 
 export const answerChatJoinRequestQuery = callMethod({
   method: "answerChatJoinRequestQuery",
   params: AnswerChatJoinRequestQueryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -113,25 +122,27 @@ export interface AnswerGuestQueryParams {
   /** A JSON-serialized object describing the message to be sent */
   readonly result: Types.InlineQueryResult;
 }
-const _AnswerGuestQueryParamsPublicKeys = { guest_query_id: "guestQueryId" } as const;
-const _AnswerGuestQueryParamsWireKeys = invertKeys(_AnswerGuestQueryParamsPublicKeys);
-const _AnswerGuestQueryParamsEncoded = Schema.Struct({
+export const AnswerGuestQueryParams: Schema.Codec<AnswerGuestQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { guest_query_id: "guestQueryId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   guest_query_id: Schema.String,
-  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
+    result: Types.InlineQueryResult,
+  });
+  const decoded = Schema.declare<AnswerGuestQueryParams>((input): input is AnswerGuestQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerGuestQueryParamsDecoded = Schema.declare<AnswerGuestQueryParams>((input): input is AnswerGuestQueryParams => Predicate.isObject(input));
-export const AnswerGuestQueryParams: Schema.Codec<AnswerGuestQueryParams, Readonly<Record<string, unknown>>> = _AnswerGuestQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerGuestQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerGuestQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerGuestQueryParamsWireKeys)),
-  }),
-);
 
 export const answerGuestQuery = callMethod({
   method: "answerGuestQuery",
   params: AnswerGuestQueryParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.SentGuestMessage, unknown> => Types.SentGuestMessage),
+  result: Schema.suspend(() => Types.SentGuestMessage),
   retrySafe: true,
 });
 
@@ -151,29 +162,31 @@ export interface AnswerInlineQueryParams {
   /** A JSON-serialized object describing a button to be shown above inline query results */
   readonly button?: Types.InlineQueryResultsButton | undefined;
 }
-const _AnswerInlineQueryParamsPublicKeys = { inline_query_id: "inlineQueryId", cache_time: "cacheTime", is_personal: "isPersonal", next_offset: "nextOffset" } as const;
-const _AnswerInlineQueryParamsWireKeys = invertKeys(_AnswerInlineQueryParamsPublicKeys);
-const _AnswerInlineQueryParamsEncoded = Schema.Struct({
+export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { inline_query_id: "inlineQueryId", cache_time: "cacheTime", is_personal: "isPersonal", next_offset: "nextOffset" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   inline_query_id: Schema.String,
-  results: Schema.Array(Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult)),
-  cache_time: Schema.optional(Schema.Int),
-  is_personal: Schema.optional(Schema.Boolean),
-  next_offset: Schema.optional(Schema.String),
-  button: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineQueryResultsButton, unknown> => Types.InlineQueryResultsButton)),
+    results: Schema.Array(Types.InlineQueryResult),
+    cache_time: Schema.optional(Schema.Int),
+    is_personal: Schema.optional(Schema.Boolean),
+    next_offset: Schema.optional(Schema.String),
+    button: Schema.optional(Types.InlineQueryResultsButton),
+  });
+  const decoded = Schema.declare<AnswerInlineQueryParams>((input): input is AnswerInlineQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerInlineQueryParamsDecoded = Schema.declare<AnswerInlineQueryParams>((input): input is AnswerInlineQueryParams => Predicate.isObject(input));
-export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Readonly<Record<string, unknown>>> = _AnswerInlineQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerInlineQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerInlineQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerInlineQueryParamsWireKeys)),
-  }),
-);
 
 export const answerInlineQuery = callMethod({
   method: "answerInlineQuery",
   params: AnswerInlineQueryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -186,26 +199,28 @@ export interface AnswerPreCheckoutQueryParams {
   /** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
   readonly errorMessage?: string | undefined;
 }
-const _AnswerPreCheckoutQueryParamsPublicKeys = { pre_checkout_query_id: "preCheckoutQueryId", error_message: "errorMessage" } as const;
-const _AnswerPreCheckoutQueryParamsWireKeys = invertKeys(_AnswerPreCheckoutQueryParamsPublicKeys);
-const _AnswerPreCheckoutQueryParamsEncoded = Schema.Struct({
+export const AnswerPreCheckoutQueryParams: Schema.Codec<AnswerPreCheckoutQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { pre_checkout_query_id: "preCheckoutQueryId", error_message: "errorMessage" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   pre_checkout_query_id: Schema.String,
-  ok: Schema.Boolean,
-  error_message: Schema.optional(Schema.String),
+    ok: Schema.Boolean,
+    error_message: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<AnswerPreCheckoutQueryParams>((input): input is AnswerPreCheckoutQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerPreCheckoutQueryParamsDecoded = Schema.declare<AnswerPreCheckoutQueryParams>((input): input is AnswerPreCheckoutQueryParams => Predicate.isObject(input));
-export const AnswerPreCheckoutQueryParams: Schema.Codec<AnswerPreCheckoutQueryParams, Readonly<Record<string, unknown>>> = _AnswerPreCheckoutQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerPreCheckoutQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerPreCheckoutQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerPreCheckoutQueryParamsWireKeys)),
-  }),
-);
 
 export const answerPreCheckoutQuery = callMethod({
   method: "answerPreCheckoutQuery",
   params: AnswerPreCheckoutQueryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -220,27 +235,29 @@ export interface AnswerShippingQueryParams {
   /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. “Sorry, delivery to your desired address is unavailable”). Telegram will display this message to the user. */
   readonly errorMessage?: string | undefined;
 }
-const _AnswerShippingQueryParamsPublicKeys = { shipping_query_id: "shippingQueryId", shipping_options: "shippingOptions", error_message: "errorMessage" } as const;
-const _AnswerShippingQueryParamsWireKeys = invertKeys(_AnswerShippingQueryParamsPublicKeys);
-const _AnswerShippingQueryParamsEncoded = Schema.Struct({
+export const AnswerShippingQueryParams: Schema.Codec<AnswerShippingQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { shipping_query_id: "shippingQueryId", shipping_options: "shippingOptions", error_message: "errorMessage" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   shipping_query_id: Schema.String,
-  ok: Schema.Boolean,
-  shipping_options: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.ShippingOption, unknown> => Types.ShippingOption))),
-  error_message: Schema.optional(Schema.String),
+    ok: Schema.Boolean,
+    shipping_options: Schema.optional(Schema.Array(Types.ShippingOption)),
+    error_message: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<AnswerShippingQueryParams>((input): input is AnswerShippingQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerShippingQueryParamsDecoded = Schema.declare<AnswerShippingQueryParams>((input): input is AnswerShippingQueryParams => Predicate.isObject(input));
-export const AnswerShippingQueryParams: Schema.Codec<AnswerShippingQueryParams, Readonly<Record<string, unknown>>> = _AnswerShippingQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerShippingQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerShippingQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerShippingQueryParamsWireKeys)),
-  }),
-);
 
 export const answerShippingQuery = callMethod({
   method: "answerShippingQuery",
   params: AnswerShippingQueryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -251,25 +268,27 @@ export interface AnswerWebAppQueryParams {
   /** A JSON-serialized object describing the message to be sent */
   readonly result: Types.InlineQueryResult;
 }
-const _AnswerWebAppQueryParamsPublicKeys = { web_app_query_id: "webAppQueryId" } as const;
-const _AnswerWebAppQueryParamsWireKeys = invertKeys(_AnswerWebAppQueryParamsPublicKeys);
-const _AnswerWebAppQueryParamsEncoded = Schema.Struct({
+export const AnswerWebAppQueryParams: Schema.Codec<AnswerWebAppQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { web_app_query_id: "webAppQueryId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   web_app_query_id: Schema.String,
-  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
+    result: Types.InlineQueryResult,
+  });
+  const decoded = Schema.declare<AnswerWebAppQueryParams>((input): input is AnswerWebAppQueryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _AnswerWebAppQueryParamsDecoded = Schema.declare<AnswerWebAppQueryParams>((input): input is AnswerWebAppQueryParams => Predicate.isObject(input));
-export const AnswerWebAppQueryParams: Schema.Codec<AnswerWebAppQueryParams, Readonly<Record<string, unknown>>> = _AnswerWebAppQueryParamsEncoded.pipe(
-  Schema.decodeTo(_AnswerWebAppQueryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_AnswerWebAppQueryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_AnswerWebAppQueryParamsWireKeys)),
-  }),
-);
 
 export const answerWebAppQuery = callMethod({
   method: "answerWebAppQuery",
   params: AnswerWebAppQueryParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.SentWebAppMessage, unknown> => Types.SentWebAppMessage),
+  result: Schema.suspend(() => Types.SentWebAppMessage),
   retrySafe: true,
 });
 
@@ -280,25 +299,27 @@ export interface ApproveChatJoinRequestParams {
   /** Unique identifier of the target user */
   readonly userId: number;
 }
-const _ApproveChatJoinRequestParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
-const _ApproveChatJoinRequestParamsWireKeys = invertKeys(_ApproveChatJoinRequestParamsPublicKeys);
-const _ApproveChatJoinRequestParamsEncoded = Schema.Struct({
+export const ApproveChatJoinRequestParams: Schema.Codec<ApproveChatJoinRequestParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
+    user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<ApproveChatJoinRequestParams>((input): input is ApproveChatJoinRequestParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ApproveChatJoinRequestParamsDecoded = Schema.declare<ApproveChatJoinRequestParams>((input): input is ApproveChatJoinRequestParams => Predicate.isObject(input));
-export const ApproveChatJoinRequestParams: Schema.Codec<ApproveChatJoinRequestParams, Readonly<Record<string, unknown>>> = _ApproveChatJoinRequestParamsEncoded.pipe(
-  Schema.decodeTo(_ApproveChatJoinRequestParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ApproveChatJoinRequestParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ApproveChatJoinRequestParamsWireKeys)),
-  }),
-);
 
 export const approveChatJoinRequest = callMethod({
   method: "approveChatJoinRequest",
   params: ApproveChatJoinRequestParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -311,26 +332,28 @@ export interface ApproveSuggestedPostParams {
   /** Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future. */
   readonly sendDate?: number | undefined;
 }
-const _ApproveSuggestedPostParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", send_date: "sendDate" } as const;
-const _ApproveSuggestedPostParamsWireKeys = invertKeys(_ApproveSuggestedPostParamsPublicKeys);
-const _ApproveSuggestedPostParamsEncoded = Schema.Struct({
+export const ApproveSuggestedPostParams: Schema.Codec<ApproveSuggestedPostParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_id: "messageId", send_date: "sendDate" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Int,
-  message_id: Schema.Int,
-  send_date: Schema.optional(Schema.Int),
+    message_id: Schema.Int,
+    send_date: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<ApproveSuggestedPostParams>((input): input is ApproveSuggestedPostParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ApproveSuggestedPostParamsDecoded = Schema.declare<ApproveSuggestedPostParams>((input): input is ApproveSuggestedPostParams => Predicate.isObject(input));
-export const ApproveSuggestedPostParams: Schema.Codec<ApproveSuggestedPostParams, Readonly<Record<string, unknown>>> = _ApproveSuggestedPostParamsEncoded.pipe(
-  Schema.decodeTo(_ApproveSuggestedPostParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ApproveSuggestedPostParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ApproveSuggestedPostParamsWireKeys)),
-  }),
-);
 
 export const approveSuggestedPost = callMethod({
   method: "approveSuggestedPost",
   params: ApproveSuggestedPostParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -345,27 +368,29 @@ export interface BanChatMemberParams {
   /** Pass True to delete all messages from the chat for the user that is being removed. If False, the user will be able to see messages in the group that were sent before the user was removed. Always True for supergroups and channels. */
   readonly revokeMessages?: boolean | undefined;
 }
-const _BanChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", until_date: "untilDate", revoke_messages: "revokeMessages" } as const;
-const _BanChatMemberParamsWireKeys = invertKeys(_BanChatMemberParamsPublicKeys);
-const _BanChatMemberParamsEncoded = Schema.Struct({
+export const BanChatMemberParams: Schema.Codec<BanChatMemberParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", until_date: "untilDate", revoke_messages: "revokeMessages" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  until_date: Schema.optional(Schema.Int),
-  revoke_messages: Schema.optional(Schema.Boolean),
+    user_id: Schema.Int,
+    until_date: Schema.optional(Schema.Int),
+    revoke_messages: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<BanChatMemberParams>((input): input is BanChatMemberParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _BanChatMemberParamsDecoded = Schema.declare<BanChatMemberParams>((input): input is BanChatMemberParams => Predicate.isObject(input));
-export const BanChatMemberParams: Schema.Codec<BanChatMemberParams, Readonly<Record<string, unknown>>> = _BanChatMemberParamsEncoded.pipe(
-  Schema.decodeTo(_BanChatMemberParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_BanChatMemberParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_BanChatMemberParamsWireKeys)),
-  }),
-);
 
 export const banChatMember = callMethod({
   method: "banChatMember",
   params: BanChatMemberParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -376,25 +401,27 @@ export interface BanChatSenderChatParams {
   /** Unique identifier of the target sender chat */
   readonly senderChatId: number;
 }
-const _BanChatSenderChatParamsPublicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
-const _BanChatSenderChatParamsWireKeys = invertKeys(_BanChatSenderChatParamsPublicKeys);
-const _BanChatSenderChatParamsEncoded = Schema.Struct({
+export const BanChatSenderChatParams: Schema.Codec<BanChatSenderChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  sender_chat_id: Schema.Int,
+    sender_chat_id: Schema.Int,
+  });
+  const decoded = Schema.declare<BanChatSenderChatParams>((input): input is BanChatSenderChatParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _BanChatSenderChatParamsDecoded = Schema.declare<BanChatSenderChatParams>((input): input is BanChatSenderChatParams => Predicate.isObject(input));
-export const BanChatSenderChatParams: Schema.Codec<BanChatSenderChatParams, Readonly<Record<string, unknown>>> = _BanChatSenderChatParamsEncoded.pipe(
-  Schema.decodeTo(_BanChatSenderChatParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_BanChatSenderChatParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_BanChatSenderChatParamsWireKeys)),
-  }),
-);
 
 export const banChatSenderChat = callMethod({
   method: "banChatSenderChat",
   params: BanChatSenderChatParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -402,7 +429,7 @@ export const banChatSenderChat = callMethod({
 export const close = callMethod({
   method: "close",
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -413,25 +440,27 @@ export interface CloseForumTopicParams {
   /** Unique identifier for the target message thread of the forum topic */
   readonly messageThreadId: number;
 }
-const _CloseForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
-const _CloseForumTopicParamsWireKeys = invertKeys(_CloseForumTopicParamsPublicKeys);
-const _CloseForumTopicParamsEncoded = Schema.Struct({
+export const CloseForumTopicParams: Schema.Codec<CloseForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.Int,
+    message_thread_id: Schema.Int,
+  });
+  const decoded = Schema.declare<CloseForumTopicParams>((input): input is CloseForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CloseForumTopicParamsDecoded = Schema.declare<CloseForumTopicParams>((input): input is CloseForumTopicParams => Predicate.isObject(input));
-export const CloseForumTopicParams: Schema.Codec<CloseForumTopicParams, Readonly<Record<string, unknown>>> = _CloseForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_CloseForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CloseForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CloseForumTopicParamsWireKeys)),
-  }),
-);
 
 export const closeForumTopic = callMethod({
   method: "closeForumTopic",
   params: CloseForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -440,24 +469,26 @@ export interface CloseGeneralForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _CloseGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
-const _CloseGeneralForumTopicParamsWireKeys = invertKeys(_CloseGeneralForumTopicParamsPublicKeys);
-const _CloseGeneralForumTopicParamsEncoded = Schema.Struct({
+export const CloseGeneralForumTopicParams: Schema.Codec<CloseGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<CloseGeneralForumTopicParams>((input): input is CloseGeneralForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CloseGeneralForumTopicParamsDecoded = Schema.declare<CloseGeneralForumTopicParams>((input): input is CloseGeneralForumTopicParams => Predicate.isObject(input));
-export const CloseGeneralForumTopicParams: Schema.Codec<CloseGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _CloseGeneralForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_CloseGeneralForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CloseGeneralForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CloseGeneralForumTopicParamsWireKeys)),
-  }),
-);
 
 export const closeGeneralForumTopic = callMethod({
   method: "closeGeneralForumTopic",
   params: CloseGeneralForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -468,25 +499,27 @@ export interface ConvertGiftToStarsParams {
   /** Unique identifier of the regular gift that should be converted to Telegram Stars */
   readonly ownedGiftId: string;
 }
-const _ConvertGiftToStarsParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId" } as const;
-const _ConvertGiftToStarsParamsWireKeys = invertKeys(_ConvertGiftToStarsParamsPublicKeys);
-const _ConvertGiftToStarsParamsEncoded = Schema.Struct({
+export const ConvertGiftToStarsParams: Schema.Codec<ConvertGiftToStarsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  owned_gift_id: Schema.String,
+    owned_gift_id: Schema.String,
+  });
+  const decoded = Schema.declare<ConvertGiftToStarsParams>((input): input is ConvertGiftToStarsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ConvertGiftToStarsParamsDecoded = Schema.declare<ConvertGiftToStarsParams>((input): input is ConvertGiftToStarsParams => Predicate.isObject(input));
-export const ConvertGiftToStarsParams: Schema.Codec<ConvertGiftToStarsParams, Readonly<Record<string, unknown>>> = _ConvertGiftToStarsParamsEncoded.pipe(
-  Schema.decodeTo(_ConvertGiftToStarsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ConvertGiftToStarsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ConvertGiftToStarsParamsWireKeys)),
-  }),
-);
 
 export const convertGiftToStars = callMethod({
   method: "convertGiftToStars",
   params: ConvertGiftToStarsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -527,40 +560,42 @@ export interface CopyMessageParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _CopyMessageParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_id: "messageId", video_start_timestamp: "videoStartTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _CopyMessageParamsWireKeys = invertKeys(_CopyMessageParamsPublicKeys);
-const _CopyMessageParamsEncoded = Schema.Struct({
+export const CopyMessageParams: Schema.Codec<CopyMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_id: "messageId", video_start_timestamp: "videoStartTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  video_start_timestamp: Schema.optional(Schema.Int),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_id: Schema.Int,
+    video_start_timestamp: Schema.optional(Schema.Int),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<CopyMessageParams>((input): input is CopyMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CopyMessageParamsDecoded = Schema.declare<CopyMessageParams>((input): input is CopyMessageParams => Predicate.isObject(input));
-export const CopyMessageParams: Schema.Codec<CopyMessageParams, Readonly<Record<string, unknown>>> = _CopyMessageParamsEncoded.pipe(
-  Schema.decodeTo(_CopyMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CopyMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CopyMessageParamsWireKeys)),
-  }),
-);
 
 export const copyMessage = callMethod({
   method: "copyMessage",
   params: CopyMessageParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId),
+  result: Schema.suspend(() => Types.MessageId),
   retrySafe: false,
 });
 
@@ -583,31 +618,33 @@ export interface CopyMessagesParams {
   /** Pass True to copy the messages without their captions */
   readonly removeCaption?: boolean | undefined;
 }
-const _CopyMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent", remove_caption: "removeCaption" } as const;
-const _CopyMessagesParamsWireKeys = invertKeys(_CopyMessagesParamsPublicKeys);
-const _CopyMessagesParamsEncoded = Schema.Struct({
+export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent", remove_caption: "removeCaption" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_ids: Schema.Array(Schema.Int),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  remove_caption: Schema.optional(Schema.Boolean),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_ids: Schema.Array(Schema.Int),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    remove_caption: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<CopyMessagesParams>((input): input is CopyMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CopyMessagesParamsDecoded = Schema.declare<CopyMessagesParams>((input): input is CopyMessagesParams => Predicate.isObject(input));
-export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Record<string, unknown>>> = _CopyMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_CopyMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CopyMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CopyMessagesParamsWireKeys)),
-  }),
-);
 
 export const copyMessages = callMethod({
   method: "copyMessages",
   params: CopyMessagesParams,
   rateLimit: "message-id-array",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
+  result: Schema.suspend(() => Schema.Array(Types.MessageId)),
   retrySafe: false,
 });
 
@@ -624,28 +661,30 @@ export interface CreateChatInviteLinkParams {
   /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
   readonly createsJoinRequest?: boolean | undefined;
 }
-const _CreateChatInviteLinkParamsPublicKeys = { chat_id: "chatId", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
-const _CreateChatInviteLinkParamsWireKeys = invertKeys(_CreateChatInviteLinkParamsPublicKeys);
-const _CreateChatInviteLinkParamsEncoded = Schema.Struct({
+export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  name: Schema.optional(Schema.String),
-  expire_date: Schema.optional(Schema.Int),
-  member_limit: Schema.optional(Schema.Int),
-  creates_join_request: Schema.optional(Schema.Boolean),
+    name: Schema.optional(Schema.String),
+    expire_date: Schema.optional(Schema.Int),
+    member_limit: Schema.optional(Schema.Int),
+    creates_join_request: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<CreateChatInviteLinkParams>((input): input is CreateChatInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CreateChatInviteLinkParamsDecoded = Schema.declare<CreateChatInviteLinkParams>((input): input is CreateChatInviteLinkParams => Predicate.isObject(input));
-export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams, Readonly<Record<string, unknown>>> = _CreateChatInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_CreateChatInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CreateChatInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CreateChatInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const createChatInviteLink = callMethod({
   method: "createChatInviteLink",
   params: CreateChatInviteLinkParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  result: Schema.suspend(() => Types.ChatInviteLink),
   retrySafe: false,
 });
 
@@ -660,27 +699,29 @@ export interface CreateChatSubscriptionInviteLinkParams {
   /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000 */
   readonly subscriptionPrice: number;
 }
-const _CreateChatSubscriptionInviteLinkParamsPublicKeys = { chat_id: "chatId", subscription_period: "subscriptionPeriod", subscription_price: "subscriptionPrice" } as const;
-const _CreateChatSubscriptionInviteLinkParamsWireKeys = invertKeys(_CreateChatSubscriptionInviteLinkParamsPublicKeys);
-const _CreateChatSubscriptionInviteLinkParamsEncoded = Schema.Struct({
+export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", subscription_period: "subscriptionPeriod", subscription_price: "subscriptionPrice" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  name: Schema.optional(Schema.String),
-  subscription_period: Schema.Int,
-  subscription_price: Schema.Int,
+    name: Schema.optional(Schema.String),
+    subscription_period: Schema.Int,
+    subscription_price: Schema.Int,
+  });
+  const decoded = Schema.declare<CreateChatSubscriptionInviteLinkParams>((input): input is CreateChatSubscriptionInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CreateChatSubscriptionInviteLinkParamsDecoded = Schema.declare<CreateChatSubscriptionInviteLinkParams>((input): input is CreateChatSubscriptionInviteLinkParams => Predicate.isObject(input));
-export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = _CreateChatSubscriptionInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_CreateChatSubscriptionInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CreateChatSubscriptionInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CreateChatSubscriptionInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const createChatSubscriptionInviteLink = callMethod({
   method: "createChatSubscriptionInviteLink",
   params: CreateChatSubscriptionInviteLinkParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  result: Schema.suspend(() => Types.ChatInviteLink),
   retrySafe: false,
 });
 
@@ -695,27 +736,29 @@ export interface CreateForumTopicParams {
   /** Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. */
   readonly iconCustomEmojiId?: string | undefined;
 }
-const _CreateForumTopicParamsPublicKeys = { chat_id: "chatId", icon_color: "iconColor", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
-const _CreateForumTopicParamsWireKeys = invertKeys(_CreateForumTopicParamsPublicKeys);
-const _CreateForumTopicParamsEncoded = Schema.Struct({
+export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", icon_color: "iconColor", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  name: Schema.String,
-  icon_color: Schema.optional(Schema.Int),
-  icon_custom_emoji_id: Schema.optional(Schema.String),
+    name: Schema.String,
+    icon_color: Schema.optional(Schema.Int),
+    icon_custom_emoji_id: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<CreateForumTopicParams>((input): input is CreateForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CreateForumTopicParamsDecoded = Schema.declare<CreateForumTopicParams>((input): input is CreateForumTopicParams => Predicate.isObject(input));
-export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readonly<Record<string, unknown>>> = _CreateForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_CreateForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CreateForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CreateForumTopicParamsWireKeys)),
-  }),
-);
 
 export const createForumTopic = callMethod({
   method: "createForumTopic",
   params: CreateForumTopicParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ForumTopic, unknown> => Types.ForumTopic),
+  result: Schema.suspend(() => Types.ForumTopic),
   retrySafe: false,
 });
 
@@ -766,45 +809,47 @@ export interface CreateInvoiceLinkParams {
   /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
   readonly isFlexible?: boolean | undefined;
 }
-const _CreateInvoiceLinkParamsPublicKeys = { business_connection_id: "businessConnectionId", provider_token: "providerToken", subscription_period: "subscriptionPeriod", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible" } as const;
-const _CreateInvoiceLinkParamsWireKeys = invertKeys(_CreateInvoiceLinkParamsPublicKeys);
-const _CreateInvoiceLinkParamsEncoded = Schema.Struct({
+export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", provider_token: "providerToken", subscription_period: "subscriptionPeriod", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  title: Schema.String,
-  description: Schema.String,
-  payload: Schema.String,
-  provider_token: Schema.optional(Schema.String),
-  currency: Schema.String,
-  prices: Schema.Array(Schema.suspend((): Schema.Codec<Types.LabeledPrice, unknown> => Types.LabeledPrice)),
-  subscription_period: Schema.optional(Schema.Int),
-  max_tip_amount: Schema.optional(Schema.Int),
-  suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
-  provider_data: Schema.optional(Schema.String),
-  photo_url: Schema.optional(Schema.String),
-  photo_size: Schema.optional(Schema.Int),
-  photo_width: Schema.optional(Schema.Int),
-  photo_height: Schema.optional(Schema.Int),
-  need_name: Schema.optional(Schema.Boolean),
-  need_phone_number: Schema.optional(Schema.Boolean),
-  need_email: Schema.optional(Schema.Boolean),
-  need_shipping_address: Schema.optional(Schema.Boolean),
-  send_phone_number_to_provider: Schema.optional(Schema.Boolean),
-  send_email_to_provider: Schema.optional(Schema.Boolean),
-  is_flexible: Schema.optional(Schema.Boolean),
+    title: Schema.String,
+    description: Schema.String,
+    payload: Schema.String,
+    provider_token: Schema.optional(Schema.String),
+    currency: Schema.String,
+    prices: Schema.Array(Types.LabeledPrice),
+    subscription_period: Schema.optional(Schema.Int),
+    max_tip_amount: Schema.optional(Schema.Int),
+    suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
+    provider_data: Schema.optional(Schema.String),
+    photo_url: Schema.optional(Schema.String),
+    photo_size: Schema.optional(Schema.Int),
+    photo_width: Schema.optional(Schema.Int),
+    photo_height: Schema.optional(Schema.Int),
+    need_name: Schema.optional(Schema.Boolean),
+    need_phone_number: Schema.optional(Schema.Boolean),
+    need_email: Schema.optional(Schema.Boolean),
+    need_shipping_address: Schema.optional(Schema.Boolean),
+    send_phone_number_to_provider: Schema.optional(Schema.Boolean),
+    send_email_to_provider: Schema.optional(Schema.Boolean),
+    is_flexible: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<CreateInvoiceLinkParams>((input): input is CreateInvoiceLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CreateInvoiceLinkParamsDecoded = Schema.declare<CreateInvoiceLinkParams>((input): input is CreateInvoiceLinkParams => Predicate.isObject(input));
-export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Readonly<Record<string, unknown>>> = _CreateInvoiceLinkParamsEncoded.pipe(
-  Schema.decodeTo(_CreateInvoiceLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CreateInvoiceLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CreateInvoiceLinkParamsWireKeys)),
-  }),
-);
 
 export const createInvoiceLink = callMethod({
   method: "createInvoiceLink",
   params: CreateInvoiceLinkParams,
   rateLimit: "none",
-  result: Schema.String,
+  result: Schema.suspend(() => Schema.String),
   retrySafe: false,
 });
 
@@ -823,29 +868,31 @@ export interface CreateNewStickerSetParams {
   /** Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only */
   readonly needsRepainting?: boolean | undefined;
 }
-const _CreateNewStickerSetParamsPublicKeys = { user_id: "userId", sticker_type: "stickerType", needs_repainting: "needsRepainting" } as const;
-const _CreateNewStickerSetParamsWireKeys = invertKeys(_CreateNewStickerSetParamsPublicKeys);
-const _CreateNewStickerSetParamsEncoded = Schema.Struct({
+export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", sticker_type: "stickerType", needs_repainting: "needsRepainting" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  name: Schema.String,
-  title: Schema.String,
-  stickers: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker)),
-  sticker_type: Schema.optional(Schema.suspend((): Schema.Codec<Types.StickerType, unknown> => Types.StickerType)),
-  needs_repainting: Schema.optional(Schema.Boolean),
+    name: Schema.String,
+    title: Schema.String,
+    stickers: Schema.Array(Types.InputSticker),
+    sticker_type: Schema.optional(Types.StickerType),
+    needs_repainting: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<CreateNewStickerSetParams>((input): input is CreateNewStickerSetParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _CreateNewStickerSetParamsDecoded = Schema.declare<CreateNewStickerSetParams>((input): input is CreateNewStickerSetParams => Predicate.isObject(input));
-export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, Readonly<Record<string, unknown>>> = _CreateNewStickerSetParamsEncoded.pipe(
-  Schema.decodeTo(_CreateNewStickerSetParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_CreateNewStickerSetParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_CreateNewStickerSetParamsWireKeys)),
-  }),
-);
 
 export const createNewStickerSet = callMethod({
   method: "createNewStickerSet",
   params: CreateNewStickerSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -856,25 +903,27 @@ export interface DeclineChatJoinRequestParams {
   /** Unique identifier of the target user */
   readonly userId: number;
 }
-const _DeclineChatJoinRequestParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
-const _DeclineChatJoinRequestParamsWireKeys = invertKeys(_DeclineChatJoinRequestParamsPublicKeys);
-const _DeclineChatJoinRequestParamsEncoded = Schema.Struct({
+export const DeclineChatJoinRequestParams: Schema.Codec<DeclineChatJoinRequestParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
+    user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<DeclineChatJoinRequestParams>((input): input is DeclineChatJoinRequestParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeclineChatJoinRequestParamsDecoded = Schema.declare<DeclineChatJoinRequestParams>((input): input is DeclineChatJoinRequestParams => Predicate.isObject(input));
-export const DeclineChatJoinRequestParams: Schema.Codec<DeclineChatJoinRequestParams, Readonly<Record<string, unknown>>> = _DeclineChatJoinRequestParamsEncoded.pipe(
-  Schema.decodeTo(_DeclineChatJoinRequestParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeclineChatJoinRequestParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeclineChatJoinRequestParamsWireKeys)),
-  }),
-);
 
 export const declineChatJoinRequest = callMethod({
   method: "declineChatJoinRequest",
   params: DeclineChatJoinRequestParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -887,26 +936,28 @@ export interface DeclineSuggestedPostParams {
   /** Comment for the creator of the suggested post; 0-128 characters */
   readonly comment?: string | undefined;
 }
-const _DeclineSuggestedPostParamsPublicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
-const _DeclineSuggestedPostParamsWireKeys = invertKeys(_DeclineSuggestedPostParamsPublicKeys);
-const _DeclineSuggestedPostParamsEncoded = Schema.Struct({
+export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Int,
-  message_id: Schema.Int,
-  comment: Schema.optional(Schema.String),
+    message_id: Schema.Int,
+    comment: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<DeclineSuggestedPostParams>((input): input is DeclineSuggestedPostParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeclineSuggestedPostParamsDecoded = Schema.declare<DeclineSuggestedPostParams>((input): input is DeclineSuggestedPostParams => Predicate.isObject(input));
-export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams, Readonly<Record<string, unknown>>> = _DeclineSuggestedPostParamsEncoded.pipe(
-  Schema.decodeTo(_DeclineSuggestedPostParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeclineSuggestedPostParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeclineSuggestedPostParamsWireKeys)),
-  }),
-);
 
 export const declineSuggestedPost = callMethod({
   method: "declineSuggestedPost",
   params: DeclineSuggestedPostParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -919,26 +970,28 @@ export interface DeleteAllMessageReactionsParams {
   /** Identifier of the chat whose reactions will be removed, if the reactions were added by a chat */
   readonly actorChatId?: number | undefined;
 }
-const _DeleteAllMessageReactionsParamsPublicKeys = { chat_id: "chatId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
-const _DeleteAllMessageReactionsParamsWireKeys = invertKeys(_DeleteAllMessageReactionsParamsPublicKeys);
-const _DeleteAllMessageReactionsParamsEncoded = Schema.Struct({
+export const DeleteAllMessageReactionsParams: Schema.Codec<DeleteAllMessageReactionsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.optional(Schema.Int),
-  actor_chat_id: Schema.optional(Schema.Int),
+    user_id: Schema.optional(Schema.Int),
+    actor_chat_id: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<DeleteAllMessageReactionsParams>((input): input is DeleteAllMessageReactionsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteAllMessageReactionsParamsDecoded = Schema.declare<DeleteAllMessageReactionsParams>((input): input is DeleteAllMessageReactionsParams => Predicate.isObject(input));
-export const DeleteAllMessageReactionsParams: Schema.Codec<DeleteAllMessageReactionsParams, Readonly<Record<string, unknown>>> = _DeleteAllMessageReactionsParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteAllMessageReactionsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteAllMessageReactionsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteAllMessageReactionsParamsWireKeys)),
-  }),
-);
 
 export const deleteAllMessageReactions = callMethod({
   method: "deleteAllMessageReactions",
   params: DeleteAllMessageReactionsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -949,25 +1002,27 @@ export interface DeleteBusinessMessagesParams {
   /** A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted. */
   readonly messageIds: ReadonlyArray<number>;
 }
-const _DeleteBusinessMessagesParamsPublicKeys = { business_connection_id: "businessConnectionId", message_ids: "messageIds" } as const;
-const _DeleteBusinessMessagesParamsWireKeys = invertKeys(_DeleteBusinessMessagesParamsPublicKeys);
-const _DeleteBusinessMessagesParamsEncoded = Schema.Struct({
+export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", message_ids: "messageIds" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  message_ids: Schema.Array(Schema.Int),
+    message_ids: Schema.Array(Schema.Int),
+  });
+  const decoded = Schema.declare<DeleteBusinessMessagesParams>((input): input is DeleteBusinessMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteBusinessMessagesParamsDecoded = Schema.declare<DeleteBusinessMessagesParams>((input): input is DeleteBusinessMessagesParams => Predicate.isObject(input));
-export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesParams, Readonly<Record<string, unknown>>> = _DeleteBusinessMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteBusinessMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteBusinessMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteBusinessMessagesParamsWireKeys)),
-  }),
-);
 
 export const deleteBusinessMessages = callMethod({
   method: "deleteBusinessMessages",
   params: DeleteBusinessMessagesParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -976,24 +1031,26 @@ export interface DeleteChatPhotoParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
   readonly chatId: number | string;
 }
-const _DeleteChatPhotoParamsPublicKeys = { chat_id: "chatId" } as const;
-const _DeleteChatPhotoParamsWireKeys = invertKeys(_DeleteChatPhotoParamsPublicKeys);
-const _DeleteChatPhotoParamsEncoded = Schema.Struct({
+export const DeleteChatPhotoParams: Schema.Codec<DeleteChatPhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<DeleteChatPhotoParams>((input): input is DeleteChatPhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteChatPhotoParamsDecoded = Schema.declare<DeleteChatPhotoParams>((input): input is DeleteChatPhotoParams => Predicate.isObject(input));
-export const DeleteChatPhotoParams: Schema.Codec<DeleteChatPhotoParams, Readonly<Record<string, unknown>>> = _DeleteChatPhotoParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteChatPhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatPhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatPhotoParamsWireKeys)),
-  }),
-);
 
 export const deleteChatPhoto = callMethod({
   method: "deleteChatPhoto",
   params: DeleteChatPhotoParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1002,24 +1059,26 @@ export interface DeleteChatStickerSetParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _DeleteChatStickerSetParamsPublicKeys = { chat_id: "chatId" } as const;
-const _DeleteChatStickerSetParamsWireKeys = invertKeys(_DeleteChatStickerSetParamsPublicKeys);
-const _DeleteChatStickerSetParamsEncoded = Schema.Struct({
+export const DeleteChatStickerSetParams: Schema.Codec<DeleteChatStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<DeleteChatStickerSetParams>((input): input is DeleteChatStickerSetParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteChatStickerSetParamsDecoded = Schema.declare<DeleteChatStickerSetParams>((input): input is DeleteChatStickerSetParams => Predicate.isObject(input));
-export const DeleteChatStickerSetParams: Schema.Codec<DeleteChatStickerSetParams, Readonly<Record<string, unknown>>> = _DeleteChatStickerSetParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteChatStickerSetParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatStickerSetParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteChatStickerSetParamsWireKeys)),
-  }),
-);
 
 export const deleteChatStickerSet = callMethod({
   method: "deleteChatStickerSet",
   params: DeleteChatStickerSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1032,26 +1091,28 @@ export interface DeleteEphemeralMessageParams {
   /** Identifier of the ephemeral message to delete */
   readonly ephemeralMessageId: number;
 }
-const _DeleteEphemeralMessageParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId" } as const;
-const _DeleteEphemeralMessageParamsWireKeys = invertKeys(_DeleteEphemeralMessageParamsPublicKeys);
-const _DeleteEphemeralMessageParamsEncoded = Schema.Struct({
+export const DeleteEphemeralMessageParams: Schema.Codec<DeleteEphemeralMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  receiver_user_id: Schema.Int,
-  ephemeral_message_id: Schema.Int,
+    receiver_user_id: Schema.Int,
+    ephemeral_message_id: Schema.Int,
+  });
+  const decoded = Schema.declare<DeleteEphemeralMessageParams>((input): input is DeleteEphemeralMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteEphemeralMessageParamsDecoded = Schema.declare<DeleteEphemeralMessageParams>((input): input is DeleteEphemeralMessageParams => Predicate.isObject(input));
-export const DeleteEphemeralMessageParams: Schema.Codec<DeleteEphemeralMessageParams, Readonly<Record<string, unknown>>> = _DeleteEphemeralMessageParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteEphemeralMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteEphemeralMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteEphemeralMessageParamsWireKeys)),
-  }),
-);
 
 export const deleteEphemeralMessage = callMethod({
   method: "deleteEphemeralMessage",
   params: DeleteEphemeralMessageParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1062,25 +1123,27 @@ export interface DeleteForumTopicParams {
   /** Unique identifier for the target message thread of the forum topic */
   readonly messageThreadId: number;
 }
-const _DeleteForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
-const _DeleteForumTopicParamsWireKeys = invertKeys(_DeleteForumTopicParamsPublicKeys);
-const _DeleteForumTopicParamsEncoded = Schema.Struct({
+export const DeleteForumTopicParams: Schema.Codec<DeleteForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.Int,
+    message_thread_id: Schema.Int,
+  });
+  const decoded = Schema.declare<DeleteForumTopicParams>((input): input is DeleteForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteForumTopicParamsDecoded = Schema.declare<DeleteForumTopicParams>((input): input is DeleteForumTopicParams => Predicate.isObject(input));
-export const DeleteForumTopicParams: Schema.Codec<DeleteForumTopicParams, Readonly<Record<string, unknown>>> = _DeleteForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteForumTopicParamsWireKeys)),
-  }),
-);
 
 export const deleteForumTopic = callMethod({
   method: "deleteForumTopic",
   params: DeleteForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1101,25 +1164,27 @@ export interface DeleteMessageParams {
   /** Identifier of the message to delete */
   readonly messageId: number;
 }
-const _DeleteMessageParamsPublicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
-const _DeleteMessageParamsWireKeys = invertKeys(_DeleteMessageParamsPublicKeys);
-const _DeleteMessageParamsEncoded = Schema.Struct({
+export const DeleteMessageParams: Schema.Codec<DeleteMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
+    message_id: Schema.Int,
+  });
+  const decoded = Schema.declare<DeleteMessageParams>((input): input is DeleteMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteMessageParamsDecoded = Schema.declare<DeleteMessageParams>((input): input is DeleteMessageParams => Predicate.isObject(input));
-export const DeleteMessageParams: Schema.Codec<DeleteMessageParams, Readonly<Record<string, unknown>>> = _DeleteMessageParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageParamsWireKeys)),
-  }),
-);
 
 export const deleteMessage = callMethod({
   method: "deleteMessage",
   params: DeleteMessageParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1134,27 +1199,29 @@ export interface DeleteMessageReactionParams {
   /** Identifier of the chat whose reaction will be removed, if the reaction was added by a chat */
   readonly actorChatId?: number | undefined;
 }
-const _DeleteMessageReactionParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
-const _DeleteMessageReactionParamsWireKeys = invertKeys(_DeleteMessageReactionParamsPublicKeys);
-const _DeleteMessageReactionParamsEncoded = Schema.Struct({
+export const DeleteMessageReactionParams: Schema.Codec<DeleteMessageReactionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_id: "messageId", user_id: "userId", actor_chat_id: "actorChatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  user_id: Schema.optional(Schema.Int),
-  actor_chat_id: Schema.optional(Schema.Int),
+    message_id: Schema.Int,
+    user_id: Schema.optional(Schema.Int),
+    actor_chat_id: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<DeleteMessageReactionParams>((input): input is DeleteMessageReactionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteMessageReactionParamsDecoded = Schema.declare<DeleteMessageReactionParams>((input): input is DeleteMessageReactionParams => Predicate.isObject(input));
-export const DeleteMessageReactionParams: Schema.Codec<DeleteMessageReactionParams, Readonly<Record<string, unknown>>> = _DeleteMessageReactionParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteMessageReactionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageReactionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessageReactionParamsWireKeys)),
-  }),
-);
 
 export const deleteMessageReaction = callMethod({
   method: "deleteMessageReaction",
   params: DeleteMessageReactionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1165,25 +1232,27 @@ export interface DeleteMessagesParams {
   /** A JSON-serialized list of 1-100 identifiers of messages to delete. See deleteMessage for limitations on which messages can be deleted. */
   readonly messageIds: ReadonlyArray<number>;
 }
-const _DeleteMessagesParamsPublicKeys = { chat_id: "chatId", message_ids: "messageIds" } as const;
-const _DeleteMessagesParamsWireKeys = invertKeys(_DeleteMessagesParamsPublicKeys);
-const _DeleteMessagesParamsEncoded = Schema.Struct({
+export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_ids: "messageIds" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_ids: Schema.Array(Schema.Int),
+    message_ids: Schema.Array(Schema.Int),
+  });
+  const decoded = Schema.declare<DeleteMessagesParams>((input): input is DeleteMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteMessagesParamsDecoded = Schema.declare<DeleteMessagesParams>((input): input is DeleteMessagesParams => Predicate.isObject(input));
-export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<Record<string, unknown>>> = _DeleteMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMessagesParamsWireKeys)),
-  }),
-);
 
 export const deleteMessages = callMethod({
   method: "deleteMessages",
   params: DeleteMessagesParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1194,25 +1263,27 @@ export interface DeleteMyCommandsParams {
   /** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands. */
   readonly languageCode?: string | undefined;
 }
-const _DeleteMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
-const _DeleteMyCommandsParamsWireKeys = invertKeys(_DeleteMyCommandsParamsPublicKeys);
-const _DeleteMyCommandsParamsEncoded = Schema.Struct({
-  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
-  language_code: Schema.optional(Schema.String),
+export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
+  scope: Schema.optional(Types.BotCommandScope),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<DeleteMyCommandsParams>((input): input is DeleteMyCommandsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteMyCommandsParamsDecoded = Schema.declare<DeleteMyCommandsParams>((input): input is DeleteMyCommandsParams => Predicate.isObject(input));
-export const DeleteMyCommandsParams: Schema.Codec<DeleteMyCommandsParams, Readonly<Record<string, unknown>>> = _DeleteMyCommandsParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteMyCommandsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteMyCommandsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteMyCommandsParamsWireKeys)),
-  }),
-);
 
 export const deleteMyCommands = callMethod({
   method: "deleteMyCommands",
   params: DeleteMyCommandsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1221,15 +1292,15 @@ export interface DeleteStickerFromSetParams {
   /** File identifier of the sticker */
   readonly sticker: string;
 }
-export const DeleteStickerFromSetParams: Schema.Codec<DeleteStickerFromSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const DeleteStickerFromSetParams: Schema.Codec<DeleteStickerFromSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   sticker: Schema.String,
-});
+}));
 
 export const deleteStickerFromSet = callMethod({
   method: "deleteStickerFromSet",
   params: DeleteStickerFromSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1238,15 +1309,15 @@ export interface DeleteStickerSetParams {
   /** Sticker set name */
   readonly name: string;
 }
-export const DeleteStickerSetParams: Schema.Codec<DeleteStickerSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const DeleteStickerSetParams: Schema.Codec<DeleteStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   name: Schema.String,
-});
+}));
 
 export const deleteStickerSet = callMethod({
   method: "deleteStickerSet",
   params: DeleteStickerSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1257,25 +1328,27 @@ export interface DeleteStoryParams {
   /** Unique identifier of the story to delete */
   readonly storyId: number;
 }
-const _DeleteStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId" } as const;
-const _DeleteStoryParamsWireKeys = invertKeys(_DeleteStoryParamsPublicKeys);
-const _DeleteStoryParamsEncoded = Schema.Struct({
+export const DeleteStoryParams: Schema.Codec<DeleteStoryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  story_id: Schema.Int,
+    story_id: Schema.Int,
+  });
+  const decoded = Schema.declare<DeleteStoryParams>((input): input is DeleteStoryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteStoryParamsDecoded = Schema.declare<DeleteStoryParams>((input): input is DeleteStoryParams => Predicate.isObject(input));
-export const DeleteStoryParams: Schema.Codec<DeleteStoryParams, Readonly<Record<string, unknown>>> = _DeleteStoryParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteStoryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteStoryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteStoryParamsWireKeys)),
-  }),
-);
 
 export const deleteStory = callMethod({
   method: "deleteStory",
   params: DeleteStoryParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1284,24 +1357,26 @@ export interface DeleteWebhookParams {
   /** Pass True to drop all pending updates */
   readonly dropPendingUpdates?: boolean | undefined;
 }
-const _DeleteWebhookParamsPublicKeys = { drop_pending_updates: "dropPendingUpdates" } as const;
-const _DeleteWebhookParamsWireKeys = invertKeys(_DeleteWebhookParamsPublicKeys);
-const _DeleteWebhookParamsEncoded = Schema.Struct({
+export const DeleteWebhookParams: Schema.Codec<DeleteWebhookParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { drop_pending_updates: "dropPendingUpdates" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   drop_pending_updates: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<DeleteWebhookParams>((input): input is DeleteWebhookParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _DeleteWebhookParamsDecoded = Schema.declare<DeleteWebhookParams>((input): input is DeleteWebhookParams => Predicate.isObject(input));
-export const DeleteWebhookParams: Schema.Codec<DeleteWebhookParams, Readonly<Record<string, unknown>>> = _DeleteWebhookParamsEncoded.pipe(
-  Schema.decodeTo(_DeleteWebhookParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_DeleteWebhookParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_DeleteWebhookParamsWireKeys)),
-  }),
-);
 
 export const deleteWebhook = callMethod({
   method: "deleteWebhook",
   params: DeleteWebhookParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1320,29 +1395,31 @@ export interface EditChatInviteLinkParams {
   /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
   readonly createsJoinRequest?: boolean | undefined;
 }
-const _EditChatInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
-const _EditChatInviteLinkParamsWireKeys = invertKeys(_EditChatInviteLinkParamsPublicKeys);
-const _EditChatInviteLinkParamsEncoded = Schema.Struct({
+export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", invite_link: "inviteLink", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  invite_link: Schema.String,
-  name: Schema.optional(Schema.String),
-  expire_date: Schema.optional(Schema.Int),
-  member_limit: Schema.optional(Schema.Int),
-  creates_join_request: Schema.optional(Schema.Boolean),
+    invite_link: Schema.String,
+    name: Schema.optional(Schema.String),
+    expire_date: Schema.optional(Schema.Int),
+    member_limit: Schema.optional(Schema.Int),
+    creates_join_request: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<EditChatInviteLinkParams>((input): input is EditChatInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditChatInviteLinkParamsDecoded = Schema.declare<EditChatInviteLinkParams>((input): input is EditChatInviteLinkParams => Predicate.isObject(input));
-export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Readonly<Record<string, unknown>>> = _EditChatInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_EditChatInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditChatInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditChatInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const editChatInviteLink = callMethod({
   method: "editChatInviteLink",
   params: EditChatInviteLinkParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  result: Schema.suspend(() => Types.ChatInviteLink),
   retrySafe: true,
 });
 
@@ -1355,26 +1432,28 @@ export interface EditChatSubscriptionInviteLinkParams {
   /** Invite link name; 0-32 characters */
   readonly name?: string | undefined;
 }
-const _EditChatSubscriptionInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
-const _EditChatSubscriptionInviteLinkParamsWireKeys = invertKeys(_EditChatSubscriptionInviteLinkParamsPublicKeys);
-const _EditChatSubscriptionInviteLinkParamsEncoded = Schema.Struct({
+export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  invite_link: Schema.String,
-  name: Schema.optional(Schema.String),
+    invite_link: Schema.String,
+    name: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<EditChatSubscriptionInviteLinkParams>((input): input is EditChatSubscriptionInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditChatSubscriptionInviteLinkParamsDecoded = Schema.declare<EditChatSubscriptionInviteLinkParams>((input): input is EditChatSubscriptionInviteLinkParams => Predicate.isObject(input));
-export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = _EditChatSubscriptionInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_EditChatSubscriptionInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditChatSubscriptionInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditChatSubscriptionInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const editChatSubscriptionInviteLink = callMethod({
   method: "editChatSubscriptionInviteLink",
   params: EditChatSubscriptionInviteLinkParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  result: Schema.suspend(() => Types.ChatInviteLink),
   retrySafe: true,
 });
 
@@ -1397,31 +1476,33 @@ export interface EditEphemeralMessageCaptionParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditEphemeralMessageCaptionParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
-const _EditEphemeralMessageCaptionParamsWireKeys = invertKeys(_EditEphemeralMessageCaptionParamsPublicKeys);
-const _EditEphemeralMessageCaptionParamsEncoded = Schema.Struct({
+export const EditEphemeralMessageCaptionParams: Schema.Codec<EditEphemeralMessageCaptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  receiver_user_id: Schema.Int,
-  ephemeral_message_id: Schema.Int,
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    receiver_user_id: Schema.Int,
+    ephemeral_message_id: Schema.Int,
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditEphemeralMessageCaptionParams>((input): input is EditEphemeralMessageCaptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditEphemeralMessageCaptionParamsDecoded = Schema.declare<EditEphemeralMessageCaptionParams>((input): input is EditEphemeralMessageCaptionParams => Predicate.isObject(input));
-export const EditEphemeralMessageCaptionParams: Schema.Codec<EditEphemeralMessageCaptionParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageCaptionParamsEncoded.pipe(
-  Schema.decodeTo(_EditEphemeralMessageCaptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageCaptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageCaptionParamsWireKeys)),
-  }),
-);
 
 export const editEphemeralMessageCaption = callMethod({
   method: "editEphemeralMessageCaption",
   params: EditEphemeralMessageCaptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1438,28 +1519,30 @@ export interface EditEphemeralMessageMediaParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditEphemeralMessageMediaParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
-const _EditEphemeralMessageMediaParamsWireKeys = invertKeys(_EditEphemeralMessageMediaParamsPublicKeys);
-const _EditEphemeralMessageMediaParamsEncoded = Schema.Struct({
+export const EditEphemeralMessageMediaParams: Schema.Codec<EditEphemeralMessageMediaParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  receiver_user_id: Schema.Int,
-  ephemeral_message_id: Schema.Int,
-  media: Schema.suspend((): Schema.Codec<Types.InputMedia, unknown> => Types.InputMedia),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    receiver_user_id: Schema.Int,
+    ephemeral_message_id: Schema.Int,
+    media: Types.InputMedia,
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditEphemeralMessageMediaParams>((input): input is EditEphemeralMessageMediaParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditEphemeralMessageMediaParamsDecoded = Schema.declare<EditEphemeralMessageMediaParams>((input): input is EditEphemeralMessageMediaParams => Predicate.isObject(input));
-export const EditEphemeralMessageMediaParams: Schema.Codec<EditEphemeralMessageMediaParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageMediaParamsEncoded.pipe(
-  Schema.decodeTo(_EditEphemeralMessageMediaParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageMediaParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageMediaParamsWireKeys)),
-  }),
-);
 
 export const editEphemeralMessageMedia = callMethod({
   method: "editEphemeralMessageMedia",
   params: EditEphemeralMessageMediaParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1474,27 +1557,29 @@ export interface EditEphemeralMessageReplyMarkupParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditEphemeralMessageReplyMarkupParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
-const _EditEphemeralMessageReplyMarkupParamsWireKeys = invertKeys(_EditEphemeralMessageReplyMarkupParamsPublicKeys);
-const _EditEphemeralMessageReplyMarkupParamsEncoded = Schema.Struct({
+export const EditEphemeralMessageReplyMarkupParams: Schema.Codec<EditEphemeralMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  receiver_user_id: Schema.Int,
-  ephemeral_message_id: Schema.Int,
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    receiver_user_id: Schema.Int,
+    ephemeral_message_id: Schema.Int,
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditEphemeralMessageReplyMarkupParams>((input): input is EditEphemeralMessageReplyMarkupParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditEphemeralMessageReplyMarkupParamsDecoded = Schema.declare<EditEphemeralMessageReplyMarkupParams>((input): input is EditEphemeralMessageReplyMarkupParams => Predicate.isObject(input));
-export const EditEphemeralMessageReplyMarkupParams: Schema.Codec<EditEphemeralMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageReplyMarkupParamsEncoded.pipe(
-  Schema.decodeTo(_EditEphemeralMessageReplyMarkupParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageReplyMarkupParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageReplyMarkupParamsWireKeys)),
-  }),
-);
 
 export const editEphemeralMessageReplyMarkup = callMethod({
   method: "editEphemeralMessageReplyMarkup",
   params: EditEphemeralMessageReplyMarkupParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1519,32 +1604,34 @@ export interface EditEphemeralMessageTextParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditEphemeralMessageTextParamsPublicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", rich_message: "richMessage", link_preview_options: "linkPreviewOptions", reply_markup: "replyMarkup" } as const;
-const _EditEphemeralMessageTextParamsWireKeys = invertKeys(_EditEphemeralMessageTextParamsPublicKeys);
-const _EditEphemeralMessageTextParamsEncoded = Schema.Struct({
+export const EditEphemeralMessageTextParams: Schema.Codec<EditEphemeralMessageTextParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", receiver_user_id: "receiverUserId", ephemeral_message_id: "ephemeralMessageId", parse_mode: "parseMode", rich_message: "richMessage", link_preview_options: "linkPreviewOptions", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  receiver_user_id: Schema.Int,
-  ephemeral_message_id: Schema.Int,
-  text: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  rich_message: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage)),
-  link_preview_options: Schema.optional(Schema.suspend((): Schema.Codec<Types.LinkPreviewOptions, unknown> => Types.LinkPreviewOptions)),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    receiver_user_id: Schema.Int,
+    ephemeral_message_id: Schema.Int,
+    text: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    rich_message: Schema.optional(Types.InputRichMessage),
+    link_preview_options: Schema.optional(Types.LinkPreviewOptions),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditEphemeralMessageTextParams>((input): input is EditEphemeralMessageTextParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditEphemeralMessageTextParamsDecoded = Schema.declare<EditEphemeralMessageTextParams>((input): input is EditEphemeralMessageTextParams => Predicate.isObject(input));
-export const EditEphemeralMessageTextParams: Schema.Codec<EditEphemeralMessageTextParams, Readonly<Record<string, unknown>>> = _EditEphemeralMessageTextParamsEncoded.pipe(
-  Schema.decodeTo(_EditEphemeralMessageTextParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageTextParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditEphemeralMessageTextParamsWireKeys)),
-  }),
-);
 
 export const editEphemeralMessageText = callMethod({
   method: "editEphemeralMessageText",
   params: EditEphemeralMessageTextParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1559,27 +1646,29 @@ export interface EditForumTopicParams {
   /** New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept. */
   readonly iconCustomEmojiId?: string | undefined;
 }
-const _EditForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
-const _EditForumTopicParamsWireKeys = invertKeys(_EditForumTopicParamsPublicKeys);
-const _EditForumTopicParamsEncoded = Schema.Struct({
+export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.Int,
-  name: Schema.optional(Schema.String),
-  icon_custom_emoji_id: Schema.optional(Schema.String),
+    message_thread_id: Schema.Int,
+    name: Schema.optional(Schema.String),
+    icon_custom_emoji_id: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<EditForumTopicParams>((input): input is EditForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditForumTopicParamsDecoded = Schema.declare<EditForumTopicParams>((input): input is EditForumTopicParams => Predicate.isObject(input));
-export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<Record<string, unknown>>> = _EditForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_EditForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditForumTopicParamsWireKeys)),
-  }),
-);
 
 export const editForumTopic = callMethod({
   method: "editForumTopic",
   params: EditForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1590,25 +1679,27 @@ export interface EditGeneralForumTopicParams {
   /** New topic name, 1-128 characters */
   readonly name: string;
 }
-const _EditGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
-const _EditGeneralForumTopicParamsWireKeys = invertKeys(_EditGeneralForumTopicParamsPublicKeys);
-const _EditGeneralForumTopicParamsEncoded = Schema.Struct({
+export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  name: Schema.String,
+    name: Schema.String,
+  });
+  const decoded = Schema.declare<EditGeneralForumTopicParams>((input): input is EditGeneralForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditGeneralForumTopicParamsDecoded = Schema.declare<EditGeneralForumTopicParams>((input): input is EditGeneralForumTopicParams => Predicate.isObject(input));
-export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _EditGeneralForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_EditGeneralForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditGeneralForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditGeneralForumTopicParamsWireKeys)),
-  }),
-);
 
 export const editGeneralForumTopic = callMethod({
   method: "editGeneralForumTopic",
   params: EditGeneralForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1633,32 +1724,34 @@ export interface EditMessageCaptionParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageCaptionParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
-const _EditMessageCaptionParamsWireKeys = invertKeys(_EditMessageCaptionParamsPublicKeys);
-const _EditMessageCaptionParamsEncoded = Schema.Struct({
+export const EditMessageCaptionParams: Schema.Codec<EditMessageCaptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageCaptionParams>((input): input is EditMessageCaptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageCaptionParamsDecoded = Schema.declare<EditMessageCaptionParams>((input): input is EditMessageCaptionParams => Predicate.isObject(input));
-export const EditMessageCaptionParams: Schema.Codec<EditMessageCaptionParams, Readonly<Record<string, unknown>>> = _EditMessageCaptionParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageCaptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageCaptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageCaptionParamsWireKeys)),
-  }),
-);
 
 export const editMessageCaption = callMethod({
   method: "editMessageCaption",
   params: EditMessageCaptionParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -1675,28 +1768,30 @@ export interface EditMessageChecklistParams {
   /** A JSON-serialized object for the new inline keyboard for the message */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageChecklistParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
-const _EditMessageChecklistParamsWireKeys = invertKeys(_EditMessageChecklistParamsPublicKeys);
-const _EditMessageChecklistParamsEncoded = Schema.Struct({
+export const EditMessageChecklistParams: Schema.Codec<EditMessageChecklistParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  checklist: Schema.suspend((): Schema.Codec<Types.InputChecklist, unknown> => Types.InputChecklist),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_id: Schema.Int,
+    checklist: Types.InputChecklist,
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageChecklistParams>((input): input is EditMessageChecklistParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageChecklistParamsDecoded = Schema.declare<EditMessageChecklistParams>((input): input is EditMessageChecklistParams => Predicate.isObject(input));
-export const EditMessageChecklistParams: Schema.Codec<EditMessageChecklistParams, Readonly<Record<string, unknown>>> = _EditMessageChecklistParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageChecklistParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageChecklistParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageChecklistParamsWireKeys)),
-  }),
-);
 
 export const editMessageChecklist = callMethod({
   method: "editMessageChecklist",
   params: EditMessageChecklistParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: true,
 });
 
@@ -1725,34 +1820,36 @@ export interface EditMessageLiveLocationParams {
   /** A JSON-serialized object for a new inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageLiveLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", live_period: "livePeriod", horizontal_accuracy: "horizontalAccuracy", proximity_alert_radius: "proximityAlertRadius", reply_markup: "replyMarkup" } as const;
-const _EditMessageLiveLocationParamsWireKeys = invertKeys(_EditMessageLiveLocationParamsPublicKeys);
-const _EditMessageLiveLocationParamsEncoded = Schema.Struct({
+export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", live_period: "livePeriod", horizontal_accuracy: "horizontalAccuracy", proximity_alert_radius: "proximityAlertRadius", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  latitude: Schema.Number,
-  longitude: Schema.Number,
-  live_period: Schema.optional(Schema.Int),
-  horizontal_accuracy: Schema.optional(Schema.Number),
-  heading: Schema.optional(Schema.Int),
-  proximity_alert_radius: Schema.optional(Schema.Int),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    latitude: Schema.Number,
+    longitude: Schema.Number,
+    live_period: Schema.optional(Schema.Int),
+    horizontal_accuracy: Schema.optional(Schema.Number),
+    heading: Schema.optional(Schema.Int),
+    proximity_alert_radius: Schema.optional(Schema.Int),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageLiveLocationParams>((input): input is EditMessageLiveLocationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageLiveLocationParamsDecoded = Schema.declare<EditMessageLiveLocationParams>((input): input is EditMessageLiveLocationParams => Predicate.isObject(input));
-export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocationParams, Readonly<Record<string, unknown>>> = _EditMessageLiveLocationParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageLiveLocationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageLiveLocationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageLiveLocationParamsWireKeys)),
-  }),
-);
 
 export const editMessageLiveLocation = callMethod({
   method: "editMessageLiveLocation",
   params: EditMessageLiveLocationParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -1771,29 +1868,31 @@ export interface EditMessageMediaParams {
   /** A JSON-serialized object for a new inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageMediaParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
-const _EditMessageMediaParamsWireKeys = invertKeys(_EditMessageMediaParamsPublicKeys);
-const _EditMessageMediaParamsEncoded = Schema.Struct({
+export const EditMessageMediaParams: Schema.Codec<EditMessageMediaParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  media: Schema.suspend((): Schema.Codec<Types.InputMedia, unknown> => Types.InputMedia),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    media: Types.InputMedia,
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageMediaParams>((input): input is EditMessageMediaParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageMediaParamsDecoded = Schema.declare<EditMessageMediaParams>((input): input is EditMessageMediaParams => Predicate.isObject(input));
-export const EditMessageMediaParams: Schema.Codec<EditMessageMediaParams, Readonly<Record<string, unknown>>> = _EditMessageMediaParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageMediaParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageMediaParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageMediaParamsWireKeys)),
-  }),
-);
 
 export const editMessageMedia = callMethod({
   method: "editMessageMedia",
   params: EditMessageMediaParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -1810,28 +1909,30 @@ export interface EditMessageReplyMarkupParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageReplyMarkupParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
-const _EditMessageReplyMarkupParamsWireKeys = invertKeys(_EditMessageReplyMarkupParamsPublicKeys);
-const _EditMessageReplyMarkupParamsEncoded = Schema.Struct({
+export const EditMessageReplyMarkupParams: Schema.Codec<EditMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageReplyMarkupParams>((input): input is EditMessageReplyMarkupParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageReplyMarkupParamsDecoded = Schema.declare<EditMessageReplyMarkupParams>((input): input is EditMessageReplyMarkupParams => Predicate.isObject(input));
-export const EditMessageReplyMarkupParams: Schema.Codec<EditMessageReplyMarkupParams, Readonly<Record<string, unknown>>> = _EditMessageReplyMarkupParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageReplyMarkupParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageReplyMarkupParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageReplyMarkupParamsWireKeys)),
-  }),
-);
 
 export const editMessageReplyMarkup = callMethod({
   method: "editMessageReplyMarkup",
   params: EditMessageReplyMarkupParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -1858,33 +1959,35 @@ export interface EditMessageTextParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _EditMessageTextParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", link_preview_options: "linkPreviewOptions", rich_message: "richMessage", reply_markup: "replyMarkup" } as const;
-const _EditMessageTextParamsWireKeys = invertKeys(_EditMessageTextParamsPublicKeys);
-const _EditMessageTextParamsEncoded = Schema.Struct({
+export const EditMessageTextParams: Schema.Codec<EditMessageTextParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", parse_mode: "parseMode", link_preview_options: "linkPreviewOptions", rich_message: "richMessage", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  text: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  link_preview_options: Schema.optional(Schema.suspend((): Schema.Codec<Types.LinkPreviewOptions, unknown> => Types.LinkPreviewOptions)),
-  rich_message: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage)),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    text: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    link_preview_options: Schema.optional(Types.LinkPreviewOptions),
+    rich_message: Schema.optional(Types.InputRichMessage),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<EditMessageTextParams>((input): input is EditMessageTextParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditMessageTextParamsDecoded = Schema.declare<EditMessageTextParams>((input): input is EditMessageTextParams => Predicate.isObject(input));
-export const EditMessageTextParams: Schema.Codec<EditMessageTextParams, Readonly<Record<string, unknown>>> = _EditMessageTextParamsEncoded.pipe(
-  Schema.decodeTo(_EditMessageTextParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditMessageTextParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditMessageTextParamsWireKeys)),
-  }),
-);
 
 export const editMessageText = callMethod({
   method: "editMessageText",
   params: EditMessageTextParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -1905,30 +2008,32 @@ export interface EditStoryParams {
   /** A JSON-serialized list of clickable areas to be shown on the story */
   readonly areas?: ReadonlyArray<Types.StoryArea> | undefined;
 }
-const _EditStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId", parse_mode: "parseMode", caption_entities: "captionEntities" } as const;
-const _EditStoryParamsWireKeys = invertKeys(_EditStoryParamsPublicKeys);
-const _EditStoryParamsEncoded = Schema.Struct({
+export const EditStoryParams: Schema.Codec<EditStoryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", story_id: "storyId", parse_mode: "parseMode", caption_entities: "captionEntities" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  story_id: Schema.Int,
-  content: Schema.suspend((): Schema.Codec<Types.InputStoryContent, unknown> => Types.InputStoryContent),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  areas: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.StoryArea, unknown> => Types.StoryArea))),
+    story_id: Schema.Int,
+    content: Types.InputStoryContent,
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    areas: Schema.optional(Schema.Array(Types.StoryArea)),
+  });
+  const decoded = Schema.declare<EditStoryParams>((input): input is EditStoryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditStoryParamsDecoded = Schema.declare<EditStoryParams>((input): input is EditStoryParams => Predicate.isObject(input));
-export const EditStoryParams: Schema.Codec<EditStoryParams, Readonly<Record<string, unknown>>> = _EditStoryParamsEncoded.pipe(
-  Schema.decodeTo(_EditStoryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditStoryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditStoryParamsWireKeys)),
-  }),
-);
 
 export const editStory = callMethod({
   method: "editStory",
   params: EditStoryParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  result: Schema.suspend(() => Types.Story),
   retrySafe: true,
 });
 
@@ -1941,26 +2046,28 @@ export interface EditUserStarSubscriptionParams {
   /** Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot. */
   readonly isCanceled: boolean;
 }
-const _EditUserStarSubscriptionParamsPublicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId", is_canceled: "isCanceled" } as const;
-const _EditUserStarSubscriptionParamsWireKeys = invertKeys(_EditUserStarSubscriptionParamsPublicKeys);
-const _EditUserStarSubscriptionParamsEncoded = Schema.Struct({
+export const EditUserStarSubscriptionParams: Schema.Codec<EditUserStarSubscriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId", is_canceled: "isCanceled" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  telegram_payment_charge_id: Schema.String,
-  is_canceled: Schema.Boolean,
+    telegram_payment_charge_id: Schema.String,
+    is_canceled: Schema.Boolean,
+  });
+  const decoded = Schema.declare<EditUserStarSubscriptionParams>((input): input is EditUserStarSubscriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _EditUserStarSubscriptionParamsDecoded = Schema.declare<EditUserStarSubscriptionParams>((input): input is EditUserStarSubscriptionParams => Predicate.isObject(input));
-export const EditUserStarSubscriptionParams: Schema.Codec<EditUserStarSubscriptionParams, Readonly<Record<string, unknown>>> = _EditUserStarSubscriptionParamsEncoded.pipe(
-  Schema.decodeTo(_EditUserStarSubscriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_EditUserStarSubscriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_EditUserStarSubscriptionParamsWireKeys)),
-  }),
-);
 
 export const editUserStarSubscription = callMethod({
   method: "editUserStarSubscription",
   params: EditUserStarSubscriptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -1969,24 +2076,26 @@ export interface ExportChatInviteLinkParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
   readonly chatId: number | string;
 }
-const _ExportChatInviteLinkParamsPublicKeys = { chat_id: "chatId" } as const;
-const _ExportChatInviteLinkParamsWireKeys = invertKeys(_ExportChatInviteLinkParamsPublicKeys);
-const _ExportChatInviteLinkParamsEncoded = Schema.Struct({
+export const ExportChatInviteLinkParams: Schema.Codec<ExportChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<ExportChatInviteLinkParams>((input): input is ExportChatInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ExportChatInviteLinkParamsDecoded = Schema.declare<ExportChatInviteLinkParams>((input): input is ExportChatInviteLinkParams => Predicate.isObject(input));
-export const ExportChatInviteLinkParams: Schema.Codec<ExportChatInviteLinkParams, Readonly<Record<string, unknown>>> = _ExportChatInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_ExportChatInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ExportChatInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ExportChatInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const exportChatInviteLink = callMethod({
   method: "exportChatInviteLink",
   params: ExportChatInviteLinkParams,
   rateLimit: "none",
-  result: Schema.String,
+  result: Schema.suspend(() => Schema.String),
   retrySafe: false,
 });
 
@@ -2013,33 +2122,35 @@ export interface ForwardMessageParams {
   /** Message identifier in the chat specified in from_chat_id */
   readonly messageId: number;
 }
-const _ForwardMessageParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", video_start_timestamp: "videoStartTimestamp", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", message_id: "messageId" } as const;
-const _ForwardMessageParamsWireKeys = invertKeys(_ForwardMessageParamsPublicKeys);
-const _ForwardMessageParamsEncoded = Schema.Struct({
+export const ForwardMessageParams: Schema.Codec<ForwardMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", video_start_timestamp: "videoStartTimestamp", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", message_id: "messageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
-  video_start_timestamp: Schema.optional(Schema.Int),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  message_id: Schema.Int,
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+    video_start_timestamp: Schema.optional(Schema.Int),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    message_id: Schema.Int,
+  });
+  const decoded = Schema.declare<ForwardMessageParams>((input): input is ForwardMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ForwardMessageParamsDecoded = Schema.declare<ForwardMessageParams>((input): input is ForwardMessageParams => Predicate.isObject(input));
-export const ForwardMessageParams: Schema.Codec<ForwardMessageParams, Readonly<Record<string, unknown>>> = _ForwardMessageParamsEncoded.pipe(
-  Schema.decodeTo(_ForwardMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessageParamsWireKeys)),
-  }),
-);
 
 export const forwardMessage = callMethod({
   method: "forwardMessage",
   params: ForwardMessageParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -2060,30 +2171,32 @@ export interface ForwardMessagesParams {
   /** Protects the contents of the forwarded messages from forwarding and saving */
   readonly protectContent?: boolean | undefined;
 }
-const _ForwardMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent" } as const;
-const _ForwardMessagesParamsWireKeys = invertKeys(_ForwardMessagesParamsPublicKeys);
-const _ForwardMessagesParamsEncoded = Schema.Struct({
+export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  from_chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_ids: Schema.Array(Schema.Int),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    from_chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_ids: Schema.Array(Schema.Int),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<ForwardMessagesParams>((input): input is ForwardMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ForwardMessagesParamsDecoded = Schema.declare<ForwardMessagesParams>((input): input is ForwardMessagesParams => Predicate.isObject(input));
-export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly<Record<string, unknown>>> = _ForwardMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_ForwardMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ForwardMessagesParamsWireKeys)),
-  }),
-);
 
 export const forwardMessages = callMethod({
   method: "forwardMessages",
   params: ForwardMessagesParams,
   rateLimit: "message-id-array",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageId, unknown> => Types.MessageId)),
+  result: Schema.suspend(() => Schema.Array(Types.MessageId)),
   retrySafe: false,
 });
 
@@ -2091,7 +2204,7 @@ export const forwardMessages = callMethod({
 export const getAvailableGifts = callMethod({
   method: "getAvailableGifts",
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Gifts, unknown> => Types.Gifts),
+  result: Schema.suspend(() => Types.Gifts),
   retrySafe: true,
 });
 
@@ -2120,34 +2233,36 @@ export interface GetBusinessAccountGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-const _GetBusinessAccountGiftsParamsPublicKeys = { business_connection_id: "businessConnectionId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_unique: "excludeUnique", exclude_from_blockchain: "excludeFromBlockchain", sort_by_price: "sortByPrice" } as const;
-const _GetBusinessAccountGiftsParamsWireKeys = invertKeys(_GetBusinessAccountGiftsParamsPublicKeys);
-const _GetBusinessAccountGiftsParamsEncoded = Schema.Struct({
+export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_unique: "excludeUnique", exclude_from_blockchain: "excludeFromBlockchain", sort_by_price: "sortByPrice" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  exclude_unsaved: Schema.optional(Schema.Boolean),
-  exclude_saved: Schema.optional(Schema.Boolean),
-  exclude_unlimited: Schema.optional(Schema.Boolean),
-  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
-  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
-  exclude_unique: Schema.optional(Schema.Boolean),
-  exclude_from_blockchain: Schema.optional(Schema.Boolean),
-  sort_by_price: Schema.optional(Schema.Boolean),
-  offset: Schema.optional(Schema.String),
-  limit: Schema.optional(Schema.Int),
+    exclude_unsaved: Schema.optional(Schema.Boolean),
+    exclude_saved: Schema.optional(Schema.Boolean),
+    exclude_unlimited: Schema.optional(Schema.Boolean),
+    exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+    exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+    exclude_unique: Schema.optional(Schema.Boolean),
+    exclude_from_blockchain: Schema.optional(Schema.Boolean),
+    sort_by_price: Schema.optional(Schema.Boolean),
+    offset: Schema.optional(Schema.String),
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetBusinessAccountGiftsParams>((input): input is GetBusinessAccountGiftsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetBusinessAccountGiftsParamsDecoded = Schema.declare<GetBusinessAccountGiftsParams>((input): input is GetBusinessAccountGiftsParams => Predicate.isObject(input));
-export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGiftsParams, Readonly<Record<string, unknown>>> = _GetBusinessAccountGiftsParamsEncoded.pipe(
-  Schema.decodeTo(_GetBusinessAccountGiftsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountGiftsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountGiftsParamsWireKeys)),
-  }),
-);
 
 export const getBusinessAccountGifts = callMethod({
   method: "getBusinessAccountGifts",
   params: GetBusinessAccountGiftsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  result: Schema.suspend(() => Types.OwnedGifts),
   retrySafe: true,
 });
 
@@ -2156,24 +2271,26 @@ export interface GetBusinessAccountStarBalanceParams {
   /** Unique identifier of the business connection */
   readonly businessConnectionId: string;
 }
-const _GetBusinessAccountStarBalanceParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
-const _GetBusinessAccountStarBalanceParamsWireKeys = invertKeys(_GetBusinessAccountStarBalanceParamsPublicKeys);
-const _GetBusinessAccountStarBalanceParamsEncoded = Schema.Struct({
+export const GetBusinessAccountStarBalanceParams: Schema.Codec<GetBusinessAccountStarBalanceParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
+  });
+  const decoded = Schema.declare<GetBusinessAccountStarBalanceParams>((input): input is GetBusinessAccountStarBalanceParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetBusinessAccountStarBalanceParamsDecoded = Schema.declare<GetBusinessAccountStarBalanceParams>((input): input is GetBusinessAccountStarBalanceParams => Predicate.isObject(input));
-export const GetBusinessAccountStarBalanceParams: Schema.Codec<GetBusinessAccountStarBalanceParams, Readonly<Record<string, unknown>>> = _GetBusinessAccountStarBalanceParamsEncoded.pipe(
-  Schema.decodeTo(_GetBusinessAccountStarBalanceParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountStarBalanceParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessAccountStarBalanceParamsWireKeys)),
-  }),
-);
 
 export const getBusinessAccountStarBalance = callMethod({
   method: "getBusinessAccountStarBalance",
   params: GetBusinessAccountStarBalanceParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
+  result: Schema.suspend(() => Types.StarAmount),
   retrySafe: true,
 });
 
@@ -2182,24 +2299,26 @@ export interface GetBusinessConnectionParams {
   /** Unique identifier of the business connection */
   readonly businessConnectionId: string;
 }
-const _GetBusinessConnectionParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
-const _GetBusinessConnectionParamsWireKeys = invertKeys(_GetBusinessConnectionParamsPublicKeys);
-const _GetBusinessConnectionParamsEncoded = Schema.Struct({
+export const GetBusinessConnectionParams: Schema.Codec<GetBusinessConnectionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
+  });
+  const decoded = Schema.declare<GetBusinessConnectionParams>((input): input is GetBusinessConnectionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetBusinessConnectionParamsDecoded = Schema.declare<GetBusinessConnectionParams>((input): input is GetBusinessConnectionParams => Predicate.isObject(input));
-export const GetBusinessConnectionParams: Schema.Codec<GetBusinessConnectionParams, Readonly<Record<string, unknown>>> = _GetBusinessConnectionParamsEncoded.pipe(
-  Schema.decodeTo(_GetBusinessConnectionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessConnectionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetBusinessConnectionParamsWireKeys)),
-  }),
-);
 
 export const getBusinessConnection = callMethod({
   method: "getBusinessConnection",
   params: GetBusinessConnectionParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.BusinessConnection, unknown> => Types.BusinessConnection),
+  result: Schema.suspend(() => Types.BusinessConnection),
   retrySafe: true,
 });
 
@@ -2208,24 +2327,26 @@ export interface GetChatParams {
   /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
   readonly chatId: number | string;
 }
-const _GetChatParamsPublicKeys = { chat_id: "chatId" } as const;
-const _GetChatParamsWireKeys = invertKeys(_GetChatParamsPublicKeys);
-const _GetChatParamsEncoded = Schema.Struct({
+export const GetChatParams: Schema.Codec<GetChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<GetChatParams>((input): input is GetChatParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatParamsDecoded = Schema.declare<GetChatParams>((input): input is GetChatParams => Predicate.isObject(input));
-export const GetChatParams: Schema.Codec<GetChatParams, Readonly<Record<string, unknown>>> = _GetChatParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatParamsWireKeys)),
-  }),
-);
 
 export const getChat = callMethod({
   method: "getChat",
   params: GetChatParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatFullInfo, unknown> => Types.ChatFullInfo),
+  result: Schema.suspend(() => Types.ChatFullInfo),
   retrySafe: true,
 });
 
@@ -2236,25 +2357,27 @@ export interface GetChatAdministratorsParams {
   /** Pass True to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted. */
   readonly returnBots?: boolean | undefined;
 }
-const _GetChatAdministratorsParamsPublicKeys = { chat_id: "chatId", return_bots: "returnBots" } as const;
-const _GetChatAdministratorsParamsWireKeys = invertKeys(_GetChatAdministratorsParamsPublicKeys);
-const _GetChatAdministratorsParamsEncoded = Schema.Struct({
+export const GetChatAdministratorsParams: Schema.Codec<GetChatAdministratorsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", return_bots: "returnBots" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  return_bots: Schema.optional(Schema.Boolean),
+    return_bots: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<GetChatAdministratorsParams>((input): input is GetChatAdministratorsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatAdministratorsParamsDecoded = Schema.declare<GetChatAdministratorsParams>((input): input is GetChatAdministratorsParams => Predicate.isObject(input));
-export const GetChatAdministratorsParams: Schema.Codec<GetChatAdministratorsParams, Readonly<Record<string, unknown>>> = _GetChatAdministratorsParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatAdministratorsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatAdministratorsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatAdministratorsParamsWireKeys)),
-  }),
-);
 
 export const getChatAdministrators = callMethod({
   method: "getChatAdministrators",
   params: GetChatAdministratorsParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember)),
+  result: Schema.suspend(() => Schema.Array(Types.ChatMember)),
   retrySafe: true,
 });
 
@@ -2283,34 +2406,36 @@ export interface GetChatGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-const _GetChatGiftsParamsPublicKeys = { chat_id: "chatId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
-const _GetChatGiftsParamsWireKeys = invertKeys(_GetChatGiftsParamsPublicKeys);
-const _GetChatGiftsParamsEncoded = Schema.Struct({
+export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  exclude_unsaved: Schema.optional(Schema.Boolean),
-  exclude_saved: Schema.optional(Schema.Boolean),
-  exclude_unlimited: Schema.optional(Schema.Boolean),
-  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
-  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
-  exclude_from_blockchain: Schema.optional(Schema.Boolean),
-  exclude_unique: Schema.optional(Schema.Boolean),
-  sort_by_price: Schema.optional(Schema.Boolean),
-  offset: Schema.optional(Schema.String),
-  limit: Schema.optional(Schema.Int),
+    exclude_unsaved: Schema.optional(Schema.Boolean),
+    exclude_saved: Schema.optional(Schema.Boolean),
+    exclude_unlimited: Schema.optional(Schema.Boolean),
+    exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+    exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+    exclude_from_blockchain: Schema.optional(Schema.Boolean),
+    exclude_unique: Schema.optional(Schema.Boolean),
+    sort_by_price: Schema.optional(Schema.Boolean),
+    offset: Schema.optional(Schema.String),
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetChatGiftsParams>((input): input is GetChatGiftsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatGiftsParamsDecoded = Schema.declare<GetChatGiftsParams>((input): input is GetChatGiftsParams => Predicate.isObject(input));
-export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Record<string, unknown>>> = _GetChatGiftsParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatGiftsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatGiftsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatGiftsParamsWireKeys)),
-  }),
-);
 
 export const getChatGifts = callMethod({
   method: "getChatGifts",
   params: GetChatGiftsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  result: Schema.suspend(() => Types.OwnedGifts),
   retrySafe: true,
 });
 
@@ -2321,25 +2446,27 @@ export interface GetChatMemberParams {
   /** Unique identifier of the target user */
   readonly userId: number;
 }
-const _GetChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
-const _GetChatMemberParamsWireKeys = invertKeys(_GetChatMemberParamsPublicKeys);
-const _GetChatMemberParamsEncoded = Schema.Struct({
+export const GetChatMemberParams: Schema.Codec<GetChatMemberParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
+    user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<GetChatMemberParams>((input): input is GetChatMemberParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatMemberParamsDecoded = Schema.declare<GetChatMemberParams>((input): input is GetChatMemberParams => Predicate.isObject(input));
-export const GetChatMemberParams: Schema.Codec<GetChatMemberParams, Readonly<Record<string, unknown>>> = _GetChatMemberParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatMemberParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberParamsWireKeys)),
-  }),
-);
 
 export const getChatMember = callMethod({
   method: "getChatMember",
   params: GetChatMemberParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatMember, unknown> => Types.ChatMember),
+  result: Schema.suspend(() => Types.ChatMember),
   retrySafe: true,
 });
 
@@ -2348,24 +2475,26 @@ export interface GetChatMemberCountParams {
   /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username */
   readonly chatId: number | string;
 }
-const _GetChatMemberCountParamsPublicKeys = { chat_id: "chatId" } as const;
-const _GetChatMemberCountParamsWireKeys = invertKeys(_GetChatMemberCountParamsPublicKeys);
-const _GetChatMemberCountParamsEncoded = Schema.Struct({
+export const GetChatMemberCountParams: Schema.Codec<GetChatMemberCountParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<GetChatMemberCountParams>((input): input is GetChatMemberCountParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatMemberCountParamsDecoded = Schema.declare<GetChatMemberCountParams>((input): input is GetChatMemberCountParams => Predicate.isObject(input));
-export const GetChatMemberCountParams: Schema.Codec<GetChatMemberCountParams, Readonly<Record<string, unknown>>> = _GetChatMemberCountParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatMemberCountParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberCountParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMemberCountParamsWireKeys)),
-  }),
-);
 
 export const getChatMemberCount = callMethod({
   method: "getChatMemberCount",
   params: GetChatMemberCountParams,
   rateLimit: "none",
-  result: Schema.Int,
+  result: Schema.suspend(() => Schema.Int),
   retrySafe: true,
 });
 
@@ -2374,24 +2503,26 @@ export interface GetChatMenuButtonParams {
   /** Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned. */
   readonly chatId?: number | undefined;
 }
-const _GetChatMenuButtonParamsPublicKeys = { chat_id: "chatId" } as const;
-const _GetChatMenuButtonParamsWireKeys = invertKeys(_GetChatMenuButtonParamsPublicKeys);
-const _GetChatMenuButtonParamsEncoded = Schema.Struct({
+export const GetChatMenuButtonParams: Schema.Codec<GetChatMenuButtonParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetChatMenuButtonParams>((input): input is GetChatMenuButtonParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetChatMenuButtonParamsDecoded = Schema.declare<GetChatMenuButtonParams>((input): input is GetChatMenuButtonParams => Predicate.isObject(input));
-export const GetChatMenuButtonParams: Schema.Codec<GetChatMenuButtonParams, Readonly<Record<string, unknown>>> = _GetChatMenuButtonParamsEncoded.pipe(
-  Schema.decodeTo(_GetChatMenuButtonParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetChatMenuButtonParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetChatMenuButtonParamsWireKeys)),
-  }),
-);
 
 export const getChatMenuButton = callMethod({
   method: "getChatMenuButton",
   params: GetChatMenuButtonParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.MenuButton, unknown> => Types.MenuButton),
+  result: Schema.suspend(() => Types.MenuButton),
   retrySafe: true,
 });
 
@@ -2400,24 +2531,26 @@ export interface GetCustomEmojiStickersParams {
   /** A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified. */
   readonly customEmojiIds: ReadonlyArray<string>;
 }
-const _GetCustomEmojiStickersParamsPublicKeys = { custom_emoji_ids: "customEmojiIds" } as const;
-const _GetCustomEmojiStickersParamsWireKeys = invertKeys(_GetCustomEmojiStickersParamsPublicKeys);
-const _GetCustomEmojiStickersParamsEncoded = Schema.Struct({
+export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { custom_emoji_ids: "customEmojiIds" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   custom_emoji_ids: Schema.Array(Schema.String),
+  });
+  const decoded = Schema.declare<GetCustomEmojiStickersParams>((input): input is GetCustomEmojiStickersParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetCustomEmojiStickersParamsDecoded = Schema.declare<GetCustomEmojiStickersParams>((input): input is GetCustomEmojiStickersParams => Predicate.isObject(input));
-export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersParams, Readonly<Record<string, unknown>>> = _GetCustomEmojiStickersParamsEncoded.pipe(
-  Schema.decodeTo(_GetCustomEmojiStickersParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetCustomEmojiStickersParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetCustomEmojiStickersParamsWireKeys)),
-  }),
-);
 
 export const getCustomEmojiStickers = callMethod({
   method: "getCustomEmojiStickers",
   params: GetCustomEmojiStickersParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
+  result: Schema.suspend(() => Schema.Array(Types.Sticker)),
   retrySafe: true,
 });
 
@@ -2426,24 +2559,26 @@ export interface GetFileParams {
   /** File identifier to get information about */
   readonly fileId: string;
 }
-const _GetFileParamsPublicKeys = { file_id: "fileId" } as const;
-const _GetFileParamsWireKeys = invertKeys(_GetFileParamsPublicKeys);
-const _GetFileParamsEncoded = Schema.Struct({
+export const GetFileParams: Schema.Codec<GetFileParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { file_id: "fileId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   file_id: Schema.String,
+  });
+  const decoded = Schema.declare<GetFileParams>((input): input is GetFileParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetFileParamsDecoded = Schema.declare<GetFileParams>((input): input is GetFileParams => Predicate.isObject(input));
-export const GetFileParams: Schema.Codec<GetFileParams, Readonly<Record<string, unknown>>> = _GetFileParamsEncoded.pipe(
-  Schema.decodeTo(_GetFileParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetFileParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetFileParamsWireKeys)),
-  }),
-);
 
 export const getFile = callMethod({
   method: "getFile",
   params: GetFileParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
+  result: Schema.suspend(() => Types.File),
   retrySafe: true,
 });
 
@@ -2451,7 +2586,7 @@ export const getFile = callMethod({
 export const getForumTopicIconStickers = callMethod({
   method: "getForumTopicIconStickers",
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Sticker, unknown> => Types.Sticker)),
+  result: Schema.suspend(() => Schema.Array(Types.Sticker)),
   retrySafe: true,
 });
 
@@ -2466,27 +2601,29 @@ export interface GetGameHighScoresParams {
   /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
   readonly inlineMessageId?: string | undefined;
 }
-const _GetGameHighScoresParamsPublicKeys = { user_id: "userId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
-const _GetGameHighScoresParamsWireKeys = invertKeys(_GetGameHighScoresParamsPublicKeys);
-const _GetGameHighScoresParamsEncoded = Schema.Struct({
+export const GetGameHighScoresParams: Schema.Codec<GetGameHighScoresParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  chat_id: Schema.optional(Schema.Int),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
+    chat_id: Schema.optional(Schema.Int),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<GetGameHighScoresParams>((input): input is GetGameHighScoresParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetGameHighScoresParamsDecoded = Schema.declare<GetGameHighScoresParams>((input): input is GetGameHighScoresParams => Predicate.isObject(input));
-export const GetGameHighScoresParams: Schema.Codec<GetGameHighScoresParams, Readonly<Record<string, unknown>>> = _GetGameHighScoresParamsEncoded.pipe(
-  Schema.decodeTo(_GetGameHighScoresParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetGameHighScoresParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetGameHighScoresParamsWireKeys)),
-  }),
-);
 
 export const getGameHighScores = callMethod({
   method: "getGameHighScores",
   params: GetGameHighScoresParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.GameHighScore, unknown> => Types.GameHighScore)),
+  result: Schema.suspend(() => Schema.Array(Types.GameHighScore)),
   retrySafe: true,
 });
 
@@ -2495,24 +2632,26 @@ export interface GetManagedBotAccessSettingsParams {
   /** User identifier of the managed bot whose access settings will be returned */
   readonly userId: number;
 }
-const _GetManagedBotAccessSettingsParamsPublicKeys = { user_id: "userId" } as const;
-const _GetManagedBotAccessSettingsParamsWireKeys = invertKeys(_GetManagedBotAccessSettingsParamsPublicKeys);
-const _GetManagedBotAccessSettingsParamsEncoded = Schema.Struct({
+export const GetManagedBotAccessSettingsParams: Schema.Codec<GetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<GetManagedBotAccessSettingsParams>((input): input is GetManagedBotAccessSettingsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetManagedBotAccessSettingsParamsDecoded = Schema.declare<GetManagedBotAccessSettingsParams>((input): input is GetManagedBotAccessSettingsParams => Predicate.isObject(input));
-export const GetManagedBotAccessSettingsParams: Schema.Codec<GetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = _GetManagedBotAccessSettingsParamsEncoded.pipe(
-  Schema.decodeTo(_GetManagedBotAccessSettingsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotAccessSettingsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotAccessSettingsParamsWireKeys)),
-  }),
-);
 
 export const getManagedBotAccessSettings = callMethod({
   method: "getManagedBotAccessSettings",
   params: GetManagedBotAccessSettingsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.BotAccessSettings, unknown> => Types.BotAccessSettings),
+  result: Schema.suspend(() => Types.BotAccessSettings),
   retrySafe: true,
 });
 
@@ -2521,24 +2660,26 @@ export interface GetManagedBotTokenParams {
   /** User identifier of the managed bot whose token will be returned */
   readonly userId: number;
 }
-const _GetManagedBotTokenParamsPublicKeys = { user_id: "userId" } as const;
-const _GetManagedBotTokenParamsWireKeys = invertKeys(_GetManagedBotTokenParamsPublicKeys);
-const _GetManagedBotTokenParamsEncoded = Schema.Struct({
+export const GetManagedBotTokenParams: Schema.Codec<GetManagedBotTokenParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<GetManagedBotTokenParams>((input): input is GetManagedBotTokenParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetManagedBotTokenParamsDecoded = Schema.declare<GetManagedBotTokenParams>((input): input is GetManagedBotTokenParams => Predicate.isObject(input));
-export const GetManagedBotTokenParams: Schema.Codec<GetManagedBotTokenParams, Readonly<Record<string, unknown>>> = _GetManagedBotTokenParamsEncoded.pipe(
-  Schema.decodeTo(_GetManagedBotTokenParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotTokenParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetManagedBotTokenParamsWireKeys)),
-  }),
-);
 
 export const getManagedBotToken = callMethod({
   method: "getManagedBotToken",
   params: GetManagedBotTokenParams,
   rateLimit: "none",
-  result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
+  result: Schema.suspend(() => Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" })),
   retrySafe: true,
 });
 
@@ -2546,7 +2687,7 @@ export const getManagedBotToken = callMethod({
 export const getMe = callMethod({
   method: "getMe",
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.User, unknown> => Types.User),
+  result: Schema.suspend(() => Types.User),
   retrySafe: true,
 });
 
@@ -2557,25 +2698,27 @@ export interface GetMyCommandsParams {
   /** A two-letter ISO 639-1 language code or an empty string */
   readonly languageCode?: string | undefined;
 }
-const _GetMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
-const _GetMyCommandsParamsWireKeys = invertKeys(_GetMyCommandsParamsPublicKeys);
-const _GetMyCommandsParamsEncoded = Schema.Struct({
-  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
-  language_code: Schema.optional(Schema.String),
+export const GetMyCommandsParams: Schema.Codec<GetMyCommandsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
+  scope: Schema.optional(Types.BotCommandScope),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<GetMyCommandsParams>((input): input is GetMyCommandsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetMyCommandsParamsDecoded = Schema.declare<GetMyCommandsParams>((input): input is GetMyCommandsParams => Predicate.isObject(input));
-export const GetMyCommandsParams: Schema.Codec<GetMyCommandsParams, Readonly<Record<string, unknown>>> = _GetMyCommandsParamsEncoded.pipe(
-  Schema.decodeTo(_GetMyCommandsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyCommandsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyCommandsParamsWireKeys)),
-  }),
-);
 
 export const getMyCommands = callMethod({
   method: "getMyCommands",
   params: GetMyCommandsParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.BotCommand, unknown> => Types.BotCommand)),
+  result: Schema.suspend(() => Schema.Array(Types.BotCommand)),
   retrySafe: true,
 });
 
@@ -2584,24 +2727,26 @@ export interface GetMyDefaultAdministratorRightsParams {
   /** Pass True to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned. */
   readonly forChannels?: boolean | undefined;
 }
-const _GetMyDefaultAdministratorRightsParamsPublicKeys = { for_channels: "forChannels" } as const;
-const _GetMyDefaultAdministratorRightsParamsWireKeys = invertKeys(_GetMyDefaultAdministratorRightsParamsPublicKeys);
-const _GetMyDefaultAdministratorRightsParamsEncoded = Schema.Struct({
+export const GetMyDefaultAdministratorRightsParams: Schema.Codec<GetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { for_channels: "forChannels" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   for_channels: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<GetMyDefaultAdministratorRightsParams>((input): input is GetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetMyDefaultAdministratorRightsParamsDecoded = Schema.declare<GetMyDefaultAdministratorRightsParams>((input): input is GetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
-export const GetMyDefaultAdministratorRightsParams: Schema.Codec<GetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = _GetMyDefaultAdministratorRightsParamsEncoded.pipe(
-  Schema.decodeTo(_GetMyDefaultAdministratorRightsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyDefaultAdministratorRightsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyDefaultAdministratorRightsParamsWireKeys)),
-  }),
-);
 
 export const getMyDefaultAdministratorRights = callMethod({
   method: "getMyDefaultAdministratorRights",
   params: GetMyDefaultAdministratorRightsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatAdministratorRights, unknown> => Types.ChatAdministratorRights),
+  result: Schema.suspend(() => Types.ChatAdministratorRights),
   retrySafe: true,
 });
 
@@ -2610,24 +2755,26 @@ export interface GetMyDescriptionParams {
   /** A two-letter ISO 639-1 language code or an empty string */
   readonly languageCode?: string | undefined;
 }
-const _GetMyDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
-const _GetMyDescriptionParamsWireKeys = invertKeys(_GetMyDescriptionParamsPublicKeys);
-const _GetMyDescriptionParamsEncoded = Schema.Struct({
+export const GetMyDescriptionParams: Schema.Codec<GetMyDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<GetMyDescriptionParams>((input): input is GetMyDescriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetMyDescriptionParamsDecoded = Schema.declare<GetMyDescriptionParams>((input): input is GetMyDescriptionParams => Predicate.isObject(input));
-export const GetMyDescriptionParams: Schema.Codec<GetMyDescriptionParams, Readonly<Record<string, unknown>>> = _GetMyDescriptionParamsEncoded.pipe(
-  Schema.decodeTo(_GetMyDescriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyDescriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyDescriptionParamsWireKeys)),
-  }),
-);
 
 export const getMyDescription = callMethod({
   method: "getMyDescription",
   params: GetMyDescriptionParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.BotDescription, unknown> => Types.BotDescription),
+  result: Schema.suspend(() => Types.BotDescription),
   retrySafe: true,
 });
 
@@ -2636,24 +2783,26 @@ export interface GetMyNameParams {
   /** A two-letter ISO 639-1 language code or an empty string */
   readonly languageCode?: string | undefined;
 }
-const _GetMyNameParamsPublicKeys = { language_code: "languageCode" } as const;
-const _GetMyNameParamsWireKeys = invertKeys(_GetMyNameParamsPublicKeys);
-const _GetMyNameParamsEncoded = Schema.Struct({
+export const GetMyNameParams: Schema.Codec<GetMyNameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<GetMyNameParams>((input): input is GetMyNameParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetMyNameParamsDecoded = Schema.declare<GetMyNameParams>((input): input is GetMyNameParams => Predicate.isObject(input));
-export const GetMyNameParams: Schema.Codec<GetMyNameParams, Readonly<Record<string, unknown>>> = _GetMyNameParamsEncoded.pipe(
-  Schema.decodeTo(_GetMyNameParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyNameParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyNameParamsWireKeys)),
-  }),
-);
 
 export const getMyName = callMethod({
   method: "getMyName",
   params: GetMyNameParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.BotName, unknown> => Types.BotName),
+  result: Schema.suspend(() => Types.BotName),
   retrySafe: true,
 });
 
@@ -2662,24 +2811,26 @@ export interface GetMyShortDescriptionParams {
   /** A two-letter ISO 639-1 language code or an empty string */
   readonly languageCode?: string | undefined;
 }
-const _GetMyShortDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
-const _GetMyShortDescriptionParamsWireKeys = invertKeys(_GetMyShortDescriptionParamsPublicKeys);
-const _GetMyShortDescriptionParamsEncoded = Schema.Struct({
+export const GetMyShortDescriptionParams: Schema.Codec<GetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<GetMyShortDescriptionParams>((input): input is GetMyShortDescriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetMyShortDescriptionParamsDecoded = Schema.declare<GetMyShortDescriptionParams>((input): input is GetMyShortDescriptionParams => Predicate.isObject(input));
-export const GetMyShortDescriptionParams: Schema.Codec<GetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = _GetMyShortDescriptionParamsEncoded.pipe(
-  Schema.decodeTo(_GetMyShortDescriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetMyShortDescriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetMyShortDescriptionParamsWireKeys)),
-  }),
-);
 
 export const getMyShortDescription = callMethod({
   method: "getMyShortDescription",
   params: GetMyShortDescriptionParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.BotShortDescription, unknown> => Types.BotShortDescription),
+  result: Schema.suspend(() => Types.BotShortDescription),
   retrySafe: true,
 });
 
@@ -2687,7 +2838,7 @@ export const getMyShortDescription = callMethod({
 export const getMyStarBalance = callMethod({
   method: "getMyStarBalance",
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.StarAmount, unknown> => Types.StarAmount),
+  result: Schema.suspend(() => Types.StarAmount),
   retrySafe: true,
 });
 
@@ -2698,16 +2849,16 @@ export interface GetStarTransactionsParams {
   /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   offset: Schema.optional(Schema.Int),
   limit: Schema.optional(Schema.Int),
-});
+}));
 
 export const getStarTransactions = callMethod({
   method: "getStarTransactions",
   params: GetStarTransactionsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.StarTransactions, unknown> => Types.StarTransactions),
+  result: Schema.suspend(() => Types.StarTransactions),
   retrySafe: true,
 });
 
@@ -2716,15 +2867,15 @@ export interface GetStickerSetParams {
   /** Name of the sticker set */
   readonly name: string;
 }
-export const GetStickerSetParams: Schema.Codec<GetStickerSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const GetStickerSetParams: Schema.Codec<GetStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   name: Schema.String,
-});
+}));
 
 export const getStickerSet = callMethod({
   method: "getStickerSet",
   params: GetStickerSetParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.StickerSet, unknown> => Types.StickerSet),
+  result: Schema.suspend(() => Types.StickerSet),
   retrySafe: true,
 });
 
@@ -2741,27 +2892,29 @@ export interface GetUpdatesParams {
 Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
   readonly allowedUpdates?: ReadonlyArray<Types.UpdateType> | undefined;
 }
-const _GetUpdatesParamsPublicKeys = { allowed_updates: "allowedUpdates" } as const;
-const _GetUpdatesParamsWireKeys = invertKeys(_GetUpdatesParamsPublicKeys);
-const _GetUpdatesParamsEncoded = Schema.Struct({
+export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { allowed_updates: "allowedUpdates" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   offset: Schema.optional(Schema.Int),
-  limit: Schema.optional(Schema.Int),
-  timeout: Schema.optional(Schema.Int),
-  allowed_updates: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.UpdateType, unknown> => Types.UpdateType))),
+    limit: Schema.optional(Schema.Int),
+    timeout: Schema.optional(Schema.Int),
+    allowed_updates: Schema.optional(Schema.Array(Types.UpdateType)),
+  });
+  const decoded = Schema.declare<GetUpdatesParams>((input): input is GetUpdatesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUpdatesParamsDecoded = Schema.declare<GetUpdatesParams>((input): input is GetUpdatesParams => Predicate.isObject(input));
-export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<string, unknown>>> = _GetUpdatesParamsEncoded.pipe(
-  Schema.decodeTo(_GetUpdatesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUpdatesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUpdatesParamsWireKeys)),
-  }),
-);
 
 export const getUpdates = callMethod({
   method: "getUpdates",
   params: GetUpdatesParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Update, unknown> => Types.Update)),
+  result: Schema.suspend(() => Schema.Array(Types.Update)),
   retrySafe: true,
 });
 
@@ -2772,25 +2925,27 @@ export interface GetUserChatBoostsParams {
   /** Unique identifier of the target user */
   readonly userId: number;
 }
-const _GetUserChatBoostsParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
-const _GetUserChatBoostsParamsWireKeys = invertKeys(_GetUserChatBoostsParamsPublicKeys);
-const _GetUserChatBoostsParamsEncoded = Schema.Struct({
+export const GetUserChatBoostsParams: Schema.Codec<GetUserChatBoostsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
+    user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<GetUserChatBoostsParams>((input): input is GetUserChatBoostsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUserChatBoostsParamsDecoded = Schema.declare<GetUserChatBoostsParams>((input): input is GetUserChatBoostsParams => Predicate.isObject(input));
-export const GetUserChatBoostsParams: Schema.Codec<GetUserChatBoostsParams, Readonly<Record<string, unknown>>> = _GetUserChatBoostsParamsEncoded.pipe(
-  Schema.decodeTo(_GetUserChatBoostsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserChatBoostsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserChatBoostsParamsWireKeys)),
-  }),
-);
 
 export const getUserChatBoosts = callMethod({
   method: "getUserChatBoosts",
   params: GetUserChatBoostsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.UserChatBoosts, unknown> => Types.UserChatBoosts),
+  result: Schema.suspend(() => Types.UserChatBoosts),
   retrySafe: true,
 });
 
@@ -2815,32 +2970,34 @@ export interface GetUserGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-const _GetUserGiftsParamsPublicKeys = { user_id: "userId", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
-const _GetUserGiftsParamsWireKeys = invertKeys(_GetUserGiftsParamsPublicKeys);
-const _GetUserGiftsParamsEncoded = Schema.Struct({
+export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  exclude_unlimited: Schema.optional(Schema.Boolean),
-  exclude_limited_upgradable: Schema.optional(Schema.Boolean),
-  exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
-  exclude_from_blockchain: Schema.optional(Schema.Boolean),
-  exclude_unique: Schema.optional(Schema.Boolean),
-  sort_by_price: Schema.optional(Schema.Boolean),
-  offset: Schema.optional(Schema.String),
-  limit: Schema.optional(Schema.Int),
+    exclude_unlimited: Schema.optional(Schema.Boolean),
+    exclude_limited_upgradable: Schema.optional(Schema.Boolean),
+    exclude_limited_non_upgradable: Schema.optional(Schema.Boolean),
+    exclude_from_blockchain: Schema.optional(Schema.Boolean),
+    exclude_unique: Schema.optional(Schema.Boolean),
+    sort_by_price: Schema.optional(Schema.Boolean),
+    offset: Schema.optional(Schema.String),
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetUserGiftsParams>((input): input is GetUserGiftsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUserGiftsParamsDecoded = Schema.declare<GetUserGiftsParams>((input): input is GetUserGiftsParams => Predicate.isObject(input));
-export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Record<string, unknown>>> = _GetUserGiftsParamsEncoded.pipe(
-  Schema.decodeTo(_GetUserGiftsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserGiftsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserGiftsParamsWireKeys)),
-  }),
-);
 
 export const getUserGifts = callMethod({
   method: "getUserGifts",
   params: GetUserGiftsParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.OwnedGifts, unknown> => Types.OwnedGifts),
+  result: Schema.suspend(() => Types.OwnedGifts),
   retrySafe: true,
 });
 
@@ -2851,25 +3008,27 @@ export interface GetUserPersonalChatMessagesParams {
   /** The maximum number of messages to return; 1-20 */
   readonly limit: number;
 }
-const _GetUserPersonalChatMessagesParamsPublicKeys = { user_id: "userId" } as const;
-const _GetUserPersonalChatMessagesParamsWireKeys = invertKeys(_GetUserPersonalChatMessagesParamsPublicKeys);
-const _GetUserPersonalChatMessagesParamsEncoded = Schema.Struct({
+export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChatMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  limit: Schema.Int,
+    limit: Schema.Int,
+  });
+  const decoded = Schema.declare<GetUserPersonalChatMessagesParams>((input): input is GetUserPersonalChatMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUserPersonalChatMessagesParamsDecoded = Schema.declare<GetUserPersonalChatMessagesParams>((input): input is GetUserPersonalChatMessagesParams => Predicate.isObject(input));
-export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChatMessagesParams, Readonly<Record<string, unknown>>> = _GetUserPersonalChatMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_GetUserPersonalChatMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserPersonalChatMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserPersonalChatMessagesParamsWireKeys)),
-  }),
-);
 
 export const getUserPersonalChatMessages = callMethod({
   method: "getUserPersonalChatMessages",
   params: GetUserPersonalChatMessagesParams,
   rateLimit: "none",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
+  result: Schema.suspend(() => Schema.Array(Types.Message)),
   retrySafe: true,
 });
 
@@ -2882,26 +3041,28 @@ export interface GetUserProfileAudiosParams {
   /** Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-const _GetUserProfileAudiosParamsPublicKeys = { user_id: "userId" } as const;
-const _GetUserProfileAudiosParamsWireKeys = invertKeys(_GetUserProfileAudiosParamsPublicKeys);
-const _GetUserProfileAudiosParamsEncoded = Schema.Struct({
+export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  offset: Schema.optional(Schema.Int),
-  limit: Schema.optional(Schema.Int),
+    offset: Schema.optional(Schema.Int),
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetUserProfileAudiosParams>((input): input is GetUserProfileAudiosParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUserProfileAudiosParamsDecoded = Schema.declare<GetUserProfileAudiosParams>((input): input is GetUserProfileAudiosParams => Predicate.isObject(input));
-export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams, Readonly<Record<string, unknown>>> = _GetUserProfileAudiosParamsEncoded.pipe(
-  Schema.decodeTo(_GetUserProfileAudiosParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfileAudiosParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfileAudiosParamsWireKeys)),
-  }),
-);
 
 export const getUserProfileAudios = callMethod({
   method: "getUserProfileAudios",
   params: GetUserProfileAudiosParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.UserProfileAudios, unknown> => Types.UserProfileAudios),
+  result: Schema.suspend(() => Types.UserProfileAudios),
   retrySafe: true,
 });
 
@@ -2914,26 +3075,28 @@ export interface GetUserProfilePhotosParams {
   /** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-const _GetUserProfilePhotosParamsPublicKeys = { user_id: "userId" } as const;
-const _GetUserProfilePhotosParamsWireKeys = invertKeys(_GetUserProfilePhotosParamsPublicKeys);
-const _GetUserProfilePhotosParamsEncoded = Schema.Struct({
+export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  offset: Schema.optional(Schema.Int),
-  limit: Schema.optional(Schema.Int),
+    offset: Schema.optional(Schema.Int),
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetUserProfilePhotosParams>((input): input is GetUserProfilePhotosParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GetUserProfilePhotosParamsDecoded = Schema.declare<GetUserProfilePhotosParams>((input): input is GetUserProfilePhotosParams => Predicate.isObject(input));
-export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams, Readonly<Record<string, unknown>>> = _GetUserProfilePhotosParamsEncoded.pipe(
-  Schema.decodeTo(_GetUserProfilePhotosParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfilePhotosParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GetUserProfilePhotosParamsWireKeys)),
-  }),
-);
 
 export const getUserProfilePhotos = callMethod({
   method: "getUserProfilePhotos",
   params: GetUserProfilePhotosParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.UserProfilePhotos, unknown> => Types.UserProfilePhotos),
+  result: Schema.suspend(() => Types.UserProfilePhotos),
   retrySafe: true,
 });
 
@@ -2941,7 +3104,7 @@ export const getUserProfilePhotos = callMethod({
 export const getWebhookInfo = callMethod({
   method: "getWebhookInfo",
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.WebhookInfo, unknown> => Types.WebhookInfo),
+  result: Schema.suspend(() => Types.WebhookInfo),
   retrySafe: true,
 });
 
@@ -2960,29 +3123,31 @@ export interface GiftPremiumSubscriptionParams {
   /** A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
   readonly textEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
 }
-const _GiftPremiumSubscriptionParamsPublicKeys = { user_id: "userId", month_count: "monthCount", star_count: "starCount", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
-const _GiftPremiumSubscriptionParamsWireKeys = invertKeys(_GiftPremiumSubscriptionParamsPublicKeys);
-const _GiftPremiumSubscriptionParamsEncoded = Schema.Struct({
+export const GiftPremiumSubscriptionParams: Schema.Codec<GiftPremiumSubscriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", month_count: "monthCount", star_count: "starCount", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  month_count: Schema.Int,
-  star_count: Schema.Int,
-  text: Schema.optional(Schema.String),
-  text_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  text_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+    month_count: Schema.Int,
+    star_count: Schema.Int,
+    text: Schema.optional(Schema.String),
+    text_parse_mode: Schema.optional(Types.ParseMode),
+    text_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+  });
+  const decoded = Schema.declare<GiftPremiumSubscriptionParams>((input): input is GiftPremiumSubscriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _GiftPremiumSubscriptionParamsDecoded = Schema.declare<GiftPremiumSubscriptionParams>((input): input is GiftPremiumSubscriptionParams => Predicate.isObject(input));
-export const GiftPremiumSubscriptionParams: Schema.Codec<GiftPremiumSubscriptionParams, Readonly<Record<string, unknown>>> = _GiftPremiumSubscriptionParamsEncoded.pipe(
-  Schema.decodeTo(_GiftPremiumSubscriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_GiftPremiumSubscriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_GiftPremiumSubscriptionParamsWireKeys)),
-  }),
-);
 
 export const giftPremiumSubscription = callMethod({
   method: "giftPremiumSubscription",
   params: GiftPremiumSubscriptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -2991,24 +3156,26 @@ export interface HideGeneralForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _HideGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
-const _HideGeneralForumTopicParamsWireKeys = invertKeys(_HideGeneralForumTopicParamsPublicKeys);
-const _HideGeneralForumTopicParamsEncoded = Schema.Struct({
+export const HideGeneralForumTopicParams: Schema.Codec<HideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<HideGeneralForumTopicParams>((input): input is HideGeneralForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _HideGeneralForumTopicParamsDecoded = Schema.declare<HideGeneralForumTopicParams>((input): input is HideGeneralForumTopicParams => Predicate.isObject(input));
-export const HideGeneralForumTopicParams: Schema.Codec<HideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _HideGeneralForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_HideGeneralForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_HideGeneralForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_HideGeneralForumTopicParamsWireKeys)),
-  }),
-);
 
 export const hideGeneralForumTopic = callMethod({
   method: "hideGeneralForumTopic",
   params: HideGeneralForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3017,24 +3184,26 @@ export interface LeaveChatParams {
   /** Unique identifier for the target chat or username of the target supergroup or channel in the format @username. Channel direct messages chats aren't supported; leave the corresponding channel instead. */
   readonly chatId: number | string;
 }
-const _LeaveChatParamsPublicKeys = { chat_id: "chatId" } as const;
-const _LeaveChatParamsWireKeys = invertKeys(_LeaveChatParamsPublicKeys);
-const _LeaveChatParamsEncoded = Schema.Struct({
+export const LeaveChatParams: Schema.Codec<LeaveChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<LeaveChatParams>((input): input is LeaveChatParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _LeaveChatParamsDecoded = Schema.declare<LeaveChatParams>((input): input is LeaveChatParams => Predicate.isObject(input));
-export const LeaveChatParams: Schema.Codec<LeaveChatParams, Readonly<Record<string, unknown>>> = _LeaveChatParamsEncoded.pipe(
-  Schema.decodeTo(_LeaveChatParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_LeaveChatParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_LeaveChatParamsWireKeys)),
-  }),
-);
 
 export const leaveChat = callMethod({
   method: "leaveChat",
   params: LeaveChatParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3042,7 +3211,7 @@ export const leaveChat = callMethod({
 export const logOut = callMethod({
   method: "logOut",
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3057,27 +3226,29 @@ export interface PinChatMessageParams {
   /** Pass True if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats. */
   readonly disableNotification?: boolean | undefined;
 }
-const _PinChatMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", disable_notification: "disableNotification" } as const;
-const _PinChatMessageParamsWireKeys = invertKeys(_PinChatMessageParamsPublicKeys);
-const _PinChatMessageParamsEncoded = Schema.Struct({
+export const PinChatMessageParams: Schema.Codec<PinChatMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", disable_notification: "disableNotification" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  disable_notification: Schema.optional(Schema.Boolean),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_id: Schema.Int,
+    disable_notification: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<PinChatMessageParams>((input): input is PinChatMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _PinChatMessageParamsDecoded = Schema.declare<PinChatMessageParams>((input): input is PinChatMessageParams => Predicate.isObject(input));
-export const PinChatMessageParams: Schema.Codec<PinChatMessageParams, Readonly<Record<string, unknown>>> = _PinChatMessageParamsEncoded.pipe(
-  Schema.decodeTo(_PinChatMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_PinChatMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_PinChatMessageParamsWireKeys)),
-  }),
-);
 
 export const pinChatMessage = callMethod({
   method: "pinChatMessage",
   params: PinChatMessageParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -3102,32 +3273,34 @@ export interface PostStoryParams {
   /** Pass True if the content of the story must be protected from forwarding and screenshotting */
   readonly protectContent?: boolean | undefined;
 }
-const _PostStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", active_period: "activePeriod", parse_mode: "parseMode", caption_entities: "captionEntities", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
-const _PostStoryParamsWireKeys = invertKeys(_PostStoryParamsPublicKeys);
-const _PostStoryParamsEncoded = Schema.Struct({
+export const PostStoryParams: Schema.Codec<PostStoryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", active_period: "activePeriod", parse_mode: "parseMode", caption_entities: "captionEntities", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  content: Schema.suspend((): Schema.Codec<Types.InputStoryContent, unknown> => Types.InputStoryContent),
-  active_period: Schema.Int,
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  areas: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.StoryArea, unknown> => Types.StoryArea))),
-  post_to_chat_page: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
+    content: Types.InputStoryContent,
+    active_period: Schema.Int,
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    areas: Schema.optional(Schema.Array(Types.StoryArea)),
+    post_to_chat_page: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<PostStoryParams>((input): input is PostStoryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _PostStoryParamsDecoded = Schema.declare<PostStoryParams>((input): input is PostStoryParams => Predicate.isObject(input));
-export const PostStoryParams: Schema.Codec<PostStoryParams, Readonly<Record<string, unknown>>> = _PostStoryParamsEncoded.pipe(
-  Schema.decodeTo(_PostStoryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_PostStoryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_PostStoryParamsWireKeys)),
-  }),
-);
 
 export const postStory = callMethod({
   method: "postStory",
   params: PostStoryParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  result: Schema.suspend(() => Types.Story),
   retrySafe: false,
 });
 
@@ -3174,43 +3347,45 @@ export interface PromoteChatMemberParams {
   /** Pass True if the administrator can manage chat welcome messages or directly send them in the case of bots */
   readonly canSendWelcomeMessages?: boolean | undefined;
 }
-const _PromoteChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", is_anonymous: "isAnonymous", can_manage_chat: "canManageChat", can_delete_messages: "canDeleteMessages", can_manage_video_chats: "canManageVideoChats", can_restrict_members: "canRestrictMembers", can_promote_members: "canPromoteMembers", can_change_info: "canChangeInfo", can_invite_users: "canInviteUsers", can_post_stories: "canPostStories", can_edit_stories: "canEditStories", can_delete_stories: "canDeleteStories", can_post_messages: "canPostMessages", can_edit_messages: "canEditMessages", can_pin_messages: "canPinMessages", can_manage_topics: "canManageTopics", can_manage_direct_messages: "canManageDirectMessages", can_manage_tags: "canManageTags", can_send_welcome_messages: "canSendWelcomeMessages" } as const;
-const _PromoteChatMemberParamsWireKeys = invertKeys(_PromoteChatMemberParamsPublicKeys);
-const _PromoteChatMemberParamsEncoded = Schema.Struct({
+export const PromoteChatMemberParams: Schema.Codec<PromoteChatMemberParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", is_anonymous: "isAnonymous", can_manage_chat: "canManageChat", can_delete_messages: "canDeleteMessages", can_manage_video_chats: "canManageVideoChats", can_restrict_members: "canRestrictMembers", can_promote_members: "canPromoteMembers", can_change_info: "canChangeInfo", can_invite_users: "canInviteUsers", can_post_stories: "canPostStories", can_edit_stories: "canEditStories", can_delete_stories: "canDeleteStories", can_post_messages: "canPostMessages", can_edit_messages: "canEditMessages", can_pin_messages: "canPinMessages", can_manage_topics: "canManageTopics", can_manage_direct_messages: "canManageDirectMessages", can_manage_tags: "canManageTags", can_send_welcome_messages: "canSendWelcomeMessages" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  is_anonymous: Schema.optional(Schema.Boolean),
-  can_manage_chat: Schema.optional(Schema.Boolean),
-  can_delete_messages: Schema.optional(Schema.Boolean),
-  can_manage_video_chats: Schema.optional(Schema.Boolean),
-  can_restrict_members: Schema.optional(Schema.Boolean),
-  can_promote_members: Schema.optional(Schema.Boolean),
-  can_change_info: Schema.optional(Schema.Boolean),
-  can_invite_users: Schema.optional(Schema.Boolean),
-  can_post_stories: Schema.optional(Schema.Boolean),
-  can_edit_stories: Schema.optional(Schema.Boolean),
-  can_delete_stories: Schema.optional(Schema.Boolean),
-  can_post_messages: Schema.optional(Schema.Boolean),
-  can_edit_messages: Schema.optional(Schema.Boolean),
-  can_pin_messages: Schema.optional(Schema.Boolean),
-  can_manage_topics: Schema.optional(Schema.Boolean),
-  can_manage_direct_messages: Schema.optional(Schema.Boolean),
-  can_manage_tags: Schema.optional(Schema.Boolean),
-  can_send_welcome_messages: Schema.optional(Schema.Boolean),
+    user_id: Schema.Int,
+    is_anonymous: Schema.optional(Schema.Boolean),
+    can_manage_chat: Schema.optional(Schema.Boolean),
+    can_delete_messages: Schema.optional(Schema.Boolean),
+    can_manage_video_chats: Schema.optional(Schema.Boolean),
+    can_restrict_members: Schema.optional(Schema.Boolean),
+    can_promote_members: Schema.optional(Schema.Boolean),
+    can_change_info: Schema.optional(Schema.Boolean),
+    can_invite_users: Schema.optional(Schema.Boolean),
+    can_post_stories: Schema.optional(Schema.Boolean),
+    can_edit_stories: Schema.optional(Schema.Boolean),
+    can_delete_stories: Schema.optional(Schema.Boolean),
+    can_post_messages: Schema.optional(Schema.Boolean),
+    can_edit_messages: Schema.optional(Schema.Boolean),
+    can_pin_messages: Schema.optional(Schema.Boolean),
+    can_manage_topics: Schema.optional(Schema.Boolean),
+    can_manage_direct_messages: Schema.optional(Schema.Boolean),
+    can_manage_tags: Schema.optional(Schema.Boolean),
+    can_send_welcome_messages: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<PromoteChatMemberParams>((input): input is PromoteChatMemberParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _PromoteChatMemberParamsDecoded = Schema.declare<PromoteChatMemberParams>((input): input is PromoteChatMemberParams => Predicate.isObject(input));
-export const PromoteChatMemberParams: Schema.Codec<PromoteChatMemberParams, Readonly<Record<string, unknown>>> = _PromoteChatMemberParamsEncoded.pipe(
-  Schema.decodeTo(_PromoteChatMemberParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_PromoteChatMemberParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_PromoteChatMemberParamsWireKeys)),
-  }),
-);
 
 export const promoteChatMember = callMethod({
   method: "promoteChatMember",
   params: PromoteChatMemberParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3223,26 +3398,28 @@ export interface ReadBusinessMessageParams {
   /** Unique identifier of the message to mark as read */
   readonly messageId: number;
 }
-const _ReadBusinessMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
-const _ReadBusinessMessageParamsWireKeys = invertKeys(_ReadBusinessMessageParamsPublicKeys);
-const _ReadBusinessMessageParamsEncoded = Schema.Struct({
+export const ReadBusinessMessageParams: Schema.Codec<ReadBusinessMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  chat_id: Schema.Int,
-  message_id: Schema.Int,
+    chat_id: Schema.Int,
+    message_id: Schema.Int,
+  });
+  const decoded = Schema.declare<ReadBusinessMessageParams>((input): input is ReadBusinessMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ReadBusinessMessageParamsDecoded = Schema.declare<ReadBusinessMessageParams>((input): input is ReadBusinessMessageParams => Predicate.isObject(input));
-export const ReadBusinessMessageParams: Schema.Codec<ReadBusinessMessageParams, Readonly<Record<string, unknown>>> = _ReadBusinessMessageParamsEncoded.pipe(
-  Schema.decodeTo(_ReadBusinessMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ReadBusinessMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ReadBusinessMessageParamsWireKeys)),
-  }),
-);
 
 export const readBusinessMessage = callMethod({
   method: "readBusinessMessage",
   params: ReadBusinessMessageParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3253,25 +3430,27 @@ export interface RefundStarPaymentParams {
   /** Telegram payment identifier */
   readonly telegramPaymentChargeId: string;
 }
-const _RefundStarPaymentParamsPublicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId" } as const;
-const _RefundStarPaymentParamsWireKeys = invertKeys(_RefundStarPaymentParamsPublicKeys);
-const _RefundStarPaymentParamsEncoded = Schema.Struct({
+export const RefundStarPaymentParams: Schema.Codec<RefundStarPaymentParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", telegram_payment_charge_id: "telegramPaymentChargeId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  telegram_payment_charge_id: Schema.String,
+    telegram_payment_charge_id: Schema.String,
+  });
+  const decoded = Schema.declare<RefundStarPaymentParams>((input): input is RefundStarPaymentParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RefundStarPaymentParamsDecoded = Schema.declare<RefundStarPaymentParams>((input): input is RefundStarPaymentParams => Predicate.isObject(input));
-export const RefundStarPaymentParams: Schema.Codec<RefundStarPaymentParams, Readonly<Record<string, unknown>>> = _RefundStarPaymentParamsEncoded.pipe(
-  Schema.decodeTo(_RefundStarPaymentParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RefundStarPaymentParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RefundStarPaymentParamsWireKeys)),
-  }),
-);
 
 export const refundStarPayment = callMethod({
   method: "refundStarPayment",
   params: RefundStarPaymentParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3282,25 +3461,27 @@ export interface RemoveBusinessAccountProfilePhotoParams {
   /** Pass True to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo. */
   readonly isPublic?: boolean | undefined;
 }
-const _RemoveBusinessAccountProfilePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
-const _RemoveBusinessAccountProfilePhotoParamsWireKeys = invertKeys(_RemoveBusinessAccountProfilePhotoParamsPublicKeys);
-const _RemoveBusinessAccountProfilePhotoParamsEncoded = Schema.Struct({
+export const RemoveBusinessAccountProfilePhotoParams: Schema.Codec<RemoveBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  is_public: Schema.optional(Schema.Boolean),
+    is_public: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<RemoveBusinessAccountProfilePhotoParams>((input): input is RemoveBusinessAccountProfilePhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RemoveBusinessAccountProfilePhotoParamsDecoded = Schema.declare<RemoveBusinessAccountProfilePhotoParams>((input): input is RemoveBusinessAccountProfilePhotoParams => Predicate.isObject(input));
-export const RemoveBusinessAccountProfilePhotoParams: Schema.Codec<RemoveBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = _RemoveBusinessAccountProfilePhotoParamsEncoded.pipe(
-  Schema.decodeTo(_RemoveBusinessAccountProfilePhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveBusinessAccountProfilePhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveBusinessAccountProfilePhotoParamsWireKeys)),
-  }),
-);
 
 export const removeBusinessAccountProfilePhoto = callMethod({
   method: "removeBusinessAccountProfilePhoto",
   params: RemoveBusinessAccountProfilePhotoParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3309,24 +3490,26 @@ export interface RemoveChatVerificationParams {
   /** Unique identifier for the target chat or username of the target bot or channel in the format @username */
   readonly chatId: number | string;
 }
-const _RemoveChatVerificationParamsPublicKeys = { chat_id: "chatId" } as const;
-const _RemoveChatVerificationParamsWireKeys = invertKeys(_RemoveChatVerificationParamsPublicKeys);
-const _RemoveChatVerificationParamsEncoded = Schema.Struct({
+export const RemoveChatVerificationParams: Schema.Codec<RemoveChatVerificationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<RemoveChatVerificationParams>((input): input is RemoveChatVerificationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RemoveChatVerificationParamsDecoded = Schema.declare<RemoveChatVerificationParams>((input): input is RemoveChatVerificationParams => Predicate.isObject(input));
-export const RemoveChatVerificationParams: Schema.Codec<RemoveChatVerificationParams, Readonly<Record<string, unknown>>> = _RemoveChatVerificationParamsEncoded.pipe(
-  Schema.decodeTo(_RemoveChatVerificationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveChatVerificationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveChatVerificationParamsWireKeys)),
-  }),
-);
 
 export const removeChatVerification = callMethod({
   method: "removeChatVerification",
   params: RemoveChatVerificationParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3334,7 +3517,7 @@ export const removeChatVerification = callMethod({
 export const removeMyProfilePhoto = callMethod({
   method: "removeMyProfilePhoto",
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3343,24 +3526,26 @@ export interface RemoveUserVerificationParams {
   /** Unique identifier of the target user */
   readonly userId: number;
 }
-const _RemoveUserVerificationParamsPublicKeys = { user_id: "userId" } as const;
-const _RemoveUserVerificationParamsWireKeys = invertKeys(_RemoveUserVerificationParamsPublicKeys);
-const _RemoveUserVerificationParamsEncoded = Schema.Struct({
+export const RemoveUserVerificationParams: Schema.Codec<RemoveUserVerificationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<RemoveUserVerificationParams>((input): input is RemoveUserVerificationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RemoveUserVerificationParamsDecoded = Schema.declare<RemoveUserVerificationParams>((input): input is RemoveUserVerificationParams => Predicate.isObject(input));
-export const RemoveUserVerificationParams: Schema.Codec<RemoveUserVerificationParams, Readonly<Record<string, unknown>>> = _RemoveUserVerificationParamsEncoded.pipe(
-  Schema.decodeTo(_RemoveUserVerificationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RemoveUserVerificationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RemoveUserVerificationParamsWireKeys)),
-  }),
-);
 
 export const removeUserVerification = callMethod({
   method: "removeUserVerification",
   params: RemoveUserVerificationParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3371,25 +3556,27 @@ export interface ReopenForumTopicParams {
   /** Unique identifier for the target message thread of the forum topic */
   readonly messageThreadId: number;
 }
-const _ReopenForumTopicParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
-const _ReopenForumTopicParamsWireKeys = invertKeys(_ReopenForumTopicParamsPublicKeys);
-const _ReopenForumTopicParamsEncoded = Schema.Struct({
+export const ReopenForumTopicParams: Schema.Codec<ReopenForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.Int,
+    message_thread_id: Schema.Int,
+  });
+  const decoded = Schema.declare<ReopenForumTopicParams>((input): input is ReopenForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ReopenForumTopicParamsDecoded = Schema.declare<ReopenForumTopicParams>((input): input is ReopenForumTopicParams => Predicate.isObject(input));
-export const ReopenForumTopicParams: Schema.Codec<ReopenForumTopicParams, Readonly<Record<string, unknown>>> = _ReopenForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_ReopenForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ReopenForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ReopenForumTopicParamsWireKeys)),
-  }),
-);
 
 export const reopenForumTopic = callMethod({
   method: "reopenForumTopic",
   params: ReopenForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3398,24 +3585,26 @@ export interface ReopenGeneralForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _ReopenGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
-const _ReopenGeneralForumTopicParamsWireKeys = invertKeys(_ReopenGeneralForumTopicParamsPublicKeys);
-const _ReopenGeneralForumTopicParamsEncoded = Schema.Struct({
+export const ReopenGeneralForumTopicParams: Schema.Codec<ReopenGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<ReopenGeneralForumTopicParams>((input): input is ReopenGeneralForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ReopenGeneralForumTopicParamsDecoded = Schema.declare<ReopenGeneralForumTopicParams>((input): input is ReopenGeneralForumTopicParams => Predicate.isObject(input));
-export const ReopenGeneralForumTopicParams: Schema.Codec<ReopenGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _ReopenGeneralForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_ReopenGeneralForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ReopenGeneralForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ReopenGeneralForumTopicParamsWireKeys)),
-  }),
-);
 
 export const reopenGeneralForumTopic = callMethod({
   method: "reopenGeneralForumTopic",
   params: ReopenGeneralForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3424,24 +3613,26 @@ export interface ReplaceManagedBotTokenParams {
   /** User identifier of the managed bot whose token will be replaced */
   readonly userId: number;
 }
-const _ReplaceManagedBotTokenParamsPublicKeys = { user_id: "userId" } as const;
-const _ReplaceManagedBotTokenParamsWireKeys = invertKeys(_ReplaceManagedBotTokenParamsPublicKeys);
-const _ReplaceManagedBotTokenParamsEncoded = Schema.Struct({
+export const ReplaceManagedBotTokenParams: Schema.Codec<ReplaceManagedBotTokenParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
+  });
+  const decoded = Schema.declare<ReplaceManagedBotTokenParams>((input): input is ReplaceManagedBotTokenParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ReplaceManagedBotTokenParamsDecoded = Schema.declare<ReplaceManagedBotTokenParams>((input): input is ReplaceManagedBotTokenParams => Predicate.isObject(input));
-export const ReplaceManagedBotTokenParams: Schema.Codec<ReplaceManagedBotTokenParams, Readonly<Record<string, unknown>>> = _ReplaceManagedBotTokenParamsEncoded.pipe(
-  Schema.decodeTo(_ReplaceManagedBotTokenParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ReplaceManagedBotTokenParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ReplaceManagedBotTokenParamsWireKeys)),
-  }),
-);
 
 export const replaceManagedBotToken = callMethod({
   method: "replaceManagedBotToken",
   params: ReplaceManagedBotTokenParams,
   rateLimit: "none",
-  result: Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" }),
+  result: Schema.suspend(() => Schema.RedactedFromValue(Schema.String, { label: "Telegram bot token" })),
   retrySafe: false,
 });
 
@@ -3456,27 +3647,29 @@ export interface ReplaceStickerInSetParams {
   /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged. */
   readonly sticker: Types.InputSticker;
 }
-const _ReplaceStickerInSetParamsPublicKeys = { user_id: "userId", old_sticker: "oldSticker" } as const;
-const _ReplaceStickerInSetParamsWireKeys = invertKeys(_ReplaceStickerInSetParamsPublicKeys);
-const _ReplaceStickerInSetParamsEncoded = Schema.Struct({
+export const ReplaceStickerInSetParams: Schema.Codec<ReplaceStickerInSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", old_sticker: "oldSticker" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  name: Schema.String,
-  old_sticker: Schema.String,
-  sticker: Schema.suspend((): Schema.Codec<Types.InputSticker, unknown> => Types.InputSticker),
+    name: Schema.String,
+    old_sticker: Schema.String,
+    sticker: Types.InputSticker,
+  });
+  const decoded = Schema.declare<ReplaceStickerInSetParams>((input): input is ReplaceStickerInSetParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _ReplaceStickerInSetParamsDecoded = Schema.declare<ReplaceStickerInSetParams>((input): input is ReplaceStickerInSetParams => Predicate.isObject(input));
-export const ReplaceStickerInSetParams: Schema.Codec<ReplaceStickerInSetParams, Readonly<Record<string, unknown>>> = _ReplaceStickerInSetParamsEncoded.pipe(
-  Schema.decodeTo(_ReplaceStickerInSetParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_ReplaceStickerInSetParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_ReplaceStickerInSetParamsWireKeys)),
-  }),
-);
 
 export const replaceStickerInSet = callMethod({
   method: "replaceStickerInSet",
   params: ReplaceStickerInSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3495,29 +3688,31 @@ export interface RepostStoryParams {
   /** Pass True if the content of the story must be protected from forwarding and screenshotting */
   readonly protectContent?: boolean | undefined;
 }
-const _RepostStoryParamsPublicKeys = { business_connection_id: "businessConnectionId", from_chat_id: "fromChatId", from_story_id: "fromStoryId", active_period: "activePeriod", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
-const _RepostStoryParamsWireKeys = invertKeys(_RepostStoryParamsPublicKeys);
-const _RepostStoryParamsEncoded = Schema.Struct({
+export const RepostStoryParams: Schema.Codec<RepostStoryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", from_chat_id: "fromChatId", from_story_id: "fromStoryId", active_period: "activePeriod", post_to_chat_page: "postToChatPage", protect_content: "protectContent" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  from_chat_id: Schema.Int,
-  from_story_id: Schema.Int,
-  active_period: Schema.Int,
-  post_to_chat_page: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
+    from_chat_id: Schema.Int,
+    from_story_id: Schema.Int,
+    active_period: Schema.Int,
+    post_to_chat_page: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<RepostStoryParams>((input): input is RepostStoryParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RepostStoryParamsDecoded = Schema.declare<RepostStoryParams>((input): input is RepostStoryParams => Predicate.isObject(input));
-export const RepostStoryParams: Schema.Codec<RepostStoryParams, Readonly<Record<string, unknown>>> = _RepostStoryParamsEncoded.pipe(
-  Schema.decodeTo(_RepostStoryParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RepostStoryParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RepostStoryParamsWireKeys)),
-  }),
-);
 
 export const repostStory = callMethod({
   method: "repostStory",
   params: RepostStoryParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Story, unknown> => Types.Story),
+  result: Schema.suspend(() => Types.Story),
   retrySafe: false,
 });
 
@@ -3534,28 +3729,30 @@ export interface RestrictChatMemberParams {
   /** Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever. */
   readonly untilDate?: number | undefined;
 }
-const _RestrictChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", use_independent_chat_permissions: "useIndependentChatPermissions", until_date: "untilDate" } as const;
-const _RestrictChatMemberParamsWireKeys = invertKeys(_RestrictChatMemberParamsPublicKeys);
-const _RestrictChatMemberParamsEncoded = Schema.Struct({
+export const RestrictChatMemberParams: Schema.Codec<RestrictChatMemberParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", use_independent_chat_permissions: "useIndependentChatPermissions", until_date: "untilDate" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  permissions: Schema.suspend((): Schema.Codec<Types.ChatPermissions, unknown> => Types.ChatPermissions),
-  use_independent_chat_permissions: Schema.optional(Schema.Boolean),
-  until_date: Schema.optional(Schema.Int),
+    user_id: Schema.Int,
+    permissions: Types.ChatPermissions,
+    use_independent_chat_permissions: Schema.optional(Schema.Boolean),
+    until_date: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<RestrictChatMemberParams>((input): input is RestrictChatMemberParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RestrictChatMemberParamsDecoded = Schema.declare<RestrictChatMemberParams>((input): input is RestrictChatMemberParams => Predicate.isObject(input));
-export const RestrictChatMemberParams: Schema.Codec<RestrictChatMemberParams, Readonly<Record<string, unknown>>> = _RestrictChatMemberParamsEncoded.pipe(
-  Schema.decodeTo(_RestrictChatMemberParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RestrictChatMemberParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RestrictChatMemberParamsWireKeys)),
-  }),
-);
 
 export const restrictChatMember = callMethod({
   method: "restrictChatMember",
   params: RestrictChatMemberParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3566,25 +3763,27 @@ export interface RevokeChatInviteLinkParams {
   /** The invite link to revoke */
   readonly inviteLink: string;
 }
-const _RevokeChatInviteLinkParamsPublicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
-const _RevokeChatInviteLinkParamsWireKeys = invertKeys(_RevokeChatInviteLinkParamsPublicKeys);
-const _RevokeChatInviteLinkParamsEncoded = Schema.Struct({
+export const RevokeChatInviteLinkParams: Schema.Codec<RevokeChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  invite_link: Schema.String,
+    invite_link: Schema.String,
+  });
+  const decoded = Schema.declare<RevokeChatInviteLinkParams>((input): input is RevokeChatInviteLinkParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _RevokeChatInviteLinkParamsDecoded = Schema.declare<RevokeChatInviteLinkParams>((input): input is RevokeChatInviteLinkParams => Predicate.isObject(input));
-export const RevokeChatInviteLinkParams: Schema.Codec<RevokeChatInviteLinkParams, Readonly<Record<string, unknown>>> = _RevokeChatInviteLinkParamsEncoded.pipe(
-  Schema.decodeTo(_RevokeChatInviteLinkParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_RevokeChatInviteLinkParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_RevokeChatInviteLinkParamsWireKeys)),
-  }),
-);
 
 export const revokeChatInviteLink = callMethod({
   method: "revokeChatInviteLink",
   params: RevokeChatInviteLinkParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.ChatInviteLink, unknown> => Types.ChatInviteLink),
+  result: Schema.suspend(() => Types.ChatInviteLink),
   retrySafe: true,
 });
 
@@ -3603,29 +3802,31 @@ export interface SavePreparedInlineMessageParams {
   /** Pass True if the message can be sent to channel chats */
   readonly allowChannelChats?: boolean | undefined;
 }
-const _SavePreparedInlineMessageParamsPublicKeys = { user_id: "userId", allow_user_chats: "allowUserChats", allow_bot_chats: "allowBotChats", allow_group_chats: "allowGroupChats", allow_channel_chats: "allowChannelChats" } as const;
-const _SavePreparedInlineMessageParamsWireKeys = invertKeys(_SavePreparedInlineMessageParamsPublicKeys);
-const _SavePreparedInlineMessageParamsEncoded = Schema.Struct({
+export const SavePreparedInlineMessageParams: Schema.Codec<SavePreparedInlineMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", allow_user_chats: "allowUserChats", allow_bot_chats: "allowBotChats", allow_group_chats: "allowGroupChats", allow_channel_chats: "allowChannelChats" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  result: Schema.suspend((): Schema.Codec<Types.InlineQueryResult, unknown> => Types.InlineQueryResult),
-  allow_user_chats: Schema.optional(Schema.Boolean),
-  allow_bot_chats: Schema.optional(Schema.Boolean),
-  allow_group_chats: Schema.optional(Schema.Boolean),
-  allow_channel_chats: Schema.optional(Schema.Boolean),
+    result: Types.InlineQueryResult,
+    allow_user_chats: Schema.optional(Schema.Boolean),
+    allow_bot_chats: Schema.optional(Schema.Boolean),
+    allow_group_chats: Schema.optional(Schema.Boolean),
+    allow_channel_chats: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SavePreparedInlineMessageParams>((input): input is SavePreparedInlineMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SavePreparedInlineMessageParamsDecoded = Schema.declare<SavePreparedInlineMessageParams>((input): input is SavePreparedInlineMessageParams => Predicate.isObject(input));
-export const SavePreparedInlineMessageParams: Schema.Codec<SavePreparedInlineMessageParams, Readonly<Record<string, unknown>>> = _SavePreparedInlineMessageParamsEncoded.pipe(
-  Schema.decodeTo(_SavePreparedInlineMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedInlineMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedInlineMessageParamsWireKeys)),
-  }),
-);
 
 export const savePreparedInlineMessage = callMethod({
   method: "savePreparedInlineMessage",
   params: SavePreparedInlineMessageParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.PreparedInlineMessage, unknown> => Types.PreparedInlineMessage),
+  result: Schema.suspend(() => Types.PreparedInlineMessage),
   retrySafe: false,
 });
 
@@ -3636,25 +3837,27 @@ export interface SavePreparedKeyboardButtonParams {
   /** A JSON-serialized object describing the button to be saved. The button must be of the type request_users, request_chat, or request_managed_bot. */
   readonly button: Types.KeyboardButton;
 }
-const _SavePreparedKeyboardButtonParamsPublicKeys = { user_id: "userId" } as const;
-const _SavePreparedKeyboardButtonParamsWireKeys = invertKeys(_SavePreparedKeyboardButtonParamsPublicKeys);
-const _SavePreparedKeyboardButtonParamsEncoded = Schema.Struct({
+export const SavePreparedKeyboardButtonParams: Schema.Codec<SavePreparedKeyboardButtonParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  button: Schema.suspend((): Schema.Codec<Types.KeyboardButton, unknown> => Types.KeyboardButton),
+    button: Types.KeyboardButton,
+  });
+  const decoded = Schema.declare<SavePreparedKeyboardButtonParams>((input): input is SavePreparedKeyboardButtonParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SavePreparedKeyboardButtonParamsDecoded = Schema.declare<SavePreparedKeyboardButtonParams>((input): input is SavePreparedKeyboardButtonParams => Predicate.isObject(input));
-export const SavePreparedKeyboardButtonParams: Schema.Codec<SavePreparedKeyboardButtonParams, Readonly<Record<string, unknown>>> = _SavePreparedKeyboardButtonParamsEncoded.pipe(
-  Schema.decodeTo(_SavePreparedKeyboardButtonParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedKeyboardButtonParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SavePreparedKeyboardButtonParamsWireKeys)),
-  }),
-);
 
 export const savePreparedKeyboardButton = callMethod({
   method: "savePreparedKeyboardButton",
   params: SavePreparedKeyboardButtonParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.PreparedKeyboardButton, unknown> => Types.PreparedKeyboardButton),
+  result: Schema.suspend(() => Types.PreparedKeyboardButton),
   retrySafe: false,
 });
 
@@ -3705,45 +3908,47 @@ export interface SendAnimationParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendAnimationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendAnimationParamsWireKeys = invertKeys(_SendAnimationParamsPublicKeys);
-const _SendAnimationParamsEncoded = Schema.Struct({
+export const SendAnimationParams: Schema.Codec<SendAnimationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  animation: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  duration: Schema.optional(Schema.Int),
-  width: Schema.optional(Schema.Int),
-  height: Schema.optional(Schema.Int),
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  has_spoiler: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    animation: Schema.Union([Types.InputFile, Schema.String]),
+    duration: Schema.optional(Schema.Int),
+    width: Schema.optional(Schema.Int),
+    height: Schema.optional(Schema.Int),
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    has_spoiler: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendAnimationParams>((input): input is SendAnimationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendAnimationParamsDecoded = Schema.declare<SendAnimationParams>((input): input is SendAnimationParams => Predicate.isObject(input));
-export const SendAnimationParams: Schema.Codec<SendAnimationParams, Readonly<Record<string, unknown>>> = _SendAnimationParamsEncoded.pipe(
-  Schema.decodeTo(_SendAnimationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendAnimationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendAnimationParamsWireKeys)),
-  }),
-);
 
 export const sendAnimation = callMethod({
   method: "sendAnimation",
   params: SendAnimationParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -3790,43 +3995,45 @@ export interface SendAudioParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendAudioParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendAudioParamsWireKeys = invertKeys(_SendAudioParamsPublicKeys);
-const _SendAudioParamsEncoded = Schema.Struct({
+export const SendAudioParams: Schema.Codec<SendAudioParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  audio: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  duration: Schema.optional(Schema.Int),
-  performer: Schema.optional(Schema.String),
-  title: Schema.optional(Schema.String),
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    audio: Schema.Union([Types.InputFile, Schema.String]),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    duration: Schema.optional(Schema.Int),
+    performer: Schema.optional(Schema.String),
+    title: Schema.optional(Schema.String),
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendAudioParams>((input): input is SendAudioParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendAudioParamsDecoded = Schema.declare<SendAudioParams>((input): input is SendAudioParams => Predicate.isObject(input));
-export const SendAudioParams: Schema.Codec<SendAudioParams, Readonly<Record<string, unknown>>> = _SendAudioParamsEncoded.pipe(
-  Schema.decodeTo(_SendAudioParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendAudioParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendAudioParamsWireKeys)),
-  }),
-);
 
 export const sendAudio = callMethod({
   method: "sendAudio",
   params: SendAudioParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -3841,27 +4048,29 @@ export interface SendChatActionParams {
   /** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
   readonly action: Types.ChatAction;
 }
-const _SendChatActionParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
-const _SendChatActionParamsWireKeys = invertKeys(_SendChatActionParamsPublicKeys);
-const _SendChatActionParamsEncoded = Schema.Struct({
+export const SendChatActionParams: Schema.Codec<SendChatActionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  action: Schema.suspend((): Schema.Codec<Types.ChatAction, unknown> => Types.ChatAction),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    action: Types.ChatAction,
+  });
+  const decoded = Schema.declare<SendChatActionParams>((input): input is SendChatActionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendChatActionParamsDecoded = Schema.declare<SendChatActionParams>((input): input is SendChatActionParams => Predicate.isObject(input));
-export const SendChatActionParams: Schema.Codec<SendChatActionParams, Readonly<Record<string, unknown>>> = _SendChatActionParamsEncoded.pipe(
-  Schema.decodeTo(_SendChatActionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendChatActionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendChatActionParamsWireKeys)),
-  }),
-);
 
 export const sendChatAction = callMethod({
   method: "sendChatAction",
   params: SendChatActionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -3872,25 +4081,27 @@ export interface SendChatJoinRequestWebAppParams {
   /** An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps */
   readonly webAppUrl: string;
 }
-const _SendChatJoinRequestWebAppParamsPublicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId", web_app_url: "webAppUrl" } as const;
-const _SendChatJoinRequestWebAppParamsWireKeys = invertKeys(_SendChatJoinRequestWebAppParamsPublicKeys);
-const _SendChatJoinRequestWebAppParamsEncoded = Schema.Struct({
+export const SendChatJoinRequestWebAppParams: Schema.Codec<SendChatJoinRequestWebAppParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_join_request_query_id: "chatJoinRequestQueryId", web_app_url: "webAppUrl" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_join_request_query_id: Schema.String,
-  web_app_url: Schema.String,
+    web_app_url: Schema.String,
+  });
+  const decoded = Schema.declare<SendChatJoinRequestWebAppParams>((input): input is SendChatJoinRequestWebAppParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendChatJoinRequestWebAppParamsDecoded = Schema.declare<SendChatJoinRequestWebAppParams>((input): input is SendChatJoinRequestWebAppParams => Predicate.isObject(input));
-export const SendChatJoinRequestWebAppParams: Schema.Codec<SendChatJoinRequestWebAppParams, Readonly<Record<string, unknown>>> = _SendChatJoinRequestWebAppParamsEncoded.pipe(
-  Schema.decodeTo(_SendChatJoinRequestWebAppParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendChatJoinRequestWebAppParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendChatJoinRequestWebAppParamsWireKeys)),
-  }),
-);
 
 export const sendChatJoinRequestWebApp = callMethod({
   method: "sendChatJoinRequestWebApp",
   params: SendChatJoinRequestWebAppParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -3913,31 +4124,33 @@ export interface SendChecklistParams {
   /** A JSON-serialized object for an inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _SendChecklistParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendChecklistParamsWireKeys = invertKeys(_SendChecklistParamsPublicKeys);
-const _SendChecklistParamsEncoded = Schema.Struct({
+export const SendChecklistParams: Schema.Codec<SendChecklistParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", disable_notification: "disableNotification", protect_content: "protectContent", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  checklist: Schema.suspend((): Schema.Codec<Types.InputChecklist, unknown> => Types.InputChecklist),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    checklist: Types.InputChecklist,
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<SendChecklistParams>((input): input is SendChecklistParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendChecklistParamsDecoded = Schema.declare<SendChecklistParams>((input): input is SendChecklistParams => Predicate.isObject(input));
-export const SendChecklistParams: Schema.Codec<SendChecklistParams, Readonly<Record<string, unknown>>> = _SendChecklistParamsEncoded.pipe(
-  Schema.decodeTo(_SendChecklistParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendChecklistParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendChecklistParamsWireKeys)),
-  }),
-);
 
 export const sendChecklist = callMethod({
   method: "sendChecklist",
   params: SendChecklistParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -3976,39 +4189,41 @@ export interface SendContactParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendContactParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", phone_number: "phoneNumber", first_name: "firstName", last_name: "lastName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendContactParamsWireKeys = invertKeys(_SendContactParamsPublicKeys);
-const _SendContactParamsEncoded = Schema.Struct({
+export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", phone_number: "phoneNumber", first_name: "firstName", last_name: "lastName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  phone_number: Schema.String,
-  first_name: Schema.String,
-  last_name: Schema.optional(Schema.String),
-  vcard: Schema.optional(Schema.String),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    phone_number: Schema.String,
+    first_name: Schema.String,
+    last_name: Schema.optional(Schema.String),
+    vcard: Schema.optional(Schema.String),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendContactParams>((input): input is SendContactParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendContactParamsDecoded = Schema.declare<SendContactParams>((input): input is SendContactParams => Predicate.isObject(input));
-export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<string, unknown>>> = _SendContactParamsEncoded.pipe(
-  Schema.decodeTo(_SendContactParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendContactParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendContactParamsWireKeys)),
-  }),
-);
 
 export const sendContact = callMethod({
   method: "sendContact",
   params: SendContactParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4039,35 +4254,37 @@ export interface SendDiceParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendDiceParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendDiceParamsWireKeys = invertKeys(_SendDiceParamsPublicKeys);
-const _SendDiceParamsEncoded = Schema.Struct({
+export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  emoji: Schema.optional(Schema.suspend((): Schema.Codec<Types.DiceEmoji, unknown> => Types.DiceEmoji)),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    emoji: Schema.optional(Types.DiceEmoji),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendDiceParams>((input): input is SendDiceParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendDiceParamsDecoded = Schema.declare<SendDiceParams>((input): input is SendDiceParams => Predicate.isObject(input));
-export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string, unknown>>> = _SendDiceParamsEncoded.pipe(
-  Schema.decodeTo(_SendDiceParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendDiceParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendDiceParamsWireKeys)),
-  }),
-);
 
 export const sendDice = callMethod({
   method: "sendDice",
   params: SendDiceParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4110,41 +4327,43 @@ export interface SendDocumentParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendDocumentParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_content_type_detection: "disableContentTypeDetection", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendDocumentParamsWireKeys = invertKeys(_SendDocumentParamsPublicKeys);
-const _SendDocumentParamsEncoded = Schema.Struct({
+export const SendDocumentParams: Schema.Codec<SendDocumentParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_content_type_detection: "disableContentTypeDetection", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  document: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  disable_content_type_detection: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    document: Schema.Union([Types.InputFile, Schema.String]),
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    disable_content_type_detection: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendDocumentParams>((input): input is SendDocumentParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendDocumentParamsDecoded = Schema.declare<SendDocumentParams>((input): input is SendDocumentParams => Predicate.isObject(input));
-export const SendDocumentParams: Schema.Codec<SendDocumentParams, Readonly<Record<string, unknown>>> = _SendDocumentParamsEncoded.pipe(
-  Schema.decodeTo(_SendDocumentParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendDocumentParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendDocumentParamsWireKeys)),
-  }),
-);
 
 export const sendDocument = callMethod({
   method: "sendDocument",
   params: SendDocumentParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4171,33 +4390,35 @@ export interface SendGameParams {
   /** A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _SendGameParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", game_short_name: "gameShortName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendGameParamsWireKeys = invertKeys(_SendGameParamsPublicKeys);
-const _SendGameParamsEncoded = Schema.Struct({
+export const SendGameParams: Schema.Codec<SendGameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", game_short_name: "gameShortName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  game_short_name: Schema.String,
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    game_short_name: Schema.String,
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<SendGameParams>((input): input is SendGameParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendGameParamsDecoded = Schema.declare<SendGameParams>((input): input is SendGameParams => Predicate.isObject(input));
-export const SendGameParams: Schema.Codec<SendGameParams, Readonly<Record<string, unknown>>> = _SendGameParamsEncoded.pipe(
-  Schema.decodeTo(_SendGameParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendGameParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendGameParamsWireKeys)),
-  }),
-);
 
 export const sendGame = callMethod({
   method: "sendGame",
   params: SendGameParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4218,30 +4439,32 @@ export interface SendGiftParams {
   /** A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
   readonly textEntities?: ReadonlyArray<Types.MessageEntity> | undefined;
 }
-const _SendGiftParamsPublicKeys = { user_id: "userId", chat_id: "chatId", gift_id: "giftId", pay_for_upgrade: "payForUpgrade", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
-const _SendGiftParamsWireKeys = invertKeys(_SendGiftParamsPublicKeys);
-const _SendGiftParamsEncoded = Schema.Struct({
+export const SendGiftParams: Schema.Codec<SendGiftParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", chat_id: "chatId", gift_id: "giftId", pay_for_upgrade: "payForUpgrade", text_parse_mode: "textParseMode", text_entities: "textEntities" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.optional(Schema.Int),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  gift_id: Schema.String,
-  pay_for_upgrade: Schema.optional(Schema.Boolean),
-  text: Schema.optional(Schema.String),
-  text_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  text_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    gift_id: Schema.String,
+    pay_for_upgrade: Schema.optional(Schema.Boolean),
+    text: Schema.optional(Schema.String),
+    text_parse_mode: Schema.optional(Types.ParseMode),
+    text_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+  });
+  const decoded = Schema.declare<SendGiftParams>((input): input is SendGiftParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendGiftParamsDecoded = Schema.declare<SendGiftParams>((input): input is SendGiftParams => Predicate.isObject(input));
-export const SendGiftParams: Schema.Codec<SendGiftParams, Readonly<Record<string, unknown>>> = _SendGiftParamsEncoded.pipe(
-  Schema.decodeTo(_SendGiftParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendGiftParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendGiftParamsWireKeys)),
-  }),
-);
 
 export const sendGift = callMethod({
   method: "sendGift",
   params: SendGiftParams,
   rateLimit: "message",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -4310,54 +4533,56 @@ export interface SendInvoiceParams {
   /** A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _SendInvoiceParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", provider_token: "providerToken", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", start_parameter: "startParameter", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendInvoiceParamsWireKeys = invertKeys(_SendInvoiceParamsPublicKeys);
-const _SendInvoiceParamsEncoded = Schema.Struct({
+export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", provider_token: "providerToken", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", start_parameter: "startParameter", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  title: Schema.String,
-  description: Schema.String,
-  payload: Schema.String,
-  provider_token: Schema.optional(Schema.String),
-  currency: Schema.String,
-  prices: Schema.Array(Schema.suspend((): Schema.Codec<Types.LabeledPrice, unknown> => Types.LabeledPrice)),
-  max_tip_amount: Schema.optional(Schema.Int),
-  suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
-  start_parameter: Schema.optional(Schema.String),
-  provider_data: Schema.optional(Schema.String),
-  photo_url: Schema.optional(Schema.String),
-  photo_size: Schema.optional(Schema.Int),
-  photo_width: Schema.optional(Schema.Int),
-  photo_height: Schema.optional(Schema.Int),
-  need_name: Schema.optional(Schema.Boolean),
-  need_phone_number: Schema.optional(Schema.Boolean),
-  need_email: Schema.optional(Schema.Boolean),
-  need_shipping_address: Schema.optional(Schema.Boolean),
-  send_phone_number_to_provider: Schema.optional(Schema.Boolean),
-  send_email_to_provider: Schema.optional(Schema.Boolean),
-  is_flexible: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    title: Schema.String,
+    description: Schema.String,
+    payload: Schema.String,
+    provider_token: Schema.optional(Schema.String),
+    currency: Schema.String,
+    prices: Schema.Array(Types.LabeledPrice),
+    max_tip_amount: Schema.optional(Schema.Int),
+    suggested_tip_amounts: Schema.optional(Schema.Array(Schema.Int)),
+    start_parameter: Schema.optional(Schema.String),
+    provider_data: Schema.optional(Schema.String),
+    photo_url: Schema.optional(Schema.String),
+    photo_size: Schema.optional(Schema.Int),
+    photo_width: Schema.optional(Schema.Int),
+    photo_height: Schema.optional(Schema.Int),
+    need_name: Schema.optional(Schema.Boolean),
+    need_phone_number: Schema.optional(Schema.Boolean),
+    need_email: Schema.optional(Schema.Boolean),
+    need_shipping_address: Schema.optional(Schema.Boolean),
+    send_phone_number_to_provider: Schema.optional(Schema.Boolean),
+    send_email_to_provider: Schema.optional(Schema.Boolean),
+    is_flexible: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<SendInvoiceParams>((input): input is SendInvoiceParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendInvoiceParamsDecoded = Schema.declare<SendInvoiceParams>((input): input is SendInvoiceParams => Predicate.isObject(input));
-export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<string, unknown>>> = _SendInvoiceParamsEncoded.pipe(
-  Schema.decodeTo(_SendInvoiceParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendInvoiceParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendInvoiceParamsWireKeys)),
-  }),
-);
 
 export const sendInvoice = callMethod({
   method: "sendInvoice",
   params: SendInvoiceParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4402,42 +4627,44 @@ export interface SendLivePhotoParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendLivePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", live_photo: "livePhoto", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendLivePhotoParamsWireKeys = invertKeys(_SendLivePhotoParamsPublicKeys);
-const _SendLivePhotoParamsEncoded = Schema.Struct({
+export const SendLivePhotoParams: Schema.Codec<SendLivePhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", live_photo: "livePhoto", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  live_photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  has_spoiler: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    live_photo: Schema.Union([Types.InputFile, Schema.String]),
+    photo: Schema.Union([Types.InputFile, Schema.String]),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    has_spoiler: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendLivePhotoParams>((input): input is SendLivePhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendLivePhotoParamsDecoded = Schema.declare<SendLivePhotoParams>((input): input is SendLivePhotoParams => Predicate.isObject(input));
-export const SendLivePhotoParams: Schema.Codec<SendLivePhotoParams, Readonly<Record<string, unknown>>> = _SendLivePhotoParamsEncoded.pipe(
-  Schema.decodeTo(_SendLivePhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendLivePhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendLivePhotoParamsWireKeys)),
-  }),
-);
 
 export const sendLivePhoto = callMethod({
   method: "sendLivePhoto",
   params: SendLivePhotoParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4480,41 +4707,43 @@ export interface SendLocationParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", horizontal_accuracy: "horizontalAccuracy", live_period: "livePeriod", proximity_alert_radius: "proximityAlertRadius", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendLocationParamsWireKeys = invertKeys(_SendLocationParamsPublicKeys);
-const _SendLocationParamsEncoded = Schema.Struct({
+export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", horizontal_accuracy: "horizontalAccuracy", live_period: "livePeriod", proximity_alert_radius: "proximityAlertRadius", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  latitude: Schema.Number,
-  longitude: Schema.Number,
-  horizontal_accuracy: Schema.optional(Schema.Number),
-  live_period: Schema.optional(Schema.Int),
-  heading: Schema.optional(Schema.Int),
-  proximity_alert_radius: Schema.optional(Schema.Int),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    latitude: Schema.Number,
+    longitude: Schema.Number,
+    horizontal_accuracy: Schema.optional(Schema.Number),
+    live_period: Schema.optional(Schema.Int),
+    heading: Schema.optional(Schema.Int),
+    proximity_alert_radius: Schema.optional(Schema.Int),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendLocationParams>((input): input is SendLocationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendLocationParamsDecoded = Schema.declare<SendLocationParams>((input): input is SendLocationParams => Predicate.isObject(input));
-export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Record<string, unknown>>> = _SendLocationParamsEncoded.pipe(
-  Schema.decodeTo(_SendLocationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendLocationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendLocationParamsWireKeys)),
-  }),
-);
 
 export const sendLocation = callMethod({
   method: "sendLocation",
   params: SendLocationParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4541,33 +4770,35 @@ export interface SendMediaGroupParams {
   /** Description of the message to reply to */
   readonly replyParameters?: Types.ReplyParameters | undefined;
 }
-const _SendMediaGroupParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters" } as const;
-const _SendMediaGroupParamsWireKeys = invertKeys(_SendMediaGroupParamsPublicKeys);
-const _SendMediaGroupParamsEncoded = Schema.Struct({
+export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  media: Schema.Union([Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaAudio, unknown> => Types.InputMediaAudio)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaDocument, unknown> => Types.InputMediaDocument)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaLivePhoto, unknown> => Types.InputMediaLivePhoto)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaPhoto, unknown> => Types.InputMediaPhoto)), Schema.Array(Schema.suspend((): Schema.Codec<Types.InputMediaVideo, unknown> => Types.InputMediaVideo))]),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    media: Schema.Union([Schema.Array(Types.InputMediaAudio), Schema.Array(Types.InputMediaDocument), Schema.Array(Types.InputMediaLivePhoto), Schema.Array(Types.InputMediaPhoto), Schema.Array(Types.InputMediaVideo)]),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+  });
+  const decoded = Schema.declare<SendMediaGroupParams>((input): input is SendMediaGroupParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendMediaGroupParamsDecoded = Schema.declare<SendMediaGroupParams>((input): input is SendMediaGroupParams => Predicate.isObject(input));
-export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<Record<string, unknown>>> = _SendMediaGroupParamsEncoded.pipe(
-  Schema.decodeTo(_SendMediaGroupParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendMediaGroupParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendMediaGroupParamsWireKeys)),
-  }),
-);
 
 export const sendMediaGroup = callMethod({
   method: "sendMediaGroup",
   params: SendMediaGroupParams,
   rateLimit: "media-array",
-  result: Schema.Array(Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message)),
+  result: Schema.suspend(() => Schema.Array(Types.Message)),
   retrySafe: false,
 });
 
@@ -4606,39 +4837,41 @@ export interface SendMessageParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", link_preview_options: "linkPreviewOptions", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendMessageParamsWireKeys = invertKeys(_SendMessageParamsPublicKeys);
-const _SendMessageParamsEncoded = Schema.Struct({
+export const SendMessageParams: Schema.Codec<SendMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", link_preview_options: "linkPreviewOptions", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  text: Schema.String,
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  link_preview_options: Schema.optional(Schema.suspend((): Schema.Codec<Types.LinkPreviewOptions, unknown> => Types.LinkPreviewOptions)),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    text: Schema.String,
+    parse_mode: Schema.optional(Types.ParseMode),
+    entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    link_preview_options: Schema.optional(Types.LinkPreviewOptions),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendMessageParams>((input): input is SendMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendMessageParamsDecoded = Schema.declare<SendMessageParams>((input): input is SendMessageParams => Predicate.isObject(input));
-export const SendMessageParams: Schema.Codec<SendMessageParams, Readonly<Record<string, unknown>>> = _SendMessageParamsEncoded.pipe(
-  Schema.decodeTo(_SendMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendMessageParamsWireKeys)),
-  }),
-);
 
 export const sendMessage = callMethod({
   method: "sendMessage",
   params: SendMessageParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4661,31 +4894,33 @@ export interface SendMessageDraftParams {
   /** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
   readonly keepOnStop?: boolean | undefined;
 }
-const _SendMessageDraftParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", parse_mode: "parseMode", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
-const _SendMessageDraftParamsWireKeys = invertKeys(_SendMessageDraftParamsPublicKeys);
-const _SendMessageDraftParamsEncoded = Schema.Struct({
+export const SendMessageDraftParams: Schema.Codec<SendMessageDraftParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", parse_mode: "parseMode", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Int,
-  message_thread_id: Schema.optional(Schema.Int),
-  draft_id: Schema.Int,
-  text: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  can_stop: Schema.optional(Schema.Boolean),
-  keep_on_stop: Schema.optional(Schema.Boolean),
+    message_thread_id: Schema.optional(Schema.Int),
+    draft_id: Schema.Int,
+    text: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    can_stop: Schema.optional(Schema.Boolean),
+    keep_on_stop: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SendMessageDraftParams>((input): input is SendMessageDraftParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendMessageDraftParamsDecoded = Schema.declare<SendMessageDraftParams>((input): input is SendMessageDraftParams => Predicate.isObject(input));
-export const SendMessageDraftParams: Schema.Codec<SendMessageDraftParams, Readonly<Record<string, unknown>>> = _SendMessageDraftParamsEncoded.pipe(
-  Schema.decodeTo(_SendMessageDraftParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendMessageDraftParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendMessageDraftParamsWireKeys)),
-  }),
-);
 
 export const sendMessageDraft = callMethod({
   method: "sendMessageDraft",
   params: SendMessageDraftParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -4726,40 +4961,42 @@ export interface SendPaidMediaParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendPaidMediaParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", star_count: "starCount", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendPaidMediaParamsWireKeys = invertKeys(_SendPaidMediaParamsPublicKeys);
-const _SendPaidMediaParamsEncoded = Schema.Struct({
+export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", star_count: "starCount", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  star_count: Schema.Int,
-  media: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputPaidMedia, unknown> => Types.InputPaidMedia)),
-  payload: Schema.optional(Schema.String),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    star_count: Schema.Int,
+    media: Schema.Array(Types.InputPaidMedia),
+    payload: Schema.optional(Schema.String),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendPaidMediaParams>((input): input is SendPaidMediaParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendPaidMediaParamsDecoded = Schema.declare<SendPaidMediaParams>((input): input is SendPaidMediaParams => Predicate.isObject(input));
-export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Record<string, unknown>>> = _SendPaidMediaParamsEncoded.pipe(
-  Schema.decodeTo(_SendPaidMediaParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendPaidMediaParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendPaidMediaParamsWireKeys)),
-  }),
-);
 
 export const sendPaidMedia = callMethod({
   method: "sendPaidMedia",
   params: SendPaidMediaParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4802,41 +5039,43 @@ export interface SendPhotoParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendPhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendPhotoParamsWireKeys = invertKeys(_SendPhotoParamsPublicKeys);
-const _SendPhotoParamsEncoded = Schema.Struct({
+export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  photo: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  has_spoiler: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    photo: Schema.Union([Types.InputFile, Schema.String]),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    has_spoiler: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendPhotoParams>((input): input is SendPhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendPhotoParamsDecoded = Schema.declare<SendPhotoParams>((input): input is SendPhotoParams => Predicate.isObject(input));
-export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<string, unknown>>> = _SendPhotoParamsEncoded.pipe(
-  Schema.decodeTo(_SendPhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendPhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendPhotoParamsWireKeys)),
-  }),
-);
 
 export const sendPhoto = callMethod({
   method: "sendPhoto",
   params: SendPhotoParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4911,57 +5150,59 @@ export interface SendPollParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendPollParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", question_parse_mode: "questionParseMode", question_entities: "questionEntities", is_anonymous: "isAnonymous", allows_multiple_answers: "allowsMultipleAnswers", allows_revoting: "allowsRevoting", shuffle_options: "shuffleOptions", allow_adding_options: "allowAddingOptions", hide_results_until_closes: "hideResultsUntilCloses", members_only: "membersOnly", country_codes: "countryCodes", correct_option_ids: "correctOptionIds", explanation_parse_mode: "explanationParseMode", explanation_entities: "explanationEntities", explanation_media: "explanationMedia", open_period: "openPeriod", close_date: "closeDate", is_closed: "isClosed", description_parse_mode: "descriptionParseMode", description_entities: "descriptionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendPollParamsWireKeys = invertKeys(_SendPollParamsPublicKeys);
-const _SendPollParamsEncoded = Schema.Struct({
+export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", question_parse_mode: "questionParseMode", question_entities: "questionEntities", is_anonymous: "isAnonymous", allows_multiple_answers: "allowsMultipleAnswers", allows_revoting: "allowsRevoting", shuffle_options: "shuffleOptions", allow_adding_options: "allowAddingOptions", hide_results_until_closes: "hideResultsUntilCloses", members_only: "membersOnly", country_codes: "countryCodes", correct_option_ids: "correctOptionIds", explanation_parse_mode: "explanationParseMode", explanation_entities: "explanationEntities", explanation_media: "explanationMedia", open_period: "openPeriod", close_date: "closeDate", is_closed: "isClosed", description_parse_mode: "descriptionParseMode", description_entities: "descriptionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  question: Schema.String,
-  question_parse_mode: Schema.optional(Schema.String),
-  question_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  options: Schema.Array(Schema.suspend((): Schema.Codec<Types.InputPollOption, unknown> => Types.InputPollOption)),
-  is_anonymous: Schema.optional(Schema.Boolean),
-  type: Schema.optional(Schema.suspend((): Schema.Codec<Types.PollType, unknown> => Types.PollType)),
-  allows_multiple_answers: Schema.optional(Schema.Boolean),
-  allows_revoting: Schema.optional(Schema.Boolean),
-  shuffle_options: Schema.optional(Schema.Boolean),
-  allow_adding_options: Schema.optional(Schema.Boolean),
-  hide_results_until_closes: Schema.optional(Schema.Boolean),
-  members_only: Schema.optional(Schema.Boolean),
-  country_codes: Schema.optional(Schema.Array(Schema.String)),
-  correct_option_ids: Schema.optional(Schema.Array(Schema.Int)),
-  explanation: Schema.optional(Schema.String),
-  explanation_parse_mode: Schema.optional(Schema.String),
-  explanation_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  explanation_media: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputPollMedia, unknown> => Types.InputPollMedia)),
-  open_period: Schema.optional(Schema.Int),
-  close_date: Schema.optional(Schema.Int),
-  is_closed: Schema.optional(Schema.Boolean),
-  description: Schema.optional(Schema.String),
-  description_parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  description_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  media: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputPollMedia, unknown> => Types.InputPollMedia)),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    question: Schema.String,
+    question_parse_mode: Schema.optional(Schema.String),
+    question_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    options: Schema.Array(Types.InputPollOption),
+    is_anonymous: Schema.optional(Schema.Boolean),
+    type: Schema.optional(Types.PollType),
+    allows_multiple_answers: Schema.optional(Schema.Boolean),
+    allows_revoting: Schema.optional(Schema.Boolean),
+    shuffle_options: Schema.optional(Schema.Boolean),
+    allow_adding_options: Schema.optional(Schema.Boolean),
+    hide_results_until_closes: Schema.optional(Schema.Boolean),
+    members_only: Schema.optional(Schema.Boolean),
+    country_codes: Schema.optional(Schema.Array(Schema.String)),
+    correct_option_ids: Schema.optional(Schema.Array(Schema.Int)),
+    explanation: Schema.optional(Schema.String),
+    explanation_parse_mode: Schema.optional(Schema.String),
+    explanation_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    explanation_media: Schema.optional(Types.InputPollMedia),
+    open_period: Schema.optional(Schema.Int),
+    close_date: Schema.optional(Schema.Int),
+    is_closed: Schema.optional(Schema.Boolean),
+    description: Schema.optional(Schema.String),
+    description_parse_mode: Schema.optional(Types.ParseMode),
+    description_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    media: Schema.optional(Types.InputPollMedia),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendPollParams>((input): input is SendPollParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendPollParamsDecoded = Schema.declare<SendPollParams>((input): input is SendPollParams => Predicate.isObject(input));
-export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string, unknown>>> = _SendPollParamsEncoded.pipe(
-  Schema.decodeTo(_SendPollParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendPollParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendPollParamsWireKeys)),
-  }),
-);
 
 export const sendPoll = callMethod({
   method: "sendPoll",
   params: SendPollParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -4994,36 +5235,38 @@ export interface SendRichMessageParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendRichMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", rich_message: "richMessage", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendRichMessageParamsWireKeys = invertKeys(_SendRichMessageParamsPublicKeys);
-const _SendRichMessageParamsEncoded = Schema.Struct({
+export const SendRichMessageParams: Schema.Codec<SendRichMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", rich_message: "richMessage", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  rich_message: Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    rich_message: Types.InputRichMessage,
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendRichMessageParams>((input): input is SendRichMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendRichMessageParamsDecoded = Schema.declare<SendRichMessageParams>((input): input is SendRichMessageParams => Predicate.isObject(input));
-export const SendRichMessageParams: Schema.Codec<SendRichMessageParams, Readonly<Record<string, unknown>>> = _SendRichMessageParamsEncoded.pipe(
-  Schema.decodeTo(_SendRichMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageParamsWireKeys)),
-  }),
-);
 
 export const sendRichMessage = callMethod({
   method: "sendRichMessage",
   params: SendRichMessageParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5042,29 +5285,31 @@ export interface SendRichMessageDraftParams {
   /** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
   readonly keepOnStop?: boolean | undefined;
 }
-const _SendRichMessageDraftParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", rich_message: "richMessage", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
-const _SendRichMessageDraftParamsWireKeys = invertKeys(_SendRichMessageDraftParamsPublicKeys);
-const _SendRichMessageDraftParamsEncoded = Schema.Struct({
+export const SendRichMessageDraftParams: Schema.Codec<SendRichMessageDraftParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", draft_id: "draftId", rich_message: "richMessage", can_stop: "canStop", keep_on_stop: "keepOnStop" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Int,
-  message_thread_id: Schema.optional(Schema.Int),
-  draft_id: Schema.Int,
-  rich_message: Schema.suspend((): Schema.Codec<Types.InputRichMessage, unknown> => Types.InputRichMessage),
-  can_stop: Schema.optional(Schema.Boolean),
-  keep_on_stop: Schema.optional(Schema.Boolean),
+    message_thread_id: Schema.optional(Schema.Int),
+    draft_id: Schema.Int,
+    rich_message: Types.InputRichMessage,
+    can_stop: Schema.optional(Schema.Boolean),
+    keep_on_stop: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SendRichMessageDraftParams>((input): input is SendRichMessageDraftParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendRichMessageDraftParamsDecoded = Schema.declare<SendRichMessageDraftParams>((input): input is SendRichMessageDraftParams => Predicate.isObject(input));
-export const SendRichMessageDraftParams: Schema.Codec<SendRichMessageDraftParams, Readonly<Record<string, unknown>>> = _SendRichMessageDraftParamsEncoded.pipe(
-  Schema.decodeTo(_SendRichMessageDraftParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageDraftParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendRichMessageDraftParamsWireKeys)),
-  }),
-);
 
 export const sendRichMessageDraft = callMethod({
   method: "sendRichMessageDraft",
   params: SendRichMessageDraftParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5099,37 +5344,39 @@ export interface SendStickerParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendStickerParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendStickerParamsWireKeys = invertKeys(_SendStickerParamsPublicKeys);
-const _SendStickerParamsEncoded = Schema.Struct({
+export const SendStickerParams: Schema.Codec<SendStickerParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  sticker: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  emoji: Schema.optional(Schema.String),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    sticker: Schema.Union([Types.InputFile, Schema.String]),
+    emoji: Schema.optional(Schema.String),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendStickerParams>((input): input is SendStickerParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendStickerParamsDecoded = Schema.declare<SendStickerParams>((input): input is SendStickerParams => Predicate.isObject(input));
-export const SendStickerParams: Schema.Codec<SendStickerParams, Readonly<Record<string, unknown>>> = _SendStickerParamsEncoded.pipe(
-  Schema.decodeTo(_SendStickerParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendStickerParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendStickerParamsWireKeys)),
-  }),
-);
 
 export const sendSticker = callMethod({
   method: "sendSticker",
   params: SendStickerParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5176,43 +5423,45 @@ export interface SendVenueParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendVenueParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", foursquare_id: "foursquareId", foursquare_type: "foursquareType", google_place_id: "googlePlaceId", google_place_type: "googlePlaceType", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendVenueParamsWireKeys = invertKeys(_SendVenueParamsPublicKeys);
-const _SendVenueParamsEncoded = Schema.Struct({
+export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", foursquare_id: "foursquareId", foursquare_type: "foursquareType", google_place_id: "googlePlaceId", google_place_type: "googlePlaceType", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  latitude: Schema.Number,
-  longitude: Schema.Number,
-  title: Schema.String,
-  address: Schema.String,
-  foursquare_id: Schema.optional(Schema.String),
-  foursquare_type: Schema.optional(Schema.String),
-  google_place_id: Schema.optional(Schema.String),
-  google_place_type: Schema.optional(Schema.String),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    latitude: Schema.Number,
+    longitude: Schema.Number,
+    title: Schema.String,
+    address: Schema.String,
+    foursquare_id: Schema.optional(Schema.String),
+    foursquare_type: Schema.optional(Schema.String),
+    google_place_id: Schema.optional(Schema.String),
+    google_place_type: Schema.optional(Schema.String),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendVenueParams>((input): input is SendVenueParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendVenueParamsDecoded = Schema.declare<SendVenueParams>((input): input is SendVenueParams => Predicate.isObject(input));
-export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<string, unknown>>> = _SendVenueParamsEncoded.pipe(
-  Schema.decodeTo(_SendVenueParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendVenueParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendVenueParamsWireKeys)),
-  }),
-);
 
 export const sendVenue = callMethod({
   method: "sendVenue",
   params: SendVenueParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5269,48 +5518,50 @@ export interface SendVideoParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendVideoParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", start_timestamp: "startTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", supports_streaming: "supportsStreaming", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendVideoParamsWireKeys = invertKeys(_SendVideoParamsPublicKeys);
-const _SendVideoParamsEncoded = Schema.Struct({
+export const SendVideoParams: Schema.Codec<SendVideoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", start_timestamp: "startTimestamp", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", has_spoiler: "hasSpoiler", supports_streaming: "supportsStreaming", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  video: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  duration: Schema.optional(Schema.Int),
-  width: Schema.optional(Schema.Int),
-  height: Schema.optional(Schema.Int),
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  cover: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  start_timestamp: Schema.optional(Schema.Int),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  show_caption_above_media: Schema.optional(Schema.Boolean),
-  has_spoiler: Schema.optional(Schema.Boolean),
-  supports_streaming: Schema.optional(Schema.Boolean),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    video: Schema.Union([Types.InputFile, Schema.String]),
+    duration: Schema.optional(Schema.Int),
+    width: Schema.optional(Schema.Int),
+    height: Schema.optional(Schema.Int),
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    cover: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    start_timestamp: Schema.optional(Schema.Int),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    show_caption_above_media: Schema.optional(Schema.Boolean),
+    has_spoiler: Schema.optional(Schema.Boolean),
+    supports_streaming: Schema.optional(Schema.Boolean),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendVideoParams>((input): input is SendVideoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendVideoParamsDecoded = Schema.declare<SendVideoParams>((input): input is SendVideoParams => Predicate.isObject(input));
-export const SendVideoParams: Schema.Codec<SendVideoParams, Readonly<Record<string, unknown>>> = _SendVideoParamsEncoded.pipe(
-  Schema.decodeTo(_SendVideoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendVideoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendVideoParamsWireKeys)),
-  }),
-);
 
 export const sendVideo = callMethod({
   method: "sendVideo",
   params: SendVideoParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5349,39 +5600,41 @@ export interface SendVideoNoteParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendVideoNoteParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", video_note: "videoNote", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendVideoNoteParamsWireKeys = invertKeys(_SendVideoNoteParamsPublicKeys);
-const _SendVideoNoteParamsEncoded = Schema.Struct({
+export const SendVideoNoteParams: Schema.Codec<SendVideoNoteParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", video_note: "videoNote", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  video_note: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  duration: Schema.optional(Schema.Int),
-  length: Schema.optional(Schema.Int),
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    video_note: Schema.Union([Types.InputFile, Schema.String]),
+    duration: Schema.optional(Schema.Int),
+    length: Schema.optional(Schema.Int),
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendVideoNoteParams>((input): input is SendVideoNoteParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendVideoNoteParamsDecoded = Schema.declare<SendVideoNoteParams>((input): input is SendVideoNoteParams => Predicate.isObject(input));
-export const SendVideoNoteParams: Schema.Codec<SendVideoNoteParams, Readonly<Record<string, unknown>>> = _SendVideoNoteParamsEncoded.pipe(
-  Schema.decodeTo(_SendVideoNoteParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendVideoNoteParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendVideoNoteParamsWireKeys)),
-  }),
-);
 
 export const sendVideoNote = callMethod({
   method: "sendVideoNote",
   params: SendVideoNoteParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5422,40 +5675,42 @@ export interface SendVoiceParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
-const _SendVoiceParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
-const _SendVoiceParamsWireKeys = invertKeys(_SendVoiceParamsPublicKeys);
-const _SendVoiceParamsEncoded = Schema.Struct({
+export const SendVoiceParams: Schema.Codec<SendVoiceParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", parse_mode: "parseMode", caption_entities: "captionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.optional(Schema.Int),
-  direct_messages_topic_id: Schema.optional(Schema.Int),
-  ephemeral_message_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.EphemeralMessageParameters, unknown> => Types.EphemeralMessageParameters)),
-  voice: Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String]),
-  caption: Schema.optional(Schema.String),
-  parse_mode: Schema.optional(Schema.suspend((): Schema.Codec<Types.ParseMode, unknown> => Types.ParseMode)),
-  caption_entities: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.MessageEntity, unknown> => Types.MessageEntity))),
-  duration: Schema.optional(Schema.Int),
-  disable_notification: Schema.optional(Schema.Boolean),
-  protect_content: Schema.optional(Schema.Boolean),
-  allow_paid_broadcast: Schema.optional(Schema.Boolean),
-  message_effect_id: Schema.optional(Schema.String),
-  suggested_post_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.SuggestedPostParameters, unknown> => Types.SuggestedPostParameters)),
-  reply_parameters: Schema.optional(Schema.suspend((): Schema.Codec<Types.ReplyParameters, unknown> => Types.ReplyParameters)),
-  reply_markup: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardMarkup, unknown> => Types.ReplyKeyboardMarkup), Schema.suspend((): Schema.Codec<Types.ReplyKeyboardRemove, unknown> => Types.ReplyKeyboardRemove), Schema.suspend((): Schema.Codec<Types.ForceReply, unknown> => Types.ForceReply)])),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_thread_id: Schema.optional(Schema.Int),
+    direct_messages_topic_id: Schema.optional(Schema.Int),
+    ephemeral_message_parameters: Schema.optional(Types.EphemeralMessageParameters),
+    voice: Schema.Union([Types.InputFile, Schema.String]),
+    caption: Schema.optional(Schema.String),
+    parse_mode: Schema.optional(Types.ParseMode),
+    caption_entities: Schema.optional(Schema.Array(Types.MessageEntity)),
+    duration: Schema.optional(Schema.Int),
+    disable_notification: Schema.optional(Schema.Boolean),
+    protect_content: Schema.optional(Schema.Boolean),
+    allow_paid_broadcast: Schema.optional(Schema.Boolean),
+    message_effect_id: Schema.optional(Schema.String),
+    suggested_post_parameters: Schema.optional(Types.SuggestedPostParameters),
+    reply_parameters: Schema.optional(Types.ReplyParameters),
+    reply_markup: Schema.optional(Schema.Union([Types.InlineKeyboardMarkup, Types.ReplyKeyboardMarkup, Types.ReplyKeyboardRemove, Types.ForceReply])),
+  });
+  const decoded = Schema.declare<SendVoiceParams>((input): input is SendVoiceParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SendVoiceParamsDecoded = Schema.declare<SendVoiceParams>((input): input is SendVoiceParams => Predicate.isObject(input));
-export const SendVoiceParams: Schema.Codec<SendVoiceParams, Readonly<Record<string, unknown>>> = _SendVoiceParamsEncoded.pipe(
-  Schema.decodeTo(_SendVoiceParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SendVoiceParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SendVoiceParamsWireKeys)),
-  }),
-);
 
 export const sendVoice = callMethod({
   method: "sendVoice",
   params: SendVoiceParams,
   rateLimit: "message",
-  result: Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message),
+  result: Schema.suspend(() => Types.Message),
   retrySafe: false,
 });
 
@@ -5466,25 +5721,27 @@ export interface SetBusinessAccountBioParams {
   /** The new value of the bio for the business account; 0-140 characters */
   readonly bio?: string | undefined;
 }
-const _SetBusinessAccountBioParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
-const _SetBusinessAccountBioParamsWireKeys = invertKeys(_SetBusinessAccountBioParamsPublicKeys);
-const _SetBusinessAccountBioParamsEncoded = Schema.Struct({
+export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  bio: Schema.optional(Schema.String),
+    bio: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetBusinessAccountBioParams>((input): input is SetBusinessAccountBioParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetBusinessAccountBioParamsDecoded = Schema.declare<SetBusinessAccountBioParams>((input): input is SetBusinessAccountBioParams => Predicate.isObject(input));
-export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountBioParamsEncoded.pipe(
-  Schema.decodeTo(_SetBusinessAccountBioParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountBioParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountBioParamsWireKeys)),
-  }),
-);
 
 export const setBusinessAccountBio = callMethod({
   method: "setBusinessAccountBio",
   params: SetBusinessAccountBioParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5497,26 +5754,28 @@ export interface SetBusinessAccountGiftSettingsParams {
   /** Types of gifts accepted by the business account */
   readonly acceptedGiftTypes: Types.AcceptedGiftTypes;
 }
-const _SetBusinessAccountGiftSettingsParamsPublicKeys = { business_connection_id: "businessConnectionId", show_gift_button: "showGiftButton", accepted_gift_types: "acceptedGiftTypes" } as const;
-const _SetBusinessAccountGiftSettingsParamsWireKeys = invertKeys(_SetBusinessAccountGiftSettingsParamsPublicKeys);
-const _SetBusinessAccountGiftSettingsParamsEncoded = Schema.Struct({
+export const SetBusinessAccountGiftSettingsParams: Schema.Codec<SetBusinessAccountGiftSettingsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", show_gift_button: "showGiftButton", accepted_gift_types: "acceptedGiftTypes" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  show_gift_button: Schema.Boolean,
-  accepted_gift_types: Schema.suspend((): Schema.Codec<Types.AcceptedGiftTypes, unknown> => Types.AcceptedGiftTypes),
+    show_gift_button: Schema.Boolean,
+    accepted_gift_types: Types.AcceptedGiftTypes,
+  });
+  const decoded = Schema.declare<SetBusinessAccountGiftSettingsParams>((input): input is SetBusinessAccountGiftSettingsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetBusinessAccountGiftSettingsParamsDecoded = Schema.declare<SetBusinessAccountGiftSettingsParams>((input): input is SetBusinessAccountGiftSettingsParams => Predicate.isObject(input));
-export const SetBusinessAccountGiftSettingsParams: Schema.Codec<SetBusinessAccountGiftSettingsParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountGiftSettingsParamsEncoded.pipe(
-  Schema.decodeTo(_SetBusinessAccountGiftSettingsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountGiftSettingsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountGiftSettingsParamsWireKeys)),
-  }),
-);
 
 export const setBusinessAccountGiftSettings = callMethod({
   method: "setBusinessAccountGiftSettings",
   params: SetBusinessAccountGiftSettingsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5529,26 +5788,28 @@ export interface SetBusinessAccountNameParams {
   /** The new value of the last name for the business account; 0-64 characters */
   readonly lastName?: string | undefined;
 }
-const _SetBusinessAccountNameParamsPublicKeys = { business_connection_id: "businessConnectionId", first_name: "firstName", last_name: "lastName" } as const;
-const _SetBusinessAccountNameParamsWireKeys = invertKeys(_SetBusinessAccountNameParamsPublicKeys);
-const _SetBusinessAccountNameParamsEncoded = Schema.Struct({
+export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", first_name: "firstName", last_name: "lastName" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  first_name: Schema.String,
-  last_name: Schema.optional(Schema.String),
+    first_name: Schema.String,
+    last_name: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetBusinessAccountNameParams>((input): input is SetBusinessAccountNameParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetBusinessAccountNameParamsDecoded = Schema.declare<SetBusinessAccountNameParams>((input): input is SetBusinessAccountNameParams => Predicate.isObject(input));
-export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNameParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountNameParamsEncoded.pipe(
-  Schema.decodeTo(_SetBusinessAccountNameParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountNameParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountNameParamsWireKeys)),
-  }),
-);
 
 export const setBusinessAccountName = callMethod({
   method: "setBusinessAccountName",
   params: SetBusinessAccountNameParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5561,26 +5822,28 @@ export interface SetBusinessAccountProfilePhotoParams {
   /** Pass True to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo. */
   readonly isPublic?: boolean | undefined;
 }
-const _SetBusinessAccountProfilePhotoParamsPublicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
-const _SetBusinessAccountProfilePhotoParamsWireKeys = invertKeys(_SetBusinessAccountProfilePhotoParamsPublicKeys);
-const _SetBusinessAccountProfilePhotoParamsEncoded = Schema.Struct({
+export const SetBusinessAccountProfilePhotoParams: Schema.Codec<SetBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", is_public: "isPublic" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  photo: Schema.suspend((): Schema.Codec<Types.InputProfilePhoto, unknown> => Types.InputProfilePhoto),
-  is_public: Schema.optional(Schema.Boolean),
+    photo: Types.InputProfilePhoto,
+    is_public: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SetBusinessAccountProfilePhotoParams>((input): input is SetBusinessAccountProfilePhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetBusinessAccountProfilePhotoParamsDecoded = Schema.declare<SetBusinessAccountProfilePhotoParams>((input): input is SetBusinessAccountProfilePhotoParams => Predicate.isObject(input));
-export const SetBusinessAccountProfilePhotoParams: Schema.Codec<SetBusinessAccountProfilePhotoParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountProfilePhotoParamsEncoded.pipe(
-  Schema.decodeTo(_SetBusinessAccountProfilePhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountProfilePhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountProfilePhotoParamsWireKeys)),
-  }),
-);
 
 export const setBusinessAccountProfilePhoto = callMethod({
   method: "setBusinessAccountProfilePhoto",
   params: SetBusinessAccountProfilePhotoParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -5591,25 +5854,27 @@ export interface SetBusinessAccountUsernameParams {
   /** The new value of the username for the business account; 0-32 characters */
   readonly username?: string | undefined;
 }
-const _SetBusinessAccountUsernameParamsPublicKeys = { business_connection_id: "businessConnectionId" } as const;
-const _SetBusinessAccountUsernameParamsWireKeys = invertKeys(_SetBusinessAccountUsernameParamsPublicKeys);
-const _SetBusinessAccountUsernameParamsEncoded = Schema.Struct({
+export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUsernameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  username: Schema.optional(Schema.String),
+    username: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetBusinessAccountUsernameParams>((input): input is SetBusinessAccountUsernameParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetBusinessAccountUsernameParamsDecoded = Schema.declare<SetBusinessAccountUsernameParams>((input): input is SetBusinessAccountUsernameParams => Predicate.isObject(input));
-export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUsernameParams, Readonly<Record<string, unknown>>> = _SetBusinessAccountUsernameParamsEncoded.pipe(
-  Schema.decodeTo(_SetBusinessAccountUsernameParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountUsernameParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetBusinessAccountUsernameParamsWireKeys)),
-  }),
-);
 
 export const setBusinessAccountUsername = callMethod({
   method: "setBusinessAccountUsername",
   params: SetBusinessAccountUsernameParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5622,26 +5887,28 @@ export interface SetChatAdministratorCustomTitleParams {
   /** New custom title for the administrator; 0-16 characters, emoji are not allowed */
   readonly customTitle: string;
 }
-const _SetChatAdministratorCustomTitleParamsPublicKeys = { chat_id: "chatId", user_id: "userId", custom_title: "customTitle" } as const;
-const _SetChatAdministratorCustomTitleParamsWireKeys = invertKeys(_SetChatAdministratorCustomTitleParamsPublicKeys);
-const _SetChatAdministratorCustomTitleParamsEncoded = Schema.Struct({
+export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdministratorCustomTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", custom_title: "customTitle" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  custom_title: Schema.String,
+    user_id: Schema.Int,
+    custom_title: Schema.String,
+  });
+  const decoded = Schema.declare<SetChatAdministratorCustomTitleParams>((input): input is SetChatAdministratorCustomTitleParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatAdministratorCustomTitleParamsDecoded = Schema.declare<SetChatAdministratorCustomTitleParams>((input): input is SetChatAdministratorCustomTitleParams => Predicate.isObject(input));
-export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdministratorCustomTitleParams, Readonly<Record<string, unknown>>> = _SetChatAdministratorCustomTitleParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatAdministratorCustomTitleParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatAdministratorCustomTitleParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatAdministratorCustomTitleParamsWireKeys)),
-  }),
-);
 
 export const setChatAdministratorCustomTitle = callMethod({
   method: "setChatAdministratorCustomTitle",
   params: SetChatAdministratorCustomTitleParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5652,25 +5919,27 @@ export interface SetChatDescriptionParams {
   /** New chat description, 0-255 characters */
   readonly description?: string | undefined;
 }
-const _SetChatDescriptionParamsPublicKeys = { chat_id: "chatId" } as const;
-const _SetChatDescriptionParamsWireKeys = invertKeys(_SetChatDescriptionParamsPublicKeys);
-const _SetChatDescriptionParamsEncoded = Schema.Struct({
+export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  description: Schema.optional(Schema.String),
+    description: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetChatDescriptionParams>((input): input is SetChatDescriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatDescriptionParamsDecoded = Schema.declare<SetChatDescriptionParams>((input): input is SetChatDescriptionParams => Predicate.isObject(input));
-export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Readonly<Record<string, unknown>>> = _SetChatDescriptionParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatDescriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatDescriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatDescriptionParamsWireKeys)),
-  }),
-);
 
 export const setChatDescription = callMethod({
   method: "setChatDescription",
   params: SetChatDescriptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5683,26 +5952,28 @@ export interface SetChatMemberTagParams {
   /** New tag for the member; 0-16 characters, emoji are not allowed */
   readonly tag?: string | undefined;
 }
-const _SetChatMemberTagParamsPublicKeys = { chat_id: "chatId", user_id: "userId" } as const;
-const _SetChatMemberTagParamsWireKeys = invertKeys(_SetChatMemberTagParamsPublicKeys);
-const _SetChatMemberTagParamsEncoded = Schema.Struct({
+export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  tag: Schema.optional(Schema.String),
+    user_id: Schema.Int,
+    tag: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetChatMemberTagParams>((input): input is SetChatMemberTagParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatMemberTagParamsDecoded = Schema.declare<SetChatMemberTagParams>((input): input is SetChatMemberTagParams => Predicate.isObject(input));
-export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readonly<Record<string, unknown>>> = _SetChatMemberTagParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatMemberTagParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatMemberTagParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatMemberTagParamsWireKeys)),
-  }),
-);
 
 export const setChatMemberTag = callMethod({
   method: "setChatMemberTag",
   params: SetChatMemberTagParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5713,25 +5984,27 @@ export interface SetChatMenuButtonParams {
   /** A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault. */
   readonly menuButton?: Types.MenuButton | undefined;
 }
-const _SetChatMenuButtonParamsPublicKeys = { chat_id: "chatId", menu_button: "menuButton" } as const;
-const _SetChatMenuButtonParamsWireKeys = invertKeys(_SetChatMenuButtonParamsPublicKeys);
-const _SetChatMenuButtonParamsEncoded = Schema.Struct({
+export const SetChatMenuButtonParams: Schema.Codec<SetChatMenuButtonParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", menu_button: "menuButton" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.optional(Schema.Int),
-  menu_button: Schema.optional(Schema.suspend((): Schema.Codec<Types.MenuButton, unknown> => Types.MenuButton)),
+    menu_button: Schema.optional(Types.MenuButton),
+  });
+  const decoded = Schema.declare<SetChatMenuButtonParams>((input): input is SetChatMenuButtonParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatMenuButtonParamsDecoded = Schema.declare<SetChatMenuButtonParams>((input): input is SetChatMenuButtonParams => Predicate.isObject(input));
-export const SetChatMenuButtonParams: Schema.Codec<SetChatMenuButtonParams, Readonly<Record<string, unknown>>> = _SetChatMenuButtonParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatMenuButtonParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatMenuButtonParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatMenuButtonParamsWireKeys)),
-  }),
-);
 
 export const setChatMenuButton = callMethod({
   method: "setChatMenuButton",
   params: SetChatMenuButtonParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5744,26 +6017,28 @@ export interface SetChatPermissionsParams {
   /** Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission. */
   readonly useIndependentChatPermissions?: boolean | undefined;
 }
-const _SetChatPermissionsParamsPublicKeys = { chat_id: "chatId", use_independent_chat_permissions: "useIndependentChatPermissions" } as const;
-const _SetChatPermissionsParamsWireKeys = invertKeys(_SetChatPermissionsParamsPublicKeys);
-const _SetChatPermissionsParamsEncoded = Schema.Struct({
+export const SetChatPermissionsParams: Schema.Codec<SetChatPermissionsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", use_independent_chat_permissions: "useIndependentChatPermissions" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  permissions: Schema.suspend((): Schema.Codec<Types.ChatPermissions, unknown> => Types.ChatPermissions),
-  use_independent_chat_permissions: Schema.optional(Schema.Boolean),
+    permissions: Types.ChatPermissions,
+    use_independent_chat_permissions: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SetChatPermissionsParams>((input): input is SetChatPermissionsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatPermissionsParamsDecoded = Schema.declare<SetChatPermissionsParams>((input): input is SetChatPermissionsParams => Predicate.isObject(input));
-export const SetChatPermissionsParams: Schema.Codec<SetChatPermissionsParams, Readonly<Record<string, unknown>>> = _SetChatPermissionsParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatPermissionsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatPermissionsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatPermissionsParamsWireKeys)),
-  }),
-);
 
 export const setChatPermissions = callMethod({
   method: "setChatPermissions",
   params: SetChatPermissionsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5774,25 +6049,27 @@ export interface SetChatPhotoParams {
   /** New chat photo, uploaded using multipart/form-data */
   readonly photo: Types.InputFile;
 }
-const _SetChatPhotoParamsPublicKeys = { chat_id: "chatId" } as const;
-const _SetChatPhotoParamsWireKeys = invertKeys(_SetChatPhotoParamsPublicKeys);
-const _SetChatPhotoParamsEncoded = Schema.Struct({
+export const SetChatPhotoParams: Schema.Codec<SetChatPhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  photo: Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile),
+    photo: Types.InputFile,
+  });
+  const decoded = Schema.declare<SetChatPhotoParams>((input): input is SetChatPhotoParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatPhotoParamsDecoded = Schema.declare<SetChatPhotoParams>((input): input is SetChatPhotoParams => Predicate.isObject(input));
-export const SetChatPhotoParams: Schema.Codec<SetChatPhotoParams, Readonly<Record<string, unknown>>> = _SetChatPhotoParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatPhotoParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatPhotoParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatPhotoParamsWireKeys)),
-  }),
-);
 
 export const setChatPhoto = callMethod({
   method: "setChatPhoto",
   params: SetChatPhotoParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -5803,25 +6080,27 @@ export interface SetChatStickerSetParams {
   /** Name of the sticker set to be set as the group sticker set */
   readonly stickerSetName: string;
 }
-const _SetChatStickerSetParamsPublicKeys = { chat_id: "chatId", sticker_set_name: "stickerSetName" } as const;
-const _SetChatStickerSetParamsWireKeys = invertKeys(_SetChatStickerSetParamsPublicKeys);
-const _SetChatStickerSetParamsEncoded = Schema.Struct({
+export const SetChatStickerSetParams: Schema.Codec<SetChatStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", sticker_set_name: "stickerSetName" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  sticker_set_name: Schema.String,
+    sticker_set_name: Schema.String,
+  });
+  const decoded = Schema.declare<SetChatStickerSetParams>((input): input is SetChatStickerSetParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatStickerSetParamsDecoded = Schema.declare<SetChatStickerSetParams>((input): input is SetChatStickerSetParams => Predicate.isObject(input));
-export const SetChatStickerSetParams: Schema.Codec<SetChatStickerSetParams, Readonly<Record<string, unknown>>> = _SetChatStickerSetParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatStickerSetParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatStickerSetParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatStickerSetParamsWireKeys)),
-  }),
-);
 
 export const setChatStickerSet = callMethod({
   method: "setChatStickerSet",
   params: SetChatStickerSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5832,25 +6111,27 @@ export interface SetChatTitleParams {
   /** New chat title, 1-128 characters */
   readonly title: string;
 }
-const _SetChatTitleParamsPublicKeys = { chat_id: "chatId" } as const;
-const _SetChatTitleParamsWireKeys = invertKeys(_SetChatTitleParamsPublicKeys);
-const _SetChatTitleParamsEncoded = Schema.Struct({
+export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  title: Schema.String,
+    title: Schema.String,
+  });
+  const decoded = Schema.declare<SetChatTitleParams>((input): input is SetChatTitleParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetChatTitleParamsDecoded = Schema.declare<SetChatTitleParams>((input): input is SetChatTitleParams => Predicate.isObject(input));
-export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Record<string, unknown>>> = _SetChatTitleParamsEncoded.pipe(
-  Schema.decodeTo(_SetChatTitleParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetChatTitleParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetChatTitleParamsWireKeys)),
-  }),
-);
 
 export const setChatTitle = callMethod({
   method: "setChatTitle",
   params: SetChatTitleParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5861,25 +6142,27 @@ export interface SetCustomEmojiStickerSetThumbnailParams {
   /** Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail */
   readonly customEmojiId?: string | undefined;
 }
-const _SetCustomEmojiStickerSetThumbnailParamsPublicKeys = { custom_emoji_id: "customEmojiId" } as const;
-const _SetCustomEmojiStickerSetThumbnailParamsWireKeys = invertKeys(_SetCustomEmojiStickerSetThumbnailParamsPublicKeys);
-const _SetCustomEmojiStickerSetThumbnailParamsEncoded = Schema.Struct({
+export const SetCustomEmojiStickerSetThumbnailParams: Schema.Codec<SetCustomEmojiStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { custom_emoji_id: "customEmojiId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   name: Schema.String,
-  custom_emoji_id: Schema.optional(Schema.String),
+    custom_emoji_id: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetCustomEmojiStickerSetThumbnailParams>((input): input is SetCustomEmojiStickerSetThumbnailParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetCustomEmojiStickerSetThumbnailParamsDecoded = Schema.declare<SetCustomEmojiStickerSetThumbnailParams>((input): input is SetCustomEmojiStickerSetThumbnailParams => Predicate.isObject(input));
-export const SetCustomEmojiStickerSetThumbnailParams: Schema.Codec<SetCustomEmojiStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = _SetCustomEmojiStickerSetThumbnailParamsEncoded.pipe(
-  Schema.decodeTo(_SetCustomEmojiStickerSetThumbnailParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetCustomEmojiStickerSetThumbnailParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetCustomEmojiStickerSetThumbnailParamsWireKeys)),
-  }),
-);
 
 export const setCustomEmojiStickerSetThumbnail = callMethod({
   method: "setCustomEmojiStickerSetThumbnail",
   params: SetCustomEmojiStickerSetThumbnailParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5900,30 +6183,32 @@ export interface SetGameScoreParams {
   /** Required if chat_id and message_id are not specified. Identifier of the inline message. */
   readonly inlineMessageId?: string | undefined;
 }
-const _SetGameScoreParamsPublicKeys = { user_id: "userId", disable_edit_message: "disableEditMessage", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
-const _SetGameScoreParamsWireKeys = invertKeys(_SetGameScoreParamsPublicKeys);
-const _SetGameScoreParamsEncoded = Schema.Struct({
+export const SetGameScoreParams: Schema.Codec<SetGameScoreParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", disable_edit_message: "disableEditMessage", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  score: Schema.Int,
-  force: Schema.optional(Schema.Boolean),
-  disable_edit_message: Schema.optional(Schema.Boolean),
-  chat_id: Schema.optional(Schema.Int),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
+    score: Schema.Int,
+    force: Schema.optional(Schema.Boolean),
+    disable_edit_message: Schema.optional(Schema.Boolean),
+    chat_id: Schema.optional(Schema.Int),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetGameScoreParams>((input): input is SetGameScoreParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetGameScoreParamsDecoded = Schema.declare<SetGameScoreParams>((input): input is SetGameScoreParams => Predicate.isObject(input));
-export const SetGameScoreParams: Schema.Codec<SetGameScoreParams, Readonly<Record<string, unknown>>> = _SetGameScoreParamsEncoded.pipe(
-  Schema.decodeTo(_SetGameScoreParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetGameScoreParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetGameScoreParamsWireKeys)),
-  }),
-);
 
 export const setGameScore = callMethod({
   method: "setGameScore",
   params: SetGameScoreParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -5936,26 +6221,28 @@ export interface SetManagedBotAccessSettingsParams {
   /** A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if is_access_restricted is False. */
   readonly addedUserIds?: ReadonlyArray<number> | undefined;
 }
-const _SetManagedBotAccessSettingsParamsPublicKeys = { user_id: "userId", is_access_restricted: "isAccessRestricted", added_user_ids: "addedUserIds" } as const;
-const _SetManagedBotAccessSettingsParamsWireKeys = invertKeys(_SetManagedBotAccessSettingsParamsPublicKeys);
-const _SetManagedBotAccessSettingsParamsEncoded = Schema.Struct({
+export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", is_access_restricted: "isAccessRestricted", added_user_ids: "addedUserIds" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  is_access_restricted: Schema.Boolean,
-  added_user_ids: Schema.optional(Schema.Array(Schema.Int)),
+    is_access_restricted: Schema.Boolean,
+    added_user_ids: Schema.optional(Schema.Array(Schema.Int)),
+  });
+  const decoded = Schema.declare<SetManagedBotAccessSettingsParams>((input): input is SetManagedBotAccessSettingsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetManagedBotAccessSettingsParamsDecoded = Schema.declare<SetManagedBotAccessSettingsParams>((input): input is SetManagedBotAccessSettingsParams => Predicate.isObject(input));
-export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = _SetManagedBotAccessSettingsParamsEncoded.pipe(
-  Schema.decodeTo(_SetManagedBotAccessSettingsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetManagedBotAccessSettingsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetManagedBotAccessSettingsParamsWireKeys)),
-  }),
-);
 
 export const setManagedBotAccessSettings = callMethod({
   method: "setManagedBotAccessSettings",
   params: SetManagedBotAccessSettingsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -5970,27 +6257,29 @@ export interface SetMessageReactionParams {
   /** Pass True to set the reaction with a big animation */
   readonly isBig?: boolean | undefined;
 }
-const _SetMessageReactionParamsPublicKeys = { chat_id: "chatId", message_id: "messageId", is_big: "isBig" } as const;
-const _SetMessageReactionParamsWireKeys = invertKeys(_SetMessageReactionParamsPublicKeys);
-const _SetMessageReactionParamsEncoded = Schema.Struct({
+export const SetMessageReactionParams: Schema.Codec<SetMessageReactionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_id: "messageId", is_big: "isBig" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  reaction: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.ReactionType, unknown> => Types.ReactionType))),
-  is_big: Schema.optional(Schema.Boolean),
+    message_id: Schema.Int,
+    reaction: Schema.optional(Schema.Array(Types.ReactionType)),
+    is_big: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SetMessageReactionParams>((input): input is SetMessageReactionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMessageReactionParamsDecoded = Schema.declare<SetMessageReactionParams>((input): input is SetMessageReactionParams => Predicate.isObject(input));
-export const SetMessageReactionParams: Schema.Codec<SetMessageReactionParams, Readonly<Record<string, unknown>>> = _SetMessageReactionParamsEncoded.pipe(
-  Schema.decodeTo(_SetMessageReactionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMessageReactionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMessageReactionParamsWireKeys)),
-  }),
-);
 
 export const setMessageReaction = callMethod({
   method: "setMessageReaction",
   params: SetMessageReactionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6003,26 +6292,28 @@ export interface SetMyCommandsParams {
   /** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands. */
   readonly languageCode?: string | undefined;
 }
-const _SetMyCommandsParamsPublicKeys = { language_code: "languageCode" } as const;
-const _SetMyCommandsParamsWireKeys = invertKeys(_SetMyCommandsParamsPublicKeys);
-const _SetMyCommandsParamsEncoded = Schema.Struct({
-  commands: Schema.Array(Schema.suspend((): Schema.Codec<Types.BotCommand, unknown> => Types.BotCommand)),
-  scope: Schema.optional(Schema.suspend((): Schema.Codec<Types.BotCommandScope, unknown> => Types.BotCommandScope)),
-  language_code: Schema.optional(Schema.String),
+export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
+  commands: Schema.Array(Types.BotCommand),
+    scope: Schema.optional(Types.BotCommandScope),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetMyCommandsParams>((input): input is SetMyCommandsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMyCommandsParamsDecoded = Schema.declare<SetMyCommandsParams>((input): input is SetMyCommandsParams => Predicate.isObject(input));
-export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Record<string, unknown>>> = _SetMyCommandsParamsEncoded.pipe(
-  Schema.decodeTo(_SetMyCommandsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyCommandsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyCommandsParamsWireKeys)),
-  }),
-);
 
 export const setMyCommands = callMethod({
   method: "setMyCommands",
   params: SetMyCommandsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6033,25 +6324,27 @@ export interface SetMyDefaultAdministratorRightsParams {
   /** Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed. */
   readonly forChannels?: boolean | undefined;
 }
-const _SetMyDefaultAdministratorRightsParamsPublicKeys = { for_channels: "forChannels" } as const;
-const _SetMyDefaultAdministratorRightsParamsWireKeys = invertKeys(_SetMyDefaultAdministratorRightsParamsPublicKeys);
-const _SetMyDefaultAdministratorRightsParamsEncoded = Schema.Struct({
-  rights: Schema.optional(Schema.suspend((): Schema.Codec<Types.ChatAdministratorRights, unknown> => Types.ChatAdministratorRights)),
-  for_channels: Schema.optional(Schema.Boolean),
+export const SetMyDefaultAdministratorRightsParams: Schema.Codec<SetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { for_channels: "forChannels" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
+  rights: Schema.optional(Types.ChatAdministratorRights),
+    for_channels: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<SetMyDefaultAdministratorRightsParams>((input): input is SetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMyDefaultAdministratorRightsParamsDecoded = Schema.declare<SetMyDefaultAdministratorRightsParams>((input): input is SetMyDefaultAdministratorRightsParams => Predicate.isObject(input));
-export const SetMyDefaultAdministratorRightsParams: Schema.Codec<SetMyDefaultAdministratorRightsParams, Readonly<Record<string, unknown>>> = _SetMyDefaultAdministratorRightsParamsEncoded.pipe(
-  Schema.decodeTo(_SetMyDefaultAdministratorRightsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyDefaultAdministratorRightsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyDefaultAdministratorRightsParamsWireKeys)),
-  }),
-);
 
 export const setMyDefaultAdministratorRights = callMethod({
   method: "setMyDefaultAdministratorRights",
   params: SetMyDefaultAdministratorRightsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6062,25 +6355,27 @@ export interface SetMyDescriptionParams {
   /** A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description. */
   readonly languageCode?: string | undefined;
 }
-const _SetMyDescriptionParamsPublicKeys = { language_code: "languageCode" } as const;
-const _SetMyDescriptionParamsWireKeys = invertKeys(_SetMyDescriptionParamsPublicKeys);
-const _SetMyDescriptionParamsEncoded = Schema.Struct({
+export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   description: Schema.optional(Schema.String),
-  language_code: Schema.optional(Schema.String),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetMyDescriptionParams>((input): input is SetMyDescriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMyDescriptionParamsDecoded = Schema.declare<SetMyDescriptionParams>((input): input is SetMyDescriptionParams => Predicate.isObject(input));
-export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readonly<Record<string, unknown>>> = _SetMyDescriptionParamsEncoded.pipe(
-  Schema.decodeTo(_SetMyDescriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyDescriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyDescriptionParamsWireKeys)),
-  }),
-);
 
 export const setMyDescription = callMethod({
   method: "setMyDescription",
   params: SetMyDescriptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6091,25 +6386,27 @@ export interface SetMyNameParams {
   /** A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name. */
   readonly languageCode?: string | undefined;
 }
-const _SetMyNameParamsPublicKeys = { language_code: "languageCode" } as const;
-const _SetMyNameParamsWireKeys = invertKeys(_SetMyNameParamsPublicKeys);
-const _SetMyNameParamsEncoded = Schema.Struct({
+export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   name: Schema.optional(Schema.String),
-  language_code: Schema.optional(Schema.String),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetMyNameParams>((input): input is SetMyNameParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMyNameParamsDecoded = Schema.declare<SetMyNameParams>((input): input is SetMyNameParams => Predicate.isObject(input));
-export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<string, unknown>>> = _SetMyNameParamsEncoded.pipe(
-  Schema.decodeTo(_SetMyNameParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyNameParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyNameParamsWireKeys)),
-  }),
-);
 
 export const setMyName = callMethod({
   method: "setMyName",
   params: SetMyNameParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6118,15 +6415,15 @@ export interface SetMyProfilePhotoParams {
   /** The new profile photo to set */
   readonly photo: Types.InputProfilePhoto;
 }
-export const SetMyProfilePhotoParams: Schema.Codec<SetMyProfilePhotoParams, Readonly<Record<string, unknown>>> = Schema.Struct({
-  photo: Schema.suspend((): Schema.Codec<Types.InputProfilePhoto, unknown> => Types.InputProfilePhoto),
-});
+export const SetMyProfilePhotoParams: Schema.Codec<SetMyProfilePhotoParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
+  photo: Types.InputProfilePhoto,
+}));
 
 export const setMyProfilePhoto = callMethod({
   method: "setMyProfilePhoto",
   params: SetMyProfilePhotoParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -6137,25 +6434,27 @@ export interface SetMyShortDescriptionParams {
   /** A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description. */
   readonly languageCode?: string | undefined;
 }
-const _SetMyShortDescriptionParamsPublicKeys = { short_description: "shortDescription", language_code: "languageCode" } as const;
-const _SetMyShortDescriptionParamsWireKeys = invertKeys(_SetMyShortDescriptionParamsPublicKeys);
-const _SetMyShortDescriptionParamsEncoded = Schema.Struct({
+export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { short_description: "shortDescription", language_code: "languageCode" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   short_description: Schema.optional(Schema.String),
-  language_code: Schema.optional(Schema.String),
+    language_code: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetMyShortDescriptionParams>((input): input is SetMyShortDescriptionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetMyShortDescriptionParamsDecoded = Schema.declare<SetMyShortDescriptionParams>((input): input is SetMyShortDescriptionParams => Predicate.isObject(input));
-export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = _SetMyShortDescriptionParamsEncoded.pipe(
-  Schema.decodeTo(_SetMyShortDescriptionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetMyShortDescriptionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetMyShortDescriptionParamsWireKeys)),
-  }),
-);
 
 export const setMyShortDescription = callMethod({
   method: "setMyShortDescription",
   params: SetMyShortDescriptionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6166,25 +6465,27 @@ export interface SetPassportDataErrorsParams {
   /** A JSON-serialized Array describing the errors */
   readonly errors: ReadonlyArray<Types.PassportElementError>;
 }
-const _SetPassportDataErrorsParamsPublicKeys = { user_id: "userId" } as const;
-const _SetPassportDataErrorsParamsWireKeys = invertKeys(_SetPassportDataErrorsParamsPublicKeys);
-const _SetPassportDataErrorsParamsEncoded = Schema.Struct({
+export const SetPassportDataErrorsParams: Schema.Codec<SetPassportDataErrorsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  errors: Schema.Array(Schema.suspend((): Schema.Codec<Types.PassportElementError, unknown> => Types.PassportElementError)),
+    errors: Schema.Array(Types.PassportElementError),
+  });
+  const decoded = Schema.declare<SetPassportDataErrorsParams>((input): input is SetPassportDataErrorsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetPassportDataErrorsParamsDecoded = Schema.declare<SetPassportDataErrorsParams>((input): input is SetPassportDataErrorsParams => Predicate.isObject(input));
-export const SetPassportDataErrorsParams: Schema.Codec<SetPassportDataErrorsParams, Readonly<Record<string, unknown>>> = _SetPassportDataErrorsParamsEncoded.pipe(
-  Schema.decodeTo(_SetPassportDataErrorsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetPassportDataErrorsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetPassportDataErrorsParamsWireKeys)),
-  }),
-);
 
 export const setPassportDataErrors = callMethod({
   method: "setPassportDataErrors",
   params: SetPassportDataErrorsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6195,25 +6496,27 @@ export interface SetStickerEmojiListParams {
   /** A JSON-serialized list of 1-20 emoji associated with the sticker */
   readonly emojiList: ReadonlyArray<string>;
 }
-const _SetStickerEmojiListParamsPublicKeys = { emoji_list: "emojiList" } as const;
-const _SetStickerEmojiListParamsWireKeys = invertKeys(_SetStickerEmojiListParamsPublicKeys);
-const _SetStickerEmojiListParamsEncoded = Schema.Struct({
+export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { emoji_list: "emojiList" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   sticker: Schema.String,
-  emoji_list: Schema.Array(Schema.String),
+    emoji_list: Schema.Array(Schema.String),
+  });
+  const decoded = Schema.declare<SetStickerEmojiListParams>((input): input is SetStickerEmojiListParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetStickerEmojiListParamsDecoded = Schema.declare<SetStickerEmojiListParams>((input): input is SetStickerEmojiListParams => Predicate.isObject(input));
-export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, Readonly<Record<string, unknown>>> = _SetStickerEmojiListParamsEncoded.pipe(
-  Schema.decodeTo(_SetStickerEmojiListParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerEmojiListParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerEmojiListParamsWireKeys)),
-  }),
-);
 
 export const setStickerEmojiList = callMethod({
   method: "setStickerEmojiList",
   params: SetStickerEmojiListParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6224,16 +6527,16 @@ export interface SetStickerKeywordsParams {
   /** A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters */
   readonly keywords?: ReadonlyArray<string> | undefined;
 }
-export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   sticker: Schema.String,
   keywords: Schema.optional(Schema.Array(Schema.String)),
-});
+}));
 
 export const setStickerKeywords = callMethod({
   method: "setStickerKeywords",
   params: SetStickerKeywordsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6244,25 +6547,27 @@ export interface SetStickerMaskPositionParams {
   /** A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position. */
   readonly maskPosition?: Types.MaskPosition | undefined;
 }
-const _SetStickerMaskPositionParamsPublicKeys = { mask_position: "maskPosition" } as const;
-const _SetStickerMaskPositionParamsWireKeys = invertKeys(_SetStickerMaskPositionParamsPublicKeys);
-const _SetStickerMaskPositionParamsEncoded = Schema.Struct({
+export const SetStickerMaskPositionParams: Schema.Codec<SetStickerMaskPositionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { mask_position: "maskPosition" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   sticker: Schema.String,
-  mask_position: Schema.optional(Schema.suspend((): Schema.Codec<Types.MaskPosition, unknown> => Types.MaskPosition)),
+    mask_position: Schema.optional(Types.MaskPosition),
+  });
+  const decoded = Schema.declare<SetStickerMaskPositionParams>((input): input is SetStickerMaskPositionParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetStickerMaskPositionParamsDecoded = Schema.declare<SetStickerMaskPositionParams>((input): input is SetStickerMaskPositionParams => Predicate.isObject(input));
-export const SetStickerMaskPositionParams: Schema.Codec<SetStickerMaskPositionParams, Readonly<Record<string, unknown>>> = _SetStickerMaskPositionParamsEncoded.pipe(
-  Schema.decodeTo(_SetStickerMaskPositionParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerMaskPositionParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerMaskPositionParamsWireKeys)),
-  }),
-);
 
 export const setStickerMaskPosition = callMethod({
   method: "setStickerMaskPosition",
   params: SetStickerMaskPositionParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6273,16 +6578,16 @@ export interface SetStickerPositionInSetParams {
   /** New sticker position in the set, zero-based */
   readonly position: number;
 }
-export const SetStickerPositionInSetParams: Schema.Codec<SetStickerPositionInSetParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const SetStickerPositionInSetParams: Schema.Codec<SetStickerPositionInSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   sticker: Schema.String,
   position: Schema.Int,
-});
+}));
 
 export const setStickerPositionInSet = callMethod({
   method: "setStickerPositionInSet",
   params: SetStickerPositionInSetParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6297,27 +6602,29 @@ export interface SetStickerSetThumbnailParams {
   /** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a .WEBM video */
   readonly format: Types.StickerFormat;
 }
-const _SetStickerSetThumbnailParamsPublicKeys = { user_id: "userId" } as const;
-const _SetStickerSetThumbnailParamsWireKeys = invertKeys(_SetStickerSetThumbnailParamsPublicKeys);
-const _SetStickerSetThumbnailParamsEncoded = Schema.Struct({
+export const SetStickerSetThumbnailParams: Schema.Codec<SetStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   name: Schema.String,
-  user_id: Schema.Int,
-  thumbnail: Schema.optional(Schema.Union([Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile), Schema.String])),
-  format: Schema.suspend((): Schema.Codec<Types.StickerFormat, unknown> => Types.StickerFormat),
+    user_id: Schema.Int,
+    thumbnail: Schema.optional(Schema.Union([Types.InputFile, Schema.String])),
+    format: Types.StickerFormat,
+  });
+  const decoded = Schema.declare<SetStickerSetThumbnailParams>((input): input is SetStickerSetThumbnailParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetStickerSetThumbnailParamsDecoded = Schema.declare<SetStickerSetThumbnailParams>((input): input is SetStickerSetThumbnailParams => Predicate.isObject(input));
-export const SetStickerSetThumbnailParams: Schema.Codec<SetStickerSetThumbnailParams, Readonly<Record<string, unknown>>> = _SetStickerSetThumbnailParamsEncoded.pipe(
-  Schema.decodeTo(_SetStickerSetThumbnailParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetStickerSetThumbnailParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetStickerSetThumbnailParamsWireKeys)),
-  }),
-);
 
 export const setStickerSetThumbnail = callMethod({
   method: "setStickerSetThumbnail",
   params: SetStickerSetThumbnailParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6328,16 +6635,16 @@ export interface SetStickerSetTitleParams {
   /** Sticker set title, 1-64 characters */
   readonly title: string;
 }
-export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Readonly<Record<string, unknown>>> = Schema.Struct({
+export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
   name: Schema.String,
   title: Schema.String,
-});
+}));
 
 export const setStickerSetTitle = callMethod({
   method: "setStickerSetTitle",
   params: SetStickerSetTitleParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6350,26 +6657,28 @@ export interface SetUserEmojiStatusParams {
   /** Expiration date of the emoji status, if any */
   readonly emojiStatusExpirationDate?: number | undefined;
 }
-const _SetUserEmojiStatusParamsPublicKeys = { user_id: "userId", emoji_status_custom_emoji_id: "emojiStatusCustomEmojiId", emoji_status_expiration_date: "emojiStatusExpirationDate" } as const;
-const _SetUserEmojiStatusParamsWireKeys = invertKeys(_SetUserEmojiStatusParamsPublicKeys);
-const _SetUserEmojiStatusParamsEncoded = Schema.Struct({
+export const SetUserEmojiStatusParams: Schema.Codec<SetUserEmojiStatusParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", emoji_status_custom_emoji_id: "emojiStatusCustomEmojiId", emoji_status_expiration_date: "emojiStatusExpirationDate" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  emoji_status_custom_emoji_id: Schema.optional(Schema.String),
-  emoji_status_expiration_date: Schema.optional(Schema.Int),
+    emoji_status_custom_emoji_id: Schema.optional(Schema.String),
+    emoji_status_expiration_date: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<SetUserEmojiStatusParams>((input): input is SetUserEmojiStatusParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetUserEmojiStatusParamsDecoded = Schema.declare<SetUserEmojiStatusParams>((input): input is SetUserEmojiStatusParams => Predicate.isObject(input));
-export const SetUserEmojiStatusParams: Schema.Codec<SetUserEmojiStatusParams, Readonly<Record<string, unknown>>> = _SetUserEmojiStatusParamsEncoded.pipe(
-  Schema.decodeTo(_SetUserEmojiStatusParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetUserEmojiStatusParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetUserEmojiStatusParamsWireKeys)),
-  }),
-);
 
 export const setUserEmojiStatus = callMethod({
   method: "setUserEmojiStatus",
   params: SetUserEmojiStatusParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6391,30 +6700,32 @@ Please note that this parameter doesn't affect updates created before the call t
   /** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
   readonly secretToken?: string | undefined;
 }
-const _SetWebhookParamsPublicKeys = { ip_address: "ipAddress", max_connections: "maxConnections", allowed_updates: "allowedUpdates", drop_pending_updates: "dropPendingUpdates", secret_token: "secretToken" } as const;
-const _SetWebhookParamsWireKeys = invertKeys(_SetWebhookParamsPublicKeys);
-const _SetWebhookParamsEncoded = Schema.Struct({
+export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { ip_address: "ipAddress", max_connections: "maxConnections", allowed_updates: "allowedUpdates", drop_pending_updates: "dropPendingUpdates", secret_token: "secretToken" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   url: Schema.String,
-  certificate: Schema.optional(Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile)),
-  ip_address: Schema.optional(Schema.String),
-  max_connections: Schema.optional(Schema.Int),
-  allowed_updates: Schema.optional(Schema.Array(Schema.suspend((): Schema.Codec<Types.UpdateType, unknown> => Types.UpdateType))),
-  drop_pending_updates: Schema.optional(Schema.Boolean),
-  secret_token: Schema.optional(Schema.String),
+    certificate: Schema.optional(Types.InputFile),
+    ip_address: Schema.optional(Schema.String),
+    max_connections: Schema.optional(Schema.Int),
+    allowed_updates: Schema.optional(Schema.Array(Types.UpdateType)),
+    drop_pending_updates: Schema.optional(Schema.Boolean),
+    secret_token: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<SetWebhookParams>((input): input is SetWebhookParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _SetWebhookParamsDecoded = Schema.declare<SetWebhookParams>((input): input is SetWebhookParams => Predicate.isObject(input));
-export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<string, unknown>>> = _SetWebhookParamsEncoded.pipe(
-  Schema.decodeTo(_SetWebhookParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_SetWebhookParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_SetWebhookParamsWireKeys)),
-  }),
-);
 
 export const setWebhook = callMethod({
   method: "setWebhook",
   params: SetWebhookParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6431,28 +6742,30 @@ export interface StopMessageLiveLocationParams {
   /** A JSON-serialized object for a new inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _StopMessageLiveLocationParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
-const _StopMessageLiveLocationParamsWireKeys = invertKeys(_StopMessageLiveLocationParamsPublicKeys);
-const _StopMessageLiveLocationParamsEncoded = Schema.Struct({
+export const StopMessageLiveLocationParams: Schema.Codec<StopMessageLiveLocationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
-  message_id: Schema.optional(Schema.Int),
-  inline_message_id: Schema.optional(Schema.String),
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.optional(Schema.Union([Schema.Int, Schema.String])),
+    message_id: Schema.optional(Schema.Int),
+    inline_message_id: Schema.optional(Schema.String),
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<StopMessageLiveLocationParams>((input): input is StopMessageLiveLocationParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _StopMessageLiveLocationParamsDecoded = Schema.declare<StopMessageLiveLocationParams>((input): input is StopMessageLiveLocationParams => Predicate.isObject(input));
-export const StopMessageLiveLocationParams: Schema.Codec<StopMessageLiveLocationParams, Readonly<Record<string, unknown>>> = _StopMessageLiveLocationParamsEncoded.pipe(
-  Schema.decodeTo(_StopMessageLiveLocationParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_StopMessageLiveLocationParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_StopMessageLiveLocationParamsWireKeys)),
-  }),
-);
 
 export const stopMessageLiveLocation = callMethod({
   method: "stopMessageLiveLocation",
   params: StopMessageLiveLocationParams,
   rateLimit: "none",
-  result: Schema.Union([Schema.suspend((): Schema.Codec<Types.Message, unknown> => Types.Message), Schema.Literal(true)]),
+  result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
   retrySafe: true,
 });
 
@@ -6467,27 +6780,29 @@ export interface StopPollParams {
   /** A JSON-serialized object for a new message inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
-const _StopPollParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
-const _StopPollParamsWireKeys = invertKeys(_StopPollParamsPublicKeys);
-const _StopPollParamsEncoded = Schema.Struct({
+export const StopPollParams: Schema.Codec<StopPollParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", reply_markup: "replyMarkup" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.Int,
-  reply_markup: Schema.optional(Schema.suspend((): Schema.Codec<Types.InlineKeyboardMarkup, unknown> => Types.InlineKeyboardMarkup)),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_id: Schema.Int,
+    reply_markup: Schema.optional(Types.InlineKeyboardMarkup),
+  });
+  const decoded = Schema.declare<StopPollParams>((input): input is StopPollParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _StopPollParamsDecoded = Schema.declare<StopPollParams>((input): input is StopPollParams => Predicate.isObject(input));
-export const StopPollParams: Schema.Codec<StopPollParams, Readonly<Record<string, unknown>>> = _StopPollParamsEncoded.pipe(
-  Schema.decodeTo(_StopPollParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_StopPollParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_StopPollParamsWireKeys)),
-  }),
-);
 
 export const stopPoll = callMethod({
   method: "stopPoll",
   params: StopPollParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.Poll, unknown> => Types.Poll),
+  result: Schema.suspend(() => Types.Poll),
   retrySafe: true,
 });
 
@@ -6498,25 +6813,27 @@ export interface TransferBusinessAccountStarsParams {
   /** Number of Telegram Stars to transfer; 1-10000 */
   readonly starCount: number;
 }
-const _TransferBusinessAccountStarsParamsPublicKeys = { business_connection_id: "businessConnectionId", star_count: "starCount" } as const;
-const _TransferBusinessAccountStarsParamsWireKeys = invertKeys(_TransferBusinessAccountStarsParamsPublicKeys);
-const _TransferBusinessAccountStarsParamsEncoded = Schema.Struct({
+export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAccountStarsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", star_count: "starCount" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  star_count: Schema.Int,
+    star_count: Schema.Int,
+  });
+  const decoded = Schema.declare<TransferBusinessAccountStarsParams>((input): input is TransferBusinessAccountStarsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _TransferBusinessAccountStarsParamsDecoded = Schema.declare<TransferBusinessAccountStarsParams>((input): input is TransferBusinessAccountStarsParams => Predicate.isObject(input));
-export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAccountStarsParams, Readonly<Record<string, unknown>>> = _TransferBusinessAccountStarsParamsEncoded.pipe(
-  Schema.decodeTo(_TransferBusinessAccountStarsParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_TransferBusinessAccountStarsParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_TransferBusinessAccountStarsParamsWireKeys)),
-  }),
-);
 
 export const transferBusinessAccountStars = callMethod({
   method: "transferBusinessAccountStars",
   params: TransferBusinessAccountStarsParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: false,
 });
 
@@ -6531,27 +6848,29 @@ export interface TransferGiftParams {
   /** The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the can_transfer_stars business bot right is required. */
   readonly starCount?: number | undefined;
 }
-const _TransferGiftParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", new_owner_chat_id: "newOwnerChatId", star_count: "starCount" } as const;
-const _TransferGiftParamsWireKeys = invertKeys(_TransferGiftParamsPublicKeys);
-const _TransferGiftParamsEncoded = Schema.Struct({
+export const TransferGiftParams: Schema.Codec<TransferGiftParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", new_owner_chat_id: "newOwnerChatId", star_count: "starCount" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  owned_gift_id: Schema.String,
-  new_owner_chat_id: Schema.Int,
-  star_count: Schema.optional(Schema.Int),
+    owned_gift_id: Schema.String,
+    new_owner_chat_id: Schema.Int,
+    star_count: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<TransferGiftParams>((input): input is TransferGiftParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _TransferGiftParamsDecoded = Schema.declare<TransferGiftParams>((input): input is TransferGiftParams => Predicate.isObject(input));
-export const TransferGiftParams: Schema.Codec<TransferGiftParams, Readonly<Record<string, unknown>>> = _TransferGiftParamsEncoded.pipe(
-  Schema.decodeTo(_TransferGiftParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_TransferGiftParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_TransferGiftParamsWireKeys)),
-  }),
-);
 
 export const transferGift = callMethod({
   method: "transferGift",
   params: TransferGiftParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6564,26 +6883,28 @@ export interface UnbanChatMemberParams {
   /** Do nothing if the user is not banned */
   readonly onlyIfBanned?: boolean | undefined;
 }
-const _UnbanChatMemberParamsPublicKeys = { chat_id: "chatId", user_id: "userId", only_if_banned: "onlyIfBanned" } as const;
-const _UnbanChatMemberParamsWireKeys = invertKeys(_UnbanChatMemberParamsPublicKeys);
-const _UnbanChatMemberParamsEncoded = Schema.Struct({
+export const UnbanChatMemberParams: Schema.Codec<UnbanChatMemberParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", user_id: "userId", only_if_banned: "onlyIfBanned" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  user_id: Schema.Int,
-  only_if_banned: Schema.optional(Schema.Boolean),
+    user_id: Schema.Int,
+    only_if_banned: Schema.optional(Schema.Boolean),
+  });
+  const decoded = Schema.declare<UnbanChatMemberParams>((input): input is UnbanChatMemberParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnbanChatMemberParamsDecoded = Schema.declare<UnbanChatMemberParams>((input): input is UnbanChatMemberParams => Predicate.isObject(input));
-export const UnbanChatMemberParams: Schema.Codec<UnbanChatMemberParams, Readonly<Record<string, unknown>>> = _UnbanChatMemberParamsEncoded.pipe(
-  Schema.decodeTo(_UnbanChatMemberParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatMemberParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatMemberParamsWireKeys)),
-  }),
-);
 
 export const unbanChatMember = callMethod({
   method: "unbanChatMember",
   params: UnbanChatMemberParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6594,25 +6915,27 @@ export interface UnbanChatSenderChatParams {
   /** Unique identifier of the target sender chat */
   readonly senderChatId: number;
 }
-const _UnbanChatSenderChatParamsPublicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
-const _UnbanChatSenderChatParamsWireKeys = invertKeys(_UnbanChatSenderChatParamsPublicKeys);
-const _UnbanChatSenderChatParamsEncoded = Schema.Struct({
+export const UnbanChatSenderChatParams: Schema.Codec<UnbanChatSenderChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", sender_chat_id: "senderChatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  sender_chat_id: Schema.Int,
+    sender_chat_id: Schema.Int,
+  });
+  const decoded = Schema.declare<UnbanChatSenderChatParams>((input): input is UnbanChatSenderChatParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnbanChatSenderChatParamsDecoded = Schema.declare<UnbanChatSenderChatParams>((input): input is UnbanChatSenderChatParams => Predicate.isObject(input));
-export const UnbanChatSenderChatParams: Schema.Codec<UnbanChatSenderChatParams, Readonly<Record<string, unknown>>> = _UnbanChatSenderChatParamsEncoded.pipe(
-  Schema.decodeTo(_UnbanChatSenderChatParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatSenderChatParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnbanChatSenderChatParamsWireKeys)),
-  }),
-);
 
 export const unbanChatSenderChat = callMethod({
   method: "unbanChatSenderChat",
   params: UnbanChatSenderChatParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6621,24 +6944,26 @@ export interface UnhideGeneralForumTopicParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _UnhideGeneralForumTopicParamsPublicKeys = { chat_id: "chatId" } as const;
-const _UnhideGeneralForumTopicParamsWireKeys = invertKeys(_UnhideGeneralForumTopicParamsPublicKeys);
-const _UnhideGeneralForumTopicParamsEncoded = Schema.Struct({
+export const UnhideGeneralForumTopicParams: Schema.Codec<UnhideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<UnhideGeneralForumTopicParams>((input): input is UnhideGeneralForumTopicParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnhideGeneralForumTopicParamsDecoded = Schema.declare<UnhideGeneralForumTopicParams>((input): input is UnhideGeneralForumTopicParams => Predicate.isObject(input));
-export const UnhideGeneralForumTopicParams: Schema.Codec<UnhideGeneralForumTopicParams, Readonly<Record<string, unknown>>> = _UnhideGeneralForumTopicParamsEncoded.pipe(
-  Schema.decodeTo(_UnhideGeneralForumTopicParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnhideGeneralForumTopicParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnhideGeneralForumTopicParamsWireKeys)),
-  }),
-);
 
 export const unhideGeneralForumTopic = callMethod({
   method: "unhideGeneralForumTopic",
   params: UnhideGeneralForumTopicParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6647,24 +6972,26 @@ export interface UnpinAllChatMessagesParams {
   /** Unique identifier for the target chat or username of the target channel in the format @username */
   readonly chatId: number | string;
 }
-const _UnpinAllChatMessagesParamsPublicKeys = { chat_id: "chatId" } as const;
-const _UnpinAllChatMessagesParamsWireKeys = invertKeys(_UnpinAllChatMessagesParamsPublicKeys);
-const _UnpinAllChatMessagesParamsEncoded = Schema.Struct({
+export const UnpinAllChatMessagesParams: Schema.Codec<UnpinAllChatMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<UnpinAllChatMessagesParams>((input): input is UnpinAllChatMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnpinAllChatMessagesParamsDecoded = Schema.declare<UnpinAllChatMessagesParams>((input): input is UnpinAllChatMessagesParams => Predicate.isObject(input));
-export const UnpinAllChatMessagesParams: Schema.Codec<UnpinAllChatMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllChatMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_UnpinAllChatMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllChatMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllChatMessagesParamsWireKeys)),
-  }),
-);
 
 export const unpinAllChatMessages = callMethod({
   method: "unpinAllChatMessages",
   params: UnpinAllChatMessagesParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6675,25 +7002,27 @@ export interface UnpinAllForumTopicMessagesParams {
   /** Unique identifier for the target message thread of the forum topic */
   readonly messageThreadId: number;
 }
-const _UnpinAllForumTopicMessagesParamsPublicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
-const _UnpinAllForumTopicMessagesParamsWireKeys = invertKeys(_UnpinAllForumTopicMessagesParamsPublicKeys);
-const _UnpinAllForumTopicMessagesParamsEncoded = Schema.Struct({
+export const UnpinAllForumTopicMessagesParams: Schema.Codec<UnpinAllForumTopicMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_thread_id: Schema.Int,
+    message_thread_id: Schema.Int,
+  });
+  const decoded = Schema.declare<UnpinAllForumTopicMessagesParams>((input): input is UnpinAllForumTopicMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnpinAllForumTopicMessagesParamsDecoded = Schema.declare<UnpinAllForumTopicMessagesParams>((input): input is UnpinAllForumTopicMessagesParams => Predicate.isObject(input));
-export const UnpinAllForumTopicMessagesParams: Schema.Codec<UnpinAllForumTopicMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllForumTopicMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_UnpinAllForumTopicMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllForumTopicMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllForumTopicMessagesParamsWireKeys)),
-  }),
-);
 
 export const unpinAllForumTopicMessages = callMethod({
   method: "unpinAllForumTopicMessages",
   params: UnpinAllForumTopicMessagesParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6702,24 +7031,26 @@ export interface UnpinAllGeneralForumTopicMessagesParams {
   /** Unique identifier for the target chat or username of the target supergroup in the format @username */
   readonly chatId: number | string;
 }
-const _UnpinAllGeneralForumTopicMessagesParamsPublicKeys = { chat_id: "chatId" } as const;
-const _UnpinAllGeneralForumTopicMessagesParamsWireKeys = invertKeys(_UnpinAllGeneralForumTopicMessagesParamsPublicKeys);
-const _UnpinAllGeneralForumTopicMessagesParamsEncoded = Schema.Struct({
+export const UnpinAllGeneralForumTopicMessagesParams: Schema.Codec<UnpinAllGeneralForumTopicMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
+  });
+  const decoded = Schema.declare<UnpinAllGeneralForumTopicMessagesParams>((input): input is UnpinAllGeneralForumTopicMessagesParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnpinAllGeneralForumTopicMessagesParamsDecoded = Schema.declare<UnpinAllGeneralForumTopicMessagesParams>((input): input is UnpinAllGeneralForumTopicMessagesParams => Predicate.isObject(input));
-export const UnpinAllGeneralForumTopicMessagesParams: Schema.Codec<UnpinAllGeneralForumTopicMessagesParams, Readonly<Record<string, unknown>>> = _UnpinAllGeneralForumTopicMessagesParamsEncoded.pipe(
-  Schema.decodeTo(_UnpinAllGeneralForumTopicMessagesParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllGeneralForumTopicMessagesParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinAllGeneralForumTopicMessagesParamsWireKeys)),
-  }),
-);
 
 export const unpinAllGeneralForumTopicMessages = callMethod({
   method: "unpinAllGeneralForumTopicMessages",
   params: UnpinAllGeneralForumTopicMessagesParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6732,26 +7063,28 @@ export interface UnpinChatMessageParams {
   /** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
   readonly messageId?: number | undefined;
 }
-const _UnpinChatMessageParamsPublicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
-const _UnpinChatMessageParamsWireKeys = invertKeys(_UnpinChatMessageParamsPublicKeys);
-const _UnpinChatMessageParamsEncoded = Schema.Struct({
+export const UnpinChatMessageParams: Schema.Codec<UnpinChatMessageParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.optional(Schema.String),
-  chat_id: Schema.Union([Schema.Int, Schema.String]),
-  message_id: Schema.optional(Schema.Int),
+    chat_id: Schema.Union([Schema.Int, Schema.String]),
+    message_id: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<UnpinChatMessageParams>((input): input is UnpinChatMessageParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UnpinChatMessageParamsDecoded = Schema.declare<UnpinChatMessageParams>((input): input is UnpinChatMessageParams => Predicate.isObject(input));
-export const UnpinChatMessageParams: Schema.Codec<UnpinChatMessageParams, Readonly<Record<string, unknown>>> = _UnpinChatMessageParamsEncoded.pipe(
-  Schema.decodeTo(_UnpinChatMessageParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UnpinChatMessageParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UnpinChatMessageParamsWireKeys)),
-  }),
-);
 
 export const unpinChatMessage = callMethod({
   method: "unpinChatMessage",
   params: UnpinChatMessageParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6766,27 +7099,29 @@ export interface UpgradeGiftParams {
   /** The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If gift.prepaid_upgrade_star_count > 0, then pass 0, otherwise, the can_transfer_stars business bot right is required and gift.upgrade_star_count must be passed. */
   readonly starCount?: number | undefined;
 }
-const _UpgradeGiftParamsPublicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", keep_original_details: "keepOriginalDetails", star_count: "starCount" } as const;
-const _UpgradeGiftParamsWireKeys = invertKeys(_UpgradeGiftParamsPublicKeys);
-const _UpgradeGiftParamsEncoded = Schema.Struct({
+export const UpgradeGiftParams: Schema.Codec<UpgradeGiftParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { business_connection_id: "businessConnectionId", owned_gift_id: "ownedGiftId", keep_original_details: "keepOriginalDetails", star_count: "starCount" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   business_connection_id: Schema.String,
-  owned_gift_id: Schema.String,
-  keep_original_details: Schema.optional(Schema.Boolean),
-  star_count: Schema.optional(Schema.Int),
+    owned_gift_id: Schema.String,
+    keep_original_details: Schema.optional(Schema.Boolean),
+    star_count: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<UpgradeGiftParams>((input): input is UpgradeGiftParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UpgradeGiftParamsDecoded = Schema.declare<UpgradeGiftParams>((input): input is UpgradeGiftParams => Predicate.isObject(input));
-export const UpgradeGiftParams: Schema.Codec<UpgradeGiftParams, Readonly<Record<string, unknown>>> = _UpgradeGiftParamsEncoded.pipe(
-  Schema.decodeTo(_UpgradeGiftParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UpgradeGiftParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UpgradeGiftParamsWireKeys)),
-  }),
-);
 
 export const upgradeGift = callMethod({
   method: "upgradeGift",
   params: UpgradeGiftParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6799,26 +7134,28 @@ export interface UploadStickerFileParams {
   /** Format of the sticker, must be one of “static”, “animated”, “video” */
   readonly stickerFormat: Types.StickerFormat;
 }
-const _UploadStickerFileParamsPublicKeys = { user_id: "userId", sticker_format: "stickerFormat" } as const;
-const _UploadStickerFileParamsWireKeys = invertKeys(_UploadStickerFileParamsPublicKeys);
-const _UploadStickerFileParamsEncoded = Schema.Struct({
+export const UploadStickerFileParams: Schema.Codec<UploadStickerFileParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", sticker_format: "stickerFormat" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  sticker: Schema.suspend((): Schema.Codec<Types.InputFile, unknown> => Types.InputFile),
-  sticker_format: Schema.suspend((): Schema.Codec<Types.StickerFormat, unknown> => Types.StickerFormat),
+    sticker: Types.InputFile,
+    sticker_format: Types.StickerFormat,
+  });
+  const decoded = Schema.declare<UploadStickerFileParams>((input): input is UploadStickerFileParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _UploadStickerFileParamsDecoded = Schema.declare<UploadStickerFileParams>((input): input is UploadStickerFileParams => Predicate.isObject(input));
-export const UploadStickerFileParams: Schema.Codec<UploadStickerFileParams, Readonly<Record<string, unknown>>> = _UploadStickerFileParamsEncoded.pipe(
-  Schema.decodeTo(_UploadStickerFileParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_UploadStickerFileParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_UploadStickerFileParamsWireKeys)),
-  }),
-);
 
 export const uploadStickerFile = callMethod({
   method: "uploadStickerFile",
   params: UploadStickerFileParams,
   rateLimit: "none",
-  result: Schema.suspend((): Schema.Codec<Types.File, unknown> => Types.File),
+  result: Schema.suspend(() => Types.File),
   retrySafe: false,
 });
 
@@ -6829,25 +7166,27 @@ export interface VerifyChatParams {
   /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
   readonly customDescription?: string | undefined;
 }
-const _VerifyChatParamsPublicKeys = { chat_id: "chatId", custom_description: "customDescription" } as const;
-const _VerifyChatParamsWireKeys = invertKeys(_VerifyChatParamsPublicKeys);
-const _VerifyChatParamsEncoded = Schema.Struct({
+export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { chat_id: "chatId", custom_description: "customDescription" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   chat_id: Schema.Union([Schema.Int, Schema.String]),
-  custom_description: Schema.optional(Schema.String),
+    custom_description: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<VerifyChatParams>((input): input is VerifyChatParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _VerifyChatParamsDecoded = Schema.declare<VerifyChatParams>((input): input is VerifyChatParams => Predicate.isObject(input));
-export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<string, unknown>>> = _VerifyChatParamsEncoded.pipe(
-  Schema.decodeTo(_VerifyChatParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_VerifyChatParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_VerifyChatParamsWireKeys)),
-  }),
-);
 
 export const verifyChat = callMethod({
   method: "verifyChat",
   params: VerifyChatParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });
 
@@ -6858,24 +7197,26 @@ export interface VerifyUserParams {
   /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
   readonly customDescription?: string | undefined;
 }
-const _VerifyUserParamsPublicKeys = { user_id: "userId", custom_description: "customDescription" } as const;
-const _VerifyUserParamsWireKeys = invertKeys(_VerifyUserParamsPublicKeys);
-const _VerifyUserParamsEncoded = Schema.Struct({
+export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const publicKeys = { user_id: "userId", custom_description: "customDescription" } as const;
+  const wireKeys = invertKeys(publicKeys);
+  const encoded = Schema.Struct({
   user_id: Schema.Int,
-  custom_description: Schema.optional(Schema.String),
+    custom_description: Schema.optional(Schema.String),
+  });
+  const decoded = Schema.declare<VerifyUserParams>((input): input is VerifyUserParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
+      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+    }),
+  );
 });
-const _VerifyUserParamsDecoded = Schema.declare<VerifyUserParams>((input): input is VerifyUserParams => Predicate.isObject(input));
-export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<string, unknown>>> = _VerifyUserParamsEncoded.pipe(
-  Schema.decodeTo(_VerifyUserParamsDecoded, {
-    decode: SchemaGetter.transform(Struct.renameKeys(_VerifyUserParamsPublicKeys)),
-    encode: SchemaGetter.transform(Struct.renameKeys(_VerifyUserParamsWireKeys)),
-  }),
-);
 
 export const verifyUser = callMethod({
   method: "verifyUser",
   params: VerifyUserParams,
   rateLimit: "none",
-  result: Schema.Literal(true),
+  result: Schema.suspend(() => Schema.Literal(true)),
   retrySafe: true,
 });

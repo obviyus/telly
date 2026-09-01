@@ -204,6 +204,8 @@ Done when:
 - Telly ranks first on the primary score of the published benchmark suite without disabling a correctness or safety guarantee.
 - Every performance claim links to reproducible baseline, result, variance, environment, and competitor-version data.
 
+Current evidence: [the accepted full framework baseline](./benchmarks/baselines/2026-09-01T07-28-39-574fbca4-full.md).
+
 ## Verification
 
 Tests prove behavior through public interfaces.

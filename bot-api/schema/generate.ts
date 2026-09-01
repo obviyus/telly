@@ -23,6 +23,7 @@ const program = Effect.gen(function* () {
   })(evidenceText);
   const sources = generateSources(spec, overrides, evidence);
   yield* Effect.all([
+    Effect.tryPromise(() => writeFile(new URL("../../src/internal/decoders.generated.ts", import.meta.url), sources.decoders)),
     Effect.tryPromise(() => writeFile(new URL("../../src/types.generated.ts", import.meta.url), sources.types)),
     Effect.tryPromise(() => writeFile(new URL("../../src/methods.generated.ts", import.meta.url), sources.methods)),
     Effect.tryPromise(() => writeFile(new URL("./coverage.json", import.meta.url), sources.coverage)),

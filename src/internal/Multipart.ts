@@ -1,4 +1,4 @@
-import { Predicate } from "effect";
+import * as Predicate from "effect/Predicate";
 
 export type RequestBody =
   | { readonly _tag: "Json"; readonly body: object }

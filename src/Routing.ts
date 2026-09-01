@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import * as Effect from "effect/Effect";
 
 import { Bot, type BotApiError } from "./BotApi.js";
 import { withConversations } from "./internal/ConversationRuntime.js";

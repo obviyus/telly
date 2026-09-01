@@ -45,6 +45,10 @@ export function markdownReport(result: BenchmarkDocument, rawFile: string): stri
     const metric = result.diagnostics.decode[name];
     return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
   }).join("\n");
+  const heavyDecodeRows = (["telly", "python-telegram-bot"] as const).map((name) => {
+    const metric = result.diagnostics.heavyDecode[name];
+    return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
+  }).join("\n");
   const startupRows = frameworks.map((name) =>
     `| ${name} | ${(result.startup[name].total.median / 1_000_000).toFixed(1)} | ${(result.startup[name].deltaNs / 1_000_000).toFixed(1)} |`
   ).join("\n");
@@ -84,6 +88,14 @@ ${routingRows}
 ${decodeRows}
 
 grammY reports N/A because it consumes Telegram update objects without constructing a validated domain model.
+
+## Complex decode diagnostic
+
+| Framework | updates/s |
+| --- | ---: |
+${heavyDecodeRows}
+
+Complex fixtures add forwarded origins, nested replies, photo arrays, and inline keyboards. Each round decodes ${integer(result.workload.diagnosticOperations)} updates. This diagnostic proves sparse decoding beyond the primary shapes. grammY remains N/A for the same reason as the decode-only table.
 
 ## Cold startup
 

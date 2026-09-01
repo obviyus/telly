@@ -19,7 +19,12 @@ import {
 } from "./protocol.ts";
 import { markdownReport, terminalReport } from "./report.ts";
 import { summarize, summarizeLatency } from "./stats.ts";
-import { expectedTotals, makeWorkload, type WorkloadTotals } from "./workload.ts";
+import {
+  expectedTotals,
+  makeHeavyWorkload,
+  makeWorkload,
+  type WorkloadTotals,
+} from "./workload.ts";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const frameworkOrder: ReadonlyArray<FrameworkName> = [
@@ -29,6 +34,7 @@ const frameworkOrder: ReadonlyArray<FrameworkName> = [
 ];
 
 const Preset = Schema.Struct({
+  diagnosticOperations: Schema.Int,
   latencyOperations: Schema.Int,
   measuredRounds: Schema.Int,
   operations: Schema.Int,
@@ -142,6 +148,7 @@ async function runFramework(
     readonly pin: number | null;
     readonly rounds: number;
     readonly warmups: number;
+    readonly warmupOperations: number;
     readonly workloadPath: string;
   },
 ): Promise<RunnerResultType> {
@@ -158,6 +165,8 @@ async function runFramework(
     "false",
     "--warmups",
     String(options.warmups),
+    "--warmup-operations",
+    String(options.warmupOperations),
     "--workload",
     options.workloadPath,
   ];
@@ -267,11 +276,19 @@ try {
   });
   const workloadPath = path.join(scratch, "workload.json");
   await writeFile(workloadPath, JSON.stringify(workload));
+  const heavyWorkload = makeHeavyWorkload({
+    fixtureCount: manifest.workload.fixtureCount,
+    seed: manifest.workload.seed,
+  });
+  const heavyWorkloadPath = path.join(scratch, "heavy-workload.json");
+  await writeFile(heavyWorkloadPath, JSON.stringify(heavyWorkload));
   const measuredExpected = expectedTotals(workload.entries, preset.operations);
   const latencyExpected = expectedTotals(workload.entries, preset.latencyOperations);
+  const heavyExpected = expectedTotals(heavyWorkload.entries, preset.diagnosticOperations);
   const ingress: Array<RunnerResultType> = [];
   const routing: Array<RunnerResultType> = [];
   const decode: Array<RunnerResultType> = [];
+  const heavyDecode: Array<RunnerResultType> = [];
   const latencyResults: Array<RunnerResultType> = [];
 
   for (let processIndex = 0; processIndex < preset.processes; processIndex += 1) {
@@ -283,6 +300,7 @@ try {
         pin: cli.pin,
         rounds: preset.measuredRounds,
         warmups: preset.warmupRounds,
+        warmupOperations: preset.operations,
         workloadPath,
       }));
     }
@@ -296,6 +314,7 @@ try {
         pin: cli.pin,
         rounds: preset.measuredRounds,
         warmups: preset.warmupRounds,
+        warmupOperations: preset.operations,
         workloadPath,
       }));
     }
@@ -308,7 +327,20 @@ try {
       pin: cli.pin,
       rounds: preset.measuredRounds,
       warmups: preset.warmupRounds,
+      warmupOperations: preset.operations,
       workloadPath,
+    }));
+  }
+  for (const framework of ["telly", "python-telegram-bot"] as const) {
+    heavyDecode.push(await runFramework(framework, {
+      mode: "decode",
+      expected: heavyExpected,
+      operations: preset.diagnosticOperations,
+      pin: cli.pin,
+      rounds: preset.measuredRounds,
+      warmups: preset.warmupRounds,
+      warmupOperations: preset.diagnosticOperations,
+      workloadPath: heavyWorkloadPath,
     }));
   }
   for (let processIndex = 0; processIndex < preset.processes; processIndex += 1) {
@@ -320,6 +352,7 @@ try {
         pin: cli.pin,
         rounds: 1,
         warmups: preset.warmupRounds,
+        warmupOperations: preset.operations,
         workloadPath,
       }));
     }
@@ -331,6 +364,7 @@ try {
     pin: cli.pin,
     rounds: 1,
     warmups: 0,
+    warmupOperations: preset.operations,
     workloadPath,
   });
   const pythonFloor = await runFramework("python-telegram-bot", {
@@ -340,6 +374,7 @@ try {
     pin: cli.pin,
     rounds: 1,
     warmups: 0,
+    warmupOperations: preset.operations,
     workloadPath,
   });
   const startupNs = await startupSamples({ pin: cli.pin, rounds: preset.startupRounds });
@@ -362,6 +397,7 @@ try {
     ...ingress,
     ...routing,
     ...decode,
+    ...heavyDecode,
     ...latencyResults,
     nodeFloor,
     pythonFloor,
@@ -389,6 +425,10 @@ try {
       decode: {
         telly: summarize(throughput(decode, "telly")),
         "python-telegram-bot": summarize(throughput(decode, "python-telegram-bot")),
+      },
+      heavyDecode: {
+        telly: summarize(throughput(heavyDecode, "telly")),
+        "python-telegram-bot": summarize(throughput(heavyDecode, "python-telegram-bot")),
       },
       routing: {
         grammy: summarize(throughput(routing, "grammy")),
@@ -447,10 +487,11 @@ try {
     versions,
     workload: {
       ...manifest.workload,
+      diagnosticOperations: preset.diagnosticOperations,
       operations: preset.operations,
     },
   };
-  const directory = cli.baseline
+  const directory = cli.baseline && document.quality.publishable
     ? path.join(repoRoot, "benchmarks/baselines")
     : path.join(repoRoot, "benchmarks/results");
   await mkdir(directory, { recursive: true });

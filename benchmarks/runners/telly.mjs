@@ -18,6 +18,7 @@ const packageJson = JSON.parse(await readFile(new URL("../../package.json", impo
 const token = "123456:telly-benchmark";
 const app = Application.make({ rateLimit: false, token });
 const decode = Schema.decodeUnknownSync(Update);
+const decodeExit = Schema.decodeUnknownExit(Update);
 let current = makeMetrics();
 let sentinel = 0;
 
@@ -80,6 +81,31 @@ await runFramework({
       update_id: 1,
     })));
     await app.run(handler(decode({ update_id: 2 })));
+    for (const invalid of [
+      {},
+      {
+        message: {
+          chat: { id: 71, type: "private" },
+          date: "not-an-integer",
+          message_id: 3,
+        },
+        update_id: 3,
+      },
+      {
+        message: {
+          chat: { id: 71, type: "private" },
+          date: 1_700_000_000,
+          entities: [{ length: 6, offset: "zero", type: "bot_command" }],
+          message_id: 4,
+          text: "/bench",
+        },
+        update_id: 4,
+      },
+    ]) {
+      if (decodeExit(invalid)._tag !== "Failure") {
+        throw new Error("Telly validation preflight accepted an invalid update");
+      }
+    }
     if (
       current.text !== 1 ||
       current.command !== 1 ||

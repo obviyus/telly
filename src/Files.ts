@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import * as Effect from "effect/Effect";
 
 import { Bot, BotApiError } from "./BotApi.js";
 import { getFile } from "./methods.generated.js";

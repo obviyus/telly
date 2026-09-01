@@ -1,7 +1,13 @@
 import type { EventEmitter } from "node:events";
 
-import { Cause, Effect, Fiber, Layer, ManagedRuntime, Redacted } from "effect";
-import { FetchHttpClient, HttpClient } from "effect/unstable/http";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
+import * as Layer from "effect/Layer";
+import * as ManagedRuntime from "effect/ManagedRuntime";
+import * as Redacted from "effect/Redacted";
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
+import * as HttpClient from "effect/unstable/http/HttpClient";
 
 import { Bot, type BotApiError } from "./BotApi.js";
 import {

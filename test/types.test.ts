@@ -104,3 +104,27 @@ test("Update preserves unknown fields through durable wire round trips", async (
 
   expect(encoded).toEqual(wire);
 });
+
+test("Update rejects missing, primitive, and nested schema violations", () => {
+  const decode = Schema.decodeUnknownExit(Update);
+
+  expect(decode({})._tag).toBe("Failure");
+  expect(decode({
+    message: {
+      chat: { id: 71, type: "private" },
+      date: "not-an-integer",
+      message_id: 3,
+    },
+    update_id: 3,
+  })._tag).toBe("Failure");
+  expect(decode({
+    message: {
+      chat: { id: 71, type: "private" },
+      date: 1_700_000_000,
+      entities: [{ length: 6, offset: "zero", type: "bot_command" }],
+      message_id: 4,
+      text: "/bench",
+    },
+    update_id: 4,
+  })._tag).toBe("Failure");
+});

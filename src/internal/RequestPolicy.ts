@@ -1,4 +1,6 @@
-import { Context, Duration, Effect } from "effect";
+import * as Context from "effect/Context";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
 
 import type { BotApiError } from "../BotApi.js";
 

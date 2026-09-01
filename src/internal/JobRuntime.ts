@@ -1,4 +1,7 @@
-import { Cause, Effect, Exit, Result } from "effect";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Result from "effect/Result";
 
 import { Bot } from "../BotApi.js";
 import {

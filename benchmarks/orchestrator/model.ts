@@ -17,6 +17,7 @@ export interface StartupMetrics {
 export interface BenchmarkDocument {
   readonly diagnostics: {
     readonly decode: Partial<Record<FrameworkName, Summary>>;
+    readonly heavyDecode: Partial<Record<FrameworkName, Summary>>;
     readonly routing: Record<FrameworkName, Summary>;
   };
   readonly generatedAt: string;
@@ -60,6 +61,7 @@ export interface BenchmarkDocument {
   readonly workload: {
     readonly callbackPercent: number;
     readonly commandPercent: number;
+    readonly diagnosticOperations: number;
     readonly fixtureCount: number;
     readonly operations: number;
     readonly seed: number;

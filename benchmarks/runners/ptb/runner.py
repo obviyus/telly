@@ -52,6 +52,7 @@ def arguments():
     parser.add_argument("--operations", type=int, default=1)
     parser.add_argument("--rounds", type=int, default=1)
     parser.add_argument("--startup", default="false")
+    parser.add_argument("--warmup-operations", type=int)
     parser.add_argument("--warmups", type=int, default=0)
     parser.add_argument("--workload")
     return parser.parse_args()
@@ -137,7 +138,8 @@ async def main():
         }, separators=(",", ":")))
         return
 
-    if args.operations < 1 or args.rounds < 1 or args.warmups < 0:
+    warmup_operations = args.warmup_operations or args.operations
+    if args.operations < 1 or args.rounds < 1 or args.warmups < 0 or warmup_operations < 1:
         raise ValueError("operations and rounds must be positive; warmups must be non-negative")
     if args.workload is None:
         raise ValueError("missing workload path")
@@ -195,18 +197,18 @@ async def main():
     elif args.mode == "decode":
         dispatch = decode_entry
 
-    async def run_round(measure_latency):
+    async def run_round(measure_latency, operations=args.operations):
         nonlocal current
         current = make_metrics()
-        latency_ns = [0] * args.operations if measure_latency else None
+        latency_ns = [0] * operations if measure_latency else None
         started = time.perf_counter_ns()
-        for index in range(args.operations):
+        for index in range(operations):
             operation_started = time.perf_counter_ns() if measure_latency else None
             await dispatch(prepared[index % len(prepared)])
             if latency_ns is not None:
                 latency_ns[index] = time.perf_counter_ns() - operation_started
         duration_ns = time.perf_counter_ns() - started
-        wanted = expected(entries, args.operations)
+        wanted = expected(entries, operations)
         if current != wanted:
             raise RuntimeError(f"correctness failure: expected {wanted}, received {current}")
         return {
@@ -219,7 +221,7 @@ async def main():
                     "text": current["text"],
                 },
                 "durationNs": duration_ns,
-                "operations": args.operations,
+                "operations": operations,
             },
         }
 
@@ -231,7 +233,7 @@ async def main():
         rounds = []
     else:
         for _ in range(args.warmups):
-            await run_round(False)
+            await run_round(False, warmup_operations)
         if args.mode == "latency":
             measured = await run_round(True)
             rounds = [measured["round"]]
