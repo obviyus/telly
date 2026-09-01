@@ -40,12 +40,24 @@ _Avoid_: Producer, ingester
 The stable value that groups updates whose handlers must start in Telegram order.
 _Avoid_: Partition key, lane id
 
+**Conversation**:
+A named multi-step interaction that persists one active step and its state for a conversation scope.
+_Avoid_: Scene, wizard, flow
+
+**Conversation scope**:
+The chat-and-user pair that can hold one active conversation.
+_Avoid_: Conversation key, session key
+
+**Callback data**:
+The schema-validated 1–64 byte value attached to an inline keyboard button.
+_Avoid_: Callback payload, button state
+
 **Dispatch lease**:
 Temporary exclusive authority to claim and settle one kind of durable work for one bot.
 _Avoid_: Lock, leadership
 
 **Fencing token**:
-A strictly increasing lease value that prevents a former lease holder from changing inbox state.
+A strictly increasing lease value that prevents a former lease holder from changing durable work.
 _Avoid_: Lease id, worker id
 
 **Claim**:

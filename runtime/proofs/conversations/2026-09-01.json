@@ -1,0 +1,49 @@
+{
+  "feature": "durable-conversations-and-callback-data",
+  "passed": true,
+  "recorded_time": "2026-09-01T05:03:49.972Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "botApiMessageId": 3806,
+      "kind": "conversation_entry",
+      "text": "/order 9e33191d-7479-492f-a88c-8712db00e27f"
+    },
+    {
+      "botApiMessageId": 3807,
+      "button": "Yes",
+      "kind": "typed_callback_button",
+      "text": "confirm:9e33191d-7479-492f-a88c-8712db00e27f"
+    },
+    {
+      "actionStatus": "completed",
+      "button": "Yes",
+      "kind": "callback_click"
+    },
+    {
+      "botApiMessageId": 3808,
+      "kind": "next_step_prompt",
+      "text": "note:9e33191d-7479-492f-a88c-8712db00e27f"
+    },
+    {
+      "exitCode": 0,
+      "kind": "application_restart",
+      "signal": "SIGTERM"
+    },
+    {
+      "botApiMessageId": 3809,
+      "kind": "resumed_text_step",
+      "text": "extra-9e33191d-7479-492f-a88c-8712db00e27f"
+    },
+    {
+      "botApiMessageId": 3810,
+      "kind": "conversation_complete",
+      "text": "done:9e33191d-7479-492f-a88c-8712db00e27f:extra-9e33191d-7479-492f-a88c-8712db00e27f"
+    },
+    {
+      "exitCode": 0,
+      "kind": "graceful_shutdown",
+      "signal": "SIGTERM"
+    }
+  ]
+}

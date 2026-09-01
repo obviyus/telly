@@ -2,6 +2,12 @@ import { Application } from "./src/Application.js";
 import type { ApplicationOptions, Polling } from "./src/Application.js";
 import { Bot, BotApiError, retryUnknownOutcome } from "./src/BotApi.js";
 import type { BotApiOptions } from "./src/BotApi.js";
+import {
+  callbackData,
+  CallbackDataInvalid,
+  CallbackDataTooLong,
+} from "./src/CallbackData.js";
+import type { CallbackData, CallbackDataMatch } from "./src/CallbackData.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
 import { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
@@ -50,12 +56,47 @@ import type {
   ScheduleJobOptions,
   SettleJob,
 } from "./src/Jobs.js";
+import {
+  conversation,
+  Conversation,
+  ConversationConflict,
+  ConversationScopeMissing,
+  conversations,
+  ConversationStateInvalid,
+} from "./src/Conversations.js";
+import type {
+  ConversationEnd,
+  ConversationNext,
+  ConversationStep,
+  DurableConversation,
+} from "./src/Conversations.js";
 import { reply, respond } from "./src/Conversation.js";
-import type { ConversationMessageOptions } from "./src/Conversation.js";
+import type {
+  ConversationMessage,
+  ConversationMessageOptions,
+} from "./src/Conversation.js";
+import {
+  ConversationStore,
+  ConversationStoreError,
+  MemoryConversations,
+} from "./src/ConversationStore.js";
+import type {
+  CommitConversation,
+  ConversationCommitExpected,
+  ConversationCommitResult,
+  ConversationRecord,
+  ConversationStoreService,
+  LoadConversation,
+} from "./src/ConversationStore.js";
 import { SqliteInbox } from "./src/SqliteInbox.js";
 import type { SqliteInboxOptions, SqliteInboxStore } from "./src/SqliteInbox.js";
 import { SqliteJobs } from "./src/SqliteJobs.js";
 import type { SqliteJobsOptions, SqliteJobStore } from "./src/SqliteJobs.js";
+import { SqliteConversations } from "./src/SqliteConversations.js";
+import type {
+  SqliteConversationsOptions,
+  SqliteConversationStore,
+} from "./src/SqliteConversations.js";
 import { runJobWorker } from "./src/internal/JobRuntime.js";
 import { pollInboxUpdates, pollUpdates } from "./src/Polling.js";
 import type {
@@ -103,9 +144,20 @@ export {
   Application,
   Bot,
   BotApiError,
+  callbackData,
+  CallbackDataInvalid,
+  CallbackDataTooLong,
   callbackQuery,
   chatType,
   command,
+  conversation,
+  Conversation,
+  ConversationConflict,
+  ConversationScopeMissing,
+  conversations,
+  ConversationStateInvalid,
+  ConversationStore,
+  ConversationStoreError,
   defineBot,
   defineJobs,
   downloadFile,
@@ -125,6 +177,7 @@ export {
   media,
   mention,
   MemoryInbox,
+  MemoryConversations,
   MemoryJobs,
   on,
   pollInboxUpdates,
@@ -137,6 +190,7 @@ export {
   routes,
   runJobWorker,
   SqliteInbox,
+  SqliteConversations,
   SqliteJobs,
   text,
 };
@@ -145,15 +199,27 @@ export type {
   ApplicationOptions,
   BotApiOptions,
   BotDefinition,
+  CallbackData,
+  CallbackDataMatch,
   ClaimedJob,
   ClaimJobs,
   ClaimedUpdate,
   ClaimInboxUpdates,
   ChatTypeMatch,
   ConversationMessageOptions,
+  CommitConversation,
+  ConversationCommitExpected,
+  ConversationCommitResult,
+  ConversationEnd,
+  ConversationMessage,
+  ConversationNext,
+  ConversationRecord,
+  ConversationStep,
+  ConversationStoreService,
   DispatchLeaseOptions,
   DispatchLeaseResult,
   DownloadFileOptions,
+  DurableConversation,
   FencedInboxOperation,
   FencedJobOperation,
   InboxSaveResult,
@@ -189,11 +255,14 @@ export type {
   SettleJob,
   SqliteInboxOptions,
   SqliteInboxStore,
+  SqliteConversationsOptions,
+  SqliteConversationStore,
   SqliteJobsOptions,
   SqliteJobStore,
   RegexMatch,
   RepliedMessageMatch,
   TextMatch,
+  LoadConversation,
   UpdateHandler,
   Webhook,
   WebhookOptions,

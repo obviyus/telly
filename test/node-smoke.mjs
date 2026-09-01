@@ -16,6 +16,15 @@ if (!root.defineJobs || !root.job || !root.MemoryJobs || !root.SqliteJobs || !ro
   throw new Error("telly job exports are incomplete");
 }
 if (
+  !root.callbackData ||
+  !root.conversation ||
+  !root.Conversation ||
+  !root.MemoryConversations ||
+  !root.SqliteConversations
+) {
+  throw new Error("telly conversation exports are incomplete");
+}
+if (
   !root.command ||
   !root.defineBot ||
   !root.every ||
@@ -212,6 +221,54 @@ try {
   await jobApp.close();
 }
 
+const nodeChoice = root.callbackData("node", root.Schema.Struct({ answer: root.Schema.String }));
+const packedChoice = nodeChoice.pack({ answer: "yes" });
+if (nodeChoice.unpack(packedChoice)?.answer !== "yes") {
+  throw new Error("Callback data failed under Node.js");
+}
+const conversationFake = testing.FakeBotApi.make({ token });
+const conversationStore = root.MemoryConversations.make();
+const nodeConversation = root.conversation({
+  handlers: (step) => ({
+    active: step.active(root.text(), ({ message, text }, state) =>
+      root.respond(message, `${state.prefix}:${text}`).pipe(
+        Effect.as(root.Conversation.end()),
+      )),
+  }),
+  name: "node",
+  states: { active: root.Schema.Struct({ prefix: root.Schema.String }) },
+  store: conversationStore,
+});
+const conversationApp = root.Application.make({
+  httpClient: conversationFake.layer,
+  rateLimit: false,
+  token,
+});
+const conversationMessage = {
+  chat: { id: 64, type: "private" },
+  date: 1_700_000_000,
+  from: { firstName: "Node", id: 19, isBot: false },
+  messageId: 120,
+  text: "start",
+};
+try {
+  await conversationApp.run(nodeConversation.enter(
+    conversationMessage,
+    "active",
+    { prefix: "node-conversation" },
+  ));
+  const conversationBot = root.defineBot({ conversations: [nodeConversation] });
+  await conversationApp.run(conversationBot({
+    message: { ...conversationMessage, messageId: 121, text: "continued" },
+    updateId: 121,
+  }));
+  if (conversationFake.requests.at(-1)?.params.text !== "node-conversation:continued") {
+    throw new Error("Durable conversation failed under Node.js");
+  }
+} finally {
+  await conversationApp.close();
+}
+
 const signalChild = spawn(
   process.execPath,
   [new URL("./run-polling-signal-smoke.mjs", import.meta.url).pathname],
@@ -320,5 +377,25 @@ try {
   if (saved._tag !== "Stored") throw new Error("Node SQLite jobs did not save");
 } finally {
   sqliteJobs.close();
+}
+
+const sqliteConversationsPath = join(sqliteDirectory, "conversations.db");
+const sqliteConversations = await root.SqliteConversations.open(sqliteConversationsPath);
+try {
+  const committed = await Effect.runPromise(sqliteConversations.commit({
+    botId: 123456,
+    expected: "any",
+    scope: "chat:1:user:2",
+    next: { conversation: "node", state: { step: 1 }, step: "active" },
+  }));
+  const loaded = await Effect.runPromise(sqliteConversations.load({
+    botId: 123456,
+    scope: "chat:1:user:2",
+  }));
+  if (committed !== "Committed" || loaded?.version !== 1) {
+    throw new Error("Node SQLite conversations did not persist");
+  }
+} finally {
+  sqliteConversations.close();
   rmSync(sqliteDirectory, { force: true, recursive: true });
 }

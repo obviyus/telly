@@ -32,6 +32,7 @@
     "e2e:beginner-bot": "bun run ./scripts/e2e/beginner-bot.mjs",
     "e2e:botfather-fixtures": "bun run ./scripts/e2e/botfather-fixtures.mjs",
     "e2e:custom-emoji": "bun run ./scripts/e2e/custom-emoji.mjs",
+    "e2e:conversations": "bun run ./scripts/e2e/conversations.mjs",
     "e2e:disposable-bots": "bun run ./scripts/e2e/disposable-bots.mjs",
     "e2e:entitlements": "bun run ./scripts/e2e/entitlements.mjs",
     "e2e:message-lifecycle": "bun run ./scripts/e2e/message-lifecycle.mjs",
