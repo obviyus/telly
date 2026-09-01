@@ -21,8 +21,14 @@ if (!testing.FakeBotApi || !testing.FakeBotApiReply) {
 if (!root.Message || !root.Chat || !root.User) {
   throw new Error("telly type exports are incomplete");
 }
-if (!root.messageMedia || !root.messageReply || !root.messageSender || !root.messageText) {
+if (
+  !root.messageEntities || !root.messageMedia || !root.messageReply || !root.messageSender ||
+  !root.messageText || !root.updateContext
+) {
   throw new Error("telly message helper exports are incomplete");
+}
+if (!root.answerCallback || !root.callbackTarget || !root.html || !root.markdownV2) {
+  throw new Error("telly callback and formatting helper exports are incomplete");
 }
 const overrides = JSON.parse(readFileSync(
   new URL("../bot-api/schema/overrides.json", import.meta.url),

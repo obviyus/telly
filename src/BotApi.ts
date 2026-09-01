@@ -55,13 +55,24 @@ const Transport = Schema.TaggedStruct("Transport", {
   description: Schema.String,
 });
 
+const InvalidRequest = Schema.TaggedStruct("InvalidRequest", {
+  issues: Schema.Array(Schema.Struct({
+    message: Schema.String,
+    path: Schema.String,
+  })),
+});
+
 export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError", {
   method: Schema.String,
-  reason: Schema.Union([TelegramRejected, InvalidResponse, Transport]),
+  reason: Schema.Union([TelegramRejected, InvalidRequest, InvalidResponse, Transport]),
   retrySafe: Schema.Boolean,
 }) {
   override get message(): string {
     switch (this.reason._tag) {
+      case "InvalidRequest":
+        return `${this.method}: request rejected before send: ${this.reason.issues
+          .map((issue) => `${issue.path}: ${issue.message}`)
+          .join("; ")}`;
       case "TelegramRejected": {
         const retry = this.reason.retryAfter === undefined
           ? ""

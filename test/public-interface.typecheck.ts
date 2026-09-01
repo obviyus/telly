@@ -1,21 +1,27 @@
 import { Effect } from "effect";
 
 import {
+  answerCallback,
   Application,
   Bot,
   BotApiError,
   callbackData,
+  callbackTarget,
   command,
   conversation,
   Conversation,
   defineBot,
   defineJobs,
+  editEphemeralMessageText,
+  editMessageText,
+  entity,
   every,
   Filter,
   InboxStore,
   job,
   media,
   messageMedia,
+  messageEntities,
   messageReply,
   messageSender,
   messageText,
@@ -28,10 +34,13 @@ import {
   pollInboxUpdates,
   PollingConflictError,
   retryUnknownOutcome,
+  replyTo,
   routes,
   Schema,
+  sendPhoto,
   SqliteInbox,
   text,
+  type CallbackQuery,
   type Message,
   type PhotoSize,
   type Update,
@@ -111,6 +120,19 @@ const mediaHandler = routes(
 );
 mediaHandler(update);
 
+// @ts-expect-error Entity filters require at least one entity type.
+entity();
+entity("hashtag");
+
+declare const callback: CallbackQuery;
+answerCallback(callback);
+const callbackMessageTarget = callbackTarget(callback);
+if ("ephemeralMessageId" in callbackMessageTarget) {
+  editEphemeralMessageText({ ...callbackMessageTarget, text: "edited" });
+} else {
+  editMessageText({ ...callbackMessageTarget, text: "edited" });
+}
+
 const webhook = Application.make({ token }).startWebhook(declarativeHandler, {
   secretToken: "typecheck_secret",
 });
@@ -165,6 +187,8 @@ const typedConversation = conversation({
   store: MemoryConversations.make(),
 });
 declare const message: Message;
+sendPhoto({ ...replyTo(message), photo: "telegram-file-id" });
+messageEntities(message, "url", "text_link");
 messageText(message) satisfies string | undefined;
 messageMedia(message);
 messageSender(message);

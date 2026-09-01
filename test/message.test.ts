@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 
 import {
   messageMedia,
+  messageEntities,
   messageReply,
   messageSender,
   messageText,
@@ -29,6 +30,35 @@ test("messageText prefers text and falls back to a media caption", () => {
   expect(messageText(message({ caption: "caption", text: "text" }))).toBe("text");
   expect(messageText(message({ caption: "caption only" }))).toBe("caption only");
   expect(messageText(message())).toBeUndefined();
+});
+
+test("messageEntities extracts UTF-16 text spans and filters their types", () => {
+  const hashtag = { length: 4, offset: 3, type: "hashtag" as const };
+  const bold = { length: 4, offset: 12, type: "bold" as const };
+  const source = message({
+    entities: [hashtag, bold],
+    text: "😀 #tag and bold",
+  });
+
+  expect(messageEntities(source)).toEqual([
+    { entity: hashtag, text: "#tag" },
+    { entity: bold, text: "bold" },
+  ]);
+  expect(messageEntities(source, "hashtag")).toEqual([
+    { entity: hashtag, text: "#tag" },
+  ]);
+});
+
+test("messageEntities extracts caption spans", () => {
+  const italic = { length: 7, offset: 6, type: "italic" as const };
+  const source = message({
+    caption: "Photo caption",
+    captionEntities: [italic],
+  });
+
+  expect(messageEntities(source, "italic")).toEqual([
+    { entity: italic, text: "caption" },
+  ]);
 });
 
 test("messageMedia resolves Telegram media aliases to the specific type", () => {

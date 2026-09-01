@@ -1,10 +1,46 @@
 import * as Effect from "effect/Effect";
+import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
+import * as SchemaIssue from "effect/SchemaIssue";
+import * as SchemaParser from "effect/SchemaParser";
 
 import { Bot, BotApiError, type MessageDefaults } from "../BotApi.js";
 import type { RateLimitClass } from "./RequestPolicy.js";
 
 type MessageDefaultField = keyof MessageDefaults;
+
+const formatIssue = SchemaIssue.makeFormatterStandardSchemaV1();
+
+function publicFieldName(name: string): string {
+  return name.replace(/_([a-z0-9])/gu, (_, character: string) => character.toUpperCase());
+}
+
+function pathString(path: ReadonlyArray<unknown> | undefined): string {
+  if (path === undefined || path.length === 0) return "request";
+  let output = "";
+  for (const raw of path) {
+    const part = Predicate.hasProperty(raw, "key") ? raw.key : raw;
+    output += typeof part === "number"
+      ? `[${part}]`
+      : `${output.length === 0 ? "" : "."}${publicFieldName(String(part))}`;
+  }
+  return output;
+}
+
+function invalidRequest(method: string, issue: SchemaIssue.Issue): BotApiError {
+  const formatted = formatIssue(issue);
+  return new BotApiError({
+    method,
+    reason: {
+      _tag: "InvalidRequest",
+      issues: formatted.issues.slice(0, 1).map((item) => ({
+        message: item.message,
+        path: pathString(item.path),
+      })),
+    },
+    retrySafe: true,
+  });
+}
 
 interface MethodDescriptorBase<A, EncodedA> {
   readonly method: string;
@@ -94,7 +130,9 @@ export function callMethod<P extends object, EncodedP extends object, A, Encoded
     const withDefaults = descriptor.defaultFields === undefined || bot.defaults === undefined
       ? params
       : applyDefaults(params, bot.defaults, descriptor.defaultFields);
-    const encoded = yield* Schema.encodeEffect(paramsSchema)(withDefaults).pipe(Effect.orDie);
+    const encoded = yield* SchemaParser.encodeUnknownEffect(paramsSchema)(withDefaults).pipe(
+      Effect.mapError((issue) => invalidRequest(descriptor.method, issue)),
+    );
     return yield* invokeMethod(bot, descriptor, encoded);
   });
 }

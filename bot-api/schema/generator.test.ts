@@ -78,6 +78,7 @@ test("coverage copies explicit proven and blocked evidence", () => {
   const sources = generateSources(
     spec,
     {
+      constraints: {},
       fields: { "Result.value": { types: ["Integer"] } },
       methods: completeMethods,
       types: {},
@@ -123,12 +124,59 @@ test("field overrides must change an existing schema field", () => {
   expect(() => generateSources(
     spec,
     {
+      constraints: {},
       fields: { "Result.value": { types: ["String"] } },
       methods: completeMethods,
       types: {},
     },
     completeEvidence,
   )).toThrow("Field override Result.value duplicates the schema");
+});
+
+test("constraints require current evidence and compatible schema fields", () => {
+  const generate = (constraints: GeneratorOverrides["constraints"]) => generateSources(
+    spec,
+    { constraints, fields: {}, methods: completeMethods, types: {} },
+    completeEvidence,
+  );
+  const stringRange = {
+    checks: [{ kind: "codePoints", maximum: 5, minimum: 1 }],
+    evidence: "value",
+  } satisfies GeneratorOverrides["constraints"][string];
+
+  expect(() => generate({ "Missing.value": stringRange })).toThrow(
+    "Constraint field Missing.value is missing from the schema",
+  );
+  expect(() => generate({
+    "Result.value": { ...stringRange, evidence: "stale evidence" },
+  })).toThrow("Constraint evidence for Result.value is missing from its description");
+  expect(() => generate({
+    "Result.value": {
+      checks: [{ kind: "range", maximum: 5, minimum: 1 }],
+      evidence: "value",
+    },
+  })).toThrow("Constraint range for Result.value has incompatible types");
+});
+
+test("constraints generate encode-only checks from explicit metadata", () => {
+  const sources = generateSources(
+    spec,
+    {
+      constraints: {
+        "Result.value": {
+          checks: [{ kind: "utf8Bytes", maximum: 4, minimum: 1 }],
+          evidence: "value",
+        },
+      },
+      fields: {},
+      methods: completeMethods,
+      types: {},
+    },
+    completeEvidence,
+  );
+
+  expect(sources.types).toContain('const _constraintsResult = [["value",[{"kind":"utf8Bytes"');
+  expect(sources.types).toContain("SchemaGetter.checkEffect<Result>");
 });
 
 test("additive type override extends a recursive subtype union", () => {
@@ -155,6 +203,7 @@ test("additive type override extends a recursive subtype union", () => {
   const sources = generateSources(
     unionSpec,
     {
+      constraints: {},
       fields: {},
       methods: completeMethods,
       types: { Parent: { additionalTypes: ["String", "Array of Parent"] } },
@@ -192,6 +241,7 @@ test("additive type overrides reject invalid union members", () => {
     generateSources(
       unionSpec,
       {
+        constraints: {},
         fields: {},
         methods: completeMethods,
         types: { [name]: { additionalTypes } },
@@ -209,6 +259,7 @@ test("additive type overrides reject invalid union members", () => {
 test("type override forms cannot be mixed", async () => {
   const decoded = await Effect.runPromiseExit(
     Schema.decodeUnknownEffect(GeneratorOverrides, { onExcessProperty: "error" })({
+      constraints: {},
       fields: {},
       methods: {},
       types: {
@@ -243,7 +294,7 @@ test("nested upload fields require an explicit type correction", () => {
 
   expect(() => generateSources(
     uploadSpec,
-    { fields: {}, methods: completeMethods, types: {} },
+    { constraints: {}, fields: {}, methods: completeMethods, types: {} },
     completeEvidence,
   )).toThrow("Nested upload field Result.value needs a field override");
 });
@@ -255,7 +306,7 @@ test("every schema method requires request metadata", () => {
 
   expect(() => generateSources(
     spec,
-    { fields: {}, methods: incompleteMethods, types: {} },
+    { constraints: {}, fields: {}, methods: incompleteMethods, types: {} },
     completeEvidence,
   )).toThrow("Methods missing request metadata: absent");
 });
@@ -267,7 +318,7 @@ test("every schema method requires explicit evidence", () => {
 
   expect(() => generateSources(
     spec,
-    { fields: {}, methods: completeMethods, types: {} },
+    { constraints: {}, fields: {}, methods: completeMethods, types: {} },
     incompleteEvidence,
   )).toThrow("Methods missing evidence: absent");
 });

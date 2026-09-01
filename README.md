@@ -32,6 +32,14 @@ Telly validates the standard Telegram token prefix as the numeric bot identifier
 
 `Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
 
+Telly validates documented request limits before transport. This includes 129 UTF-8 byte, string length, array size, numeric range, and stable character-pattern checks across 125 request fields. TypeScript checks shapes and enum values; runtime validation handles values that types cannot know.
+
+```text
+sendMessage: request rejected before send: replyMarkup.inlineKeyboard[0][0].callbackData: expected 1–64 UTF-8 bytes, received 68
+```
+
+Validation errors never include the rejected value. Raw calls remain unvalidated for day-zero Bot API access.
+
 Telly retries a request at most twice after the first attempt. It honors Telegram's `retryAfter` value, retries Telegram `5xx` failures, and retries unknown outcomes only when the method is safe. A send may have succeeded before its connection failed. Opt into that duplicate risk for one call only:
 
 ```ts
@@ -120,6 +128,44 @@ if (media?.type === "photo") {
 ```
 
 `messageMedia` resolves Telegram's animation/document and live-photo/photo aliases. `messageReply` distinguishes same-chat messages, external messages, and stories. Forward details already use the generated `message.forwardOrigin` discriminated union, so they need no second helper.
+
+`updateContext` derives the effective chat, accessible message, user, and acting sender across every current update type:
+
+```ts
+const { chat, message, sender, user } = updateContext(update);
+```
+
+The acting sender can be a user or a chat for anonymous administrators, poll votes, and reactions. The raw user remains separate when Telegram supplies both identities.
+
+Reuse one message destination with every generated send method:
+
+```ts
+await app.run(sendPhoto({ ...replyTo(message), photo }));
+await app.run(sendChatAction({ ...respondTo(message), action: "typing" }));
+```
+
+`replyTo` and `respondTo` preserve business connections, forum threads, direct-message topics, and ephemeral recipients when the generated method accepts those fields. Each method keeps only its supported target fields. `replyTo` also accepts Telegram quote options.
+
+Callback helpers remove identifier and edit-target branching:
+
+```ts
+await app.run(answerCallback(query, { text: "Saved" }));
+
+const target = callbackTarget(query);
+const edit = "ephemeralMessageId" in target
+  ? editEphemeralMessageText({ ...target, text: "Done" })
+  : editMessageText({ ...target, text: "Done" });
+await app.run(edit);
+```
+
+`messageEntities(message)` extracts all text or caption entities with their exact UTF-16 substrings. Pass entity types to select them, or use `entity("hashtag")` as a routing filter. `mention()` is the canonical filter for both username and user-object mentions.
+
+Escape dynamic values before using a parse mode:
+
+```ts
+const htmlText = `<b>${html.escape(userInput)}</b> ${html.mention(user)}`;
+const markdownText = `*${markdownV2.escape(userInput)}* ${markdownV2.mention(user)}`;
+```
 
 `command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
 

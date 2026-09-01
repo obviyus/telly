@@ -168,6 +168,7 @@ describe("sendMessage", () => {
     ));
 
     expect(error.reason._tag).toBe("InvalidResponse");
+    if (error.reason._tag !== "InvalidResponse") throw new Error("Expected InvalidResponse");
     expect(error.reason.description).toContain("[\"message_id\"]");
     expect(error.message).not.toContain(token);
   });

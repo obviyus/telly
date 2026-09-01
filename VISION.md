@@ -48,6 +48,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Application defaults apply to each generated method that accepts the field at the top level. A key present on one call wins, including `undefined` as an explicit opt-out.
 - Conversation operations take the triggering message plus text or one options object. `respond` sends without quoting; `reply` quotes the triggering message.
 - Errors are typed values in the Effect error channel. Each error has a useful message and a `retrySafe` value that states whether retrying can duplicate a side effect.
+- Telly rejects locally decidable documented request constraints before transport. Validation errors identify the public field path and expected limit without exposing the rejected value.
 - Every documented feature has an executable example that runs in tests.
 - Reference data for methods, types, errors, and limits is generated from the schema and shipped in machine-readable form.
 - Import paths are stable. A path that ships is a path we keep.
@@ -79,7 +80,7 @@ How Telly uses Effect:
 - `Application.runPolling` is the beginner lifecycle: it starts polling, exposes failures through its Promise, handles process stop signals, and closes the runtime.
 - `Application.startWebhook` exposes a Web `Request` to `Response` function plus explicit completion and stop handles.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
-- `Message` is generated from Telegram's wire contract and remains the single Message model. `messageText`, `messageMedia`, `messageSender`, and `messageReply` derive common facts without wrapping or mutating it. Operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
+- `Message` and `Update` remain generated Bot API models. Pure helpers derive effective update context, message text, entities, media, senders, replies, callback targets, and conversation targets without wrapping or mutating them. Operations that contact Telegram are Effects requiring `Bot` and accept domain objects as input.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
 - Layers wire real services for production and deterministic services for tests.
 - Runtimes own a Scope. Interruption of the Scope cancels polling, drains work, and releases resources.
@@ -141,6 +142,7 @@ Guarantees:
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
 - Conflict recovery is typed. After a `getUpdates` conflict, Telly uses `getWebhookInfo` instead of undocumented error text to classify the owner. An overlapping poll retries for a default 60-second budget. An active webhook fails at once with `PollingConflictError`. `conflictRetryBudgetMs` changes the budget, and zero disables recovery.
 - Retry classification is explicit. Generated method metadata states whether retrying after an unknown outcome can duplicate a side effect. A request gets at most three attempts. Telly retries `429` and `5xx` Telegram rejections, and retries transport or invalid-response failures only for intrinsically safe methods. Raw calls treat an unknown outcome as unsafe. `retryUnknownOutcome` explicitly accepts duplicate side effects for one operation.
+- Request validation is encode-only. Reviewed constraints reject invalid typed calls before transport, while Telegram response decoding and raw day-zero calls remain unchanged.
 - Message rate limits apply Telegram's documented defaults: 30 messages per second overall, one per second in one chat, and 20 per minute in one group. Paid broadcasts use their documented 1000-per-second overall limit. Every `429` with `retryAfter` pauses message calls bot-wide and waits at least the stated duration before retrying. Telegram does not publish every effective limit, so Telly claims only these limits.
 - Redaction is total. Telly holds the bot token and other secrets in `Redacted` values and never emits a plaintext secret in an error, log, trace, URL, fixture, or proof artifact.
 - Webhook and long polling are two runtimes over one dispatch model. Webhook handling accepts a Web `Request` and returns a Web `Response`. Secret token verification is on by default.
