@@ -218,7 +218,7 @@ Telly owns its behavior-first testing policy and writes it in its own words. [sh
 Layers of proof:
 
 1. Behavior tests run against public interfaces with deterministic Effect services for time, random, and transport.
-2. A synchronous hermetic Bot API fake reproduces Telegram semantics: offsets, conflicts, rate limits, error shapes, multipart uploads. The same fake works through `Application` and direct Effect Layers.
+2. A synchronous hermetic Bot API fake reproduces Telegram update queues, offsets, long polling, conflicts, webhook ownership, error shapes, and multipart uploads. It provides a deterministic approximation of Telegram's documented message limits without claiming Telegram's unpublished bucket algorithm. The same fake works through `Application` and direct Effect Layers.
 3. Node.js compatibility tests load and run the built artifact on every supported Node.js version.
 4. Real Telegram Test Server runs produce a structured event timeline for every live claim.
 
@@ -232,6 +232,7 @@ Coverage manifest:
 
 Done when:
 
+- Fake contract tests prove redelivery until confirmation, positive and negative offsets, long-poll wake and timeout, concurrent-poll conflicts, webhook ownership, rate-limit retries, and scripted fault isolation.
 - The manifest has a `proven` entry with a current Test Server artifact for every Bot API method and no expired `blocked` entry. Only then does Telly claim full coverage.
 
 ## First consumer

@@ -59,7 +59,7 @@ const managedToken = await app.run(getManagedBotToken({ userId: 123 }));
 const managedApp = Application.make({ token: managedToken });
 ```
 
-Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`.
+Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`. Seed `updates`, call `pushUpdate`, or set `webhookUrl` to test Telegram delivery without scripting transport replies. `serverRateLimit: true` enables a deterministic approximation of Telegram's documented `sendMessage` limits.
 
 ## Polling
 
