@@ -1,7 +1,7 @@
 import { Application } from "./src/Application.js";
 import type { ApplicationOptions, Polling } from "./src/Application.js";
 import { Bot, BotApiError, retryUnknownOutcome } from "./src/BotApi.js";
-import type { BotApiOptions } from "./src/BotApi.js";
+import type { BotApiOptions, MessageDefaults } from "./src/BotApi.js";
 import {
   callbackData,
   CallbackDataInvalid,
@@ -10,6 +10,8 @@ import {
 import type { CallbackData, CallbackDataMatch } from "./src/CallbackData.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
+import { messageMedia, messageReply, messageSender, messageText } from "./src/Message.js";
+import type { MessageMedia, MessageReply, MessageSender } from "./src/Message.js";
 import { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
 import type {
   ClaimedUpdate,
@@ -175,6 +177,10 @@ export {
   JobStore,
   JobStoreError,
   media,
+  messageMedia,
+  messageReply,
+  messageSender,
+  messageText,
   mention,
   MemoryInbox,
   MemoryConversations,
@@ -241,6 +247,10 @@ export type {
   MediaKind,
   MediaKindMap,
   MediaMatch,
+  MessageDefaults,
+  MessageMedia,
+  MessageReply,
+  MessageSender,
   MentionMatch,
   MentionSpan,
   MessageChatType,

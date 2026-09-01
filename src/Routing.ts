@@ -300,11 +300,11 @@ export function regex(pattern: RegExp): Filter<RegexMatch> {
   });
 }
 
-function messageMedia<Kind extends MediaKind>(
+function mediaField<Kind extends MediaKind>(
   message: Message,
   kind: Kind,
 ): MediaKindMap[Kind] | undefined;
-function messageMedia(
+function mediaField(
   message: Message,
   kind: MediaKind,
 ): MediaKindMap[MediaKind] | undefined {
@@ -333,7 +333,7 @@ export function media<Kind extends MediaKind>(kind: Kind): Filter<MediaMatch<Kin
   return makeFilter((update) => {
     const message = update.message;
     if (message === undefined) return undefined;
-    const value = messageMedia(message, kind);
+    const value = mediaField(message, kind);
     return value === undefined ? undefined : { kind, media: value, message, update };
   });
 }

@@ -1,8 +1,10 @@
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
-import { Bot, BotApiError } from "../BotApi.js";
+import { Bot, BotApiError, type MessageDefaults } from "../BotApi.js";
 import type { RateLimitClass } from "./RequestPolicy.js";
+
+type MessageDefaultField = keyof MessageDefaults;
 
 interface MethodDescriptorBase<A, EncodedA> {
   readonly method: string;
@@ -13,6 +15,7 @@ interface MethodDescriptorBase<A, EncodedA> {
 
 interface MethodDescriptor<P extends object, EncodedP extends object, A, EncodedA>
   extends MethodDescriptorBase<A, EncodedA> {
+  readonly defaultFields?: ReadonlyArray<MessageDefaultField>;
   readonly params: Schema.Codec<P, EncodedP>;
 }
 
@@ -21,33 +24,51 @@ interface ParameterlessMethodDescriptor<A, EncodedA> extends MethodDescriptorBas
 }
 
 function invokeMethod<A, EncodedA>(
+  bot: Bot["Service"],
   descriptor: MethodDescriptorBase<A, EncodedA>,
   encoded?: object,
-): Effect.Effect<A, BotApiError, Bot> {
-  return Effect.gen(function* () {
-    const bot = yield* Bot;
-    return yield* bot.call(
-      descriptor.method,
-      encoded ?? {},
-      {
-        rateLimit: descriptor.rateLimit,
-        retrySafe: descriptor.retrySafe,
-      },
-      (result) => Schema.decodeUnknownEffect(descriptor.result)(result).pipe(
-        Effect.mapError(
-          (error) =>
-            new BotApiError({
-              method: descriptor.method,
-              reason: {
-                _tag: "InvalidResponse",
-                description: error.message,
-              },
-              retrySafe: descriptor.retrySafe,
-            }),
-        ),
+): Effect.Effect<A, BotApiError> {
+  return bot.call(
+    descriptor.method,
+    encoded ?? {},
+    {
+      rateLimit: descriptor.rateLimit,
+      retrySafe: descriptor.retrySafe,
+    },
+    (result) => Schema.decodeUnknownEffect(descriptor.result)(result).pipe(
+      Effect.mapError(
+        (error) =>
+          new BotApiError({
+            method: descriptor.method,
+            reason: {
+              _tag: "InvalidResponse",
+              description: error.message,
+            },
+            retrySafe: descriptor.retrySafe,
+          }),
       ),
-    );
-  });
+    ),
+  );
+}
+
+function hasExplicitEntities(params: object): boolean {
+  return Reflect.get(params, "entities") !== undefined ||
+    Reflect.get(params, "captionEntities") !== undefined;
+}
+
+function applyDefaults<P extends object>(
+  params: P,
+  defaults: MessageDefaults,
+  fields: ReadonlyArray<MessageDefaultField>,
+): P {
+  let result = params;
+  for (const field of fields) {
+    if (Object.hasOwn(params, field)) continue;
+    const value = defaults[field];
+    if (value === undefined || field === "parseMode" && hasExplicitEntities(params)) continue;
+    result = { ...result, [field]: value };
+  }
+  return result;
 }
 
 export function callMethod<P extends object, EncodedP extends object, A, EncodedA>(
@@ -63,12 +84,17 @@ export function callMethod<P extends object, EncodedP extends object, A, Encoded
 ) {
   if (descriptor.params === undefined) {
     return Effect.fn(`telegram.${descriptor.method}`)(function* () {
-      return yield* invokeMethod(descriptor);
+      const bot = yield* Bot;
+      return yield* invokeMethod(bot, descriptor);
     });
   }
   const paramsSchema = descriptor.params;
   return Effect.fn(`telegram.${descriptor.method}`)(function* (params: P) {
-    const encoded = yield* Schema.encodeEffect(paramsSchema)(params).pipe(Effect.orDie);
-    return yield* invokeMethod(descriptor, encoded);
+    const bot = yield* Bot;
+    const withDefaults = descriptor.defaultFields === undefined || bot.defaults === undefined
+      ? params
+      : applyDefaults(params, bot.defaults, descriptor.defaultFields);
+    const encoded = yield* Schema.encodeEffect(paramsSchema)(withDefaults).pipe(Effect.orDie);
+    return yield* invokeMethod(bot, descriptor, encoded);
   });
 }

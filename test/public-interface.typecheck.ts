@@ -15,6 +15,10 @@ import {
   InboxStore,
   job,
   media,
+  messageMedia,
+  messageReply,
+  messageSender,
+  messageText,
   MemoryInbox,
   MemoryConversations,
   MemoryJobs,
@@ -80,6 +84,15 @@ declarativeHandler(update);
 declare const token: string;
 Application.make({ token }).runPolling(declarativeHandler);
 Application.make({ rateLimit: false, token });
+Application.make({
+  defaults: {
+    disableNotification: true,
+    linkPreviewOptions: { isDisabled: true },
+    parseMode: "HTML",
+    protectContent: true,
+  },
+  token,
+});
 Application.make({ inbox: MemoryInbox.make(), token }).runPolling(declarativeHandler);
 getMe().pipe(retryUnknownOutcome);
 pollInboxUpdates(declarativeHandler).pipe(
@@ -152,6 +165,10 @@ const typedConversation = conversation({
   store: MemoryConversations.make(),
 });
 declare const message: Message;
+messageText(message) satisfies string | undefined;
+messageMedia(message);
+messageSender(message);
+messageReply(message);
 typedConversation.enter(message, "confirm", { orderId: 1 });
 // @ts-expect-error Conversation entry state comes from the selected step schema.
 typedConversation.enter(message, "confirm", { orderId: "wrong" });

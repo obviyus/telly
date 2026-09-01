@@ -29,6 +29,95 @@ test("Application runs sendMessage without Effect setup", async () => {
   }
 });
 
+test("Application applies outgoing message defaults", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({
+    defaults: {
+      disableNotification: true,
+      linkPreviewOptions: { isDisabled: true, showAboveText: true },
+      parseMode: "HTML",
+      protectContent: true,
+    },
+    httpClient: fake.layer,
+    token,
+  });
+
+  try {
+    await app.run(sendMessage({ chatId: 39, text: "<b>defaults</b>" }));
+
+    expect(fake.requests[0]?.params).toEqual({
+      chat_id: 39,
+      disable_notification: true,
+      link_preview_options: { is_disabled: true, show_above_text: true },
+      parse_mode: "HTML",
+      protect_content: true,
+      text: "<b>defaults</b>",
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+test("a present call field replaces or suppresses its outgoing default", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({
+    defaults: {
+      disableNotification: true,
+      linkPreviewOptions: { isDisabled: true, showAboveText: true },
+      parseMode: "HTML",
+      protectContent: true,
+    },
+    httpClient: fake.layer,
+    token,
+  });
+
+  try {
+    await app.run(sendMessage({
+      chatId: 41,
+      disableNotification: false,
+      linkPreviewOptions: { url: "https://example.com/call" },
+      parseMode: undefined,
+      protectContent: undefined,
+      text: "plain call",
+    }));
+
+    expect(fake.requests[0]?.params).toEqual({
+      chat_id: 41,
+      disable_notification: false,
+      link_preview_options: { url: "https://example.com/call" },
+      text: "plain call",
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+test("explicit entities suppress only the parse mode default", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({
+    defaults: { disableNotification: true, parseMode: "MarkdownV2" },
+    httpClient: fake.layer,
+    token,
+  });
+
+  try {
+    await app.run(sendMessage({
+      chatId: 43,
+      entities: [{ length: 4, offset: 0, type: "bold" }],
+      text: "bold",
+    }));
+
+    expect(fake.requests[0]?.params).toEqual({
+      chat_id: 43,
+      disable_notification: true,
+      entities: [{ length: 4, offset: 0, type: "bold" }],
+      text: "bold",
+    });
+  } finally {
+    await app.close();
+  }
+});
+
 test("Application rejects with a useful BotApiError", async () => {
   const fake = FakeBotApi.make({
     replies: [FakeBotApiReply.reject({

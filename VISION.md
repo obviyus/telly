@@ -45,6 +45,7 @@ A coding agent must use a Telly feature correctly with the least context and the
 - Types and schemas encode the contract. A value that passes the schema is valid for the call.
 - A method whose Telegram schema has no fields takes zero arguments. A method with fields takes exactly one options object, even when every field is optional.
 - Options objects with named fields replace positional variants and overloads.
+- Application defaults apply to each generated method that accepts the field at the top level. A key present on one call wins, including `undefined` as an explicit opt-out.
 - Conversation operations take the triggering message plus text or one options object. `respond` sends without quoting; `reply` quotes the triggering message.
 - Errors are typed values in the Effect error channel. Each error has a useful message and a `retrySafe` value that states whether retrying can duplicate a side effect.
 - Every documented feature has an executable example that runs in tests.
@@ -78,7 +79,7 @@ How Telly uses Effect:
 - `Application.runPolling` is the beginner lifecycle: it starts polling, exposes failures through its Promise, handles process stop signals, and closes the runtime.
 - `Application.startWebhook` exposes a Web `Request` to `Response` function plus explicit completion and stop handles.
 - Bot API objects are Schemas. Decoding preserves unknown fields.
-- `Message` is generated from Telegram's wire contract and remains the single Message model. Derived facts are pure functions; operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
+- `Message` is generated from Telegram's wire contract and remains the single Message model. `messageText`, `messageMedia`, `messageSender`, and `messageReply` derive common facts without wrapping or mutating it. Operations that contact Telegram are Effects requiring `Bot` and accept the message as input.
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
 - Layers wire real services for production and deterministic services for tests.
 - Runtimes own a Scope. Interruption of the Scope cancels polling, drains work, and releases resources.

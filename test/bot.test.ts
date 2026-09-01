@@ -5,12 +5,14 @@ import { TestClock } from "effect/testing";
 import {
   answerCallbackQuery,
   Bot,
+  forwardMessage,
   getChatMenuButton,
   getChatMemberCount,
   getMe,
   getStarTransactions,
   getUserProfilePhotos,
   sendMessage,
+  sendPhoto,
   sendVenue,
   setMyDefaultAdministratorRights,
   setChatTitle,
@@ -181,6 +183,104 @@ describe("sendMessage", () => {
 
     expect(Predicate.isObject(result) && result["message_id"]).toBe(41);
     expect(fake.requests[0]?.params).toEqual({ chat_id: 31, text: "raw-call" });
+  });
+
+  test("Bot.layer applies defaults to generated calls", async () => {
+    const fake = FakeBotApi.make({ token });
+    const layer = Bot.layer({
+      defaults: { disableNotification: true, parseMode: "HTML" },
+      token: Redacted.make(token),
+    }).pipe(Layer.provide(fake.layer));
+
+    await Effect.runPromise(
+      sendMessage({ chatId: 33, text: "<b>direct layer</b>" }).pipe(Effect.provide(layer)),
+    );
+
+    expect(fake.requests[0]?.params).toEqual({
+      chat_id: 33,
+      disable_notification: true,
+      parse_mode: "HTML",
+      text: "<b>direct layer</b>",
+    });
+  });
+
+  test("raw calls do not receive generated method defaults", async () => {
+    const fake = FakeBotApi.make({ token });
+    const layer = Bot.layer({
+      defaults: { disableNotification: true, parseMode: "HTML" },
+      token: Redacted.make(token),
+    }).pipe(Layer.provide(fake.layer));
+    const program = Effect.gen(function* () {
+      const bot = yield* Bot;
+      return yield* bot.callRaw("sendMessage", { chat_id: 35, text: "raw" });
+    }).pipe(Effect.provide(layer));
+
+    await Effect.runPromise(program);
+
+    expect(fake.requests[0]?.params).toEqual({ chat_id: 35, text: "raw" });
+  });
+});
+
+test("outgoing defaults follow each method's generated field subset", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok({
+      chat: { id: 47, type: "private" },
+      date: 1_700_000_000,
+      message_id: 61,
+    })],
+    token,
+  });
+  const layer = Bot.layer({
+    defaults: {
+      disableNotification: true,
+      linkPreviewOptions: { isDisabled: true },
+      parseMode: "HTML",
+      protectContent: true,
+    },
+    token: Redacted.make(token),
+  }).pipe(Layer.provide(fake.layer));
+
+  await Effect.runPromise(forwardMessage({
+    chatId: 47,
+    fromChatId: 49,
+    messageId: 51,
+  }).pipe(Effect.provide(layer)));
+
+  expect(fake.requests[0]?.params).toEqual({
+    chat_id: 47,
+    disable_notification: true,
+    from_chat_id: 49,
+    message_id: 51,
+    protect_content: true,
+  });
+});
+
+test("caption entities suppress a parse mode default", async () => {
+  const fake = FakeBotApi.make({
+    replies: [FakeBotApiReply.ok({
+      chat: { id: 53, type: "private" },
+      date: 1_700_000_001,
+      message_id: 63,
+    })],
+    token,
+  });
+  const layer = Bot.layer({
+    defaults: { parseMode: "HTML" },
+    token: Redacted.make(token),
+  }).pipe(Layer.provide(fake.layer));
+
+  await Effect.runPromise(sendPhoto({
+    caption: "photo",
+    captionEntities: [{ length: 5, offset: 0, type: "italic" }],
+    chatId: 53,
+    photo: "telegram-file-id",
+  }).pipe(Effect.provide(layer)));
+
+  expect(fake.requests[0]?.params).toEqual({
+    caption: "photo",
+    caption_entities: [{ length: 5, offset: 0, type: "italic" }],
+    chat_id: 53,
+    photo: "telegram-file-id",
   });
 });
 

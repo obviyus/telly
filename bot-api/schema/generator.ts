@@ -83,6 +83,13 @@ interface GeneratedSources {
   readonly types: string;
 }
 
+const messageDefaultFields = new Set([
+  "disable_notification",
+  "link_preview_options",
+  "parse_mode",
+  "protect_content",
+]);
+
 function generatedHeader(source: string): string {
   return `// Generated from ${source}. Edit schema inputs or overrides, then regenerate.\n`;
 }
@@ -609,6 +616,9 @@ function renderMethods(
         .map((field) => `  ${field.wireName}: ${field.schema},`)
         .join("\n");
       const renamed = rendered.filter((field) => field.publicName !== field.wireName);
+      const defaultFields = rendered
+        .filter((field) => messageDefaultFields.has(field.wireName))
+        .map((field) => field.publicName);
       // Nested codecs can transform even when every top-level key is unchanged.
       const paramsSchema = renamed.length === 0
         ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({\n${encodedFields}\n}));`
@@ -619,7 +629,10 @@ function renderMethods(
         ? ""
         : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
       const descriptorParams = fields.length === 0 ? "" : `  params: ${paramsName},\n`;
-      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: Schema.suspend(() => ${result}),\n  retrySafe: ${override.retrySafe},\n});\n`;
+      const descriptorDefaults = defaultFields.length === 0
+        ? ""
+        : `  defaultFields: [${defaultFields.map((field) => JSON.stringify(field)).join(", ")}],\n`;
+      return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorDefaults}${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: Schema.suspend(() => ${result}),\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import * as Predicate from "effect/Predicate";\nimport * as Schema from "effect/Schema";\nimport * as SchemaGetter from "effect/SchemaGetter";\nimport * as Struct from "effect/Struct";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
 }
