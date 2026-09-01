@@ -42,7 +42,7 @@
 - Use `Schema` for untrusted Telegram data and public domain models.
 - Use `Context.Service` and `Layer` for real seams such as transport, persistence, clocks, inboxes, and job stores.
 - Keep expected failures in typed error channels. Preserve defects as defects.
-- Use `Scope`, interruption, `Stream`, and `Schedule` for lifecycle, updates, and retry policy.
+- Use the smallest Effect primitive that preserves the contract. Current runtimes use structured loops, `Scope`, interruption, and the Effect Clock.
 
 ## Bot API schema
 

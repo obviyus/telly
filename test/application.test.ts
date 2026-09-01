@@ -113,7 +113,7 @@ test("a rotated managed bot token is redacted", async () => {
   }
 });
 
-test("runPolling waits for stop and removes its process listeners", async () => {
+test("runPolling waits for close and removes its process listeners", async () => {
   const { promise: handled, resolve } = Promise.withResolvers<void>();
   const fake = FakeBotApi.make({
     replies: [FakeBotApiReply.ok([{
@@ -133,7 +133,7 @@ test("runPolling waits for stop and removes its process listeners", async () => 
   const running = app.runPolling(() => Effect.sync(resolve), { concurrency: 1 });
 
   await handled;
-  await app.stop();
+  await app.close();
   await running;
 
   expect(process.listenerCount("SIGINT")).toBe(sigintListeners);

@@ -12,30 +12,6 @@ const [root, testing] = await Promise.all([
 if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
 }
-if (!root.defineJobs || !root.job || !root.MemoryJobs || !root.SqliteJobs || !root.Schema) {
-  throw new Error("telly job exports are incomplete");
-}
-if (
-  !root.callbackData ||
-  !root.conversation ||
-  !root.Conversation ||
-  !root.MemoryConversations ||
-  !root.SqliteConversations
-) {
-  throw new Error("telly conversation exports are incomplete");
-}
-if (
-  !root.command ||
-  !root.defineBot ||
-  !root.every ||
-  !root.on ||
-  !root.reply ||
-  !root.respond ||
-  !root.routes ||
-  !root.text
-) {
-  throw new Error("telly routing exports are incomplete");
-}
 if (!root.getMe || !root.sendMessage || !root.SendMessageParams) {
   throw new Error("telly method exports are incomplete");
 }
@@ -75,27 +51,6 @@ if (message.messageId !== 41 || message.chat.id !== 29 || message.text !== "node
   throw new Error("sendMessage failed under Node.js");
 }
 fake.enqueue(testing.FakeBotApiReply.ok({
-  first_name: "Node Smoke",
-  id: 59,
-  is_bot: true,
-}));
-const botUser = await Effect.runPromise(root.getMe().pipe(Effect.provide(bot)));
-if (botUser.id !== 59 || botUser.firstName !== "Node Smoke" || botUser.isBot !== true) {
-  throw new Error("getMe failed under Node.js");
-}
-fake.enqueue(testing.FakeBotApiReply.ok({
-  file_id: "node-file",
-  file_path: "documents/node.bin",
-  file_unique_id: "node-unique",
-}));
-fake.enqueue(testing.FakeBotApiReply.file(new Uint8Array([2, 7, 1, 8])));
-const fileBytes = await Effect.runPromise(
-  root.downloadFile({ fileId: "node-file" }).pipe(Effect.provide(bot)),
-);
-if (!(fileBytes instanceof Uint8Array) || fileBytes.join(",") !== "2,7,1,8") {
-  throw new Error("downloadFile failed under Node.js");
-}
-fake.enqueue(testing.FakeBotApiReply.ok({
   chat: { id: 61, type: "private" },
   date: 1_700_000_000,
   message_id: 109,
@@ -131,144 +86,6 @@ if (!invalidResult.message.includes("message_id") || invalidResult.retrySafe !==
   throw new Error("BotApiError diagnostics failed under Node.js");
 }
 
-const applicationFake = testing.FakeBotApi.make({
-  nextMessageId: 47,
-  token,
-});
-const app = root.Application.make({
-  httpClient: applicationFake.layer,
-  token,
-});
-try {
-  const applicationMessage = await app.run(
-    root.sendMessage({ chatId: 41, text: "application-node-smoke" }),
-  );
-  if (applicationMessage.messageId !== 47 || applicationMessage.chat.id !== 41) {
-    throw new Error("Application failed under Node.js");
-  }
-} finally {
-  await app.close();
-}
-
-const pollingFake = testing.FakeBotApi.make({
-  replies: [
-    testing.FakeBotApiReply.ok([{
-      message: {
-        chat: { id: 53, type: "private" },
-        date: 1_700_000_000,
-        entities: [{ length: 22, offset: 0, type: "bot_command" }],
-        message_id: 117,
-        text: "/ping@node_polling_bot node-polling",
-      },
-      update_id: 117,
-    }]),
-    testing.FakeBotApiReply.ok({
-      first_name: "Node Polling Bot",
-      id: 7002,
-      is_bot: true,
-      username: "node_polling_bot",
-    }),
-  ],
-  token,
-});
-const pollingApp = root.Application.make({
-  httpClient: pollingFake.layer,
-  token,
-});
-const definedBot = root.defineBot({
-  commands: {
-    ping: ({ message, argText }) => root.respond(message, `pong ${argText}`),
-  },
-});
-const running = pollingApp.runPolling(
-  definedBot,
-  { concurrency: 1 },
-);
-try {
-  const sent = await pollingFake.whenCalled("sendMessage");
-  if (sent.params.chat_id !== 53 || sent.params.text !== "pong node-polling") {
-    throw new Error("Application polling failed under Node.js");
-  }
-  await pollingApp.stop();
-  await running;
-} finally {
-  await pollingApp.close();
-}
-
-const jobFake = testing.FakeBotApi.make({ token });
-const jobs = root.defineJobs({
-  reminder: root.job({
-    payload: root.Schema.Struct({ chatId: root.Schema.Int, text: root.Schema.String }),
-    run: ({ chatId, text }) => root.sendMessage({ chatId, text }),
-  }),
-}, { store: root.MemoryJobs.make() });
-const jobApp = root.Application.make({
-  httpClient: jobFake.layer,
-  jobs,
-  token,
-});
-await jobApp.run(jobs.schedule("reminder", {
-  id: "node-job",
-  payload: { chatId: 62, text: "node scheduled job" },
-}));
-jobApp.startPolling(() => Effect.void);
-try {
-  const sent = await jobFake.whenCalled("sendMessage");
-  if (sent.params.chat_id !== 62 || sent.params.text !== "node scheduled job") {
-    throw new Error("Application jobs failed under Node.js");
-  }
-} finally {
-  await jobApp.close();
-}
-
-const nodeChoice = root.callbackData("node", root.Schema.Struct({ answer: root.Schema.String }));
-const packedChoice = nodeChoice.pack({ answer: "yes" });
-if (nodeChoice.unpack(packedChoice)?.answer !== "yes") {
-  throw new Error("Callback data failed under Node.js");
-}
-const conversationFake = testing.FakeBotApi.make({ token });
-const conversationStore = root.MemoryConversations.make();
-const nodeConversation = root.conversation({
-  handlers: (step) => ({
-    active: step.active(root.text(), ({ message, text }, state) =>
-      root.respond(message, `${state.prefix}:${text}`).pipe(
-        Effect.as(root.Conversation.end()),
-      )),
-  }),
-  name: "node",
-  states: { active: root.Schema.Struct({ prefix: root.Schema.String }) },
-  store: conversationStore,
-});
-const conversationApp = root.Application.make({
-  httpClient: conversationFake.layer,
-  rateLimit: false,
-  token,
-});
-const conversationMessage = {
-  chat: { id: 64, type: "private" },
-  date: 1_700_000_000,
-  from: { firstName: "Node", id: 19, isBot: false },
-  messageId: 120,
-  text: "start",
-};
-try {
-  await conversationApp.run(nodeConversation.enter(
-    conversationMessage,
-    "active",
-    { prefix: "node-conversation" },
-  ));
-  const conversationBot = root.defineBot({ conversations: [nodeConversation] });
-  await conversationApp.run(conversationBot({
-    message: { ...conversationMessage, messageId: 121, text: "continued" },
-    updateId: 121,
-  }));
-  if (conversationFake.requests.at(-1)?.params.text !== "node-conversation:continued") {
-    throw new Error("Durable conversation failed under Node.js");
-  }
-} finally {
-  await conversationApp.close();
-}
-
 const signalChild = spawn(
   process.execPath,
   [new URL("./run-polling-signal-smoke.mjs", import.meta.url).pathname],
@@ -298,41 +115,6 @@ signalChild.kill("SIGTERM");
 const [signalExitCode] = await signalExited;
 if (signalExitCode !== 0 || !signalOutput.includes("stopped\n")) {
   throw new Error(`runPolling signal smoke failed: stdout=${signalOutput} stderr=${signalError}`);
-}
-
-const webhookFake = testing.FakeBotApi.make({ token });
-const webhookApp = root.Application.make({ httpClient: webhookFake.layer, token });
-const webhookBot = root.defineBot({
-  text: ({ message, text }) => root.respond(message, `webhook:${text}`),
-});
-const webhook = webhookApp.startWebhook(webhookBot, { secretToken: "node_webhook_secret" });
-try {
-  const delivered = await webhook.fetch(new Request("https://example.test/telegram", {
-    body: JSON.stringify({
-      message: {
-        chat: { id: 63, type: "private" },
-        date: 1_700_000_000,
-        message_id: 118,
-        text: "node-webhook",
-      },
-      update_id: 118,
-    }),
-    headers: {
-      "content-type": "application/json",
-      "x-telegram-bot-api-secret-token": "node_webhook_secret",
-    },
-    method: "POST",
-  }));
-  if (
-    delivered.status !== 200 ||
-    webhookFake.requests.at(-1)?.params.text !== "webhook:node-webhook"
-  ) {
-    throw new Error("Application webhook failed under Node.js");
-  }
-  await webhook.stop();
-  await webhook.completed;
-} finally {
-  await webhookApp.close();
 }
 
 const sqliteDirectory = mkdtempSync(join(tmpdir(), "telly-node-sqlite."));

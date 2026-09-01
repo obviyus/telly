@@ -237,7 +237,7 @@ test("polling stop interrupts work after the grace period", async () => {
   });
   const app = Application.make({ httpClient: fake.layer, token });
 
-  app.startPolling(
+  const polling = app.startPolling(
     () =>
       Effect.sync(started.resolve).pipe(
         Effect.andThen(Effect.never),
@@ -251,7 +251,7 @@ test("polling stop interrupts work after the grace period", async () => {
     { concurrency: 1, gracePeriodMs: 0 },
   );
   await started.promise;
-  await app.stop();
+  await polling.stop();
   await interrupted.promise;
   expect(wasInterrupted).toBe(true);
   await app.close();

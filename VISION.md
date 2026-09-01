@@ -82,8 +82,8 @@ How Telly uses Effect:
 - External systems sit behind small service interfaces: HTTP transport, clock, random, persistence, inbox, job store, logger, tracer, metrics.
 - Layers wire real services for production and deterministic services for tests.
 - Runtimes own a Scope. Interruption of the Scope cancels polling, drains work, and releases resources.
-- Streams carry updates from transport to handlers.
-- Schedules define retry, backoff, and rate limit timing.
+- Structured Effect loops carry updates. Scope and interruption own their lifecycle and cancellation.
+- The Effect Clock drives retry, backoff, and rate limit timing and makes tests deterministic.
 - Secrets, including the bot token, are `Redacted` values. The redaction guarantee lives under Runtime correctness.
 
 Done when:
@@ -98,8 +98,7 @@ Telly owns its schema pipeline. No upstream review step sits between a Telegram 
 - A generator produces types, Schemas, method definitions, reference data, and the coverage manifest from that schema.
 - Inputs to the normalizer can include the official documentation page and third-party scrapes such as [telegram-bot-api-spec](https://github.com/PaulSonOfLars/telegram-bot-api-spec). No input is trusted alone. Disagreement between inputs blocks the update.
 - An explicit override file records every hand decision. The override file wins over all inputs.
-- A drift check compares the checked-in schema with the live documentation and with Telegram's changelog. A named item that is missing on either side blocks the update.
-- Release automation regenerates, tests, and publishes when the drift check passes and a maintainer approves.
+- A maintainer starts each schema refresh from the current documentation, changelog, and source snapshots. The generator and checks remain deterministic.
 
 Day-zero access:
 
@@ -108,7 +107,7 @@ Day-zero access:
 
 Done when:
 
-- Every method and type in the current published Bot API exists in the generated interface. The drift check reports zero unexplained differences.
+- Every method and type in the checked-in Bot API exists in the generated interface. The schema check reports zero unresolved references and verifies the source snapshot hash.
 - A new Bot API release reaches a Telly release with edits only to the override file and evidence manifest, or with none.
 
 ## Runtime correctness

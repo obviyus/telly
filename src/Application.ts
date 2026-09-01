@@ -62,7 +62,6 @@ export interface Application {
     handler: UpdateHandler<E>,
     options?: PollingOptions,
   ) => Polling;
-  readonly stop: () => Promise<void>;
 }
 
 export interface Polling {
@@ -81,12 +80,8 @@ export const Application = {
     const inboxWake = options.inbox === undefined ? undefined : makeInboxWake();
     let activeStop: (() => Promise<void>) | undefined;
 
-    const stop = async () => {
-      if (activeStop !== undefined) await activeStop();
-    };
-
     const close = async () => {
-      await stop();
+      if (activeStop !== undefined) await activeStop();
       await runtime.dispose();
     };
 
@@ -227,7 +222,6 @@ export const Application = {
       runPolling,
       startPolling,
       startWebhook,
-      stop,
     };
   },
 };
