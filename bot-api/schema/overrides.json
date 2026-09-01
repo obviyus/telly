@@ -1,4 +1,1269 @@
 {
+  "constraints": {
+    "answerCallbackQuery.text": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 200,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-200 characters"
+    },
+    "answerInlineQuery.next_offset": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64
+        }
+      ],
+      "evidence": "64 bytes"
+    },
+    "BotCommand.command": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 1
+        },
+        {
+          "expected": "lowercase English letters, digits, and underscores",
+          "kind": "pattern",
+          "source": "^[a-z0-9_]+$"
+        }
+      ],
+      "evidence": "1-32 characters. Can contain only lowercase English letters, digits and underscores"
+    },
+    "BotCommand.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 256,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-256 characters"
+    },
+    "copyMessages.message_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100 identifiers"
+    },
+    "CopyTextButton.text": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 256,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-256 characters"
+    },
+    "createChatInviteLink.member_limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 99999,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-99999"
+    },
+    "createChatInviteLink.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-32 characters"
+    },
+    "createChatSubscriptionInviteLink.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-32 characters"
+    },
+    "createChatSubscriptionInviteLink.subscription_price": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 10000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-10000"
+    },
+    "createForumTopic.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 characters"
+    },
+    "createInvoiceLink.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 255,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-255 characters"
+    },
+    "createInvoiceLink.payload": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 bytes"
+    },
+    "createInvoiceLink.suggested_tip_amounts": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 4
+        }
+      ],
+      "evidence": "At most 4 suggested tip amounts"
+    },
+    "createInvoiceLink.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-32 characters"
+    },
+    "createNewStickerSet.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "createNewStickerSet.stickers": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 50,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-50 initial stickers"
+    },
+    "createNewStickerSet.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "declineSuggestedPost.comment": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 128,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-128 characters"
+    },
+    "deleteBusinessMessages.message_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100 identifiers"
+    },
+    "deleteMessages.message_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100 identifiers"
+    },
+    "editChatInviteLink.member_limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 99999,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-99999"
+    },
+    "editChatInviteLink.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-32 characters"
+    },
+    "editChatSubscriptionInviteLink.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-32 characters"
+    },
+    "editForumTopic.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 128,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-128 characters"
+    },
+    "editGeneralForumTopic.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 characters"
+    },
+    "editMessageLiveLocation.heading": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 360"
+    },
+    "editMessageLiveLocation.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "editMessageLiveLocation.proximity_alert_radius": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 100000"
+    },
+    "ForceReply.input_field_placeholder": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "forwardMessages.message_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100 identifiers"
+    },
+    "getBusinessAccountGifts.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100"
+    },
+    "getChatGifts.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100"
+    },
+    "getCustomEmojiStickers.custom_emoji_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 200
+        }
+      ],
+      "evidence": "At most 200 custom emoji identifiers"
+    },
+    "getStarTransactions.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "Values between 1-100 are accepted"
+    },
+    "getUpdates.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "Values between 1-100 are accepted"
+    },
+    "getUserGifts.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-100"
+    },
+    "getUserPersonalChatMessages.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 20,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-20"
+    },
+    "getUserProfileAudios.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "Values between 1-100 are accepted"
+    },
+    "getUserProfilePhotos.limit": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100,
+          "minimum": 1
+        }
+      ],
+      "evidence": "Values between 1-100 are accepted"
+    },
+    "InlineKeyboardButton.callback_data": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultArticle.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 Bytes"
+    },
+    "InlineQueryResultAudio.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedAudio.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedDocument.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedGif.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedMpeg4Gif.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedPhoto.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedSticker.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedVideo.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultCachedVoice.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultContact.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 Bytes"
+    },
+    "InlineQueryResultContact.vcard": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 2048,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-2048 bytes"
+    },
+    "InlineQueryResultDocument.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultGame.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultGif.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultLocation.heading": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 360"
+    },
+    "InlineQueryResultLocation.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "InlineQueryResultLocation.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 Bytes"
+    },
+    "InlineQueryResultLocation.proximity_alert_radius": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 100000"
+    },
+    "InlineQueryResultMpeg4Gif.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultPhoto.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultsButton.start_parameter": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        },
+        {
+          "expected": "letters, digits, underscores, and hyphens",
+          "kind": "pattern",
+          "source": "^[A-Za-z0-9_-]+$"
+        }
+      ],
+      "evidence": "1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed"
+    },
+    "InlineQueryResultVenue.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 Bytes"
+    },
+    "InlineQueryResultVideo.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InlineQueryResultVoice.id": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "InputChecklist.tasks": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 30,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-30 tasks"
+    },
+    "InputContactMessageContent.vcard": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 2048,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-2048 bytes"
+    },
+    "InputInvoiceMessageContent.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 255,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-255 characters"
+    },
+    "InputInvoiceMessageContent.payload": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 bytes"
+    },
+    "InputInvoiceMessageContent.suggested_tip_amounts": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 4
+        }
+      ],
+      "evidence": "At most 4 suggested tip amounts"
+    },
+    "InputInvoiceMessageContent.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-32 characters"
+    },
+    "InputLocationMessageContent.heading": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 360"
+    },
+    "InputLocationMessageContent.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "InputLocationMessageContent.proximity_alert_radius": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 100000"
+    },
+    "InputMediaLocation.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "InputRichBlockButtons.buttons": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 8,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-8 buttons"
+    },
+    "InputRichBlockMap.height": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 10000,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-10000"
+    },
+    "InputRichBlockMap.width": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 10000,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-10000"
+    },
+    "InputRichBlockMap.zoom": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 24,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-24"
+    },
+    "InputRichBlockSectionHeading.size": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 6,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-6"
+    },
+    "InputRichMessageMedia.id": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        },
+        {
+          "expected": "letters, digits, underscores, and hyphens",
+          "kind": "pattern",
+          "source": "^[A-Za-z0-9_-]+$"
+        }
+      ],
+      "evidence": "1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed"
+    },
+    "InputSticker.emoji_list": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 20,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-20 emoji"
+    },
+    "InputSticker.keywords": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 20,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-20 search keywords"
+    },
+    "InputStoryContentVideo.duration": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 60,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-60"
+    },
+    "KeyboardButtonRequestUsers.max_quantity": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 10,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-10"
+    },
+    "Location.heading": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-360"
+    },
+    "Location.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "ReplyKeyboardMarkup.input_field_placeholder": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "RichMessageButton.callback_data": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 bytes"
+    },
+    "sendContact.vcard": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 2048,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-2048 bytes"
+    },
+    "sendInvoice.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 255,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-255 characters"
+    },
+    "sendInvoice.payload": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 bytes"
+    },
+    "sendInvoice.suggested_tip_amounts": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 4
+        }
+      ],
+      "evidence": "At most 4 suggested tip amounts"
+    },
+    "sendInvoice.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-32 characters"
+    },
+    "sendLocation.heading": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 360"
+    },
+    "sendLocation.horizontal_accuracy": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 1500,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-1500"
+    },
+    "sendLocation.proximity_alert_radius": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 100000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "between 1 and 100000"
+    },
+    "sendMediaGroup.media": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 10,
+          "minimum": 2
+        }
+      ],
+      "evidence": "must include 2-10 items"
+    },
+    "sendPaidMedia.payload": {
+      "checks": [
+        {
+          "kind": "utf8Bytes",
+          "maximum": 128,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-128 bytes"
+    },
+    "sendPaidMedia.star_count": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 25000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-25000"
+    },
+    "sendPoll.country_codes": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 12,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-12 two-letter"
+    },
+    "sendPoll.open_period": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 2628000,
+          "minimum": 5
+        }
+      ],
+      "evidence": "5-2628000"
+    },
+    "sendPoll.options": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 12,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-12 answer options"
+    },
+    "setBusinessAccountBio.bio": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 140,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-140 characters"
+    },
+    "setBusinessAccountName.first_name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "setBusinessAccountName.last_name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-64 characters"
+    },
+    "setBusinessAccountUsername.username": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 32,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-32 characters"
+    },
+    "setChatAdministratorCustomTitle.custom_title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 16,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-16 characters"
+    },
+    "setChatDescription.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 255,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-255 characters"
+    },
+    "setChatMemberTag.tag": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 16,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-16 characters"
+    },
+    "setChatTitle.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 128,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-128 characters"
+    },
+    "setManagedBotAccessSettings.added_user_ids": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 10
+        }
+      ],
+      "evidence": "up to 10 identifiers"
+    },
+    "setMyCommands.commands": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 100
+        }
+      ],
+      "evidence": "At most 100 commands"
+    },
+    "setMyDescription.description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 512,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-512 characters"
+    },
+    "setMyName.name": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-64 characters"
+    },
+    "setMyShortDescription.short_description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 120,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-120 characters"
+    },
+    "setStickerEmojiList.emoji_list": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 20,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-20 emoji"
+    },
+    "setStickerKeywords.keywords": {
+      "checks": [
+        {
+          "kind": "items",
+          "maximum": 20,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-20 search keywords"
+    },
+    "setStickerSetTitle.title": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 64,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-64 characters"
+    },
+    "setWebhook.secret_token": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 256,
+          "minimum": 1
+        },
+        {
+          "expected": "letters, digits, underscores, and hyphens",
+          "kind": "pattern",
+          "source": "^[A-Za-z0-9_-]+$"
+        }
+      ],
+      "evidence": "1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed"
+    },
+    "StoryAreaPosition.rotation_angle": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 360,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-360"
+    },
+    "transferBusinessAccountStars.star_count": {
+      "checks": [
+        {
+          "kind": "range",
+          "maximum": 10000,
+          "minimum": 1
+        }
+      ],
+      "evidence": "1-10000"
+    },
+    "verifyChat.custom_description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 70,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-70 characters"
+    },
+    "verifyUser.custom_description": {
+      "checks": [
+        {
+          "kind": "codePoints",
+          "maximum": 70,
+          "minimum": 0
+        }
+      ],
+      "evidence": "0-70 characters"
+    }
+  },
   "fields": {
     "InputMediaAnimation.media": {
       "types": [

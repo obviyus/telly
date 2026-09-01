@@ -10,6 +10,7 @@ import {
   command,
   defineBot,
   every,
+  entity,
   Filter,
   media,
   mention,
@@ -532,10 +533,10 @@ test("mention extracts mention and text-mention UTF-16 spans", async () => {
   const app = Application.make({ httpClient: fake.layer, token });
   let observed: ReadonlyArray<{ readonly text: string; readonly userId?: number }> = [];
   const handler = routes(
-    on(mention(), ({ mentions }) => Effect.sync(() => {
-      observed = mentions.map((span) => ({
+    on(mention(), ({ entities }) => Effect.sync(() => {
+      observed = entities.map((span) => ({
         text: span.text,
-        ...(span.user === undefined ? {} : { userId: span.user.id }),
+        ...(span.entity.user === undefined ? {} : { userId: span.entity.user.id }),
       }));
     })),
   );
@@ -565,4 +566,36 @@ test("mention extracts mention and text-mention UTF-16 spans", async () => {
   }
 
   expect(observed).toEqual([{ text: "@ada" }, { text: "Ada", userId: 79 }]);
+});
+
+test("entity matches caption entities and exposes their text", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed;
+  const handler = routes(
+    on(entity("hashtag"), (match) => Effect.sync(() => {
+      observed = match;
+    })),
+  );
+  const update: Update = {
+    message: {
+      caption: "Photo #telly",
+      captionEntities: [{ length: 6, offset: 6, type: "hashtag" }],
+      chat: { id: 501, type: "private" },
+      date: 1_700_000_000,
+      messageId: 122,
+    },
+    updateId: 122,
+  };
+
+  try {
+    await app.run(handler(update));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toMatchObject({
+    entities: [{ text: "#telly" }],
+    text: "Photo #telly",
+  });
 });

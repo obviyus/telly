@@ -8,10 +8,32 @@ import {
   CallbackDataTooLong,
 } from "./src/CallbackData.js";
 import type { CallbackData, CallbackDataMatch } from "./src/CallbackData.js";
+import { answerCallback, callbackTarget } from "./src/CallbackQuery.js";
+import type { AnswerCallbackOptions, CallbackTarget } from "./src/CallbackQuery.js";
+import { reply, replyTo, respond, respondTo } from "./src/Conversation.js";
+import type {
+  ConversationMessage,
+  ConversationMessageOptions,
+  ConversationTarget,
+  ReplyOptions,
+  ReplyTarget,
+} from "./src/Conversation.js";
 import { downloadFile } from "./src/Files.js";
 import type { DownloadFileOptions } from "./src/Files.js";
-import { messageMedia, messageReply, messageSender, messageText } from "./src/Message.js";
-import type { MessageMedia, MessageReply, MessageSender } from "./src/Message.js";
+import { html, markdownV2 } from "./src/Formatting.js";
+import {
+  messageEntities,
+  messageMedia,
+  messageReply,
+  messageSender,
+  messageText,
+} from "./src/Message.js";
+import type {
+  MessageEntitySpan,
+  MessageMedia,
+  MessageReply,
+  MessageSender,
+} from "./src/Message.js";
 import { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
 import type {
   ClaimedUpdate,
@@ -72,11 +94,6 @@ import type {
   ConversationStep,
   DurableConversation,
 } from "./src/Conversations.js";
-import { reply, respond } from "./src/Conversation.js";
-import type {
-  ConversationMessage,
-  ConversationMessageOptions,
-} from "./src/Conversation.js";
 import {
   ConversationStore,
   ConversationStoreError,
@@ -112,6 +129,7 @@ import {
   chatType,
   command,
   defineBot,
+  entity,
   every,
   Filter,
   media,
@@ -128,21 +146,23 @@ import type {
   BotDefinition,
   ChatTypeMatch,
   CommandMatch,
+  EntityMatch,
   MediaKind,
   MediaKindMap,
   MediaMatch,
-  MentionMatch,
-  MentionSpan,
   MessageChatType,
   RegexMatch,
   RepliedMessageMatch,
   Route,
   TextMatch,
 } from "./src/Routing.js";
+import { updateContext } from "./src/Update.js";
+import type { UpdateContext } from "./src/Update.js";
 
 export * from "./src/methods.generated.js";
 export * from "./src/types.generated.js";
 export {
+  answerCallback,
   Application,
   Bot,
   BotApiError,
@@ -150,6 +170,7 @@ export {
   CallbackDataInvalid,
   CallbackDataTooLong,
   callbackQuery,
+  callbackTarget,
   chatType,
   command,
   conversation,
@@ -164,8 +185,10 @@ export {
   defineJobs,
   downloadFile,
   DispatchLeaseLost,
+  entity,
   every,
   Filter,
+  html,
   InboxStore,
   InboxStoreError,
   InvalidJobPayload,
@@ -177,11 +200,13 @@ export {
   JobStore,
   JobStoreError,
   media,
+  messageEntities,
   messageMedia,
   messageReply,
   messageSender,
   messageText,
   mention,
+  markdownV2,
   MemoryInbox,
   MemoryConversations,
   MemoryJobs,
@@ -190,29 +215,35 @@ export {
   pollUpdates,
   PollingConflictError,
   reply,
+  replyTo,
   retryUnknownOutcome,
   regex,
   repliedMessage,
   respond,
+  respondTo,
   routes,
   runJobWorker,
   SqliteInbox,
   SqliteConversations,
   SqliteJobs,
   text,
+  updateContext,
 };
 export type {
   AcknowledgmentMode,
+  AnswerCallbackOptions,
   ApplicationOptions,
   BotApiOptions,
   BotDefinition,
   CallbackData,
   CallbackDataMatch,
+  CallbackTarget,
   ClaimedJob,
   ClaimJobs,
   ClaimedUpdate,
   ClaimInboxUpdates,
   ChatTypeMatch,
+  ConversationTarget,
   ConversationMessageOptions,
   CommitConversation,
   ConversationCommitExpected,
@@ -227,6 +258,7 @@ export type {
   DispatchLeaseResult,
   DownloadFileOptions,
   DurableConversation,
+  EntityMatch,
   FencedInboxOperation,
   FencedJobOperation,
   InboxSaveResult,
@@ -248,11 +280,10 @@ export type {
   MediaKindMap,
   MediaMatch,
   MessageDefaults,
+  MessageEntitySpan,
   MessageMedia,
   MessageReply,
   MessageSender,
-  MentionMatch,
-  MentionSpan,
   MessageChatType,
   PollingOptions,
   Polling,
@@ -272,9 +303,12 @@ export type {
   SqliteJobStore,
   RegexMatch,
   RepliedMessageMatch,
+  ReplyOptions,
+  ReplyTarget,
   TextMatch,
   LoadConversation,
   UpdateHandler,
+  UpdateContext,
   Webhook,
   WebhookOptions,
   CallbackQueryMatch,

@@ -6,6 +6,8 @@ import type {
   ExternalReplyInfo,
   LivePhoto,
   Message,
+  MessageEntity,
+  MessageEntityType,
   PhotoSize,
   Sticker,
   Story,
@@ -35,9 +37,30 @@ export type MessageReply =
   | { readonly reply: ExternalReplyInfo; readonly type: "external" }
   | { readonly story: Story; readonly type: "story" };
 
+export interface MessageEntitySpan {
+  readonly entity: MessageEntity;
+  readonly text: string;
+}
+
 /** Returns message text, or the caption when the message carries media. */
 export function messageText(message: Message): string | undefined {
   return message.text ?? message.caption;
+}
+
+/** Extracts entity substrings from message text or a media caption. */
+export function messageEntities(
+  message: Message,
+  ...types: ReadonlyArray<MessageEntityType>
+): ReadonlyArray<MessageEntitySpan> {
+  const text = message.text ?? message.caption;
+  const entities = message.text === undefined ? message.captionEntities : message.entities;
+  if (text === undefined || entities === undefined) return [];
+  const spans: Array<MessageEntitySpan> = [];
+  for (const entity of entities) {
+    if (types.length > 0 && !types.includes(entity.type)) continue;
+    spans.push({ entity, text: text.slice(entity.offset, entity.offset + entity.length) });
+  }
+  return spans;
 }
 
 /** Returns the message's downloadable media with Telegram aliases resolved. */

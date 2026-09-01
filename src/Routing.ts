@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 
 import { Bot, type BotApiError } from "./BotApi.js";
+import { messageEntities, messageText, type MessageEntitySpan } from "./Message.js";
 import { withConversations } from "./internal/ConversationRuntime.js";
 import type {
   ConversationProtocol,
@@ -15,7 +16,7 @@ import type {
   ChatType,
   Document,
   Message,
-  MessageEntity,
+  MessageEntityType,
   PhotoSize,
   Sticker,
   Update,
@@ -103,14 +104,8 @@ export interface ChatTypeMatch {
   readonly update: Update;
 }
 
-export interface MentionSpan {
-  readonly entity: MessageEntity;
-  readonly text: string;
-  readonly user?: User;
-}
-
-export interface MentionMatch {
-  readonly mentions: ReadonlyArray<MentionSpan>;
+export interface EntityMatch {
+  readonly entities: ReadonlyArray<MessageEntitySpan>;
   readonly message: Message;
   readonly text: string;
   readonly update: Update;
@@ -353,24 +348,26 @@ export function chatType(
   });
 }
 
-/** Matches user mentions in new message text and extracts their UTF-16 spans. */
-export function mention(): Filter<MentionMatch> {
+/** Matches selected entities in new message text or a media caption. */
+export function entity(
+  first: MessageEntityType,
+  ...rest: ReadonlyArray<MessageEntityType>
+): Filter<EntityMatch> {
+  const types = [first, ...rest];
   return makeFilter((update) => {
     const message = update.message;
-    if (message?.text === undefined || message.entities === undefined) return undefined;
-    const mentions: Array<MentionSpan> = [];
-    for (const entity of message.entities) {
-      if (entity.type !== "mention" && entity.type !== "text_mention") continue;
-      mentions.push({
-        entity,
-        text: message.text.slice(entity.offset, entity.offset + entity.length),
-        ...(entity.user === undefined ? {} : { user: entity.user }),
-      });
-    }
-    return mentions.length === 0
+    if (message === undefined) return undefined;
+    const entities = messageEntities(message, ...types);
+    const text = messageText(message);
+    return entities.length === 0 || text === undefined
       ? undefined
-      : { mentions, message, text: message.text, update };
+      : { entities, message, text, update };
   });
+}
+
+/** Matches user mentions in new message text or a media caption. */
+export function mention(): Filter<EntityMatch> {
+  return entity("mention", "text_mention");
 }
 
 /** Compiles a declarative bot definition into one reusable update handler. */

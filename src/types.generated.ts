@@ -6,6 +6,7 @@ import * as SchemaGetter from "effect/SchemaGetter";
 import * as SchemaParser from "effect/SchemaParser";
 import * as Struct from "effect/Struct";
 
+import * as Constraints from "./internal/Constraints.js";
 import { decodeFailure, decodeUpdate } from "./internal/decoders.generated.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
 
@@ -576,6 +577,7 @@ export const BotAccessSettings: Schema.Codec<BotAccessSettings, unknown> = Schem
   );
 });
 
+const _constraintsBotCommand = [["command",[{"maximum":32,"minimum":1,"kind":"codePoints"},{"expected":"lowercase English letters, digits, and underscores","kind":"pattern","source":"^[a-z0-9_]+$"}]],["description",[{"maximum":256,"minimum":1,"kind":"codePoints"}]]] as const;
 /** This object represents a bot command. */
 export interface BotCommand {
   /** Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores. */
@@ -601,7 +603,7 @@ export const BotCommand: Schema.Codec<BotCommand, unknown> = Schema.suspend(() =
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<BotCommand>((input) => Effect.succeed(Constraints.fields(input, _constraintsBotCommand))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2474,18 +2476,28 @@ export const Contact: Schema.Codec<Contact, unknown> = Schema.suspend(() => {
   );
 });
 
+const _constraintsCopyTextButton = [["text",[{"maximum":256,"minimum":1,"kind":"codePoints"}]]] as const;
 /** This object represents an inline keyboard button that copies specified text to the clipboard. */
 export interface CopyTextButton {
   /** The text to be copied to the clipboard; 1-256 characters */
   readonly text: string;
   readonly [key: string]: unknown;
 }
-export const CopyTextButton: Schema.Codec<CopyTextButton, unknown> = Schema.suspend(() => Schema.StructWithRest(
-  Schema.Struct({
-    text: Schema.String,
-  }),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-));
+export const CopyTextButton: Schema.Codec<CopyTextButton, unknown> = Schema.suspend(() => {
+  const encoded = Schema.StructWithRest(
+    Schema.Struct({
+      text: Schema.String,
+    }),
+    [Schema.Record(Schema.String, Schema.Unknown)],
+  );
+  const decoded = Schema.declare<CopyTextButton>((input): input is CopyTextButton => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<CopyTextButton>((input) => Effect.succeed(Constraints.fields(input, _constraintsCopyTextButton))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 /** This object represents an animated emoji that displays a random value. */
 export interface Dice {
@@ -2837,6 +2849,7 @@ export const File: Schema.Codec<File, unknown> = Schema.suspend(() => {
   );
 });
 
+const _constraintsForceReply = [["inputFieldPlaceholder",[{"maximum":64,"minimum":1,"kind":"codePoints"}]]] as const;
 /** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account. */
 export interface ForceReply {
   /** Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply' */
@@ -2862,7 +2875,7 @@ export const ForceReply: Schema.Codec<ForceReply, unknown> = Schema.suspend(() =
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<ForceReply>((input) => Effect.succeed(Constraints.fields(input, _constraintsForceReply))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -3403,6 +3416,7 @@ export const InaccessibleMessage: Schema.Codec<InaccessibleMessage, unknown> = S
   );
 });
 
+const _constraintsInlineKeyboardButton = [["callbackData",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. */
 export interface InlineKeyboardButton {
   /** Label text on the button */
@@ -3467,7 +3481,7 @@ export const InlineKeyboardButton: Schema.Codec<InlineKeyboardButton, unknown> =
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineKeyboardButton>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineKeyboardButton))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -3542,6 +3556,7 @@ export const InlineQuery: Schema.Codec<InlineQuery, unknown> = Schema.suspend(()
 export type InlineQueryResult = InlineQueryResultCachedAudio | InlineQueryResultCachedDocument | InlineQueryResultCachedGif | InlineQueryResultCachedMpeg4Gif | InlineQueryResultCachedPhoto | InlineQueryResultCachedSticker | InlineQueryResultCachedVideo | InlineQueryResultCachedVoice | InlineQueryResultArticle | InlineQueryResultAudio | InlineQueryResultContact | InlineQueryResultGame | InlineQueryResultDocument | InlineQueryResultGif | InlineQueryResultLocation | InlineQueryResultMpeg4Gif | InlineQueryResultPhoto | InlineQueryResultVenue | InlineQueryResultVideo | InlineQueryResultVoice;
 export const InlineQueryResult: Schema.Codec<InlineQueryResult, unknown> = Schema.suspend(() => Schema.Union([InlineQueryResultCachedAudio, InlineQueryResultCachedDocument, InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedPhoto, InlineQueryResultCachedSticker, InlineQueryResultCachedVideo, InlineQueryResultCachedVoice, InlineQueryResultArticle, InlineQueryResultAudio, InlineQueryResultContact, InlineQueryResultGame, InlineQueryResultDocument, InlineQueryResultGif, InlineQueryResultLocation, InlineQueryResultMpeg4Gif, InlineQueryResultPhoto, InlineQueryResultVenue, InlineQueryResultVideo, InlineQueryResultVoice]));
 
+const _constraintsInlineQueryResultArticle = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to an article or web page. */
 export interface InlineQueryResultArticle {
   /** Type of the result, must be article */
@@ -3588,11 +3603,12 @@ export const InlineQueryResultArticle: Schema.Codec<InlineQueryResultArticle, un
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultArticle>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultArticle))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultAudio = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultAudio {
   /** Type of the result, must be audio */
@@ -3642,11 +3658,12 @@ export const InlineQueryResultAudio: Schema.Codec<InlineQueryResultAudio, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultAudio>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultAudio))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedAudio = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultCachedAudio {
   /** Type of the result, must be audio */
@@ -3687,11 +3704,12 @@ export const InlineQueryResultCachedAudio: Schema.Codec<InlineQueryResultCachedA
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedAudio>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedAudio))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedDocument = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. */
 export interface InlineQueryResultCachedDocument {
   /** Type of the result, must be document */
@@ -3738,11 +3756,12 @@ export const InlineQueryResultCachedDocument: Schema.Codec<InlineQueryResultCach
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedDocument>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedDocument))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedGif = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation. */
 export interface InlineQueryResultCachedGif {
   /** Type of the result, must be gif */
@@ -3789,11 +3808,12 @@ export const InlineQueryResultCachedGif: Schema.Codec<InlineQueryResultCachedGif
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedGif>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedGif))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedMpeg4Gif = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultCachedMpeg4Gif {
   /** Type of the result, must be mpeg4_gif */
@@ -3840,11 +3860,12 @@ export const InlineQueryResultCachedMpeg4Gif: Schema.Codec<InlineQueryResultCach
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedMpeg4Gif>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedMpeg4Gif))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedPhoto = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo. */
 export interface InlineQueryResultCachedPhoto {
   /** Type of the result, must be photo */
@@ -3894,11 +3915,12 @@ export const InlineQueryResultCachedPhoto: Schema.Codec<InlineQueryResultCachedP
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedPhoto>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedPhoto))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedSticker = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker. */
 export interface InlineQueryResultCachedSticker {
   /** Type of the result, must be sticker */
@@ -3930,11 +3952,12 @@ export const InlineQueryResultCachedSticker: Schema.Codec<InlineQueryResultCache
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedSticker>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedSticker))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedVideo = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video. */
 export interface InlineQueryResultCachedVideo {
   /** Type of the result, must be video */
@@ -3984,11 +4007,12 @@ export const InlineQueryResultCachedVideo: Schema.Codec<InlineQueryResultCachedV
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedVideo>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedVideo))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultCachedVoice = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message. */
 export interface InlineQueryResultCachedVoice {
   /** Type of the result, must be voice */
@@ -4032,11 +4056,12 @@ export const InlineQueryResultCachedVoice: Schema.Codec<InlineQueryResultCachedV
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultCachedVoice>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultCachedVoice))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultContact = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]],["vcard",[{"maximum":2048,"minimum":0,"kind":"utf8Bytes"}]]] as const;
 /** Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact. */
 export interface InlineQueryResultContact {
   /** Type of the result, must be contact */
@@ -4086,11 +4111,12 @@ export const InlineQueryResultContact: Schema.Codec<InlineQueryResultContact, un
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultContact>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultContact))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultDocument = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method. */
 export interface InlineQueryResultDocument {
   /** Type of the result, must be document */
@@ -4149,11 +4175,12 @@ export const InlineQueryResultDocument: Schema.Codec<InlineQueryResultDocument, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultDocument>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultDocument))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultGame = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a Game. */
 export interface InlineQueryResultGame {
   /** Type of the result, must be game */
@@ -4182,11 +4209,12 @@ export const InlineQueryResultGame: Schema.Codec<InlineQueryResultGame, unknown>
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultGame>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultGame))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultGif = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultGif {
   /** Type of the result, must be gif */
@@ -4248,11 +4276,12 @@ export const InlineQueryResultGif: Schema.Codec<InlineQueryResultGif, unknown> =
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultGif>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultGif))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultLocation = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]],["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]],["heading",[{"maximum":360,"minimum":1,"kind":"range"}]],["proximityAlertRadius",[{"maximum":100000,"minimum":1,"kind":"range"}]]] as const;
 /** Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location. */
 export interface InlineQueryResultLocation {
   /** Type of the result, must be location */
@@ -4311,11 +4340,12 @@ export const InlineQueryResultLocation: Schema.Codec<InlineQueryResultLocation, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultLocation>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultLocation))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultMpeg4Gif = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation. */
 export interface InlineQueryResultMpeg4Gif {
   /** Type of the result, must be mpeg4_gif */
@@ -4377,11 +4407,12 @@ export const InlineQueryResultMpeg4Gif: Schema.Codec<InlineQueryResultMpeg4Gif, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultMpeg4Gif>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultMpeg4Gif))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultPhoto = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo. */
 export interface InlineQueryResultPhoto {
   /** Type of the result, must be photo */
@@ -4440,11 +4471,12 @@ export const InlineQueryResultPhoto: Schema.Codec<InlineQueryResultPhoto, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultPhoto>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultPhoto))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultsButton = [["startParameter",[{"maximum":64,"minimum":1,"kind":"codePoints"},{"expected":"letters, digits, underscores, and hyphens","kind":"pattern","source":"^[A-Za-z0-9_-]+$"}]]] as const;
 /** This object represents a button to be shown above inline query results. You must use exactly one of the optional fields. */
 export interface InlineQueryResultsButton {
   /** Label text on the button */
@@ -4472,11 +4504,12 @@ export const InlineQueryResultsButton: Schema.Codec<InlineQueryResultsButton, un
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultsButton>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultsButton))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultVenue = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue. */
 export interface InlineQueryResultVenue {
   /** Type of the result, must be venue */
@@ -4538,11 +4571,12 @@ export const InlineQueryResultVenue: Schema.Codec<InlineQueryResultVenue, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultVenue>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultVenue))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultVideo = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video. */
 export interface InlineQueryResultVideo {
   /** Type of the result, must be video */
@@ -4607,11 +4641,12 @@ export const InlineQueryResultVideo: Schema.Codec<InlineQueryResultVideo, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultVideo>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultVideo))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInlineQueryResultVoice = [["id",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message. */
 export interface InlineQueryResultVoice {
   /** Type of the result, must be voice */
@@ -4658,11 +4693,12 @@ export const InlineQueryResultVoice: Schema.Codec<InlineQueryResultVoice, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InlineQueryResultVoice>((input) => Effect.succeed(Constraints.fields(input, _constraintsInlineQueryResultVoice))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInputChecklist = [["tasks",[{"maximum":30,"minimum":1,"kind":"items"}]]] as const;
 /** Describes a checklist to create. */
 export interface InputChecklist {
   /** Title of the checklist; 1-255 characters after entities parsing */
@@ -4697,7 +4733,7 @@ export const InputChecklist: Schema.Codec<InputChecklist, unknown> = Schema.susp
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputChecklist>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputChecklist))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4735,6 +4771,7 @@ export const InputChecklistTask: Schema.Codec<InputChecklistTask, unknown> = Sch
   );
 });
 
+const _constraintsInputContactMessageContent = [["vcard",[{"maximum":2048,"minimum":0,"kind":"utf8Bytes"}]]] as const;
 /** Represents the content of a contact message to be sent as the result of an inline query. */
 export interface InputContactMessageContent {
   /** Contact's phone number */
@@ -4763,7 +4800,7 @@ export const InputContactMessageContent: Schema.Codec<InputContactMessageContent
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputContactMessageContent>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputContactMessageContent))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4772,6 +4809,7 @@ export const InputContactMessageContent: Schema.Codec<InputContactMessageContent
 export type InputFile = Blob;
 export const InputFile: Schema.Codec<InputFile> = Schema.suspend(() => Schema.instanceOf(Blob));
 
+const _constraintsInputInvoiceMessageContent = [["title",[{"maximum":32,"minimum":1,"kind":"codePoints"}]],["description",[{"maximum":255,"minimum":1,"kind":"codePoints"}]],["payload",[{"maximum":128,"minimum":1,"kind":"utf8Bytes"}]],["suggestedTipAmounts",[{"maximum":4,"kind":"items"}]]] as const;
 /** Represents the content of an invoice message to be sent as the result of an inline query. */
 export interface InputInvoiceMessageContent {
   /** Product name, 1-32 characters */
@@ -4848,11 +4886,12 @@ export const InputInvoiceMessageContent: Schema.Codec<InputInvoiceMessageContent
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputInvoiceMessageContent>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputInvoiceMessageContent))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
 
+const _constraintsInputLocationMessageContent = [["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]],["heading",[{"maximum":360,"minimum":1,"kind":"range"}]],["proximityAlertRadius",[{"maximum":100000,"minimum":1,"kind":"range"}]]] as const;
 /** Represents the content of a location message to be sent as the result of an inline query. */
 export interface InputLocationMessageContent {
   /** Latitude of the location in degrees */
@@ -4887,7 +4926,7 @@ export const InputLocationMessageContent: Schema.Codec<InputLocationMessageConte
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputLocationMessageContent>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputLocationMessageContent))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5101,6 +5140,7 @@ export const InputMediaLivePhoto: Schema.Codec<InputMediaLivePhoto, unknown> = S
   );
 });
 
+const _constraintsInputMediaLocation = [["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]]] as const;
 /** Represents a location to be sent. */
 export interface InputMediaLocation {
   /** Type of the media, must be location */
@@ -5129,7 +5169,7 @@ export const InputMediaLocation: Schema.Codec<InputMediaLocation, unknown> = Sch
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputMediaLocation>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputMediaLocation))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5604,6 +5644,7 @@ export const InputRichBlockBlockQuotation: Schema.Codec<InputRichBlockBlockQuota
   [Schema.Record(Schema.String, Schema.Unknown)],
 ));
 
+const _constraintsInputRichBlockButtons = [["buttons",[{"maximum":8,"minimum":1,"kind":"items"}]]] as const;
 /** A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>. */
 export interface InputRichBlockButtons {
   /** Type of the block, always “buttons” */
@@ -5614,14 +5655,23 @@ export interface InputRichBlockButtons {
   readonly align?: string;
   readonly [key: string]: unknown;
 }
-export const InputRichBlockButtons: Schema.Codec<InputRichBlockButtons, unknown> = Schema.suspend(() => Schema.StructWithRest(
-  Schema.Struct({
-    type: Schema.Literal("buttons"),
-    buttons: Schema.Array(RichMessageButton),
-    align: Schema.optionalKey(Schema.String),
-  }),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-));
+export const InputRichBlockButtons: Schema.Codec<InputRichBlockButtons, unknown> = Schema.suspend(() => {
+  const encoded = Schema.StructWithRest(
+    Schema.Struct({
+      type: Schema.Literal("buttons"),
+      buttons: Schema.Array(RichMessageButton),
+      align: Schema.optionalKey(Schema.String),
+    }),
+    [Schema.Record(Schema.String, Schema.Unknown)],
+  );
+  const decoded = Schema.declare<InputRichBlockButtons>((input): input is InputRichBlockButtons => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<InputRichBlockButtons>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputRichBlockButtons))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 /** A collage, corresponding to the custom HTML tag <tg-collage>. */
 export interface InputRichBlockCollage {
@@ -5794,6 +5844,7 @@ export const InputRichBlockListItem: Schema.Codec<InputRichBlockListItem, unknow
   );
 });
 
+const _constraintsInputRichBlockMap = [["zoom",[{"maximum":24,"minimum":0,"kind":"range"}]],["width",[{"maximum":10000,"minimum":0,"kind":"range"}]],["height",[{"maximum":10000,"minimum":0,"kind":"range"}]]] as const;
 /** A block with a map, corresponding to the custom HTML tag <tg-map>. The map's width and height must not exceed 10000 in total. The width and height ratio must be at most 20. */
 export interface InputRichBlockMap {
   /** Type of the block, always “map” */
@@ -5810,17 +5861,26 @@ export interface InputRichBlockMap {
   readonly caption?: RichBlockCaption;
   readonly [key: string]: unknown;
 }
-export const InputRichBlockMap: Schema.Codec<InputRichBlockMap, unknown> = Schema.suspend(() => Schema.StructWithRest(
-  Schema.Struct({
-    type: Schema.Literal("map"),
-    location: Location,
-    zoom: Schema.optionalKey(Schema.Int),
-    width: Schema.optionalKey(Schema.Int),
-    height: Schema.optionalKey(Schema.Int),
-    caption: Schema.optionalKey(RichBlockCaption),
-  }),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-));
+export const InputRichBlockMap: Schema.Codec<InputRichBlockMap, unknown> = Schema.suspend(() => {
+  const encoded = Schema.StructWithRest(
+    Schema.Struct({
+      type: Schema.Literal("map"),
+      location: Location,
+      zoom: Schema.optionalKey(Schema.Int),
+      width: Schema.optionalKey(Schema.Int),
+      height: Schema.optionalKey(Schema.Int),
+      caption: Schema.optionalKey(RichBlockCaption),
+    }),
+    [Schema.Record(Schema.String, Schema.Unknown)],
+  );
+  const decoded = Schema.declare<InputRichBlockMap>((input): input is InputRichBlockMap => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<InputRichBlockMap>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputRichBlockMap))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 /** A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>. */
 export interface InputRichBlockMathematicalExpression {
@@ -5911,6 +5971,7 @@ export const InputRichBlockPullQuotation: Schema.Codec<InputRichBlockPullQuotati
   [Schema.Record(Schema.String, Schema.Unknown)],
 ));
 
+const _constraintsInputRichBlockSectionHeading = [["size",[{"maximum":6,"minimum":1,"kind":"range"}]]] as const;
 /** A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>. */
 export interface InputRichBlockSectionHeading {
   /** Type of the block, always “heading” */
@@ -5921,14 +5982,23 @@ export interface InputRichBlockSectionHeading {
   readonly size: number;
   readonly [key: string]: unknown;
 }
-export const InputRichBlockSectionHeading: Schema.Codec<InputRichBlockSectionHeading, unknown> = Schema.suspend(() => Schema.StructWithRest(
-  Schema.Struct({
-    type: Schema.Literal("heading"),
-    text: RichText,
-    size: Schema.Int,
-  }),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-));
+export const InputRichBlockSectionHeading: Schema.Codec<InputRichBlockSectionHeading, unknown> = Schema.suspend(() => {
+  const encoded = Schema.StructWithRest(
+    Schema.Struct({
+      type: Schema.Literal("heading"),
+      text: RichText,
+      size: Schema.Int,
+    }),
+    [Schema.Record(Schema.String, Schema.Unknown)],
+  );
+  const decoded = Schema.declare<InputRichBlockSectionHeading>((input): input is InputRichBlockSectionHeading => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<InputRichBlockSectionHeading>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputRichBlockSectionHeading))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 /** A slideshow, corresponding to the custom HTML tag <tg-slideshow>. */
 export interface InputRichBlockSlideshow {
@@ -6116,6 +6186,7 @@ export const InputRichMessageContent: Schema.Codec<InputRichMessageContent, unkn
   );
 });
 
+const _constraintsInputRichMessageMedia = [["id",[{"maximum":64,"minimum":1,"kind":"codePoints"},{"expected":"letters, digits, underscores, and hyphens","kind":"pattern","source":"^[A-Za-z0-9_-]+$"}]]] as const;
 /** Describes a media element embedded in an outgoing rich message. */
 export interface InputRichMessageMedia {
   /** Unique identifier of the media used in a tg://photo?id=, tg://video?id=, tg://document?id=, or tg://audio?id= link. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed. */
@@ -6124,14 +6195,24 @@ export interface InputRichMessageMedia {
   readonly media: InputMediaAnimation | InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo | InputMediaVoiceNote;
   readonly [key: string]: unknown;
 }
-export const InputRichMessageMedia: Schema.Codec<InputRichMessageMedia, unknown> = Schema.suspend(() => Schema.StructWithRest(
-  Schema.Struct({
-    id: Schema.String,
-    media: Schema.Union([InputMediaAnimation, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputMediaVoiceNote]),
-  }),
-  [Schema.Record(Schema.String, Schema.Unknown)],
-));
+export const InputRichMessageMedia: Schema.Codec<InputRichMessageMedia, unknown> = Schema.suspend(() => {
+  const encoded = Schema.StructWithRest(
+    Schema.Struct({
+      id: Schema.String,
+      media: Schema.Union([InputMediaAnimation, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputMediaVoiceNote]),
+    }),
+    [Schema.Record(Schema.String, Schema.Unknown)],
+  );
+  const decoded = Schema.declare<InputRichMessageMedia>((input): input is InputRichMessageMedia => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<InputRichMessageMedia>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputRichMessageMedia))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
+const _constraintsInputSticker = [["emojiList",[{"maximum":20,"minimum":1,"kind":"items"}]],["keywords",[{"maximum":20,"minimum":0,"kind":"items"}]]] as const;
 /** This object describes a sticker to be added to a sticker set. */
 export interface InputSticker {
   /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new file using multipart/form-data under <file_attach_name> name. Animated and video stickers can't be uploaded via HTTP URL. More information on Sending Files » */
@@ -6163,7 +6244,7 @@ export const InputSticker: Schema.Codec<InputSticker, unknown> = Schema.suspend(
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputSticker>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputSticker))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6188,6 +6269,7 @@ export const InputStoryContentPhoto: Schema.Codec<InputStoryContentPhoto, unknow
   [Schema.Record(Schema.String, Schema.Unknown)],
 ));
 
+const _constraintsInputStoryContentVideo = [["duration",[{"maximum":60,"minimum":0,"kind":"range"}]]] as const;
 /** Describes a video to post as a story. */
 export interface InputStoryContentVideo {
   /** Type of the content, must be video */
@@ -6219,7 +6301,7 @@ export const InputStoryContentVideo: Schema.Codec<InputStoryContentVideo, unknow
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<InputStoryContentVideo>((input) => Effect.succeed(Constraints.fields(input, _constraintsInputStoryContentVideo))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6486,6 +6568,7 @@ export const KeyboardButtonRequestManagedBot: Schema.Codec<KeyboardButtonRequest
   );
 });
 
+const _constraintsKeyboardButtonRequestUsers = [["maxQuantity",[{"maximum":10,"minimum":1,"kind":"range"}]]] as const;
 /** This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users » */
 export interface KeyboardButtonRequestUsers {
   /** Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message. */
@@ -6523,7 +6606,7 @@ export const KeyboardButtonRequestUsers: Schema.Codec<KeyboardButtonRequestUsers
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<KeyboardButtonRequestUsers>((input) => Effect.succeed(Constraints.fields(input, _constraintsKeyboardButtonRequestUsers))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6638,6 +6721,7 @@ export const LivePhoto: Schema.Codec<LivePhoto, unknown> = Schema.suspend(() => 
   );
 });
 
+const _constraintsLocation = [["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]],["heading",[{"maximum":360,"minimum":1,"kind":"range"}]]] as const;
 /** This object represents a point on the map. */
 export interface Location {
   /** Latitude as defined by the sender */
@@ -6672,7 +6756,7 @@ export const Location: Schema.Codec<Location, unknown> = Schema.suspend(() => {
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<Location>((input) => Effect.succeed(Constraints.fields(input, _constraintsLocation))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -8825,6 +8909,7 @@ export const RefundedPayment: Schema.Codec<RefundedPayment, unknown> = Schema.su
   );
 });
 
+const _constraintsReplyKeyboardMarkup = [["inputFieldPlaceholder",[{"maximum":64,"minimum":1,"kind":"codePoints"}]]] as const;
 /** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardMarkup {
   /** Array of button rows, each represented by an Array of KeyboardButton objects */
@@ -8864,7 +8949,7 @@ export const ReplyKeyboardMarkup: Schema.Codec<ReplyKeyboardMarkup, unknown> = S
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<ReplyKeyboardMarkup>((input) => Effect.succeed(Constraints.fields(input, _constraintsReplyKeyboardMarkup))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -9678,6 +9763,7 @@ export const RichMessage: Schema.Codec<RichMessage, unknown> = Schema.suspend(()
   );
 });
 
+const _constraintsRichMessageButton = [["callbackData",[{"maximum":64,"minimum":1,"kind":"utf8Bytes"}]]] as const;
 /** This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button. */
 export interface RichMessageButton {
   /** Text of the button. May contain only plain text, RichTextCustomEmoji and RichTextDateTime entities. */
@@ -9727,7 +9813,7 @@ export const RichMessageButton: Schema.Codec<RichMessageButton, unknown> = Schem
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<RichMessageButton>((input) => Effect.succeed(Constraints.fields(input, _constraintsRichMessageButton))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -10673,6 +10759,7 @@ export const StoryArea: Schema.Codec<StoryArea, unknown> = Schema.suspend(() => 
   [Schema.Record(Schema.String, Schema.Unknown)],
 ));
 
+const _constraintsStoryAreaPosition = [["rotationAngle",[{"maximum":360,"minimum":0,"kind":"range"}]]] as const;
 /** Describes the position of a clickable area within a story. */
 export interface StoryAreaPosition {
   /** The abscissa of the area's center, as a percentage of the media width */
@@ -10707,7 +10794,7 @@ export const StoryAreaPosition: Schema.Codec<StoryAreaPosition, unknown> = Schem
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<StoryAreaPosition>((input) => Effect.succeed(Constraints.fields(input, _constraintsStoryAreaPosition))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });

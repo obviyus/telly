@@ -11,6 +11,7 @@ export type DispatchSource = "inbox" | "jobs" | "polling" | "webhook";
 type BotApiOutcome =
   | "defect"
   | "interrupted"
+  | "invalid_request"
   | "invalid_response"
   | "ok"
   | "rejected_429"
@@ -98,6 +99,8 @@ function botApiOutcome(exit: Exit.Exit<unknown, BotApiError>): BotApiOutcome {
     return Cause.hasInterruptsOnly(exit.cause) ? "interrupted" : "defect";
   }
   switch (error.success.reason._tag) {
+    case "InvalidRequest":
+      return "invalid_request";
     case "InvalidResponse":
       return "invalid_response";
     case "Transport":

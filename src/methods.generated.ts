@@ -1,10 +1,12 @@
 // Generated from bot-api/schema/sources/dofer/spec.json. Edit schema inputs or overrides, then regenerate.
+import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 import * as Struct from "effect/Struct";
 
 import { callMethod } from "./internal/CallMethod.js";
+import * as Constraints from "./internal/Constraints.js";
 import { invertKeys } from "./internal/SchemaKeys.js";
 import * as Types from "./types.generated.js";
 
@@ -57,6 +59,7 @@ Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot wi
   /** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Defaults to 0. */
   readonly cacheTime?: number | undefined;
 }
+const _constraintsAnswerCallbackQueryParams = [["text",[{"maximum":200,"minimum":0,"kind":"codePoints"}]]] as const;
 export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { callback_query_id: "callbackQueryId", show_alert: "showAlert", cache_time: "cacheTime" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -71,7 +74,7 @@ export const AnswerCallbackQueryParams: Schema.Codec<AnswerCallbackQueryParams, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<AnswerCallbackQueryParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsAnswerCallbackQueryParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -162,6 +165,7 @@ export interface AnswerInlineQueryParams {
   /** A JSON-serialized object describing a button to be shown above inline query results */
   readonly button?: Types.InlineQueryResultsButton | undefined;
 }
+const _constraintsAnswerInlineQueryParams = [["nextOffset",[{"maximum":64,"kind":"utf8Bytes"}]]] as const;
 export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { inline_query_id: "inlineQueryId", cache_time: "cacheTime", is_personal: "isPersonal", next_offset: "nextOffset" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -177,7 +181,7 @@ export const AnswerInlineQueryParams: Schema.Codec<AnswerInlineQueryParams, Read
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<AnswerInlineQueryParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsAnswerInlineQueryParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -619,6 +623,7 @@ export interface CopyMessagesParams {
   /** Pass True to copy the messages without their captions */
   readonly removeCaption?: boolean | undefined;
 }
+const _constraintsCopyMessagesParams = [["messageIds",[{"maximum":100,"minimum":1,"kind":"items"}]]] as const;
 export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent", remove_caption: "removeCaption" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -636,7 +641,7 @@ export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Recor
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CopyMessagesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCopyMessagesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -663,6 +668,7 @@ export interface CreateChatInviteLinkParams {
   /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
   readonly createsJoinRequest?: boolean | undefined;
 }
+const _constraintsCreateChatInviteLinkParams = [["name",[{"maximum":32,"minimum":0,"kind":"codePoints"}]],["memberLimit",[{"maximum":99999,"minimum":1,"kind":"range"}]]] as const;
 export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -677,7 +683,7 @@ export const CreateChatInviteLinkParams: Schema.Codec<CreateChatInviteLinkParams
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CreateChatInviteLinkParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCreateChatInviteLinkParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -701,6 +707,7 @@ export interface CreateChatSubscriptionInviteLinkParams {
   /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000 */
   readonly subscriptionPrice: number;
 }
+const _constraintsCreateChatSubscriptionInviteLinkParams = [["name",[{"maximum":32,"minimum":0,"kind":"codePoints"}]],["subscriptionPrice",[{"maximum":10000,"minimum":1,"kind":"range"}]]] as const;
 export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", subscription_period: "subscriptionPeriod", subscription_price: "subscriptionPrice" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -714,7 +721,7 @@ export const CreateChatSubscriptionInviteLinkParams: Schema.Codec<CreateChatSubs
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CreateChatSubscriptionInviteLinkParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCreateChatSubscriptionInviteLinkParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -738,6 +745,7 @@ export interface CreateForumTopicParams {
   /** Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. */
   readonly iconCustomEmojiId?: string | undefined;
 }
+const _constraintsCreateForumTopicParams = [["name",[{"maximum":128,"minimum":1,"kind":"codePoints"}]]] as const;
 export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", icon_color: "iconColor", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -751,7 +759,7 @@ export const CreateForumTopicParams: Schema.Codec<CreateForumTopicParams, Readon
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CreateForumTopicParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCreateForumTopicParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -811,6 +819,7 @@ export interface CreateInvoiceLinkParams {
   /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
   readonly isFlexible?: boolean | undefined;
 }
+const _constraintsCreateInvoiceLinkParams = [["title",[{"maximum":32,"minimum":1,"kind":"codePoints"}]],["description",[{"maximum":255,"minimum":1,"kind":"codePoints"}]],["payload",[{"maximum":128,"minimum":1,"kind":"utf8Bytes"}]],["suggestedTipAmounts",[{"maximum":4,"kind":"items"}]]] as const;
 export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", provider_token: "providerToken", subscription_period: "subscriptionPeriod", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -842,7 +851,7 @@ export const CreateInvoiceLinkParams: Schema.Codec<CreateInvoiceLinkParams, Read
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CreateInvoiceLinkParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCreateInvoiceLinkParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -870,6 +879,7 @@ export interface CreateNewStickerSetParams {
   /** Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only */
   readonly needsRepainting?: boolean | undefined;
 }
+const _constraintsCreateNewStickerSetParams = [["name",[{"maximum":64,"minimum":1,"kind":"codePoints"}]],["title",[{"maximum":64,"minimum":1,"kind":"codePoints"}]],["stickers",[{"maximum":50,"minimum":1,"kind":"items"}]]] as const;
 export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId", sticker_type: "stickerType", needs_repainting: "needsRepainting" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -885,7 +895,7 @@ export const CreateNewStickerSetParams: Schema.Codec<CreateNewStickerSetParams, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<CreateNewStickerSetParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsCreateNewStickerSetParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -938,6 +948,7 @@ export interface DeclineSuggestedPostParams {
   /** Comment for the creator of the suggested post; 0-128 characters */
   readonly comment?: string | undefined;
 }
+const _constraintsDeclineSuggestedPostParams = [["comment",[{"maximum":128,"minimum":0,"kind":"codePoints"}]]] as const;
 export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_id: "messageId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -950,7 +961,7 @@ export const DeclineSuggestedPostParams: Schema.Codec<DeclineSuggestedPostParams
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<DeclineSuggestedPostParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsDeclineSuggestedPostParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1004,6 +1015,7 @@ export interface DeleteBusinessMessagesParams {
   /** A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted. */
   readonly messageIds: ReadonlyArray<number>;
 }
+const _constraintsDeleteBusinessMessagesParams = [["messageIds",[{"maximum":100,"minimum":1,"kind":"items"}]]] as const;
 export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", message_ids: "messageIds" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1015,7 +1027,7 @@ export const DeleteBusinessMessagesParams: Schema.Codec<DeleteBusinessMessagesPa
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<DeleteBusinessMessagesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsDeleteBusinessMessagesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1234,6 +1246,7 @@ export interface DeleteMessagesParams {
   /** A JSON-serialized list of 1-100 identifiers of messages to delete. See deleteMessage for limitations on which messages can be deleted. */
   readonly messageIds: ReadonlyArray<number>;
 }
+const _constraintsDeleteMessagesParams = [["messageIds",[{"maximum":100,"minimum":1,"kind":"items"}]]] as const;
 export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_ids: "messageIds" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1245,7 +1258,7 @@ export const DeleteMessagesParams: Schema.Codec<DeleteMessagesParams, Readonly<R
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<DeleteMessagesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsDeleteMessagesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1397,6 +1410,7 @@ export interface EditChatInviteLinkParams {
   /** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified. */
   readonly createsJoinRequest?: boolean | undefined;
 }
+const _constraintsEditChatInviteLinkParams = [["name",[{"maximum":32,"minimum":0,"kind":"codePoints"}]],["memberLimit",[{"maximum":99999,"minimum":1,"kind":"range"}]]] as const;
 export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", invite_link: "inviteLink", expire_date: "expireDate", member_limit: "memberLimit", creates_join_request: "createsJoinRequest" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1412,7 +1426,7 @@ export const EditChatInviteLinkParams: Schema.Codec<EditChatInviteLinkParams, Re
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<EditChatInviteLinkParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsEditChatInviteLinkParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1434,6 +1448,7 @@ export interface EditChatSubscriptionInviteLinkParams {
   /** Invite link name; 0-32 characters */
   readonly name?: string | undefined;
 }
+const _constraintsEditChatSubscriptionInviteLinkParams = [["name",[{"maximum":32,"minimum":0,"kind":"codePoints"}]]] as const;
 export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscriptionInviteLinkParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", invite_link: "inviteLink" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1446,7 +1461,7 @@ export const EditChatSubscriptionInviteLinkParams: Schema.Codec<EditChatSubscrip
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<EditChatSubscriptionInviteLinkParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsEditChatSubscriptionInviteLinkParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1650,6 +1665,7 @@ export interface EditForumTopicParams {
   /** New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept. */
   readonly iconCustomEmojiId?: string | undefined;
 }
+const _constraintsEditForumTopicParams = [["name",[{"maximum":128,"minimum":0,"kind":"codePoints"}]]] as const;
 export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", icon_custom_emoji_id: "iconCustomEmojiId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1663,7 +1679,7 @@ export const EditForumTopicParams: Schema.Codec<EditForumTopicParams, Readonly<R
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<EditForumTopicParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsEditForumTopicParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1683,6 +1699,7 @@ export interface EditGeneralForumTopicParams {
   /** New topic name, 1-128 characters */
   readonly name: string;
 }
+const _constraintsEditGeneralForumTopicParams = [["name",[{"maximum":128,"minimum":1,"kind":"codePoints"}]]] as const;
 export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1694,7 +1711,7 @@ export const EditGeneralForumTopicParams: Schema.Codec<EditGeneralForumTopicPara
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<EditGeneralForumTopicParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsEditGeneralForumTopicParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -1825,6 +1842,7 @@ export interface EditMessageLiveLocationParams {
   /** A JSON-serialized object for a new inline keyboard */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
+const _constraintsEditMessageLiveLocationParams = [["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]],["heading",[{"maximum":360,"minimum":1,"kind":"range"}]],["proximityAlertRadius",[{"maximum":100000,"minimum":1,"kind":"range"}]]] as const;
 export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_id: "messageId", inline_message_id: "inlineMessageId", live_period: "livePeriod", horizontal_accuracy: "horizontalAccuracy", proximity_alert_radius: "proximityAlertRadius", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -1845,7 +1863,7 @@ export const EditMessageLiveLocationParams: Schema.Codec<EditMessageLiveLocation
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<EditMessageLiveLocationParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsEditMessageLiveLocationParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2179,6 +2197,7 @@ export interface ForwardMessagesParams {
   /** Protects the contents of the forwarded messages from forwarding and saving */
   readonly protectContent?: boolean | undefined;
 }
+const _constraintsForwardMessagesParams = [["messageIds",[{"maximum":100,"minimum":1,"kind":"items"}]]] as const;
 export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", from_chat_id: "fromChatId", message_ids: "messageIds", disable_notification: "disableNotification", protect_content: "protectContent" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2195,7 +2214,7 @@ export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<ForwardMessagesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsForwardMessagesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2242,6 +2261,7 @@ export interface GetBusinessAccountGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
+const _constraintsGetBusinessAccountGiftsParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_unique: "excludeUnique", exclude_from_blockchain: "excludeFromBlockchain", sort_by_price: "sortByPrice" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2262,7 +2282,7 @@ export const GetBusinessAccountGiftsParams: Schema.Codec<GetBusinessAccountGifts
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetBusinessAccountGiftsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetBusinessAccountGiftsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2415,6 +2435,7 @@ export interface GetChatGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
+const _constraintsGetChatGiftsParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", exclude_unsaved: "excludeUnsaved", exclude_saved: "excludeSaved", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2435,7 +2456,7 @@ export const GetChatGiftsParams: Schema.Codec<GetChatGiftsParams, Readonly<Recor
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetChatGiftsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetChatGiftsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2540,6 +2561,7 @@ export interface GetCustomEmojiStickersParams {
   /** A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified. */
   readonly customEmojiIds: ReadonlyArray<string>;
 }
+const _constraintsGetCustomEmojiStickersParams = [["customEmojiIds",[{"maximum":200,"kind":"items"}]]] as const;
 export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { custom_emoji_ids: "customEmojiIds" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2550,7 +2572,7 @@ export const GetCustomEmojiStickersParams: Schema.Codec<GetCustomEmojiStickersPa
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetCustomEmojiStickersParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetCustomEmojiStickersParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2858,10 +2880,20 @@ export interface GetStarTransactionsParams {
   /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
-export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
+const _constraintsGetStarTransactionsParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
+export const GetStarTransactionsParams: Schema.Codec<GetStarTransactionsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const encoded = Schema.Struct({
   offset: Schema.optional(Schema.Int),
-  limit: Schema.optional(Schema.Int),
-}));
+    limit: Schema.optional(Schema.Int),
+  });
+  const decoded = Schema.declare<GetStarTransactionsParams>((input): input is GetStarTransactionsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<GetStarTransactionsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetStarTransactionsParams))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 export const getStarTransactions = callMethod({
   method: "getStarTransactions",
@@ -2901,6 +2933,7 @@ export interface GetUpdatesParams {
 Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
   readonly allowedUpdates?: ReadonlyArray<Types.UpdateType> | undefined;
 }
+const _constraintsGetUpdatesParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { allowed_updates: "allowedUpdates" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2914,7 +2947,7 @@ export const GetUpdatesParams: Schema.Codec<GetUpdatesParams, Readonly<Record<st
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetUpdatesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetUpdatesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -2979,6 +3012,7 @@ export interface GetUserGiftsParams {
   /** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
   readonly limit?: number | undefined;
 }
+const _constraintsGetUserGiftsParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId", exclude_unlimited: "excludeUnlimited", exclude_limited_upgradable: "excludeLimitedUpgradable", exclude_limited_non_upgradable: "excludeLimitedNonUpgradable", exclude_from_blockchain: "excludeFromBlockchain", exclude_unique: "excludeUnique", sort_by_price: "sortByPrice" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -2997,7 +3031,7 @@ export const GetUserGiftsParams: Schema.Codec<GetUserGiftsParams, Readonly<Recor
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetUserGiftsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetUserGiftsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -3017,6 +3051,7 @@ export interface GetUserPersonalChatMessagesParams {
   /** The maximum number of messages to return; 1-20 */
   readonly limit: number;
 }
+const _constraintsGetUserPersonalChatMessagesParams = [["limit",[{"maximum":20,"minimum":1,"kind":"range"}]]] as const;
 export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChatMessagesParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -3028,7 +3063,7 @@ export const GetUserPersonalChatMessagesParams: Schema.Codec<GetUserPersonalChat
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetUserPersonalChatMessagesParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetUserPersonalChatMessagesParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -3050,6 +3085,7 @@ export interface GetUserProfileAudiosParams {
   /** Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
+const _constraintsGetUserProfileAudiosParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -3062,7 +3098,7 @@ export const GetUserProfileAudiosParams: Schema.Codec<GetUserProfileAudiosParams
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetUserProfileAudiosParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetUserProfileAudiosParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -3084,6 +3120,7 @@ export interface GetUserProfilePhotosParams {
   /** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
   readonly limit?: number | undefined;
 }
+const _constraintsGetUserProfilePhotosParams = [["limit",[{"maximum":100,"minimum":1,"kind":"range"}]]] as const;
 export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -3096,7 +3133,7 @@ export const GetUserProfilePhotosParams: Schema.Codec<GetUserProfilePhotosParams
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<GetUserProfilePhotosParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsGetUserProfilePhotosParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4204,6 +4241,7 @@ export interface SendContactParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
+const _constraintsSendContactParams = [["vcard",[{"maximum":2048,"minimum":0,"kind":"utf8Bytes"}]]] as const;
 export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", phone_number: "phoneNumber", first_name: "firstName", last_name: "lastName", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -4229,7 +4267,7 @@ export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendContactParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendContactParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4552,6 +4590,7 @@ export interface SendInvoiceParams {
   /** A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | undefined;
 }
+const _constraintsSendInvoiceParams = [["title",[{"maximum":32,"minimum":1,"kind":"codePoints"}]],["description",[{"maximum":255,"minimum":1,"kind":"codePoints"}]],["payload",[{"maximum":128,"minimum":1,"kind":"utf8Bytes"}]],["suggestedTipAmounts",[{"maximum":4,"kind":"items"}]]] as const;
 export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", provider_token: "providerToken", max_tip_amount: "maxTipAmount", suggested_tip_amounts: "suggestedTipAmounts", start_parameter: "startParameter", provider_data: "providerData", photo_url: "photoUrl", photo_size: "photoSize", photo_width: "photoWidth", photo_height: "photoHeight", need_name: "needName", need_phone_number: "needPhoneNumber", need_email: "needEmail", need_shipping_address: "needShippingAddress", send_phone_number_to_provider: "sendPhoneNumberToProvider", send_email_to_provider: "sendEmailToProvider", is_flexible: "isFlexible", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -4592,7 +4631,7 @@ export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendInvoiceParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendInvoiceParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4728,6 +4767,7 @@ export interface SendLocationParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
+const _constraintsSendLocationParams = [["horizontalAccuracy",[{"maximum":1500,"minimum":0,"kind":"range"}]],["heading",[{"maximum":360,"minimum":1,"kind":"range"}]],["proximityAlertRadius",[{"maximum":100000,"minimum":1,"kind":"range"}]]] as const;
 export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", ephemeral_message_parameters: "ephemeralMessageParameters", horizontal_accuracy: "horizontalAccuracy", live_period: "livePeriod", proximity_alert_radius: "proximityAlertRadius", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -4755,7 +4795,7 @@ export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Recor
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendLocationParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendLocationParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4792,6 +4832,7 @@ export interface SendMediaGroupParams {
   /** Description of the message to reply to */
   readonly replyParameters?: Types.ReplyParameters | undefined;
 }
+const _constraintsSendMediaGroupParams = [["media",[{"maximum":10,"minimum":2,"kind":"items"}]]] as const;
 export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -4811,7 +4852,7 @@ export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<R
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendMediaGroupParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendMediaGroupParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -4986,6 +5027,7 @@ export interface SendPaidMediaParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
+const _constraintsSendPaidMediaParams = [["starCount",[{"maximum":25000,"minimum":1,"kind":"range"}]],["payload",[{"maximum":128,"minimum":0,"kind":"utf8Bytes"}]]] as const;
 export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", direct_messages_topic_id: "directMessagesTopicId", star_count: "starCount", parse_mode: "parseMode", caption_entities: "captionEntities", show_caption_above_media: "showCaptionAboveMedia", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", suggested_post_parameters: "suggestedPostParameters", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5012,7 +5054,7 @@ export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Rec
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendPaidMediaParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendPaidMediaParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5177,6 +5219,7 @@ export interface SendPollParams {
   /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
   readonly replyMarkup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply | undefined;
 }
+const _constraintsSendPollParams = [["options",[{"maximum":12,"minimum":1,"kind":"items"}]],["countryCodes",[{"maximum":12,"minimum":0,"kind":"items"}]],["openPeriod",[{"maximum":2628000,"minimum":5,"kind":"range"}]]] as const;
 export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", chat_id: "chatId", message_thread_id: "messageThreadId", question_parse_mode: "questionParseMode", question_entities: "questionEntities", is_anonymous: "isAnonymous", allows_multiple_answers: "allowsMultipleAnswers", allows_revoting: "allowsRevoting", shuffle_options: "shuffleOptions", allow_adding_options: "allowAddingOptions", hide_results_until_closes: "hideResultsUntilCloses", members_only: "membersOnly", country_codes: "countryCodes", correct_option_ids: "correctOptionIds", explanation_parse_mode: "explanationParseMode", explanation_entities: "explanationEntities", explanation_media: "explanationMedia", open_period: "openPeriod", close_date: "closeDate", is_closed: "isClosed", description_parse_mode: "descriptionParseMode", description_entities: "descriptionEntities", disable_notification: "disableNotification", protect_content: "protectContent", allow_paid_broadcast: "allowPaidBroadcast", message_effect_id: "messageEffectId", reply_parameters: "replyParameters", reply_markup: "replyMarkup" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5220,7 +5263,7 @@ export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SendPollParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSendPollParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5755,6 +5798,7 @@ export interface SetBusinessAccountBioParams {
   /** The new value of the bio for the business account; 0-140 characters */
   readonly bio?: string | undefined;
 }
+const _constraintsSetBusinessAccountBioParams = [["bio",[{"maximum":140,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5766,7 +5810,7 @@ export const SetBusinessAccountBioParams: Schema.Codec<SetBusinessAccountBioPara
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetBusinessAccountBioParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetBusinessAccountBioParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5822,6 +5866,7 @@ export interface SetBusinessAccountNameParams {
   /** The new value of the last name for the business account; 0-64 characters */
   readonly lastName?: string | undefined;
 }
+const _constraintsSetBusinessAccountNameParams = [["firstName",[{"maximum":64,"minimum":1,"kind":"codePoints"}]],["lastName",[{"maximum":64,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", first_name: "firstName", last_name: "lastName" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5834,7 +5879,7 @@ export const SetBusinessAccountNameParams: Schema.Codec<SetBusinessAccountNamePa
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetBusinessAccountNameParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetBusinessAccountNameParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5888,6 +5933,7 @@ export interface SetBusinessAccountUsernameParams {
   /** The new value of the username for the business account; 0-32 characters */
   readonly username?: string | undefined;
 }
+const _constraintsSetBusinessAccountUsernameParams = [["username",[{"maximum":32,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUsernameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5899,7 +5945,7 @@ export const SetBusinessAccountUsernameParams: Schema.Codec<SetBusinessAccountUs
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetBusinessAccountUsernameParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetBusinessAccountUsernameParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5921,6 +5967,7 @@ export interface SetChatAdministratorCustomTitleParams {
   /** New custom title for the administrator; 0-16 characters, emoji are not allowed */
   readonly customTitle: string;
 }
+const _constraintsSetChatAdministratorCustomTitleParams = [["customTitle",[{"maximum":16,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdministratorCustomTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", user_id: "userId", custom_title: "customTitle" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5933,7 +5980,7 @@ export const SetChatAdministratorCustomTitleParams: Schema.Codec<SetChatAdminist
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetChatAdministratorCustomTitleParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetChatAdministratorCustomTitleParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5953,6 +6000,7 @@ export interface SetChatDescriptionParams {
   /** New chat description, 0-255 characters */
   readonly description?: string | undefined;
 }
+const _constraintsSetChatDescriptionParams = [["description",[{"maximum":255,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5964,7 +6012,7 @@ export const SetChatDescriptionParams: Schema.Codec<SetChatDescriptionParams, Re
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetChatDescriptionParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetChatDescriptionParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -5986,6 +6034,7 @@ export interface SetChatMemberTagParams {
   /** New tag for the member; 0-16 characters, emoji are not allowed */
   readonly tag?: string | undefined;
 }
+const _constraintsSetChatMemberTagParams = [["tag",[{"maximum":16,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", user_id: "userId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -5998,7 +6047,7 @@ export const SetChatMemberTagParams: Schema.Codec<SetChatMemberTagParams, Readon
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetChatMemberTagParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetChatMemberTagParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6145,6 +6194,7 @@ export interface SetChatTitleParams {
   /** New chat title, 1-128 characters */
   readonly title: string;
 }
+const _constraintsSetChatTitleParams = [["title",[{"maximum":128,"minimum":1,"kind":"codePoints"}]]] as const;
 export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6156,7 +6206,7 @@ export const SetChatTitleParams: Schema.Codec<SetChatTitleParams, Readonly<Recor
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetChatTitleParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetChatTitleParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6255,6 +6305,7 @@ export interface SetManagedBotAccessSettingsParams {
   /** A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if is_access_restricted is False. */
   readonly addedUserIds?: ReadonlyArray<number> | undefined;
 }
+const _constraintsSetManagedBotAccessSettingsParams = [["addedUserIds",[{"maximum":10,"kind":"items"}]]] as const;
 export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccessSettingsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId", is_access_restricted: "isAccessRestricted", added_user_ids: "addedUserIds" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6267,7 +6318,7 @@ export const SetManagedBotAccessSettingsParams: Schema.Codec<SetManagedBotAccess
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetManagedBotAccessSettingsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetManagedBotAccessSettingsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6326,6 +6377,7 @@ export interface SetMyCommandsParams {
   /** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands. */
   readonly languageCode?: string | undefined;
 }
+const _constraintsSetMyCommandsParams = [["commands",[{"maximum":100,"kind":"items"}]]] as const;
 export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { language_code: "languageCode" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6338,7 +6390,7 @@ export const SetMyCommandsParams: Schema.Codec<SetMyCommandsParams, Readonly<Rec
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetMyCommandsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetMyCommandsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6389,6 +6441,7 @@ export interface SetMyDescriptionParams {
   /** A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description. */
   readonly languageCode?: string | undefined;
 }
+const _constraintsSetMyDescriptionParams = [["description",[{"maximum":512,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { language_code: "languageCode" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6400,7 +6453,7 @@ export const SetMyDescriptionParams: Schema.Codec<SetMyDescriptionParams, Readon
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetMyDescriptionParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetMyDescriptionParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6420,6 +6473,7 @@ export interface SetMyNameParams {
   /** A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name. */
   readonly languageCode?: string | undefined;
 }
+const _constraintsSetMyNameParams = [["name",[{"maximum":64,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { language_code: "languageCode" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6431,7 +6485,7 @@ export const SetMyNameParams: Schema.Codec<SetMyNameParams, Readonly<Record<stri
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetMyNameParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetMyNameParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6468,6 +6522,7 @@ export interface SetMyShortDescriptionParams {
   /** A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description. */
   readonly languageCode?: string | undefined;
 }
+const _constraintsSetMyShortDescriptionParams = [["shortDescription",[{"maximum":120,"minimum":0,"kind":"codePoints"}]]] as const;
 export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { short_description: "shortDescription", language_code: "languageCode" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6479,7 +6534,7 @@ export const SetMyShortDescriptionParams: Schema.Codec<SetMyShortDescriptionPara
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetMyShortDescriptionParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetMyShortDescriptionParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6530,6 +6585,7 @@ export interface SetStickerEmojiListParams {
   /** A JSON-serialized list of 1-20 emoji associated with the sticker */
   readonly emojiList: ReadonlyArray<string>;
 }
+const _constraintsSetStickerEmojiListParams = [["emojiList",[{"maximum":20,"minimum":1,"kind":"items"}]]] as const;
 export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { emoji_list: "emojiList" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6541,7 +6597,7 @@ export const SetStickerEmojiListParams: Schema.Codec<SetStickerEmojiListParams, 
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetStickerEmojiListParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetStickerEmojiListParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6561,10 +6617,20 @@ export interface SetStickerKeywordsParams {
   /** A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters */
   readonly keywords?: ReadonlyArray<string> | undefined;
 }
-export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
+const _constraintsSetStickerKeywordsParams = [["keywords",[{"maximum":20,"minimum":0,"kind":"items"}]]] as const;
+export const SetStickerKeywordsParams: Schema.Codec<SetStickerKeywordsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const encoded = Schema.Struct({
   sticker: Schema.String,
-  keywords: Schema.optional(Schema.Array(Schema.String)),
-}));
+    keywords: Schema.optional(Schema.Array(Schema.String)),
+  });
+  const decoded = Schema.declare<SetStickerKeywordsParams>((input): input is SetStickerKeywordsParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<SetStickerKeywordsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetStickerKeywordsParams))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 export const setStickerKeywords = callMethod({
   method: "setStickerKeywords",
@@ -6669,10 +6735,20 @@ export interface SetStickerSetTitleParams {
   /** Sticker set title, 1-64 characters */
   readonly title: string;
 }
-export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({
+const _constraintsSetStickerSetTitleParams = [["title",[{"maximum":64,"minimum":1,"kind":"codePoints"}]]] as const;
+export const SetStickerSetTitleParams: Schema.Codec<SetStickerSetTitleParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
+  const encoded = Schema.Struct({
   name: Schema.String,
-  title: Schema.String,
-}));
+    title: Schema.String,
+  });
+  const decoded = Schema.declare<SetStickerSetTitleParams>((input): input is SetStickerSetTitleParams => Predicate.isObject(input));
+  return encoded.pipe(
+    Schema.decodeTo(decoded, {
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.checkEffect<SetStickerSetTitleParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetStickerSetTitleParams))).compose(SchemaGetter.passthrough()),
+    }),
+  );
+});
 
 export const setStickerSetTitle = callMethod({
   method: "setStickerSetTitle",
@@ -6734,6 +6810,7 @@ Please note that this parameter doesn't affect updates created before the call t
   /** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
   readonly secretToken?: string | undefined;
 }
+const _constraintsSetWebhookParams = [["secretToken",[{"maximum":256,"minimum":1,"kind":"codePoints"},{"expected":"letters, digits, underscores, and hyphens","kind":"pattern","source":"^[A-Za-z0-9_-]+$"}]]] as const;
 export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { ip_address: "ipAddress", max_connections: "maxConnections", allowed_updates: "allowedUpdates", drop_pending_updates: "dropPendingUpdates", secret_token: "secretToken" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6750,7 +6827,7 @@ export const SetWebhookParams: Schema.Codec<SetWebhookParams, Readonly<Record<st
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<SetWebhookParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsSetWebhookParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -6847,6 +6924,7 @@ export interface TransferBusinessAccountStarsParams {
   /** Number of Telegram Stars to transfer; 1-10000 */
   readonly starCount: number;
 }
+const _constraintsTransferBusinessAccountStarsParams = [["starCount",[{"maximum":10000,"minimum":1,"kind":"range"}]]] as const;
 export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAccountStarsParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { business_connection_id: "businessConnectionId", star_count: "starCount" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -6858,7 +6936,7 @@ export const TransferBusinessAccountStarsParams: Schema.Codec<TransferBusinessAc
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<TransferBusinessAccountStarsParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsTransferBusinessAccountStarsParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -7200,6 +7278,7 @@ export interface VerifyChatParams {
   /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
   readonly customDescription?: string | undefined;
 }
+const _constraintsVerifyChatParams = [["customDescription",[{"maximum":70,"minimum":0,"kind":"codePoints"}]]] as const;
 export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { chat_id: "chatId", custom_description: "customDescription" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -7211,7 +7290,7 @@ export const VerifyChatParams: Schema.Codec<VerifyChatParams, Readonly<Record<st
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<VerifyChatParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsVerifyChatParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
@@ -7231,6 +7310,7 @@ export interface VerifyUserParams {
   /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
   readonly customDescription?: string | undefined;
 }
+const _constraintsVerifyUserParams = [["customDescription",[{"maximum":70,"minimum":0,"kind":"codePoints"}]]] as const;
 export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<string, unknown>>> = Schema.suspend(() => {
   const publicKeys = { user_id: "userId", custom_description: "customDescription" } as const;
   const wireKeys = invertKeys(publicKeys);
@@ -7242,7 +7322,7 @@ export const VerifyUserParams: Schema.Codec<VerifyUserParams, Readonly<Record<st
   return encoded.pipe(
     Schema.decodeTo(decoded, {
       decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),
-      encode: SchemaGetter.transform(Struct.renameKeys(wireKeys)),
+      encode: SchemaGetter.checkEffect<VerifyUserParams>((input) => Effect.succeed(Constraints.fields(input, _constraintsVerifyUserParams))).compose(SchemaGetter.transform(Struct.renameKeys(wireKeys))),
     }),
   );
 });
