@@ -593,6 +593,7 @@ export const CopyMessageParams: Schema.Codec<CopyMessageParams, Readonly<Record<
 
 export const copyMessage = callMethod({
   method: "copyMessage",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: CopyMessageParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.MessageId),
@@ -642,6 +643,7 @@ export const CopyMessagesParams: Schema.Codec<CopyMessagesParams, Readonly<Recor
 
 export const copyMessages = callMethod({
   method: "copyMessages",
+  defaultFields: ["disableNotification", "protectContent"],
   params: CopyMessagesParams,
   rateLimit: "message-id-array",
   result: Schema.suspend(() => Schema.Array(Types.MessageId)),
@@ -1500,6 +1502,7 @@ export const EditEphemeralMessageCaptionParams: Schema.Codec<EditEphemeralMessag
 
 export const editEphemeralMessageCaption = callMethod({
   method: "editEphemeralMessageCaption",
+  defaultFields: ["parseMode"],
   params: EditEphemeralMessageCaptionParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Literal(true)),
@@ -1629,6 +1632,7 @@ export const EditEphemeralMessageTextParams: Schema.Codec<EditEphemeralMessageTe
 
 export const editEphemeralMessageText = callMethod({
   method: "editEphemeralMessageText",
+  defaultFields: ["parseMode", "linkPreviewOptions"],
   params: EditEphemeralMessageTextParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Literal(true)),
@@ -1749,6 +1753,7 @@ export const EditMessageCaptionParams: Schema.Codec<EditMessageCaptionParams, Re
 
 export const editMessageCaption = callMethod({
   method: "editMessageCaption",
+  defaultFields: ["parseMode"],
   params: EditMessageCaptionParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
@@ -1985,6 +1990,7 @@ export const EditMessageTextParams: Schema.Codec<EditMessageTextParams, Readonly
 
 export const editMessageText = callMethod({
   method: "editMessageText",
+  defaultFields: ["parseMode", "linkPreviewOptions"],
   params: EditMessageTextParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Union([Types.Message, Schema.Literal(true)])),
@@ -2031,6 +2037,7 @@ export const EditStoryParams: Schema.Codec<EditStoryParams, Readonly<Record<stri
 
 export const editStory = callMethod({
   method: "editStory",
+  defaultFields: ["parseMode"],
   params: EditStoryParams,
   rateLimit: "none",
   result: Schema.suspend(() => Types.Story),
@@ -2148,6 +2155,7 @@ export const ForwardMessageParams: Schema.Codec<ForwardMessageParams, Readonly<R
 
 export const forwardMessage = callMethod({
   method: "forwardMessage",
+  defaultFields: ["disableNotification", "protectContent"],
   params: ForwardMessageParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -2194,6 +2202,7 @@ export const ForwardMessagesParams: Schema.Codec<ForwardMessagesParams, Readonly
 
 export const forwardMessages = callMethod({
   method: "forwardMessages",
+  defaultFields: ["disableNotification", "protectContent"],
   params: ForwardMessagesParams,
   rateLimit: "message-id-array",
   result: Schema.suspend(() => Schema.Array(Types.MessageId)),
@@ -3246,6 +3255,7 @@ export const PinChatMessageParams: Schema.Codec<PinChatMessageParams, Readonly<R
 
 export const pinChatMessage = callMethod({
   method: "pinChatMessage",
+  defaultFields: ["disableNotification"],
   params: PinChatMessageParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Literal(true)),
@@ -3298,6 +3308,7 @@ export const PostStoryParams: Schema.Codec<PostStoryParams, Readonly<Record<stri
 
 export const postStory = callMethod({
   method: "postStory",
+  defaultFields: ["parseMode", "protectContent"],
   params: PostStoryParams,
   rateLimit: "none",
   result: Schema.suspend(() => Types.Story),
@@ -3710,6 +3721,7 @@ export const RepostStoryParams: Schema.Codec<RepostStoryParams, Readonly<Record<
 
 export const repostStory = callMethod({
   method: "repostStory",
+  defaultFields: ["protectContent"],
   params: RepostStoryParams,
   rateLimit: "none",
   result: Schema.suspend(() => Types.Story),
@@ -3946,6 +3958,7 @@ export const SendAnimationParams: Schema.Codec<SendAnimationParams, Readonly<Rec
 
 export const sendAnimation = callMethod({
   method: "sendAnimation",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendAnimationParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4031,6 +4044,7 @@ export const SendAudioParams: Schema.Codec<SendAudioParams, Readonly<Record<stri
 
 export const sendAudio = callMethod({
   method: "sendAudio",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendAudioParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4148,6 +4162,7 @@ export const SendChecklistParams: Schema.Codec<SendChecklistParams, Readonly<Rec
 
 export const sendChecklist = callMethod({
   method: "sendChecklist",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendChecklistParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4221,6 +4236,7 @@ export const SendContactParams: Schema.Codec<SendContactParams, Readonly<Record<
 
 export const sendContact = callMethod({
   method: "sendContact",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendContactParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4282,6 +4298,7 @@ export const SendDiceParams: Schema.Codec<SendDiceParams, Readonly<Record<string
 
 export const sendDice = callMethod({
   method: "sendDice",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendDiceParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4361,6 +4378,7 @@ export const SendDocumentParams: Schema.Codec<SendDocumentParams, Readonly<Recor
 
 export const sendDocument = callMethod({
   method: "sendDocument",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendDocumentParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4416,6 +4434,7 @@ export const SendGameParams: Schema.Codec<SendGameParams, Readonly<Record<string
 
 export const sendGame = callMethod({
   method: "sendGame",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendGameParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4580,6 +4599,7 @@ export const SendInvoiceParams: Schema.Codec<SendInvoiceParams, Readonly<Record<
 
 export const sendInvoice = callMethod({
   method: "sendInvoice",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendInvoiceParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4662,6 +4682,7 @@ export const SendLivePhotoParams: Schema.Codec<SendLivePhotoParams, Readonly<Rec
 
 export const sendLivePhoto = callMethod({
   method: "sendLivePhoto",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendLivePhotoParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4741,6 +4762,7 @@ export const SendLocationParams: Schema.Codec<SendLocationParams, Readonly<Recor
 
 export const sendLocation = callMethod({
   method: "sendLocation",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendLocationParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4796,6 +4818,7 @@ export const SendMediaGroupParams: Schema.Codec<SendMediaGroupParams, Readonly<R
 
 export const sendMediaGroup = callMethod({
   method: "sendMediaGroup",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendMediaGroupParams,
   rateLimit: "media-array",
   result: Schema.suspend(() => Schema.Array(Types.Message)),
@@ -4869,6 +4892,7 @@ export const SendMessageParams: Schema.Codec<SendMessageParams, Readonly<Record<
 
 export const sendMessage = callMethod({
   method: "sendMessage",
+  defaultFields: ["parseMode", "linkPreviewOptions", "disableNotification", "protectContent"],
   params: SendMessageParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -4918,6 +4942,7 @@ export const SendMessageDraftParams: Schema.Codec<SendMessageDraftParams, Readon
 
 export const sendMessageDraft = callMethod({
   method: "sendMessageDraft",
+  defaultFields: ["parseMode"],
   params: SendMessageDraftParams,
   rateLimit: "none",
   result: Schema.suspend(() => Schema.Literal(true)),
@@ -4994,6 +5019,7 @@ export const SendPaidMediaParams: Schema.Codec<SendPaidMediaParams, Readonly<Rec
 
 export const sendPaidMedia = callMethod({
   method: "sendPaidMedia",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendPaidMediaParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5073,6 +5099,7 @@ export const SendPhotoParams: Schema.Codec<SendPhotoParams, Readonly<Record<stri
 
 export const sendPhoto = callMethod({
   method: "sendPhoto",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendPhotoParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5200,6 +5227,7 @@ export const SendPollParams: Schema.Codec<SendPollParams, Readonly<Record<string
 
 export const sendPoll = callMethod({
   method: "sendPoll",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendPollParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5264,6 +5292,7 @@ export const SendRichMessageParams: Schema.Codec<SendRichMessageParams, Readonly
 
 export const sendRichMessage = callMethod({
   method: "sendRichMessage",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendRichMessageParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5374,6 +5403,7 @@ export const SendStickerParams: Schema.Codec<SendStickerParams, Readonly<Record<
 
 export const sendSticker = callMethod({
   method: "sendSticker",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendStickerParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5459,6 +5489,7 @@ export const SendVenueParams: Schema.Codec<SendVenueParams, Readonly<Record<stri
 
 export const sendVenue = callMethod({
   method: "sendVenue",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendVenueParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5559,6 +5590,7 @@ export const SendVideoParams: Schema.Codec<SendVideoParams, Readonly<Record<stri
 
 export const sendVideo = callMethod({
   method: "sendVideo",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendVideoParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5632,6 +5664,7 @@ export const SendVideoNoteParams: Schema.Codec<SendVideoNoteParams, Readonly<Rec
 
 export const sendVideoNote = callMethod({
   method: "sendVideoNote",
+  defaultFields: ["disableNotification", "protectContent"],
   params: SendVideoNoteParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),
@@ -5708,6 +5741,7 @@ export const SendVoiceParams: Schema.Codec<SendVoiceParams, Readonly<Record<stri
 
 export const sendVoice = callMethod({
   method: "sendVoice",
+  defaultFields: ["parseMode", "disableNotification", "protectContent"],
   params: SendVoiceParams,
   rateLimit: "message",
   result: Schema.suspend(() => Types.Message),

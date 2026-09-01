@@ -9,7 +9,7 @@ import * as Redacted from "effect/Redacted";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 
-import { Bot, type BotApiError } from "./BotApi.js";
+import { Bot, type BotApiError, type MessageDefaults } from "./BotApi.js";
 import {
   InboxStore,
   type InboxOptions,
@@ -35,6 +35,7 @@ import {
 
 export interface ApplicationOptions {
   readonly apiRoot?: string;
+  readonly defaults?: MessageDefaults;
   readonly httpClient?: Layer.Layer<HttpClient.HttpClient>;
   readonly inbox?: InboxStoreService;
   readonly inboxOptions?: InboxOptions;
@@ -70,6 +71,7 @@ export const Application = {
   make(options: ApplicationOptions): Application {
     const botLayer = Bot.layer({
       ...(options.apiRoot === undefined ? {} : { apiRoot: options.apiRoot }),
+      ...(options.defaults === undefined ? {} : { defaults: options.defaults }),
       ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
       token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
     }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer));

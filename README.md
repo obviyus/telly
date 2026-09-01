@@ -48,6 +48,21 @@ Message calls use Telegram's documented limits by default: 30 messages per secon
 
 A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
 
+Set common outgoing message options once on the application:
+
+```ts
+const app = Application.make({
+  token,
+  defaults: {
+    linkPreviewOptions: { isDisabled: true },
+    parseMode: "HTML",
+    protectContent: true,
+  },
+});
+```
+
+Defaults apply only to generated methods that accept the field at the top level. A field present on one call replaces its default. Set it to `undefined` to suppress the default for that call. Explicit `entities` or `captionEntities` suppress the `parseMode` default. `linkPreviewOptions` replaces the complete default object instead of merging its fields.
+
 `downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.
 
 Uploads use Web `Blob` values. Use `File` when Telegram should receive a filename: `sendPhoto({ chatId, photo: new File([bytes], "photo.png") })`.
@@ -88,6 +103,23 @@ If another process briefly owns `getUpdates`, Telly checks that no webhook is ac
 `respond` sends to the triggering chat without quoting. `reply` quotes the triggering message. Both preserve its business connection, forum thread, and direct-message topic.
 
 Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, and `mention` from the package root. Compose filters with `Filter.and`, `Filter.or`, and `Filter.not`, bind them with `on`, group first-match routes with `routes`, and run overlapping groups with `every`.
+
+Pure Message helpers resolve Telegram's overlapping fields without replacing the generated Message model:
+
+```ts
+import { messageMedia, messageReply, messageSender, messageText } from "telly";
+
+const text = messageText(message); // text, then media caption
+const media = messageMedia(message);
+const sender = messageSender(message); // senderChat, then from
+const repliedTo = messageReply(message);
+
+if (media?.type === "photo") {
+  console.log(media.photo.fileId); // largest available size
+}
+```
+
+`messageMedia` resolves Telegram's animation/document and live-photo/photo aliases. `messageReply` distinguishes same-chat messages, external messages, and stories. Forward details already use the generated `message.forwardOrigin` discriminated union, so they need no second helper.
 
 `command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
 

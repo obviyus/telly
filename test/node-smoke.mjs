@@ -21,6 +21,9 @@ if (!testing.FakeBotApi || !testing.FakeBotApiReply) {
 if (!root.Message || !root.Chat || !root.User) {
   throw new Error("telly type exports are incomplete");
 }
+if (!root.messageMedia || !root.messageReply || !root.messageSender || !root.messageText) {
+  throw new Error("telly message helper exports are incomplete");
+}
 const overrides = JSON.parse(readFileSync(
   new URL("../bot-api/schema/overrides.json", import.meta.url),
   "utf8",

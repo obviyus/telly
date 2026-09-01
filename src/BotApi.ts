@@ -16,6 +16,7 @@ import {
   type RequestMetadata,
 } from "./internal/RequestPolicy.js";
 import { trackBotApiRequest } from "./internal/Telemetry.js";
+import type { SendMessageParams } from "./methods.generated.js";
 import { User, type User as UserType } from "./types.generated.js";
 
 export { retryUnknownOutcome };
@@ -80,9 +81,16 @@ export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError"
 
 export interface BotApiOptions {
   readonly apiRoot?: string;
+  readonly defaults?: MessageDefaults;
   readonly rateLimit?: boolean;
   readonly token: Redacted.Redacted<string>;
 }
+
+/** Defaults for top-level outgoing message fields accepted by a generated method. */
+export type MessageDefaults = Pick<
+  SendMessageParams,
+  "disableNotification" | "linkPreviewOptions" | "parseMode" | "protectContent"
+>;
 
 type BotIdentityState =
   | { readonly _tag: "Empty" }
@@ -180,6 +188,7 @@ export class Bot extends Context.Service<
   Bot,
   {
     readonly id: number;
+    readonly defaults?: MessageDefaults;
     readonly call: <A>(
       method: string,
       params: object,
@@ -337,7 +346,14 @@ export class Bot extends Context.Service<
           );
         });
 
-        return Bot.of({ call, callRaw, downloadRaw, id, me });
+        return Bot.of({
+          call,
+          callRaw,
+          ...(options.defaults === undefined ? {} : { defaults: options.defaults }),
+          downloadRaw,
+          id,
+          me,
+        });
       }),
     );
   }
