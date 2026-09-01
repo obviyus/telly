@@ -61,6 +61,7 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
   const pending: Array<PendingUpdate> = [];
   const pendingById = new Map<number, PendingUpdate>();
   let nextOffset = 0;
+  yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "polling" });
 
   const markComplete = (updateId: number) => {
     const entry = pendingById.get(updateId);
@@ -83,6 +84,7 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
     concurrency,
     conversationKey,
     gracePeriodMs,
+    source: "polling",
   });
 
   const poll = Effect.gen(function* () {
@@ -151,6 +153,7 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
   const batchSize = options.batchSize ?? 100;
   const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
   let nextOffset = 0;
+  yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
   const receive = Effect.forever(Effect.gen(function* () {
     const updates = yield* getUpdates({

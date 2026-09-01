@@ -220,6 +220,27 @@ Add `every` for fixed-interval work. Repeating jobs default to their definition 
 
 [`examples/jobs/bot.ts`](./examples/jobs/bot.ts) is a complete reminder bot. An application processes jobs only while its polling or webhook runtime is active.
 
+## Observability
+
+Telly records production signals through Effect's metric registry, tracer, and structured logger. It needs no telemetry option and no exporter dependency. Effect-native applications can attach their preferred exporter Layers.
+
+Successful updates do not create Telly log lines. Retries and rate-limit waits log at debug level. Parked durable work and store failures produce structured warning or error logs.
+
+| Metric | Attributes | Meaning |
+| --- | --- | --- |
+| `telly_bot_api_request_total` | `method`, `outcome` | Bot API attempts and bounded results |
+| `telly_bot_api_request_duration_ms` | `method` | Bot API attempt duration |
+| `telly_bot_api_delay_total` | `reason` | Rate-limit and retry waits |
+| `telly_bot_api_delay_ms_total` | `reason` | Total wait time |
+| `telly_dispatch_active` | `source` | Accepted work that has not settled |
+| `telly_dispatch_settled_total` | `source`, `outcome` | Completed, failed, or interrupted dispatches |
+| `telly_dispatch_rejected_total` | `source` | Work rejected at the concurrency limit or during shutdown |
+| `telly_webhook_request_total` | `result` | Webhook responses grouped by bounded result |
+| `telly_inbox_save_total` | `result` | Stored, duplicate, or full durable saves |
+| `telly_settlement_total` | `store`, `outcome` | Inbox and job settlements |
+
+Spans use bounded attributes such as `telegram.method`, `telegram.outcome`, `telegram.webhook.result`, and `telly.dispatch.source`. Metrics never contain tokens, URLs, chat identifiers, user identifiers, update identifiers, job identifiers, or arbitrary error text.
+
 ## First real consumer
 
 [`examples/superseriousbot`](./examples/superseriousbot) ports SuperSeriousBot's reply-based `sed` feature. It composes `repliedMessage` and `regex`, replies to the original message, and runs through the durable SQLite inbox.

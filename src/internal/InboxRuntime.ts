@@ -20,6 +20,7 @@ import type { UpdateHandler } from "../Polling.js";
 import { Update } from "../types.generated.js";
 import { makeWebhookFetch, type WebhookRuntime } from "../Webhook.js";
 import { defaultConversationKey, makeDispatcher } from "./Dispatch.js";
+import { recordInboxSave, recordSettlement } from "./Telemetry.js";
 
 export const inboxDefaults = {
   capacity: 10_000,
@@ -77,6 +78,7 @@ export const saveInboxUpdate = Effect.fn("saveInboxUpdate")(function* (
     payload,
     updateId: update.updateId,
   });
+  yield* recordInboxSave(saved._tag);
   if (saved._tag !== "Full" && options.wake !== undefined) yield* options.wake.signal;
   return saved;
 });
@@ -98,6 +100,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
   const gracePeriodMs = options.gracePeriodMs ?? inboxDefaults.gracePeriodMs;
   const leaseMs = options.leaseMs ?? inboxDefaults.leaseMs;
   const maxAttempts = options.maxAttempts ?? inboxDefaults.maxAttempts;
+  yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
   const standby = Effect.forever(
     store.acquire({ botId: bot.id, leaseMs }).pipe(
@@ -127,6 +130,12 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
                     : { _tag: "Retry", delayMs: retryDelay(item.attempts, options) },
                   updateId: update.updateId,
                 }).pipe(
+                  Effect.tap(() => {
+                    if (Result.isSuccess(result)) return recordSettlement("inbox", "done");
+                    return item.attempts >= maxAttempts
+                      ? recordSettlement("inbox", "parked", "attempts-exhausted")
+                      : recordSettlement("inbox", "retry");
+                  }),
                   Effect.tap(() => options.wake?.signal ?? Effect.void),
                 )
               ),
@@ -137,6 +146,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
                   outcome: { _tag: "Interrupted" },
                   updateId: update.updateId,
                 }).pipe(
+                  Effect.tap(() => recordSettlement("inbox", "interrupted")),
                   Effect.catchTag("DispatchLeaseLost", () => Effect.void),
                   Effect.catchTag("InboxStoreError", () => Effect.void),
                 )
@@ -150,6 +160,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             concurrency,
             conversationKey: options.conversationKey ?? defaultConversationKey,
             gracePeriodMs,
+            source: "inbox",
           });
 
           const pump = Effect.forever(Effect.gen(function* () {
@@ -173,7 +184,11 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
                   fencingToken: token,
                   outcome: { _tag: "Parked", reason: "attempts-exhausted" },
                   updateId: item.updateId,
-                });
+                }).pipe(
+                  Effect.tap(() =>
+                    recordSettlement("inbox", "parked", "attempts-exhausted")
+                  ),
+                );
                 continue;
               }
               const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(item.payload));
@@ -183,7 +198,9 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
                   fencingToken: token,
                   outcome: { _tag: "Parked", reason: "invalid-update" },
                   updateId: item.updateId,
-                });
+                }).pipe(
+                  Effect.tap(() => recordSettlement("inbox", "parked", "invalid-update")),
+                );
                 continue;
               }
               claimed.set(item.updateId, { attempts: item.attempts });

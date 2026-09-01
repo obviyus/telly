@@ -3,6 +3,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 
 import type { BotApiError } from "../BotApi.js";
+import { recordBotApiDelay } from "./Telemetry.js";
 
 export type RateLimitClass =
   | "media-array"
@@ -90,7 +91,8 @@ function retryDelay(error: BotApiError, failure: number, retryUnknown: boolean):
 
 function wait(method: string, delayMs: number, reason: "rate-limit" | "retry") {
   if (delayMs <= 0) return Effect.void;
-  return Effect.logDebug("Telegram request delayed").pipe(
+  return recordBotApiDelay(reason === "rate-limit" ? "rate_limit" : "retry", delayMs).pipe(
+    Effect.andThen(Effect.logDebug("Telegram request delayed")),
     Effect.annotateLogs({ delayMs, method, reason }),
     Effect.andThen(Effect.sleep(Duration.millis(delayMs))),
   );

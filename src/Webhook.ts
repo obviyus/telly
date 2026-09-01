@@ -13,6 +13,7 @@ import {
   makeDispatcher,
 } from "./internal/Dispatch.js";
 import { Update, type Update as UpdateType } from "./types.generated.js";
+import { recordWebhookRequest } from "./internal/Telemetry.js";
 
 const completedUpdateCapacity = 4_096;
 const secretHeader = "x-telegram-bot-api-secret-token";
@@ -76,21 +77,24 @@ export function makeWebhookFetch<E, R>(
   }
   const expectedDigest = digest(secret);
   return Effect.fn("Webhook.fetch")(function* (request: Request) {
-    if (request.method !== "POST") return response(405);
+    const respond = (status: number) => recordWebhookRequest(status).pipe(
+      Effect.as(response(status)),
+    );
+    if (request.method !== "POST") return yield* respond(405);
     const suppliedSecret = request.headers.get(secretHeader);
-    if (suppliedSecret === null) return response(401);
+    if (suppliedSecret === null) return yield* respond(401);
     const suppliedDigest = yield* Effect.promise(() => digest(suppliedSecret));
     if (!equalDigest(yield* Effect.promise(() => expectedDigest), suppliedDigest)) {
-      return response(401);
+      return yield* respond(401);
     }
-    if (!isAccepting()) return response(503);
+    if (!isAccepting()) return yield* respond(503);
     const parsed = yield* Effect.result(
       Effect.tryPromise({ try: () => request.json(), catch: (error) => error }),
     );
-    if (Result.isFailure(parsed)) return response(400);
+    if (Result.isFailure(parsed)) return yield* respond(400);
     const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(parsed.success));
-    if (Result.isFailure(decoded)) return response(400);
-    return response(yield* processUpdate(decoded.success));
+    if (Result.isFailure(decoded)) return yield* respond(400);
+    return yield* processUpdate(decoded.success).pipe(Effect.flatMap(respond));
   });
 }
 
@@ -104,6 +108,7 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
     concurrency,
     conversationKey: options.conversationKey ?? defaultConversationKey,
     gracePeriodMs,
+    source: "webhook",
   });
   const completion = Deferred.makeUnsafe<void, E>();
   const inFlight = new Map<number, Deferred.Deferred<number>>();
@@ -149,6 +154,7 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
   };
 
   const processUpdate = Effect.fn("Webhook.processUpdate")(function* (update: UpdateType) {
+    yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "webhook" });
     const requestClaim = yield* Effect.sync(() =>
       state === "running" ? claim(update.updateId) : undefined
     );

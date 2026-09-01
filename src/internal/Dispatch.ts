@@ -7,6 +7,11 @@ import * as Scope from "effect/Scope";
 
 import { Bot } from "../BotApi.js";
 import type { Update } from "../types.generated.js";
+import {
+  type DispatchSource,
+  recordDispatchRejected,
+  trackDispatch,
+} from "./Telemetry.js";
 
 export class DispatchFull extends Schema.TaggedError<DispatchFull>()(
   "DispatchFull",
@@ -17,6 +22,7 @@ export interface DispatchOptions<Item> {
   readonly concurrency: number;
   readonly conversationKey: (item: Item) => number | string;
   readonly gracePeriodMs: number;
+  readonly source: DispatchSource;
 }
 
 export interface Dispatcher<Item, E, A = unknown> {
@@ -106,7 +112,11 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
 
   const submit = (item: Item, conversationKey?: number | string) =>
     Effect.suspend(() => {
-      if (!accepting || active >= options.concurrency) return Effect.fail(new DispatchFull());
+      if (!accepting || active >= options.concurrency) {
+        return recordDispatchRejected(options.source).pipe(
+          Effect.andThen(Effect.fail(new DispatchFull())),
+        );
+      }
       const key = conversationKey ?? options.conversationKey(item);
       let lane = lanes.get(key);
       if (lane === undefined) {
@@ -122,7 +132,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
       lane.pending += 1;
       active += 1;
 
-      const task = Deferred.await(previous).pipe(
+      const task = trackDispatch(options.source, Deferred.await(previous).pipe(
         Effect.andThen(Effect.suspend(() => handler(item))),
         Effect.onExit((exit) =>
           Effect.sync(() => {
@@ -140,7 +150,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
             Deferred.doneUnsafe(completed, Effect.void);
           }),
         ),
-      );
+      ));
       return FiberSet.run(handlers, task).pipe(
         Effect.as(Deferred.await(result)),
       );

@@ -137,20 +137,22 @@ Guarantees:
 - Telly dispatches each update once inside one process, even when an unacknowledged batch is fetched again.
 - Webhooks share concurrent duplicate work and remember the latest 4096 completed update identifiers per process. Restart delivery remains at least once until a durable inbox is configured.
 - A webhook at capacity returns `503`, so Telegram retains ownership and retries instead of growing an internal queue.
-- A handler has no mandatory timeout. A stalled offset raises an observable event that names the blocking update and key.
+- A handler has no mandatory timeout. Active dispatch metrics and runtime spans keep long-running work visible without adding a second timeout policy.
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
 - Conflict recovery is typed. A `getUpdates` conflict caused by an overlapping poll retries within a bounded budget. A conflict caused by an active webhook fails at once. The policy is configurable.
 - Retry classification is explicit. Generated method metadata states whether retrying after an unknown outcome can duplicate a side effect. A request gets at most three attempts. Telly retries `429` and `5xx` Telegram rejections, and retries transport or invalid-response failures only for intrinsically safe methods. Raw calls treat an unknown outcome as unsafe. `retryUnknownOutcome` explicitly accepts duplicate side effects for one operation.
 - Message rate limits apply Telegram's documented defaults: 30 messages per second overall, one per second in one chat, and 20 per minute in one group. Paid broadcasts use their documented 1000-per-second overall limit. Every `429` with `retryAfter` pauses message calls bot-wide and waits at least the stated duration before retrying. Telegram does not publish every effective limit, so Telly claims only these limits.
 - Redaction is total. Telly holds the bot token and other secrets in `Redacted` values and never emits a plaintext secret in an error, log, trace, URL, fixture, or proof artifact.
 - Webhook and long polling are two runtimes over one dispatch model. Webhook handling accepts a Web `Request` and returns a Web `Response`. Secret token verification is on by default.
-- Observability is built in. Every runtime decision emits traces, metrics, and structured logs through Effect observability. A consumer that wants external telemetry supplies exporter Layers.
+- Observability is built in. Hot-path outcomes emit Effect metrics and attributes on existing spans. Exceptional or state-changing outcomes also emit structured logs. A consumer that wants external telemetry supplies exporter Layers.
 
 Done when:
 
 - The hermetic Bot API fake proves every guarantee in this section, including per-key ordering under parallel load, bounded in-flight work, and drain within the grace period.
 - Under `on-complete` and `inbox`, the fake proves at-least-once delivery within Telegram's update retention and, for `inbox`, within the durability of the supplied store.
 - A test proves the bot token appears in no error, log, trace, or URL in clear text.
+- Published metrics use bounded attributes and never contain bot tokens, URLs, chat identifiers, user identifiers, update identifiers, job identifiers, or arbitrary error text.
+- Tests prove request outcomes and duration, dispatch lifecycle balance, webhook results, durable save and settlement outcomes, span attributes, secret redaction, and success-path log silence.
 - Memory and SQLite job-store contract tests prove due-time claims, recurrence, cancellation, retry, interruption refunds, fencing, multi-process claims, and restart recovery.
 - Memory and SQLite conversation-store tests prove restart recovery, step-state decoding, compare-and-set conflicts, last-entry-wins replacement, and exit.
 - Callback-data tests prove typed round trips, direct filter routing, stale-data fallthrough, and the exact 64-byte limit.
