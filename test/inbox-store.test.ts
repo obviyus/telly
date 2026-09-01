@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { Effect } from "effect";
 import { TestClock } from "effect/testing";
 
-import { DispatchLeaseLost, MemoryInbox } from "../index.ts";
+import { InboxLeaseLost, MemoryInbox } from "../index.ts";
 
 const botId = 123456;
 
@@ -166,7 +166,7 @@ test("new fencing token reclaims work and rejects stale mutations", async () => 
 
   expect(staleRenew._tag).toBe("Failure");
   if (staleRenew._tag !== "Failure") throw new Error("Expected stale renewal failure");
-  expect(staleRenew.failure).toBeInstanceOf(DispatchLeaseLost);
+  expect(staleRenew.failure).toBeInstanceOf(InboxLeaseLost);
   expect(reclaimed.map((item) => [item.updateId, item.attempts])).toEqual([[61, 2]]);
 });
 

@@ -10,7 +10,7 @@ import * as Scope from "effect/Scope";
 
 import { Bot } from "../BotApi.js";
 import {
-  DispatchLeaseLost,
+  InboxLeaseLost,
   InboxStore,
   type InboxOptions,
   type InboxSaveResult,
@@ -149,7 +149,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
               Effect.tap(() => wake.signal),
             );
           const claimed = new Map<number, { readonly attempts: number }>();
-          const trackedHandler: UpdateHandler<DispatchLeaseLost | InboxStoreError, void> = (update) => {
+          const trackedHandler: UpdateHandler<InboxLeaseLost | InboxStoreError, void> = (update) => {
             const item = claimed.get(update.updateId);
             if (item === undefined) return Effect.die(new Error("Claimed update is missing"));
             return Effect.result(handler(update)).pipe(
@@ -161,7 +161,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
               )),
               Effect.onInterrupt(() =>
                 settle(update.updateId, { _tag: "Interrupted" }).pipe(
-                  Effect.catchTag("DispatchLeaseLost", () => Effect.void),
+                  Effect.catchTag("InboxLeaseLost", () => Effect.void),
                   Effect.catchTag("InboxStoreError", () => Effect.void),
                 )
               ),
@@ -239,7 +239,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
                 const error = Cause.findError(exit.cause);
                 if (
                   Result.isSuccess(error) &&
-                  error.success instanceof DispatchLeaseLost
+                  error.success instanceof InboxLeaseLost
                 ) {
                   return dispatcher.cancel;
                 }
@@ -257,7 +257,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             ),
           );
         }).pipe(
-          Effect.catchTag("DispatchLeaseLost", () => Effect.void),
+          Effect.catchTag("InboxLeaseLost", () => Effect.void),
         );
       }),
     ),

@@ -3,7 +3,7 @@ import { Deferred, Effect } from "effect";
 
 import {
   Application,
-  DispatchLeaseLost,
+  InboxLeaseLost,
   InboxStore,
   InboxStoreError,
   MemoryInbox,
@@ -224,7 +224,7 @@ test("losing the dispatch lease interrupts handlers without graceful delay", asy
   const memory = MemoryInbox.make();
   const inbox = InboxStore.of({
     ...memory,
-    renew: (options) => Effect.fail(new DispatchLeaseLost({ botId: options.botId })),
+    renew: (options) => Effect.fail(new InboxLeaseLost({ botId: options.botId })),
   });
   const fake = FakeBotApi.make({ token });
   const app = Application.make({

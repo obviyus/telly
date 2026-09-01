@@ -34,12 +34,12 @@ import type {
   MessageReply,
   MessageSender,
 } from "./src/Message.js";
-import { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
+import { InboxLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./src/Inbox.js";
 import type {
   ClaimedUpdate,
   ClaimInboxUpdates,
-  DispatchLeaseOptions,
-  DispatchLeaseResult,
+  InboxLeaseOptions,
+  InboxLeaseResult,
   FencedInboxOperation,
   InboxSaveResult,
   InboxOptions,
@@ -116,7 +116,6 @@ import type {
   SqliteConversationsOptions,
   SqliteConversationStore,
 } from "./src/SqliteConversations.js";
-import { runJobWorker } from "./src/internal/JobRuntime.js";
 import { PollingConflictError, pollInboxUpdates, pollUpdates } from "./src/Polling.js";
 import type {
   AcknowledgmentMode,
@@ -184,7 +183,7 @@ export {
   defineBot,
   defineJobs,
   downloadFile,
-  DispatchLeaseLost,
+  InboxLeaseLost,
   entity,
   every,
   Filter,
@@ -222,7 +221,6 @@ export {
   respond,
   respondTo,
   routes,
-  runJobWorker,
   SqliteInbox,
   SqliteConversations,
   SqliteJobs,
@@ -254,8 +252,8 @@ export type {
   ConversationRecord,
   ConversationStep,
   ConversationStoreService,
-  DispatchLeaseOptions,
-  DispatchLeaseResult,
+  InboxLeaseOptions,
+  InboxLeaseResult,
   DownloadFileOptions,
   DurableConversation,
   EntityMatch,
