@@ -56,10 +56,8 @@ test("polling acknowledges a received update before its handler completes", asyn
   const gate = Deferred.makeUnsafe<void>();
   const started = signal();
   const fake = FakeBotApi.make({
-    replies: [
-      FakeBotApiReply.ok([update(11, 101)]),
-    ],
     token,
+    updates: [update(11, 101)],
   });
   const app = Application.make({ httpClient: fake.layer, token });
 
@@ -81,10 +79,8 @@ test("polling acknowledges an update only after its handler completes", async ()
   const gate = Deferred.makeUnsafe<void>();
   const started = signal();
   const fake = FakeBotApi.make({
-    replies: [
-      FakeBotApiReply.ok([update(21, 201)]),
-    ],
     token,
+    updates: [update(21, 201)],
   });
   const app = Application.make({ httpClient: fake.layer, token });
 
@@ -107,10 +103,8 @@ test("polling does not acknowledge past an incomplete update", async () => {
   const firstGate = Deferred.makeUnsafe<void>();
   const secondCompleted = signal();
   const fake = FakeBotApi.make({
-    replies: [
-      FakeBotApiReply.ok([update(31, 301), update(32, 302)]),
-    ],
     token,
+    updates: [update(31, 301), update(32, 302)],
   });
   const app = Application.make({ httpClient: fake.layer, token });
 

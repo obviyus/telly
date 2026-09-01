@@ -4,6 +4,7 @@ import type {
   FakeBotApiFile,
   FakeBotApiOptions,
   FakeBotApiResponseParameters,
+  FakeUpdate,
 } from "./src/testing/FakeBotApi.js";
 
 export { FakeBotApi, FakeBotApiReply };
@@ -12,4 +13,5 @@ export type {
   FakeBotApiFile,
   FakeBotApiOptions,
   FakeBotApiResponseParameters,
+  FakeUpdate,
 };

@@ -1,5 +1,8 @@
+import * as Deferred from "effect/Deferred";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -19,6 +22,10 @@ export interface FakeBotApiFile {
   readonly fileName: string;
   readonly size: number;
   readonly type: string;
+}
+
+export interface FakeUpdate extends Readonly<Record<string, unknown>> {
+  readonly update_id: number;
 }
 
 export interface FakeBotApiResponseParameters {
@@ -61,17 +68,61 @@ export const FakeBotApiReply = {
 export interface FakeBotApiOptions {
   readonly nextMessageId?: number;
   readonly replies?: ReadonlyArray<FakeBotApiReply>;
+  /** Enables a deterministic approximation of Telegram's documented message limits. */
+  readonly serverRateLimit?: boolean;
   readonly token: string;
+  readonly updates?: ReadonlyArray<FakeUpdate>;
+  readonly webhookUrl?: string;
 }
 
 export interface FakeBotApi {
   readonly abortedFilePaths: ReadonlyArray<string>;
   readonly abortedMethods: ReadonlyArray<string>;
+  readonly confirmedOffset: number;
   readonly enqueue: (reply: FakeBotApiReply) => void;
   readonly layer: Layer.Layer<HttpClient.HttpClient>;
+  readonly pushUpdate: (update: FakeUpdate) => void;
   readonly requests: ReadonlyArray<FakeBotApiCall>;
+  readonly webhookUrl: string;
   readonly whenCalled: (method: string, ordinal?: number) => Promise<FakeBotApiCall>;
   readonly whenFileRequested: Promise<void>;
+}
+
+type PollSignal = "conflict" | "wake";
+
+interface ParkedPoll {
+  readonly signal: Deferred.Deferred<PollSignal>;
+}
+
+function assertUpdates(updates: ReadonlyArray<FakeUpdate>): Array<FakeUpdate> {
+  const result: Array<FakeUpdate> = [];
+  let previous = 0;
+  for (const update of updates) {
+    assertNextUpdate(update, previous);
+    result.push(update);
+    previous = update.update_id;
+  }
+  return result;
+}
+
+function assertNextUpdate(update: FakeUpdate, previous: number): void {
+  if (!Number.isSafeInteger(update.update_id) || update.update_id <= previous) {
+    throw new RangeError("Fake Telegram updates require ascending positive update_id values");
+  }
+}
+
+function integerField(params: object, name: string): number | undefined {
+  const value = Reflect.get(params, name);
+  return typeof value === "number" && Number.isInteger(value) ? value : undefined;
+}
+
+function stringField(params: object, name: string): string | undefined {
+  const value = Reflect.get(params, name);
+  return typeof value === "string" ? value : undefined;
+}
+
+function okResponse(request: HttpClientRequest.HttpClientRequest, result: unknown) {
+  return response(request, 200, JSON.stringify({ ok: true, result }));
 }
 
 function bodyDetails(body: HttpClientRequest.HttpClientRequest["body"]): {
@@ -182,7 +233,57 @@ export const FakeBotApi = {
       fileRequestWaiters.push(resolve);
     });
     const replies = [...(options.replies ?? [])];
+    let updates = assertUpdates(options.updates ?? []);
+    let confirmedOffset = 0;
+    let lastUpdateId = updates.at(-1)?.update_id ?? 0;
+    let webhookUrl = options.webhookUrl ?? "";
+    let parkedPoll: ParkedPoll | undefined;
+    const rateLimitReservations = new Map<string, number>();
     let nextMessageId = options.nextMessageId ?? 41;
+
+    const completeParkedPoll = (outcome: PollSignal) => {
+      if (parkedPoll === undefined) return;
+      Deferred.doneUnsafe(parkedPoll.signal, Effect.succeed(outcome));
+    };
+
+    const pushUpdate = (update: FakeUpdate) => {
+      assertNextUpdate(update, lastUpdateId);
+      updates.push(update);
+      lastUpdateId = update.update_id;
+      completeParkedPoll("wake");
+    };
+
+    const applyOffset = (offset: number | undefined) => {
+      if (offset === undefined || offset === 0) return;
+      if (offset > 0) {
+        updates = updates.filter((update) => update.update_id >= offset);
+        confirmedOffset = Math.max(confirmedOffset, offset);
+        return;
+      }
+      updates = updates.slice(offset);
+    };
+
+    const rateLimitDelay = (params: object, now: number): number => {
+      const chatId = Reflect.get(params, "chat_id");
+      if (typeof chatId !== "number" && typeof chatId !== "string") return 0;
+      const paid = Reflect.get(params, "allow_paid_broadcast") === true;
+      const reservations: ReadonlyArray<readonly [string, number]> = [
+        [paid ? "overall:paid" : "overall:free", paid ? 1 : 1_000 / 30],
+        [`chat:${String(chatId)}`, 1_000],
+        ...(typeof chatId === "string" || chatId < 0
+          ? [[`group:${String(chatId)}`, 60_000 / 20] as const]
+          : []),
+      ];
+      let delayMs = 0;
+      for (const [key] of reservations) {
+        delayMs = Math.max(delayMs, (rateLimitReservations.get(key) ?? now) - now);
+      }
+      if (delayMs > 0) return delayMs;
+      for (const [key, intervalMs] of reservations) {
+        rateLimitReservations.set(key, now + intervalMs);
+      }
+      return 0;
+    };
 
     const recordCall = (call: FakeBotApiCall) => {
       calls.push(call);
@@ -261,24 +362,86 @@ export const FakeBotApi = {
           );
         }
         if (scripted?._tag === "Ok") {
-          return response(request, 200, JSON.stringify({ ok: true, result: scripted.result }));
+          return okResponse(request, scripted.result);
         }
         if (method === "getUpdates" && Predicate.isObject(params)) {
-          if (params["timeout"] === 0) {
-            return response(request, 200, JSON.stringify({ ok: true, result: [] }));
+          if (webhookUrl !== "") {
+            return rejectedResponse(
+              request,
+              409,
+              "Conflict: can't use getUpdates method while webhook is active",
+            );
           }
-          signal.addEventListener("abort", () => abortedMethods.add(method), { once: true });
-          return yield* Effect.never;
+          applyOffset(integerField(params, "offset"));
+          const limit = Math.max(1, Math.min(100, integerField(params, "limit") ?? 100));
+          const timeoutSeconds = Math.max(0, integerField(params, "timeout") ?? 0);
+
+          while (true) {
+            if (updates.length > 0) return okResponse(request, updates.slice(0, limit));
+            if (timeoutSeconds === 0) return okResponse(request, []);
+
+            completeParkedPoll("conflict");
+            const wait: ParkedPoll = { signal: Deferred.makeUnsafe<PollSignal>() };
+            parkedPoll = wait;
+            const recordAbort = () => abortedMethods.add(method);
+            signal.addEventListener("abort", recordAbort, { once: true });
+            const outcome = yield* Deferred.await(wait.signal).pipe(
+              Effect.timeoutOption(Duration.seconds(timeoutSeconds)),
+              Effect.onInterrupt(() => Effect.sync(() => abortedMethods.add(method))),
+              Effect.ensuring(Effect.sync(() => {
+                signal.removeEventListener("abort", recordAbort);
+                if (parkedPoll === wait) parkedPoll = undefined;
+              })),
+            );
+            if (Option.isNone(outcome)) return okResponse(request, []);
+            if (outcome.value === "conflict") {
+              return rejectedResponse(
+                request,
+                409,
+                "Conflict: terminated by other getUpdates request",
+              );
+            }
+          }
+        }
+        if (method === "setWebhook" && Predicate.isObject(params)) {
+          const url = stringField(params, "url");
+          if (url === undefined) {
+            return rejectedResponse(request, 400, "Bad Request: url is required");
+          }
+          webhookUrl = url;
+          if (params["drop_pending_updates"] === true) updates = [];
+          if (url !== "") completeParkedPoll("conflict");
+          return okResponse(request, true);
+        }
+        if (method === "deleteWebhook" && Predicate.isObject(params)) {
+          webhookUrl = "";
+          if (params["drop_pending_updates"] === true) updates = [];
+          return okResponse(request, true);
         }
         if (method === "getWebhookInfo") {
-          return response(request, 200, JSON.stringify({
-            ok: true,
-            result: {
-              has_custom_certificate: false,
-              pending_update_count: 0,
-              url: "",
-            },
-          }));
+          return okResponse(request, {
+            has_custom_certificate: false,
+            pending_update_count: updates.length,
+            url: webhookUrl,
+          });
+        }
+        if (
+          options.serverRateLimit === true &&
+          method === "sendMessage" &&
+          Predicate.isObject(params)
+        ) {
+          const now = yield* Effect.clockWith((clock) =>
+            Effect.sync(() => clock.currentTimeMillisUnsafe())
+          );
+          const delayMs = rateLimitDelay(params, now);
+          if (delayMs > 0) {
+            return rejectedResponse(
+              request,
+              429,
+              "Too Many Requests: retry later",
+              { retryAfter: Math.max(1, Math.ceil(delayMs / 1_000)) },
+            );
+          }
         }
         if (method !== "sendMessage" || !Predicate.isObject(params)) {
           return rejectedResponse(request, 404, "Not Found");
@@ -286,23 +449,16 @@ export const FakeBotApi = {
 
         const messageId = nextMessageId;
         nextMessageId += 1;
-        return response(
-          request,
-          200,
-          JSON.stringify({
-            ok: true,
-            result: {
-              chat: {
-                id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
-                type: "private",
-              },
-              date: 1_700_000_000,
-              future_field: "kept",
-              message_id: messageId,
-              text: params["text"],
-            },
-          }),
-        );
+        return okResponse(request, {
+          chat: {
+            id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
+            type: "private",
+          },
+          date: 1_700_000_000,
+          future_field: "kept",
+          message_id: messageId,
+          text: params["text"],
+        });
       }),
     );
 
@@ -313,12 +469,19 @@ export const FakeBotApi = {
       get abortedMethods() {
         return [...abortedMethods];
       },
+      get confirmedOffset() {
+        return confirmedOffset;
+      },
       enqueue: (reply: FakeBotApiReply) => {
         replies.push(reply);
       },
       layer: Layer.succeed(HttpClient.HttpClient, client),
+      pushUpdate,
       get requests() {
         return [...calls];
+      },
+      get webhookUrl() {
+        return webhookUrl;
       },
       whenCalled(method, ordinal = 1) {
         const existing = calls.filter((call) => call.method === method)[ordinal - 1];
