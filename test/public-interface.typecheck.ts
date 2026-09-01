@@ -1,4 +1,5 @@
 import { Effect } from "effect";
+import * as Telly from "../index.ts";
 
 import {
   answerCallback,
@@ -30,11 +31,13 @@ import {
   MemoryJobs,
   getMe,
   getMyName,
+  html,
   on,
   pollInboxUpdates,
   PollingConflictError,
   retryUnknownOutcome,
   replyTo,
+  respond,
   routes,
   Schema,
   sendPhoto,
@@ -45,7 +48,11 @@ import {
   type PhotoSize,
   type Update,
   type UpdateHandler,
+  type User,
 } from "../index.ts";
+
+// @ts-expect-error The job worker lifecycle is owned by Application.
+Telly.runJobWorker;
 
 // @ts-expect-error Bot API methods with no fields take no arguments.
 getMe({});
@@ -188,11 +195,18 @@ const typedConversation = conversation({
 });
 declare const message: Message;
 sendPhoto({ ...replyTo(message), photo: "telegram-file-id" });
+respond(message, "hello");
+respond(message, { text: "hello" });
+// @ts-expect-error Conversation destinations come from the triggering message.
+respond(message, { chatId: 5, text: "hello" });
 messageEntities(message, "url", "text_link");
 messageText(message) satisfies string | undefined;
 messageMedia(message);
 messageSender(message);
 messageReply(message);
+html.mention({ firstName: "Ada", id: 1 });
+declare const user: User;
+html.mention(user);
 typedConversation.enter(message, "confirm", { orderId: 1 });
 // @ts-expect-error Conversation entry state comes from the selected step schema.
 typedConversation.enter(message, "confirm", { orderId: "wrong" });

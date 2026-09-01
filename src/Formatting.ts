@@ -1,8 +1,6 @@
 import type { User } from "./types.generated.js";
 
-type MentionUser = Pick<User, "firstName" | "id" | "lastName">;
-
-function name(user: MentionUser): string {
+function name(user: Pick<User, "firstName" | "lastName">): string {
   return user.lastName === undefined ? user.firstName : `${user.firstName} ${user.lastName}`;
 }
 
@@ -21,7 +19,7 @@ function escapeMarkdownV2(text: string): string {
 /** Safe text helpers for Telegram's HTML parse mode. */
 export const html = {
   escape: escapeHtml,
-  mention(user: MentionUser, label = name(user)): string {
+  mention(user: Pick<User, "firstName" | "id" | "lastName">, label = name(user)): string {
     return `<a href="tg://user?id=${user.id}">${escapeHtml(label)}</a>`;
   },
 };
@@ -29,7 +27,7 @@ export const html = {
 /** Safe text helpers for Telegram's MarkdownV2 parse mode. */
 export const markdownV2 = {
   escape: escapeMarkdownV2,
-  mention(user: MentionUser, label = name(user)): string {
+  mention(user: Pick<User, "firstName" | "id" | "lastName">, label = name(user)): string {
     return `[${escapeMarkdownV2(label)}](tg://user?id=${user.id})`;
   },
 };

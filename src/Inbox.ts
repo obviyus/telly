@@ -25,8 +25,8 @@ export class InboxStoreError extends Schema.TaggedError<InboxStoreError>()(
   },
 ) {}
 
-export class DispatchLeaseLost extends Schema.TaggedError<DispatchLeaseLost>()(
-  "DispatchLeaseLost",
+export class InboxLeaseLost extends Schema.TaggedError<InboxLeaseLost>()(
+  "InboxLeaseLost",
   { botId: Schema.Int },
 ) {}
 
@@ -35,7 +35,7 @@ export type InboxSaveResult =
   | { readonly _tag: "Full" }
   | { readonly _tag: "Stored" };
 
-export type DispatchLeaseResult =
+export type InboxLeaseResult =
   | { readonly _tag: "Acquired"; readonly fencingToken: number }
   | { readonly _tag: "Held" };
 
@@ -60,7 +60,7 @@ export interface SaveInboxUpdate {
   readonly updateId: number;
 }
 
-export interface DispatchLeaseOptions {
+export interface InboxLeaseOptions {
   readonly botId: number;
   readonly leaseMs: number;
 }
@@ -86,11 +86,11 @@ export interface PruneInboxUpdates {
 
 export interface InboxStoreService {
   readonly acquire: (
-    options: DispatchLeaseOptions,
-  ) => Effect.Effect<DispatchLeaseResult, InboxStoreError>;
+    options: InboxLeaseOptions,
+  ) => Effect.Effect<InboxLeaseResult, InboxStoreError>;
   readonly claim: (
     options: ClaimInboxUpdates,
-  ) => Effect.Effect<ReadonlyArray<ClaimedUpdate>, InboxStoreError | DispatchLeaseLost>;
+  ) => Effect.Effect<ReadonlyArray<ClaimedUpdate>, InboxStoreError | InboxLeaseLost>;
   readonly prune: (
     options: PruneInboxUpdates,
   ) => Effect.Effect<void, InboxStoreError>;
@@ -99,13 +99,13 @@ export interface InboxStoreService {
   ) => Effect.Effect<void, InboxStoreError>;
   readonly renew: (
     options: FencedInboxOperation & { readonly leaseMs: number },
-  ) => Effect.Effect<void, InboxStoreError | DispatchLeaseLost>;
+  ) => Effect.Effect<void, InboxStoreError | InboxLeaseLost>;
   readonly save: (
     options: SaveInboxUpdate,
   ) => Effect.Effect<InboxSaveResult, InboxStoreError>;
   readonly settle: (
     options: SettleInboxUpdate,
-  ) => Effect.Effect<void, InboxStoreError | DispatchLeaseLost>;
+  ) => Effect.Effect<void, InboxStoreError | InboxLeaseLost>;
 }
 
 export class InboxStore extends Context.Service<InboxStore, InboxStoreService>()(
@@ -182,7 +182,7 @@ export const MemoryInbox = {
         lease.fencingToken !== fencingToken ||
         lease.expiresAtMs <= now
       ) {
-        return new DispatchLeaseLost({ botId });
+        return new InboxLeaseLost({ botId });
       }
       return lease;
     };
@@ -211,7 +211,7 @@ export const MemoryInbox = {
         return yield* Effect.clockWith((clock) => Effect.gen(function* () {
           const now = clock.currentTimeMillisUnsafe();
           const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof DispatchLeaseLost) return yield* lease;
+          if (lease instanceof InboxLeaseLost) return yield* lease;
           return yield* Effect.sync(() => {
             const inbox = botInbox(options.botId);
             const heads = new Map<string, InboxRow>();
@@ -277,7 +277,7 @@ export const MemoryInbox = {
         yield* Effect.clockWith((clock) => Effect.gen(function* () {
           const now = clock.currentTimeMillisUnsafe();
           const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof DispatchLeaseLost) return yield* lease;
+          if (lease instanceof InboxLeaseLost) return yield* lease;
           botInbox(options.botId).lease = {
             expiresAtMs: now + options.leaseMs,
             fencingToken: options.fencingToken,
@@ -312,7 +312,7 @@ export const MemoryInbox = {
         return yield* Effect.clockWith((clock) => Effect.gen(function* () {
           const now = clock.currentTimeMillisUnsafe();
           const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof DispatchLeaseLost) return yield* lease;
+          if (lease instanceof InboxLeaseLost) return yield* lease;
           const inbox = botInbox(options.botId);
           const row = inbox.rows.get(options.updateId);
           if (

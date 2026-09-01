@@ -12,6 +12,9 @@ const [root, testing] = await Promise.all([
 if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
 }
+if ("runJobWorker" in root) {
+  throw new Error("telly exposes its internal job worker");
+}
 if (!root.getMe || !root.sendMessage || !root.SendMessageParams) {
   throw new Error("telly method exports are incomplete");
 }

@@ -203,7 +203,10 @@ export class Bot extends Context.Service<
     readonly call: <A>(
       method: string,
       params: object,
-      metadata: RequestMetadata,
+      metadata: {
+        readonly rateLimit: "media-array" | "message" | "message-id-array" | "none";
+        readonly retrySafe: boolean;
+      },
       decode: (value: unknown) => Effect.Effect<A, BotApiError>,
     ) => Effect.Effect<A, BotApiError>;
     readonly callRaw: (

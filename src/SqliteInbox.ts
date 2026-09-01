@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import * as Effect from "effect/Effect";
 
 import {
-  DispatchLeaseLost,
+  InboxLeaseLost,
   InboxStoreError,
   type ClaimedUpdate,
   type InboxSettlement,
@@ -75,7 +75,7 @@ function runStore<A>(operation: string, run: () => Promise<A>) {
 function runFenced<A>(operation: string, run: () => Promise<A>) {
   return Effect.tryPromise({
     try: run,
-    catch: (error) => error instanceof DispatchLeaseLost
+    catch: (error) => error instanceof InboxLeaseLost
       ? error
       : storeError(operation, error),
   });
@@ -98,7 +98,7 @@ async function requireLease(
     sqliteInteger(row["fencing_token"], "fencing_token") !== fencingToken ||
     sqliteInteger(row["expires_at_ms"], "expires_at_ms") <= now
   ) {
-    throw new DispatchLeaseLost({ botId });
+    throw new InboxLeaseLost({ botId });
   }
 }
 

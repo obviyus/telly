@@ -7,7 +7,7 @@ import { join } from "node:path";
 
 import { Effect } from "effect";
 
-import { DispatchLeaseLost, SqliteInbox } from "../index.ts";
+import { InboxLeaseLost, SqliteInbox } from "../index.ts";
 
 const botId = 123456;
 
@@ -162,7 +162,7 @@ test("SQLite inbox fencing tokens reject former lease holders", async () => {
       botId,
       fencingToken: first.fencingToken,
       leaseMs: 30_000,
-    }))).rejects.toBeInstanceOf(DispatchLeaseLost);
+    }))).rejects.toBeInstanceOf(InboxLeaseLost);
     expect(second.fencingToken).toBeGreaterThan(first.fencingToken);
   } finally {
     store.close();
@@ -197,7 +197,7 @@ test("SQLite inbox reclaims unfinished work after lease succession", async () =>
       fencingToken: first.fencingToken,
       outcome: { _tag: "Done" },
       updateId: 35,
-    }))).rejects.toBeInstanceOf(DispatchLeaseLost);
+    }))).rejects.toBeInstanceOf(InboxLeaseLost);
     expect(reclaimed.map((item) => [item.updateId, item.attempts])).toEqual([[35, 2]]);
   } finally {
     store.close();
