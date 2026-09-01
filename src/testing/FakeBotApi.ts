@@ -415,6 +415,9 @@ export const FakeBotApi = {
             url: webhookUrl,
           });
         }
+        if (method === "answerCallbackQuery") {
+          return okResponse(request, true);
+        }
         if (
           options.serverRateLimit === true &&
           method === "sendMessage" &&
