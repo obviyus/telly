@@ -228,6 +228,30 @@ Add `every` for fixed-interval work. Repeating jobs default to their definition 
 BOT_TOKEN=... bun run ./examples/superseriousbot/bot.ts
 ```
 
+## Benchmarks
+
+A public suite under [`benchmarks/`](./benchmarks/README.md) races Telly, grammY, and python-telegram-bot through the same deterministic Telegram update workload. The primary score starts from a parsed update object and includes each framework's native update construction or validation, routing, and awaited handler completion. It excludes JSON parsing, network time, and user handler work.
+
+grammY wins this workload by a wide margin. Telly validates every update into its public schema on this path and is not optimized yet; the vision targets first place, and this baseline is the measured starting point.
+
+**This baseline is noisy.** Throughput variation was 6.6% to 9.0% across frameworks, above the 5% target, so do not use it for tight regression decisions.
+
+| Framework | Updates/s | CV | p50 latency | Median peak RSS | Cold startup |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Telly | 31,670 | 9.0% | 32 µs | 229.3 MiB | 246.0 ms |
+| grammY | 727,004 | 6.6% | 1.4 µs | 141.7 MiB | 45.3 ms |
+| python-telegram-bot | 25,596 | 7.1% | 37 µs | 41.1 MiB | 144.8 ms |
+
+CV is the coefficient of variation across throughput rounds. Peak RSS compares Telly with grammY directly under Node; the Python value describes the full Python stack.
+
+```bash
+bun run bench:setup
+bun run bench
+bun run bench:baseline --pin <idle-cpu>
+```
+
+[`benchmarks/README.md`](./benchmarks/README.md) documents the method, the correctness contract, and how to read results honestly. The full baseline, including diagnostics, raw samples, and environment data, is [checked in](./benchmarks/baselines/2026-09-01T06-29-06-b0c65739-full.md).
+
 ## Bot API schema
 
 Development uses Bun 1.4. Published packages run on supported Node.js versions without Bun.
