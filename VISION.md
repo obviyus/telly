@@ -126,6 +126,9 @@ Guarantees:
 - Acknowledgment mode is explicit. `on-receipt` advances the offset when Telly fetches an update. `on-complete` advances the offset past the contiguous prefix of completed updates. `inbox` writes each update to a durable store and then advances the offset.
 - The durable inbox is optional. Telly defines the interface. The consumer supplies the durable store. A receiver acknowledges only an atomic `Stored` or `Duplicate` result; `Full` applies backpressure. One fenced dispatch lease per bot claims the oldest eligible update for each conversation key. Restart or lease succession reclaims incomplete updates. Delivery is at least once, bounded by Telegram's update retention before save and by the supplied store's durability after save.
 - Inbox attempts have four settlements: done, retry, parked, or interrupted. Typed handler failures retry with persisted backoff and park after a bounded attempt count. Graceful interruption refunds its attempt. Defects remain defects and leave the update reclaimable.
+- Jobs persist a stable definition name and schema-encoded payload. They run once or repeat at a fixed interval. A caller-supplied identifier makes scheduling idempotent until its completed record reaches the configured retention limit.
+- Job execution is at least once. One fenced dispatch lease per bot prevents overlapping runners. Typed failures retry with persisted backoff; exhausted jobs park and stop repeating.
+- Repeating jobs preserve their intended cadence, never overlap themselves, and coalesce missed occurrences into one run after downtime. Cancellation prevents future work but cannot undo an external side effect that already started.
 - Updates with the same conversation key run in order. Updates with different keys run in parallel.
 - Concurrency is bounded. Polling pauses when the in-flight limit is reached. Every queue has a limit; the inbox default is 10,000 non-terminal updates.
 - Telly dispatches each update once inside one process, even when an unacknowledged batch is fetched again.
@@ -145,6 +148,7 @@ Done when:
 - The hermetic Bot API fake proves every guarantee in this section, including per-key ordering under parallel load, bounded in-flight work, and drain within the grace period.
 - Under `on-complete` and `inbox`, the fake proves at-least-once delivery within Telegram's update retention and, for `inbox`, within the durability of the supplied store.
 - A test proves the bot token appears in no error, log, trace, or URL in clear text.
+- Memory and SQLite job-store contract tests prove due-time claims, recurrence, cancellation, retry, interruption refunds, fencing, multi-process claims, and restart recovery.
 
 ## Batteries-included core
 
@@ -221,6 +225,8 @@ Done when:
 - The manifest has a `proven` entry with a current Test Server artifact for every Bot API method and no expired `blocked` entry. Only then does Telly claim full coverage.
 
 ## First consumer
+
+SuperSeriousBot is the first source-level proof of Telly's ergonomics. Its features enter as production-shaped examples before the bot migrates wholesale.
 
 OpenClaw is the first demanding consumer and the first acceptance test. It runs Telly in production polling, webhook, proxy, and multi-instance conditions.
 

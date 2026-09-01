@@ -1,0 +1,29 @@
+{
+  "feature": "durable-jobs",
+  "passed": true,
+  "recorded_time": "2026-08-31T18:44:37.464Z",
+  "schemaVersion": 1,
+  "timeline": [
+    {
+      "botApiMessageId": 3747,
+      "kind": "reminder_command",
+      "text": "/remind 5d2c050e-942f-4f2c-8e94-fbb90f8b605e"
+    },
+    {
+      "botApiMessageId": 3748,
+      "kind": "schedule_confirmation",
+      "text": "scheduled:5d2c050e-942f-4f2c-8e94-fbb90f8b605e"
+    },
+    {
+      "botApiMessageId": 3749,
+      "delayAfterConfirmationMs": 1031,
+      "kind": "scheduled_delivery",
+      "text": "reminder:5d2c050e-942f-4f2c-8e94-fbb90f8b605e"
+    },
+    {
+      "exitCode": 0,
+      "kind": "graceful_shutdown",
+      "signal": "SIGTERM"
+    }
+  ]
+}

@@ -12,6 +12,9 @@ const [root, testing] = await Promise.all([
 if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
 }
+if (!root.defineJobs || !root.job || !root.MemoryJobs || !root.SqliteJobs || !root.Schema) {
+  throw new Error("telly job exports are incomplete");
+}
 if (
   !root.command ||
   !root.defineBot ||
@@ -183,6 +186,32 @@ try {
   await pollingApp.close();
 }
 
+const jobFake = testing.FakeBotApi.make({ token });
+const jobs = root.defineJobs({
+  reminder: root.job({
+    payload: root.Schema.Struct({ chatId: root.Schema.Int, text: root.Schema.String }),
+    run: ({ chatId, text }) => root.sendMessage({ chatId, text }),
+  }),
+}, { store: root.MemoryJobs.make() });
+const jobApp = root.Application.make({
+  httpClient: jobFake.layer,
+  jobs,
+  token,
+});
+await jobApp.run(jobs.schedule("reminder", {
+  id: "node-job",
+  payload: { chatId: 62, text: "node scheduled job" },
+}));
+jobApp.startPolling(() => Effect.void);
+try {
+  const sent = await jobFake.whenCalled("sendMessage");
+  if (sent.params.chat_id !== 62 || sent.params.text !== "node scheduled job") {
+    throw new Error("Application jobs failed under Node.js");
+  }
+} finally {
+  await jobApp.close();
+}
+
 const signalChild = spawn(
   process.execPath,
   [new URL("./run-polling-signal-smoke.mjs", import.meta.url).pathname],
@@ -273,5 +302,23 @@ try {
   if (claimed[0]?.updateId !== 501) throw new Error("Node SQLite inbox did not replay");
 } finally {
   sqliteInbox.close();
+}
+
+const sqliteJobsPath = join(sqliteDirectory, "jobs.db");
+const sqliteJobs = await root.SqliteJobs.open(sqliteJobsPath);
+try {
+  const saved = await Effect.runPromise(sqliteJobs.save({
+    botId: 123456,
+    capacity: 10,
+    fingerprint: "node-job",
+    id: "node-job",
+    name: "reminder",
+    payload: { text: "persisted" },
+    runAtMs: 0,
+    schedule: { _tag: "Once" },
+  }));
+  if (saved._tag !== "Stored") throw new Error("Node SQLite jobs did not save");
+} finally {
+  sqliteJobs.close();
   rmSync(sqliteDirectory, { force: true, recursive: true });
 }
