@@ -64,7 +64,7 @@ try {
       'export { DispatchLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "./Inbox.js";',
       'export { defineJobs, InvalidJobPayload, InvalidJobSchedule, job, JobCapacityExceeded, JobConflict, JobLeaseLost, JobStore, JobStoreError, MemoryJobs } from "./Jobs.js";',
       'export { runJobWorker } from "./JobRuntime.js";',
-      'export { pollInboxUpdates, pollUpdates } from "./Polling.js";',
+      'export { PollingConflictError, pollInboxUpdates, pollUpdates } from "./Polling.js";',
       'export { SqliteInbox } from "./SqliteInbox.js";',
       'export { SqliteConversations } from "./SqliteConversations.js";',
       'export { SqliteJobs } from "./SqliteJobs.js";',

@@ -270,6 +270,16 @@ export const FakeBotApi = {
           signal.addEventListener("abort", () => abortedMethods.add(method), { once: true });
           return yield* Effect.never;
         }
+        if (method === "getWebhookInfo") {
+          return response(request, 200, JSON.stringify({
+            ok: true,
+            result: {
+              has_custom_certificate: false,
+              pending_update_count: 0,
+              url: "",
+            },
+          }));
+        }
         if (method !== "sendMessage" || !Predicate.isObject(params)) {
           return rejectedResponse(request, 404, "Not Found");
         }

@@ -139,7 +139,7 @@ Guarantees:
 - A webhook at capacity returns `503`, so Telegram retains ownership and retries instead of growing an internal queue.
 - A handler has no mandatory timeout. Active dispatch metrics and runtime spans keep long-running work visible without adding a second timeout policy.
 - Cancellation flows through Effect interruption. Stop aborts the in-flight poll, waits for it, drains handlers within a stated grace period, persists the offset, and then completes.
-- Conflict recovery is typed. A `getUpdates` conflict caused by an overlapping poll retries within a bounded budget. A conflict caused by an active webhook fails at once. The policy is configurable.
+- Conflict recovery is typed. After a `getUpdates` conflict, Telly uses `getWebhookInfo` instead of undocumented error text to classify the owner. An overlapping poll retries for a default 60-second budget. An active webhook fails at once with `PollingConflictError`. `conflictRetryBudgetMs` changes the budget, and zero disables recovery.
 - Retry classification is explicit. Generated method metadata states whether retrying after an unknown outcome can duplicate a side effect. A request gets at most three attempts. Telly retries `429` and `5xx` Telegram rejections, and retries transport or invalid-response failures only for intrinsically safe methods. Raw calls treat an unknown outcome as unsafe. `retryUnknownOutcome` explicitly accepts duplicate side effects for one operation.
 - Message rate limits apply Telegram's documented defaults: 30 messages per second overall, one per second in one chat, and 20 per minute in one group. Paid broadcasts use their documented 1000-per-second overall limit. Every `429` with `retryAfter` pauses message calls bot-wide and waits at least the stated duration before retrying. Telegram does not publish every effective limit, so Telly claims only these limits.
 - Redaction is total. Telly holds the bot token and other secrets in `Redacted` values and never emits a plaintext secret in an error, log, trace, URL, fixture, or proof artifact.
@@ -153,6 +153,7 @@ Done when:
 - A test proves the bot token appears in no error, log, trace, or URL in clear text.
 - Published metrics use bounded attributes and never contain bot tokens, URLs, chat identifiers, user identifiers, update identifiers, job identifiers, or arbitrary error text.
 - Tests prove request outcomes and duration, dispatch lifecycle balance, webhook results, durable save and settlement outcomes, span attributes, secret redaction, and success-path log silence.
+- Polling tests prove webhook conflict detection, overlap recovery without offset loss, bounded retries, safe classification failure, recovery opt-out, and conflict-safe shutdown.
 - Memory and SQLite job-store contract tests prove due-time claims, recurrence, cancellation, retry, interruption refunds, fencing, multi-process claims, and restart recovery.
 - Memory and SQLite conversation-store tests prove restart recovery, step-state decoding, compare-and-set conflicts, last-entry-wins replacement, and exit.
 - Callback-data tests prove typed round trips, direct filter routing, stale-data fallthrough, and the exact 64-byte limit.
