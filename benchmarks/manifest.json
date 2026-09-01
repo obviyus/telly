@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "frameworks": {
+    "grammy": "1.46.0",
+    "pythonTelegramBot": "22.8"
+  },
+  "workload": {
+    "callbackPercent": 10,
+    "commandPercent": 20,
+    "fixtureCount": 4096,
+    "seed": 20260901,
+    "textPercent": 70
+  },
+  "presets": {
+    "quick": {
+      "latencyOperations": 5000,
+      "measuredRounds": 3,
+      "operations": 20000,
+      "processes": 1,
+      "startupRounds": 5,
+      "warmupRounds": 2
+    },
+    "full": {
+      "latencyOperations": 20000,
+      "measuredRounds": 5,
+      "operations": 400000,
+      "processes": 3,
+      "startupRounds": 15,
+      "warmupRounds": 3
+    }
+  }
+}

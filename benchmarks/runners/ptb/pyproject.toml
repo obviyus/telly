@@ -1,0 +1,10 @@
+[project]
+name = "telly-benchmark-ptb"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = [
+  "python-telegram-bot==22.8",
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,8 @@
+{
+  "name": "telly-benchmark-grammy",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "grammy": "1.46.0"
+  }
+}

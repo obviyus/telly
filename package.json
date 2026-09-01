@@ -25,6 +25,10 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "bench": "bun run build && bun benchmarks/orchestrator/run.ts --preset quick",
+    "bench:baseline": "bun run build && bun benchmarks/orchestrator/run.ts --preset full --baseline",
+    "bench:full": "bun run build && bun benchmarks/orchestrator/run.ts --preset full",
+    "bench:setup": "bun install --frozen-lockfile && bun install --cwd benchmarks/runners/grammy --frozen-lockfile && uv sync --project benchmarks/runners/ptb --frozen",
     "build": "bun run ./scripts/build.ts && tsc --project ./tsconfig.build.json",
     "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
     "e2e:read-only-methods": "bun run ./scripts/e2e/read-only-methods.mjs",
@@ -50,7 +54,7 @@
     "schema:generate": "bun run ./bot-api/schema/generate.ts",
     "test": "bun test --pass-with-no-tests",
     "test:node": "bun run build && node ./test/node-smoke.mjs",
-    "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json"
+    "typecheck": "tsc --project ./tsconfig.json && tsc --project ./tsconfig.test.json && tsc --project ./benchmarks/tsconfig.json"
   },
   "dependencies": {
     "@libsql/client": "0.17.4",
