@@ -45,6 +45,7 @@ const result = await Effect.runPromise(
       overridesText,
       evidenceText,
       generatedTypes,
+      generatedDecoders,
       generatedMethods,
       generatedCoverage,
     ] = yield* Effect.all([
@@ -53,6 +54,7 @@ const result = await Effect.runPromise(
       readText(new URL("./overrides.json", import.meta.url)),
       readText(new URL("../proofs/manifest.json", import.meta.url)),
       readText(new URL("../../src/types.generated.ts", import.meta.url)),
+      readText(new URL("../../src/internal/decoders.generated.ts", import.meta.url)),
       readText(new URL("../../src/methods.generated.ts", import.meta.url)),
       readText(new URL("./coverage.json", import.meta.url)),
     ]);
@@ -73,6 +75,7 @@ const result = await Effect.runPromise(
     const expected = generateSources(result.spec, overrides, evidence);
     for (const [path, actual, wanted] of [
       ["src/types.generated.ts", generatedTypes, expected.types],
+      ["src/internal/decoders.generated.ts", generatedDecoders, expected.decoders],
       ["src/methods.generated.ts", generatedMethods, expected.methods],
       ["bot-api/schema/coverage.json", generatedCoverage, expected.coverage],
     ] as const) {

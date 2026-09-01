@@ -1,4 +1,4 @@
-import type { Effect } from "effect";
+import type * as Effect from "effect/Effect";
 
 import { Bot, type BotApiError } from "./BotApi.js";
 import { sendMessage, type SendMessageParams } from "./methods.generated.js";

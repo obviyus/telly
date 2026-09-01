@@ -2,7 +2,7 @@ import type { Client } from "@libsql/client";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { Effect } from "effect";
+import * as Effect from "effect/Effect";
 
 import {
   ConversationStoreError,

@@ -13,6 +13,7 @@
   },
   "presets": {
     "quick": {
+      "diagnosticOperations": 20000,
       "latencyOperations": 5000,
       "measuredRounds": 3,
       "operations": 20000,
@@ -21,6 +22,7 @@
       "warmupRounds": 2
     },
     "full": {
+      "diagnosticOperations": 100000,
       "latencyOperations": 20000,
       "measuredRounds": 5,
       "operations": 400000,

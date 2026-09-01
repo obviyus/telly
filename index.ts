@@ -269,4 +269,5 @@ export type {
   CallbackQueryMatch,
   CommandMatch,
 };
-export { Effect, Schema } from "effect";
+export * as Effect from "effect/Effect";
+export * as Schema from "effect/Schema";

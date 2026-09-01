@@ -30,7 +30,7 @@ bun run bench:baseline --pin 3
 - Memory: Linux peak resident set size for each fresh runner process.
 - Startup: total cold process time and the delta from a minimal process in the same runtime.
 - Package cost: installed production bytes, reported as a descriptive cross-ecosystem comparison.
-- Diagnostics: routing-only and decode-only throughput to show where time goes.
+- Diagnostics: routing-only, standard decode, and complex nested decode throughput to show where time goes.
 
 No sample is removed. Each result includes all raw samples, variance, machine data, runtime versions, source revision, and dirty-worktree state.
 
@@ -45,10 +45,14 @@ The seeded workload contains 70% text messages, 20% commands, and 10% callback q
 
 The runner and Bun orchestrator both verify the counts and checksum before accepting timing data.
 
+Telly also rejects missing required fields, wrong primitive values, and invalid nested values before timing starts. Generated decoder tests compare all 400 Bot API types with their Effect Schema contracts.
+
 ## Read results honestly
 
 The primary workloads are equivalent, but the frameworks make different product choices. Telly validates Telegram input into its public schema. python-telegram-bot constructs Python domain objects. grammY uses Telegram objects directly, so its decode-only result is `N/A`.
 
 Package sizes are not a quality score. Python and JavaScript package layouts differ. Telly also includes Effect and its configured persistence dependency.
+
+Cold startup and installed package cost include Effect. They stay visible because moving Effect outside the measured or installed package would hide a real Telly dependency.
 
 Do not compare reports from different machines as if they were one race. Use a quiet machine, pin the same CPU when possible, and compare results from the same source and environment.

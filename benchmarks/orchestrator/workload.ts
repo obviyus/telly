@@ -106,6 +106,74 @@ export function makeWorkload(options: {
   return { entries, schemaVersion: 1, seed: options.seed };
 }
 
+export function makeHeavyWorkload(options: {
+  readonly fixtureCount: number;
+  readonly seed: number;
+}): WorkloadFile {
+  const workload = makeWorkload(options);
+  const photo = {
+    file_id: "benchmark-photo",
+    file_unique_id: "benchmark-photo-unique",
+    height: 720,
+    width: 1280,
+  };
+  const reply = {
+    chat: { id: 71, type: "private" },
+    date: 1_699_999_999,
+    from: { first_name: "Reply", id: 18, is_bot: false },
+    message_id: 9_999,
+    photo: [photo],
+    text: "nested reply",
+  };
+  return {
+    ...workload,
+    entries: workload.entries.map((entry) => {
+      if (entry.kind === "callback") {
+        const callback = entry.update["callback_query"];
+        if (typeof callback !== "object" || callback === null) {
+          throw new Error("Callback fixture is missing");
+        }
+        return {
+          ...entry,
+          update: {
+            ...entry.update,
+            callback_query: {
+              ...callback,
+              message: {
+                ...reply,
+                message_id: entry.updateId,
+                reply_markup: {
+                  inline_keyboard: [[{ callback_data: entry.payload, text: "Choose" }]],
+                },
+              },
+            },
+          },
+        };
+      }
+      const message = entry.update["message"];
+      if (typeof message !== "object" || message === null) {
+        throw new Error("Message fixture is missing");
+      }
+      return {
+        ...entry,
+        update: {
+          ...entry.update,
+          message: {
+            ...message,
+            forward_origin: {
+              date: 1_699_999_998,
+              sender_user: { first_name: "Forwarded", id: 19, is_bot: false },
+              type: "user",
+            },
+            photo: [photo, { ...photo, height: 1080, width: 1920 }],
+            reply_to_message: reply,
+          },
+        },
+      };
+    }),
+  };
+}
+
 export function expectedTotals(
   entries: ReadonlyArray<WorkloadEntry>,
   operations: number,

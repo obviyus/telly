@@ -21,6 +21,7 @@ export function parseArguments(argv) {
     operations: Number(values.operations),
     rounds: Number(values.rounds),
     startup: values.startup === "true",
+    warmupOperations: Number(values["warmup-operations"] ?? values.operations),
     warmups: Number(values.warmups),
     workload: values.workload,
   };
@@ -73,6 +74,9 @@ export async function runFramework(options) {
   if (!Number.isSafeInteger(args.warmups) || args.warmups < 0) {
     throw new RangeError("warmups must be a non-negative integer");
   }
+  if (!Number.isSafeInteger(args.warmupOperations) || args.warmupOperations < 1) {
+    throw new RangeError("warmup operations must be a positive integer");
+  }
   if (args.workload === undefined) throw new Error("Missing workload path");
   const source = await readFile(args.workload, "utf8");
   const entries = JSON.parse(source).entries;
@@ -100,11 +104,11 @@ export async function runFramework(options) {
     : options.dispatchIngress;
   if (dispatch === undefined) throw new Error(`Unsupported mode: ${args.mode}`);
 
-  const runRound = async (measureLatency) => {
+  const runRound = async (measureLatency, operations = args.operations) => {
     options.reset();
-    const latencyNs = measureLatency ? new Array(args.operations) : undefined;
+    const latencyNs = measureLatency ? new Array(operations) : undefined;
     const started = process.hrtime.bigint();
-    for (let index = 0; index < args.operations; index += 1) {
+    for (let index = 0; index < operations; index += 1) {
       const entry = prepared[index % prepared.length];
       const operationStarted = measureLatency ? process.hrtime.bigint() : undefined;
       await dispatch(entry);
@@ -114,7 +118,7 @@ export async function runFramework(options) {
     }
     const durationNs = Number(process.hrtime.bigint() - started);
     const actual = options.metrics();
-    const wanted = expected(entries, args.operations);
+    const wanted = expected(entries, operations);
     assertMetrics(actual, wanted);
     return {
       latencyNs,
@@ -126,12 +130,14 @@ export async function runFramework(options) {
           text: actual.text,
         },
         durationNs,
-        operations: args.operations,
+        operations,
       },
     };
   };
 
-  for (let round = 0; round < args.warmups; round += 1) await runRound(false);
+  for (let round = 0; round < args.warmups; round += 1) {
+    await runRound(false, args.warmupOperations);
+  }
   if (args.mode === "latency") {
     const measured = await runRound(true);
     console.log(JSON.stringify(await result(options, args.mode, [measured.round], measured.latencyNs)));

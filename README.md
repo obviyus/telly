@@ -232,15 +232,15 @@ BOT_TOKEN=... bun run ./examples/superseriousbot/bot.ts
 
 A public suite under [`benchmarks/`](./benchmarks/README.md) races Telly, grammY, and python-telegram-bot through the same deterministic Telegram update workload. The primary score starts from a parsed update object and includes each framework's native update construction or validation, routing, and awaited handler completion. It excludes JSON parsing, network time, and user handler work.
 
-grammY wins this workload by a wide margin. Telly validates every update into its public schema on this path and is not optimized yet; the vision targets first place, and this baseline is the measured starting point.
+Telly wins primary throughput by 26%, all three latency percentiles, and median peak memory while validating every update into its public schema. grammY still starts faster and installs fewer bytes; those costs remain visible below and in the full report.
 
-**This baseline is noisy.** Throughput variation was 6.6% to 9.0% across frameworks, above the 5% target, so do not use it for tight regression decisions.
+This baseline passed the suite's noise gate. Throughput variation was 2.8% for Telly and 4.1% for grammY.
 
 | Framework | Updates/s | CV | p50 latency | Median peak RSS | Cold startup |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Telly | 31,670 | 9.0% | 32 µs | 229.3 MiB | 246.0 ms |
-| grammY | 727,004 | 6.6% | 1.4 µs | 141.7 MiB | 45.3 ms |
-| python-telegram-bot | 25,596 | 7.1% | 37 µs | 41.1 MiB | 144.8 ms |
+| Telly | 963,701 | 2.8% | 1.0 µs | 124.9 MiB | 159.3 ms |
+| grammY | 762,869 | 4.1% | 1.3 µs | 138.4 MiB | 44.7 ms |
+| python-telegram-bot | 28,080 | 4.0% | 37 µs | 41.4 MiB | 145.0 ms |
 
 CV is the coefficient of variation across throughput rounds. Peak RSS compares Telly with grammY directly under Node; the Python value describes the full Python stack.
 
@@ -250,7 +250,7 @@ bun run bench
 bun run bench:baseline --pin <idle-cpu>
 ```
 
-[`benchmarks/README.md`](./benchmarks/README.md) documents the method, the correctness contract, and how to read results honestly. The full baseline, including diagnostics, raw samples, and environment data, is [checked in](./benchmarks/baselines/2026-09-01T06-29-06-b0c65739-full.md).
+[`benchmarks/README.md`](./benchmarks/README.md) documents the method, the correctness contract, and how to read results honestly. The full baseline, including diagnostics, raw samples, and environment data, is [checked in](./benchmarks/baselines/2026-09-01T07-28-39-574fbca4-full.md).
 
 ## Bot API schema
 

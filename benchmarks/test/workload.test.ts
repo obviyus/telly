@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 
-import { expectedTotals, makeWorkload } from "../orchestrator/workload.ts";
+import {
+  expectedTotals,
+  makeHeavyWorkload,
+  makeWorkload,
+} from "../orchestrator/workload.ts";
 
 test("mixed workload is deterministic with the declared 70-20-10 shape", () => {
   const first = makeWorkload({ fixtureCount: 100, seed: 20260901 });
@@ -11,6 +15,26 @@ test("mixed workload is deterministic with the declared 70-20-10 shape", () => {
     callback: 10,
     command: 20,
     text: 70,
+  });
+});
+
+test("complex workload preserves routing totals while adding nested Telegram data", () => {
+  const workload = makeHeavyWorkload({ fixtureCount: 100, seed: 20260901 });
+  const text = workload.entries.find((entry) => entry.kind === "text");
+  const callback = workload.entries.find((entry) => entry.kind === "callback");
+
+  expect(expectedTotals(workload.entries, 100)).toMatchObject({
+    callback: 10,
+    command: 20,
+    text: 70,
+  });
+  expect(text?.update["message"]).toMatchObject({
+    forward_origin: { type: "user" },
+    photo: [{ height: 720 }, { height: 1080 }],
+    reply_to_message: { text: "nested reply" },
+  });
+  expect(callback?.update["callback_query"]).toMatchObject({
+    message: { reply_markup: { inline_keyboard: [[{ text: "Choose" }]] } },
   });
 });
 

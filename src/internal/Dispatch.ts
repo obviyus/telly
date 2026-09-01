@@ -1,11 +1,9 @@
-import {
-  Deferred,
-  Effect,
-  Exit,
-  FiberSet,
-  Schema,
-  Scope,
-} from "effect";
+import * as Deferred from "effect/Deferred";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as FiberSet from "effect/FiberSet";
+import * as Schema from "effect/Schema";
+import * as Scope from "effect/Scope";
 
 import { Bot } from "../BotApi.js";
 import type { Update } from "../types.generated.js";

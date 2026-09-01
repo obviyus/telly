@@ -1,4 +1,5 @@
-import { Exit, Schema } from "effect";
+import * as Exit from "effect/Exit";
+import * as Schema from "effect/Schema";
 
 import { Filter, type CallbackQueryMatch } from "./Routing.js";
 import type { InlineKeyboardButton } from "./types.generated.js";
