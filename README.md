@@ -161,20 +161,23 @@ A conversation stores one schema-checked step for each chat and user. Successful
 
 ```ts
 const order = conversation({
-  handlers: (step) => ({
-    confirm: step.confirm(choice, ({ data }, state) =>
-      Effect.succeed(data.answer === "yes"
-        ? Conversation.next("note", state)
-        : Conversation.end())),
-    note: step.note(text(), ({ message, text }, state) =>
-      respond(message, `Order ${state.orderId}: ${text}`).pipe(
-        Effect.as(Conversation.end()),
-      )),
-  }),
   name: "order",
-  states: {
-    confirm: Schema.Struct({ orderId: Schema.Int }),
-    note: Schema.Struct({ orderId: Schema.Int }),
+  steps: {
+    confirm: Conversation.step({
+      filter: choice,
+      run: ({ data }, state) => Effect.succeed(data.answer === "yes"
+        ? Conversation.next("note", state)
+        : Conversation.end()),
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
+    note: Conversation.step({
+      filter: text(),
+      run: ({ message, text }, state) =>
+        respond(message, `Order ${state.orderId}: ${text}`).pipe(
+          Effect.as(Conversation.end()),
+        ),
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
   },
   store: await SqliteConversations.open("./telly.db"),
 });

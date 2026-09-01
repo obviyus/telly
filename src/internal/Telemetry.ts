@@ -18,6 +18,9 @@ type BotApiOutcome =
   | "rejected_5xx"
   | "transport";
 type DispatchOutcome = "failed" | "interrupted" | "ok";
+type DurableSettlement =
+  | { readonly _tag: "Done" | "Interrupted" | "Retry" }
+  | { readonly _tag: "Parked"; readonly reason: string };
 type SettlementOutcome = "done" | "interrupted" | "parked" | "retry";
 type SettlementStore = "inbox" | "jobs";
 type WebhookResult =
@@ -130,6 +133,19 @@ function webhookResult(status: number): WebhookResult {
   }
 }
 
+function settlementOutcome(settlement: DurableSettlement): SettlementOutcome {
+  switch (settlement._tag) {
+    case "Done":
+      return "done";
+    case "Interrupted":
+      return "interrupted";
+    case "Parked":
+      return "parked";
+    case "Retry":
+      return "retry";
+  }
+}
+
 export function trackBotApiRequest<A>(
   method: string,
   effect: Effect.Effect<A, BotApiError>,
@@ -237,9 +253,9 @@ export function recordInboxSave(result: "Duplicate" | "Full" | "Stored") {
 
 export function recordSettlement(
   store: SettlementStore,
-  outcome: SettlementOutcome,
-  parkedReason?: string,
+  settlement: DurableSettlement,
 ) {
+  const outcome = settlementOutcome(settlement);
   const counter = cached(
     settlementCounters,
     `${store}:${outcome}`,
@@ -247,10 +263,10 @@ export function recordSettlement(
   );
   return Metric.update(counter, 1).pipe(
     Effect.andThen(
-      outcome === "parked"
+      settlement._tag === "Parked"
         ? Effect.logWarning("Telegram durable work parked").pipe(
             Effect.annotateLogs({
-              ...(parkedReason === undefined ? {} : { reason: parkedReason }),
+              reason: settlement.reason,
               store,
             }),
           )

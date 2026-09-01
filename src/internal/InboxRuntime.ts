@@ -14,6 +14,7 @@ import {
   InboxStore,
   type InboxOptions,
   type InboxSaveResult,
+  type InboxSettlement,
   type InboxStoreError,
 } from "../Inbox.js";
 import type { UpdateHandler } from "../Polling.js";
@@ -30,13 +31,13 @@ export const inboxDefaults = {
   leaseMs: 30_000,
   maxAttempts: 5,
   pollIntervalMs: 100,
+  retryBaseMs: 1_000,
+  retryMaxMs: 60_000,
 } as const;
 
-export interface InboxRuntimeOptions extends InboxOptions {
-  /** @internal */ readonly wake?: InboxWake;
-}
+export type ResolvedInboxOptions = Required<InboxOptions>;
 
-interface InboxWake {
+export interface InboxWake {
   readonly current: () => number;
   readonly signal: Effect.Effect<void>;
   readonly wait: (version: number) => Effect.Effect<void>;
@@ -63,43 +64,66 @@ export function makeInboxWake(): InboxWake {
   };
 }
 
+export function resolveInboxOptions(options: InboxOptions = {}): ResolvedInboxOptions {
+  return {
+    capacity: options.capacity ?? inboxDefaults.capacity,
+    concurrency: options.concurrency ?? inboxDefaults.concurrency,
+    conversationKey: options.conversationKey ?? defaultConversationKey,
+    doneRetentionMs: options.doneRetentionMs ?? inboxDefaults.doneRetentionMs,
+    gracePeriodMs: options.gracePeriodMs ?? inboxDefaults.gracePeriodMs,
+    leaseMs: options.leaseMs ?? inboxDefaults.leaseMs,
+    maxAttempts: options.maxAttempts ?? inboxDefaults.maxAttempts,
+    retryBaseMs: options.retryBaseMs ?? inboxDefaults.retryBaseMs,
+    retryMaxMs: options.retryMaxMs ?? inboxDefaults.retryMaxMs,
+  };
+}
+
 export const saveInboxUpdate = Effect.fn("saveInboxUpdate")(function* (
   update: typeof Update.Type,
-  options: InboxRuntimeOptions = {},
+  options: ResolvedInboxOptions,
+  wake: InboxWake,
 ): Effect.fn.Return<InboxSaveResult, InboxStoreError, Bot | InboxStore> {
   const bot = yield* Bot;
   const store = yield* InboxStore;
-  const key = String((options.conversationKey ?? defaultConversationKey)(update));
+  const key = String(options.conversationKey(update));
   const payload = yield* Schema.encodeEffect(Update)(update).pipe(Effect.orDie);
   const saved = yield* store.save({
     botId: bot.id,
-    capacity: options.capacity ?? inboxDefaults.capacity,
+    capacity: options.capacity,
     conversationKey: key,
     payload,
     updateId: update.updateId,
   });
   yield* recordInboxSave(saved._tag);
-  if (saved._tag !== "Full" && options.wake !== undefined) yield* options.wake.signal;
+  if (saved._tag !== "Full") yield* wake.signal;
   return saved;
 });
 
-function retryDelay(attempts: number, options: InboxRuntimeOptions): number {
+function retryDelay(attempts: number, options: ResolvedInboxOptions): number {
   return Math.min(
-    options.retryMaxMs ?? 60_000,
-    (options.retryBaseMs ?? 1_000) * 2 ** Math.max(0, attempts - 1),
+    options.retryMaxMs,
+    options.retryBaseMs * 2 ** Math.max(0, attempts - 1),
   );
+}
+
+function failedSettlement(
+  attempts: number,
+  options: ResolvedInboxOptions,
+  reason: string,
+): Extract<InboxSettlement, { readonly _tag: "Parked" | "Retry" }> {
+  return attempts >= options.maxAttempts
+    ? { _tag: "Parked", reason }
+    : { _tag: "Retry", delayMs: retryDelay(attempts, options) };
 }
 
 export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
   handler: UpdateHandler<E>,
-  options: InboxRuntimeOptions = {},
+  options: ResolvedInboxOptions,
+  wake: InboxWake,
 ): Effect.fn.Return<never, InboxStoreError, Bot | InboxStore> {
   const bot = yield* Bot;
   const store = yield* InboxStore;
-  const concurrency = options.concurrency ?? inboxDefaults.concurrency;
-  const gracePeriodMs = options.gracePeriodMs ?? inboxDefaults.gracePeriodMs;
-  const leaseMs = options.leaseMs ?? inboxDefaults.leaseMs;
-  const maxAttempts = options.maxAttempts ?? inboxDefaults.maxAttempts;
+  const { concurrency, doneRetentionMs, gracePeriodMs, leaseMs, maxAttempts } = options;
   yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
   const standby = Effect.forever(
@@ -112,41 +136,31 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
         return Effect.gen(function* () {
           yield* store.prune({
             botId: bot.id,
-            doneAgeMs: options.doneRetentionMs ?? inboxDefaults.doneRetentionMs,
+            doneAgeMs: doneRetentionMs,
           });
+          const settle = (updateId: number, outcome: InboxSettlement) =>
+            store.settle({
+              botId: bot.id,
+              fencingToken: token,
+              outcome,
+              updateId,
+            }).pipe(
+              Effect.tap(() => recordSettlement("inbox", outcome)),
+              Effect.tap(() => wake.signal),
+            );
           const claimed = new Map<number, { readonly attempts: number }>();
           const trackedHandler: UpdateHandler<DispatchLeaseLost | InboxStoreError, void> = (update) => {
             const item = claimed.get(update.updateId);
             if (item === undefined) return Effect.die(new Error("Claimed update is missing"));
             return Effect.result(handler(update)).pipe(
-              Effect.flatMap((result) =>
-                store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  outcome: Result.isSuccess(result)
-                    ? { _tag: "Done" }
-                    : item.attempts >= maxAttempts
-                    ? { _tag: "Parked", reason: "attempts-exhausted" }
-                    : { _tag: "Retry", delayMs: retryDelay(item.attempts, options) },
-                  updateId: update.updateId,
-                }).pipe(
-                  Effect.tap(() => {
-                    if (Result.isSuccess(result)) return recordSettlement("inbox", "done");
-                    return item.attempts >= maxAttempts
-                      ? recordSettlement("inbox", "parked", "attempts-exhausted")
-                      : recordSettlement("inbox", "retry");
-                  }),
-                  Effect.tap(() => options.wake?.signal ?? Effect.void),
-                )
-              ),
+              Effect.flatMap((result) => settle(
+                update.updateId,
+                Result.isSuccess(result)
+                  ? { _tag: "Done" }
+                  : failedSettlement(item.attempts, options, "attempts-exhausted"),
+              )),
               Effect.onInterrupt(() =>
-                store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  outcome: { _tag: "Interrupted" },
-                  updateId: update.updateId,
-                }).pipe(
-                  Effect.tap(() => recordSettlement("inbox", "interrupted")),
+                settle(update.updateId, { _tag: "Interrupted" }).pipe(
                   Effect.catchTag("DispatchLeaseLost", () => Effect.void),
                   Effect.catchTag("InboxStoreError", () => Effect.void),
                 )
@@ -158,49 +172,37 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
           };
           const dispatcher = yield* makeDispatcher(trackedHandler, {
             concurrency,
-            conversationKey: options.conversationKey ?? defaultConversationKey,
+            conversationKey: options.conversationKey,
             gracePeriodMs,
             source: "inbox",
           });
 
           const pump = Effect.forever(Effect.gen(function* () {
             const available = yield* dispatcher.awaitCapacity;
-            const wakeVersion = options.wake?.current();
+            const wakeVersion = wake.current();
             const items = yield* store.claim({
               botId: bot.id,
               fencingToken: token,
               limit: available,
             });
             if (items.length === 0) {
-              yield* wakeVersion === undefined
-                ? Effect.sleep(inboxDefaults.pollIntervalMs)
-                : options.wake?.wait(wakeVersion) ?? Effect.void;
+              yield* wake.wait(wakeVersion);
               return;
             }
             for (const item of items) {
               if (item.attempts > maxAttempts) {
-                yield* store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  outcome: { _tag: "Parked", reason: "attempts-exhausted" },
-                  updateId: item.updateId,
-                }).pipe(
-                  Effect.tap(() =>
-                    recordSettlement("inbox", "parked", "attempts-exhausted")
-                  ),
-                );
+                yield* settle(item.updateId, {
+                  _tag: "Parked",
+                  reason: "attempts-exhausted",
+                });
                 continue;
               }
               const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(item.payload));
               if (Result.isFailure(decoded)) {
-                yield* store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  outcome: { _tag: "Parked", reason: "invalid-update" },
-                  updateId: item.updateId,
-                }).pipe(
-                  Effect.tap(() => recordSettlement("inbox", "parked", "invalid-update")),
-                );
+                yield* settle(item.updateId, {
+                  _tag: "Parked",
+                  reason: "invalid-update",
+                });
                 continue;
               }
               claimed.set(item.updateId, { attempts: item.attempts });
@@ -223,7 +225,7 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             Effect.sleep(3_600_000).pipe(
               Effect.andThen(store.prune({
                 botId: bot.id,
-                doneAgeMs: options.doneRetentionMs ?? inboxDefaults.doneRetentionMs,
+                doneAgeMs: doneRetentionMs,
               })),
             ),
           );
@@ -267,18 +269,20 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
 export const makeInboxWebhook = Effect.fn("makeInboxWebhook")(function* <E>(
   handler: UpdateHandler<E>,
   secretToken: string | Redacted.Redacted<string>,
-  options: InboxRuntimeOptions = {},
+  options: InboxOptions = {},
 ): Effect.fn.Return<WebhookRuntime<InboxStoreError>, never, Bot | InboxStore> {
   const bot = yield* Bot;
   const store = yield* InboxStore;
+  const resolved = resolveInboxOptions(options);
+  const wake = makeInboxWake();
   const scope = yield* Scope.make("parallel");
-  const worker = yield* Effect.forkIn(runInboxWorker(handler, options), scope);
+  const worker = yield* Effect.forkIn(runInboxWorker(handler, resolved, wake), scope);
   let accepting = true;
   let stopping: Deferred.Deferred<void> | undefined;
 
   const receive = makeWebhookFetch(
     secretToken,
-    (update) => saveInboxUpdate(update, options).pipe(
+    (update) => saveInboxUpdate(update, resolved, wake).pipe(
       Effect.map((saved) => saved._tag === "Full" ? 503 : 200),
       Effect.catchTag("InboxStoreError", (error) =>
         Effect.logError("Telegram inbox save failed").pipe(

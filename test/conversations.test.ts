@@ -66,23 +66,27 @@ const choice = callbackData("order", Schema.Struct({
 
 function orderConversation(store: ConversationStoreService) {
   return conversation({
-    handlers: (step) => ({
-      confirm: step.confirm(choice, ({ callbackQuery: query, data }, state) => {
-        if (data.answer === "no") return Effect.succeed(Conversation.end());
-        if (query.message === undefined) return Effect.void;
-        return respond(query.message, "Send a kitchen note.").pipe(
-          Effect.as(Conversation.next("note", state)),
-        );
-      }),
-      note: step.note(text(), ({ message, text: note }, state) =>
-        respond(message, `Order ${state.orderId}: ${note}`).pipe(
-          Effect.as(Conversation.end()),
-        )),
-    }),
     name: "order",
-    states: {
-      confirm: Schema.Struct({ orderId: Schema.Int }),
-      note: Schema.Struct({ orderId: Schema.Int }),
+    steps: {
+      confirm: Conversation.step({
+        filter: choice,
+        run: ({ callbackQuery: query, data }, state) => {
+          if (data.answer === "no") return Effect.succeed(Conversation.end());
+          if (query.message === undefined) return Effect.void;
+          return respond(query.message, "Send a kitchen note.").pipe(
+            Effect.as(Conversation.next("note", state)),
+          );
+        },
+        state: Schema.Struct({ orderId: Schema.Int }),
+      }),
+      note: Conversation.step({
+        filter: text(),
+        run: ({ message, text: note }, state) =>
+          respond(message, `Order ${state.orderId}: ${note}`).pipe(
+            Effect.as(Conversation.end()),
+          ),
+        state: Schema.Struct({ orderId: Schema.Int }),
+      }),
     },
     store,
   });
@@ -227,11 +231,14 @@ test("a command can exit an active conversation when its step does not match", a
 test("conversation handler failure leaves its persisted version unchanged", async () => {
   const store = MemoryConversations.make();
   const failing = conversation({
-    handlers: (step) => ({
-      active: step.active(text(), () => Effect.fail("handler failed")),
-    }),
     name: "failing",
-    states: { active: Schema.Struct({ value: Schema.Int }) },
+    steps: {
+      active: Conversation.step({
+        filter: text(),
+        run: () => Effect.fail("handler failed"),
+        state: Schema.Struct({ value: Schema.Int }),
+      }),
+    },
     store,
   });
   const fake = FakeBotApi.make({ token });
