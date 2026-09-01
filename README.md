@@ -134,6 +134,52 @@ try {
 
 Pass the same `secretToken` to Telegram's `setWebhook` method. Telly rejects missing or incorrect secrets before reading the request body.
 
+## Durable jobs
+
+Define each job with a stable name and payload schema. The application runs due jobs beside polling or webhook delivery.
+
+```ts
+import {
+  Application,
+  defineBot,
+  defineJobs,
+  job,
+  Schema,
+  sendMessage,
+  SqliteJobs,
+} from "telly";
+
+const store = await SqliteJobs.open("./telly.db");
+const jobs = defineJobs({
+  reminder: job({
+    payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
+    run: ({ chatId, text }) => sendMessage({ chatId, text }),
+  }),
+}, { store });
+const token = process.env.BOT_TOKEN;
+if (token === undefined) throw new Error("Set BOT_TOKEN");
+const app = Application.make({ jobs, token });
+const bot = defineBot({});
+
+await app.run(jobs.schedule("reminder", {
+  after: "10 minutes",
+  payload: { chatId: 123, text: "Stand up." },
+}));
+await app.runPolling(bot);
+```
+
+Add `every` for fixed-interval work. Repeating jobs default to their definition name as the durable identifier. Completed identifiers remain idempotent for the configured retention period. Job delivery is at least once, so external side effects should use the job identifier as an idempotency key when possible.
+
+[`examples/jobs/bot.ts`](./examples/jobs/bot.ts) is a complete reminder bot. An application processes jobs only while its polling or webhook runtime is active.
+
+## First real consumer
+
+[`examples/superseriousbot`](./examples/superseriousbot) ports SuperSeriousBot's reply-based `sed` feature. It composes `repliedMessage` and `regex`, replies to the original message, and runs through the durable SQLite inbox.
+
+```bash
+BOT_TOKEN=... bun run ./examples/superseriousbot/bot.ts
+```
+
 ## Bot API schema
 
 Development uses Bun 1.4. Published packages run on supported Node.js versions without Bun.

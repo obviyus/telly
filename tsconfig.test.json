@@ -6,6 +6,7 @@
   "exclude": [],
   "include": [
     "bot-api/schema/**/*.test.ts",
+    "examples/**/*.ts",
     "scripts/build.ts",
     "test/**/*.test.ts",
     "test/**/*.typecheck.ts"

@@ -8,7 +8,6 @@ import {
 } from "effect";
 
 import { Bot } from "../BotApi.js";
-import type { UpdateHandler } from "../Polling.js";
 import type { Update } from "../types.generated.js";
 
 export class DispatchFull extends Schema.TaggedError<DispatchFull>()(
@@ -16,20 +15,20 @@ export class DispatchFull extends Schema.TaggedError<DispatchFull>()(
   {},
 ) {}
 
-export interface DispatchOptions {
+export interface DispatchOptions<Item> {
   readonly concurrency: number;
-  readonly conversationKey: (update: Update) => number | string;
+  readonly conversationKey: (item: Item) => number | string;
   readonly gracePeriodMs: number;
 }
 
-export interface Dispatcher<E, A = unknown> {
+export interface Dispatcher<Item, E, A = unknown> {
   readonly awaitCapacity: Effect.Effect<number>;
   readonly awaitCompletion: Effect.Effect<void>;
   readonly cancel: Effect.Effect<void>;
   readonly drain: Effect.Effect<void>;
   readonly join: Effect.Effect<never, E>;
   readonly submit: (
-    update: Update,
+    item: Item,
     conversationKey?: number | string,
   ) => Effect.Effect<Effect.Effect<Exit.Exit<A, E>>, DispatchFull, Bot>;
 }
@@ -78,10 +77,10 @@ export function defaultConversationKey(update: Update): number | string {
   return `update:${update.updateId}`;
 }
 
-export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E, A>(
-  handler: UpdateHandler<E, A>,
-  options: DispatchOptions,
-): Effect.fn.Return<Dispatcher<E, A>> {
+export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>(
+  handler: (item: Item) => Effect.Effect<A, E, Bot>,
+  options: DispatchOptions<Item>,
+): Effect.fn.Return<Dispatcher<Item, E, A>> {
   if (!Number.isInteger(options.concurrency) || options.concurrency < 1) {
     throw new RangeError("Dispatch concurrency must be a positive integer");
   }
@@ -107,10 +106,10 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E, A>(
     active === 0 ? Effect.void : Deferred.await(nextCompletion)
   );
 
-  const submit = (update: Update, conversationKey?: number | string) =>
+  const submit = (item: Item, conversationKey?: number | string) =>
     Effect.suspend(() => {
       if (!accepting || active >= options.concurrency) return Effect.fail(new DispatchFull());
-      const key = conversationKey ?? options.conversationKey(update);
+      const key = conversationKey ?? options.conversationKey(item);
       let lane = lanes.get(key);
       if (lane === undefined) {
         const tail = Deferred.makeUnsafe<void>();
@@ -126,7 +125,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <E, A>(
       active += 1;
 
       const task = Deferred.await(previous).pipe(
-        Effect.andThen(Effect.suspend(() => handler(update))),
+        Effect.andThen(Effect.suspend(() => handler(item))),
         Effect.onExit((exit) =>
           Effect.sync(() => {
             Deferred.doneUnsafe(result, Effect.succeed(exit));

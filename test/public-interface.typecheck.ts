@@ -6,17 +6,21 @@ import {
   BotApiError,
   command,
   defineBot,
+  defineJobs,
   every,
   Filter,
   InboxStore,
+  job,
   media,
   MemoryInbox,
+  MemoryJobs,
   getMe,
   getMyName,
   on,
   pollInboxUpdates,
   retryUnknownOutcome,
   routes,
+  Schema,
   SqliteInbox,
   type PhotoSize,
   type Update,
@@ -93,3 +97,16 @@ SqliteInbox.open("telly.db").then((inbox) => {
   Application.make({ inbox, token });
   inbox.close();
 });
+
+const jobs = defineJobs({
+  reminder: job({
+    payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
+    run: () => firstHandlerEffect,
+  }),
+}, { store: MemoryJobs.make() });
+jobs.schedule("reminder", { payload: { chatId: 1, text: "typed" } });
+// @ts-expect-error Job payloads are inferred from their definition schema.
+jobs.schedule("reminder", { payload: { chatId: "wrong", text: "typed" } });
+// @ts-expect-error Only declared job names can be scheduled.
+jobs.schedule("missing", { payload: { chatId: 1, text: "typed" } });
+Application.make({ jobs, token });

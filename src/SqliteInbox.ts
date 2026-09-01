@@ -1,4 +1,4 @@
-import type { Client, Value } from "@libsql/client";
+import type { Client } from "@libsql/client";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -11,9 +11,13 @@ import {
   type InboxSettlement,
   type InboxStoreService,
 } from "./Inbox.js";
-
-const nowSql = "CAST(unixepoch('subsec') * 1000 AS INTEGER)";
-const databaseLocks = new Map<string, Promise<void>>();
+import {
+  sqliteCurrentTime,
+  sqliteInteger,
+  sqliteText,
+  withDatabaseLock,
+  writeTransaction,
+} from "./internal/Sqlite.js";
 
 const schema = [
   `CREATE TABLE IF NOT EXISTS telly_inbox_meta (
@@ -77,56 +81,6 @@ function runFenced<A>(operation: string, run: () => Promise<A>) {
   });
 }
 
-async function writeTransaction<A>(client: Client, run: (tx: Client) => Promise<A>) {
-  await client.execute("BEGIN IMMEDIATE");
-  try {
-    const result = await run(client);
-    await client.execute("COMMIT");
-    return result;
-  } catch (error) {
-    try {
-      await client.execute("ROLLBACK");
-    } catch (rollbackError) {
-      throw new AggregateError([error, rollbackError], "SQLite transaction rollback failed");
-    }
-    throw error;
-  }
-}
-
-async function withDatabaseLock<A>(key: string, run: () => Promise<A>): Promise<A> {
-  const previous = databaseLocks.get(key) ?? Promise.resolve();
-  let unlock: () => void = () => {};
-  const current = new Promise<void>((resolve) => {
-    unlock = resolve;
-  });
-  databaseLocks.set(key, current);
-  await previous;
-  try {
-    return await run();
-  } finally {
-    unlock();
-    if (databaseLocks.get(key) === current) databaseLocks.delete(key);
-  }
-}
-
-function integer(value: Value | undefined, name: string): number {
-  const number = typeof value === "bigint" ? Number(value) : value;
-  if (typeof number !== "number" || !Number.isSafeInteger(number)) {
-    throw new TypeError(`${name} must be a safe integer`);
-  }
-  return number;
-}
-
-function text(value: Value | undefined, name: string): string {
-  if (typeof value !== "string") throw new TypeError(`${name} must be text`);
-  return value;
-}
-
-async function currentTime(tx: Client): Promise<number> {
-  const result = await tx.execute(`SELECT ${nowSql} AS now_ms`);
-  return integer(result.rows[0]?.["now_ms"], "now_ms");
-}
-
 async function requireLease(
   tx: Client,
   botId: number,
@@ -141,8 +95,8 @@ async function requireLease(
   const row = result.rows[0];
   if (
     row === undefined ||
-    integer(row["fencing_token"], "fencing_token") !== fencingToken ||
-    integer(row["expires_at_ms"], "expires_at_ms") <= now
+    sqliteInteger(row["fencing_token"], "fencing_token") !== fencingToken ||
+    sqliteInteger(row["expires_at_ms"], "expires_at_ms") <= now
   ) {
     throw new DispatchLeaseLost({ botId });
   }
@@ -187,7 +141,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     const version = await client.execute(
       "SELECT schema_version FROM telly_inbox_meta WHERE singleton = 1",
     );
-    if (integer(version.rows[0]?.["schema_version"], "schema_version") !== 1) {
+    if (sqliteInteger(version.rows[0]?.["schema_version"], "schema_version") !== 1) {
       throw new Error("Unsupported Telly inbox schema version");
     }
   });
@@ -196,18 +150,18 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
 
   return {
     acquire: (options) => runStore("acquire", () => write(async (tx) => {
-      const now = await currentTime(tx);
+      const now = await sqliteCurrentTime(tx);
       const current = await tx.execute({
         sql: "SELECT fencing_token, expires_at_ms FROM telly_inbox_leases WHERE bot_id = ?",
         args: [options.botId],
       });
       const row = current.rows[0];
-      if (row !== undefined && integer(row["expires_at_ms"], "expires_at_ms") > now) {
+      if (row !== undefined && sqliteInteger(row["expires_at_ms"], "expires_at_ms") > now) {
         return { _tag: "Held" } as const;
       }
       const fencingToken = (row === undefined
         ? 0
-        : integer(row["fencing_token"], "fencing_token")) + 1;
+        : sqliteInteger(row["fencing_token"], "fencing_token")) + 1;
       await tx.execute({
         sql: `INSERT INTO telly_inbox_leases (bot_id, fencing_token, expires_at_ms)
           VALUES (?, ?, ?)
@@ -220,7 +174,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     })),
 
     claim: (options) => runFenced("claim", () => write(async (tx) => {
-      const now = await currentTime(tx);
+      const now = await sqliteCurrentTime(tx);
       await requireLease(tx, options.botId, options.fencingToken, now);
       const result = await tx.execute({
         sql: `SELECT u.update_id, u.conversation_key, u.payload, u.attempts
@@ -242,8 +196,8 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
       });
       const claimed: Array<ClaimedUpdate> = [];
       for (const row of result.rows) {
-        const updateId = integer(row["update_id"], "update_id");
-        const attempts = integer(row["attempts"], "attempts") + 1;
+        const updateId = sqliteInteger(row["update_id"], "update_id");
+        const attempts = sqliteInteger(row["attempts"], "attempts") + 1;
         await tx.execute({
           sql: `UPDATE telly_inbox_updates
             SET state = 'running', running_token = ?, attempts = ?
@@ -252,8 +206,8 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
         });
         claimed.push({
           attempts,
-          conversationKey: text(row["conversation_key"], "conversation_key"),
-          payload: JSON.parse(text(row["payload"], "payload")),
+          conversationKey: sqliteText(row["conversation_key"], "conversation_key"),
+          payload: JSON.parse(sqliteText(row["payload"], "payload")),
           updateId,
         });
       }
@@ -261,7 +215,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     })),
 
     prune: (options) => runStore("prune", () => write(async (tx) => {
-      const now = await currentTime(tx);
+      const now = await sqliteCurrentTime(tx);
       await tx.execute({
         sql: `DELETE FROM telly_inbox_updates
           WHERE bot_id = ? AND state = 'done' AND terminal_time_ms <= ?`,
@@ -278,7 +232,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     })),
 
     renew: (options) => runFenced("renew", () => write(async (tx) => {
-      const now = await currentTime(tx);
+      const now = await sqliteCurrentTime(tx);
       await requireLease(tx, options.botId, options.fencingToken, now);
       await tx.execute({
         sql: `UPDATE telly_inbox_leases SET expires_at_ms = ?
@@ -298,7 +252,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
           WHERE bot_id = ? AND state IN ('pending', 'running')`,
         args: [options.botId],
       });
-      if (integer(depth.rows[0]?.["depth"], "depth") >= options.capacity) {
+      if (sqliteInteger(depth.rows[0]?.["depth"], "depth") >= options.capacity) {
         return { _tag: "Full" } as const;
       }
       const payload = JSON.stringify(options.payload);
@@ -313,7 +267,7 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     })),
 
     settle: (options) => runFenced("settle", () => write(async (tx) => {
-      const now = await currentTime(tx);
+      const now = await sqliteCurrentTime(tx);
       await requireLease(tx, options.botId, options.fencingToken, now);
       const update = settlementUpdate(options.outcome, now);
       await tx.execute({

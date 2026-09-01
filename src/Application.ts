@@ -10,23 +10,31 @@ import {
   type InboxStoreError,
   type InboxStoreService,
 } from "./Inbox.js";
+import { type Jobs, type JobStoreError } from "./Jobs.js";
 import {
   makeInboxWebhook,
   makeInboxWake,
 } from "./internal/InboxRuntime.js";
+import { runJobWorker } from "./internal/JobRuntime.js";
 import {
   pollInboxUpdates,
   pollUpdates,
   type PollingOptions,
   type UpdateHandler,
 } from "./Polling.js";
-import { makeWebhook, type Webhook, type WebhookOptions } from "./Webhook.js";
+import {
+  makeWebhook,
+  type Webhook,
+  type WebhookOptions,
+  type WebhookRuntime,
+} from "./Webhook.js";
 
 export interface ApplicationOptions {
   readonly apiRoot?: string;
   readonly httpClient?: Layer.Layer<HttpClient.HttpClient>;
   readonly inbox?: InboxStoreService;
   readonly inboxOptions?: InboxOptions;
+  readonly jobs?: Jobs;
   readonly rateLimit?: boolean;
   readonly token: string | Redacted.Redacted<string>;
 }
@@ -80,18 +88,27 @@ export const Application = {
       pollingOptions?: PollingOptions,
     ): Polling => {
       if (activeStop !== undefined) throw new Error("Application already has an active runtime");
-      const fiber: Fiber.Fiber<never, E | BotApiError | InboxStoreError> =
+      const updates: Effect.Effect<
+        never,
+        E | BotApiError | InboxStoreError,
+        Bot
+      > =
         options.inbox !== undefined && pollingOptions?.acknowledgment === undefined
-        ? runtime.runFork(
-            pollInboxUpdates(handler, {
-              ...options.inboxOptions,
-              ...pollingOptions,
-              ...(inboxWake === undefined ? {} : { wake: inboxWake }),
-            }).pipe(
-              Effect.provideService(InboxStore, options.inbox),
-            ),
+        ? pollInboxUpdates(handler, {
+            ...options.inboxOptions,
+            ...pollingOptions,
+            ...(inboxWake === undefined ? {} : { wake: inboxWake }),
+          }).pipe(
+            Effect.provideService(InboxStore, options.inbox),
           )
-        : runtime.runFork(pollUpdates(handler, pollingOptions));
+        : pollUpdates(handler, pollingOptions);
+      const program = options.jobs === undefined
+        ? updates
+        : Effect.raceFirst(updates, runJobWorker(options.jobs));
+      const fiber: Fiber.Fiber<
+        never,
+        E | BotApiError | InboxStoreError | JobStoreError
+      > = runtime.runFork(program);
       let completed: Promise<void> | undefined;
       const stopCurrent = async () => {
         try {
@@ -147,7 +164,7 @@ export const Application = {
       webhookOptions: WebhookOptions,
     ): Webhook => {
       if (activeStop !== undefined) throw new Error("Application already has an active runtime");
-      const webhook = options.inbox === undefined
+      const webhook: WebhookRuntime<E | InboxStoreError> = options.inbox === undefined
         ? Effect.runSync(makeWebhook(handler, webhookOptions))
         : runtime.runSync(
             makeInboxWebhook(handler, webhookOptions.secretToken, {
@@ -158,20 +175,35 @@ export const Application = {
               Effect.provideService(InboxStore, options.inbox),
             ),
           );
+      const jobFiber = options.jobs === undefined
+        ? undefined
+        : runtime.runFork(runJobWorker(options.jobs));
+      const stopRuntime = () => jobFiber === undefined
+        ? webhook.stop
+        : Effect.all([webhook.stop, Fiber.interrupt(jobFiber)], {
+            concurrency: "unbounded",
+            discard: true,
+          });
       let completed: Promise<void> | undefined;
       const stopCurrent = async () => {
         try {
-          await runtime.runPromise(webhook.stop);
+          await runtime.runPromise(stopRuntime());
           await completed;
         } finally {
           if (activeStop === stopCurrent) activeStop = undefined;
         }
       };
       activeStop = stopCurrent;
-      const completion: Effect.Effect<void, E | InboxStoreError, Bot> = webhook.completed;
+      const completion: Effect.Effect<
+        void,
+        E | InboxStoreError | JobStoreError,
+        Bot
+      > = jobFiber === undefined
+        ? webhook.completed
+        : Effect.raceFirst(webhook.completed, Fiber.join(jobFiber));
       completed = runtime.runPromise(completion);
       void completed.catch(() => {
-        void runtime.runPromise(webhook.stop).catch(() => undefined).finally(() => {
+        void runtime.runPromise(stopRuntime()).catch(() => undefined).finally(() => {
           if (activeStop === stopCurrent) activeStop = undefined;
         });
       });
