@@ -78,14 +78,11 @@ export interface FakeBotApiOptions {
 export interface FakeBotApi {
   readonly abortedFilePaths: ReadonlyArray<string>;
   readonly abortedMethods: ReadonlyArray<string>;
-  readonly confirmedOffset: number;
   readonly enqueue: (reply: FakeBotApiReply) => void;
   readonly layer: Layer.Layer<HttpClient.HttpClient>;
   readonly pushUpdate: (update: FakeUpdate) => void;
   readonly requests: ReadonlyArray<FakeBotApiCall>;
-  readonly webhookUrl: string;
   readonly whenCalled: (method: string, ordinal?: number) => Promise<FakeBotApiCall>;
-  readonly whenFileRequested: Promise<void>;
 }
 
 type PollSignal = "conflict" | "wake";
@@ -228,13 +225,8 @@ export const FakeBotApi = {
       readonly ordinal: number;
       readonly resolve: (call: FakeBotApiCall) => void;
     }> = [];
-    const fileRequestWaiters: Array<() => void> = [];
-    const whenFileRequested = new Promise<void>((resolve) => {
-      fileRequestWaiters.push(resolve);
-    });
     const replies = [...(options.replies ?? [])];
     let updates = assertUpdates(options.updates ?? []);
-    let confirmedOffset = 0;
     let lastUpdateId = updates.at(-1)?.update_id ?? 0;
     let webhookUrl = options.webhookUrl ?? "";
     let parkedPoll: ParkedPoll | undefined;
@@ -257,7 +249,6 @@ export const FakeBotApi = {
       if (offset === undefined || offset === 0) return;
       if (offset > 0) {
         updates = updates.filter((update) => update.update_id >= offset);
-        confirmedOffset = Math.max(confirmedOffset, offset);
         return;
       }
       updates = updates.slice(offset);
@@ -319,7 +310,6 @@ export const FakeBotApi = {
             method: "downloadFile",
             tracingDisabled: fiber.getRef(HttpClient.TracerDisabledWhen)(request),
           });
-          for (const resolve of fileRequestWaiters.splice(0)) resolve();
         }
 
         if (token !== options.token) {
@@ -469,9 +459,6 @@ export const FakeBotApi = {
       get abortedMethods() {
         return [...abortedMethods];
       },
-      get confirmedOffset() {
-        return confirmedOffset;
-      },
       enqueue: (reply: FakeBotApiReply) => {
         replies.push(reply);
       },
@@ -480,15 +467,11 @@ export const FakeBotApi = {
       get requests() {
         return [...calls];
       },
-      get webhookUrl() {
-        return webhookUrl;
-      },
       whenCalled(method, ordinal = 1) {
         const existing = calls.filter((call) => call.method === method)[ordinal - 1];
         if (existing !== undefined) return Promise.resolve(existing);
         return new Promise((resolve) => callWaiters.push({ method, ordinal, resolve }));
       },
-      whenFileRequested,
     } satisfies FakeBotApi;
   },
 };

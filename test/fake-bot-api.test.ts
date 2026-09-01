@@ -50,7 +50,6 @@ test("fake getUpdates redelivers until a positive offset confirms updates", asyn
   expect(result.redelivered.map((item) => item.updateId)).toEqual([11, 12]);
   expect(result.remaining.map((item) => item.updateId)).toEqual([12, 13]);
   expect(result.cleared).toEqual([]);
-  expect(fake.confirmedOffset).toBe(14);
 });
 
 test("fake getUpdates supports Telegram negative offsets", async () => {
@@ -144,7 +143,6 @@ test("webhook methods own delivery state and pending update count", async () => 
   expect(result.conflict.reason).toMatchObject({ errorCode: 409 });
   expect(result.inactive).toMatchObject({ pendingUpdateCount: 0, url: "" });
   expect(result.received.map((item) => item.updateId)).toEqual([52]);
-  expect(fake.webhookUrl).toBe("");
 });
 
 test("serverRateLimit rejects an early message and accepts its timed retry", async () => {
