@@ -84,6 +84,16 @@ const managedApp = Application.make({ token: managedToken });
 
 Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`. Seed `updates`, call `pushUpdate`, or set `webhookUrl` to test Telegram delivery without scripting transport replies. `serverRateLimit: true` enables a deterministic approximation of Telegram's documented `sendMessage` limits.
 
+## Reference bots
+
+| Bot | What it demonstrates | Run |
+| --- | --- | --- |
+| [Beginner](./examples/beginner) | `/start`, text routing, and replies | `BOT_TOKEN=... bun run examples/beginner/main.ts` |
+| [Interactive](./examples/conversations) | Buttons and a durable conversation | `BOT_TOKEN=... bun run examples/conversations/main.ts` |
+| [Production](./examples/production) | SQLite inbox, durable jobs, and a Bun webhook server | `BOT_TOKEN=... WEBHOOK_SECRET=... WEBHOOK_URL=https://... bun run examples/production/main.ts` |
+
+Each bot keeps its Telegram behavior in `bot.ts` and its process setup in `main.ts`. The behavior tests use the same exported bot with Telly's fake Bot API.
+
 ## Polling
 
 `defineBot` is the beginner interface. It declares commands and ordinary text handlers without exposing routing machinery.
