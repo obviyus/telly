@@ -4,6 +4,7 @@ import {
   Application,
   reply,
   respond,
+  type InaccessibleMessage,
   type Message,
 } from "../index.ts";
 import { FakeBotApi } from "../testing.ts";
@@ -83,6 +84,27 @@ test("respond omits a non-topic message thread identifier", async () => {
     expect(fake.requests[0]?.params).toEqual({
       chat_id: -1007002,
       text: "group response",
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+test("respond accepts an inaccessible callback-query message", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  const message: InaccessibleMessage = {
+    chat: { id: 7003, type: "private" },
+    date: 0,
+    messageId: 43,
+  };
+
+  try {
+    await app.run(respond(message, "callback response"));
+
+    expect(fake.requests[0]?.params).toEqual({
+      chat_id: 7003,
+      text: "callback response",
     });
   } finally {
     await app.close();

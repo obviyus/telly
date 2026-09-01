@@ -134,6 +134,54 @@ try {
 
 Pass the same `secretToken` to Telegram's `setWebhook` method. Telly rejects missing or incorrect secrets before reading the request body.
 
+## Typed callback data
+
+One callback definition packs buttons and acts as its own routing filter.
+
+```ts
+const choice = callbackData("choice", Schema.Struct({
+  answer: Schema.Literals(["yes", "no"]),
+}));
+
+choice.button("Yes", { answer: "yes" });
+on(choice, ({ callbackQuery, data }) =>
+  answerCallbackQuery({
+    callbackQueryId: callbackQuery.id,
+    text: `Selected ${data.answer}`,
+  }));
+```
+
+Packing validates the payload and rejects values larger than Telegram's 64-byte UTF-8 limit. Malformed, stale, or foreign callback data does not match the filter. Payload validation is not user authorization; check `callbackQuery.from` before a sensitive action.
+
+## Durable conversations
+
+A conversation stores one schema-checked step for each chat and user. Successful handlers return `Conversation.next(...)` or `Conversation.end()`. Returning `void` keeps the current step.
+
+```ts
+const order = conversation({
+  handlers: (step) => ({
+    confirm: step.confirm(choice, ({ data }, state) =>
+      Effect.succeed(data.answer === "yes"
+        ? Conversation.next("note", state)
+        : Conversation.end())),
+    note: step.note(text(), ({ message, text }, state) =>
+      respond(message, `Order ${state.orderId}: ${text}`).pipe(
+        Effect.as(Conversation.end()),
+      )),
+  }),
+  name: "order",
+  states: {
+    confirm: Schema.Struct({ orderId: Schema.Int }),
+    note: Schema.Struct({ orderId: Schema.Int }),
+  },
+  store: await SqliteConversations.open("./telly.db"),
+});
+```
+
+Attach it with `defineBot({ conversations: [order] })`. Prompt the user, then call `order.enter(message, "confirm", state)`. Entering a new conversation replaces the active conversation for that chat and user. [`examples/conversations/bot.ts`](./examples/conversations/bot.ts) shows a complete command → button → text flow with cancellation.
+
+Conversation state uses versioned compare-and-set writes. Use the durable inbox when multiple processes must preserve Telegram update order.
+
 ## Durable jobs
 
 Define each job with a stable name and payload schema. The application runs due jobs beside polling or webhook delivery.

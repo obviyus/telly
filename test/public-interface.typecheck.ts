@@ -4,7 +4,10 @@ import {
   Application,
   Bot,
   BotApiError,
+  callbackData,
   command,
+  conversation,
+  Conversation,
   defineBot,
   defineJobs,
   every,
@@ -13,6 +16,7 @@ import {
   job,
   media,
   MemoryInbox,
+  MemoryConversations,
   MemoryJobs,
   getMe,
   getMyName,
@@ -22,6 +26,8 @@ import {
   routes,
   Schema,
   SqliteInbox,
+  text,
+  type Message,
   type PhotoSize,
   type Update,
   type UpdateHandler,
@@ -110,3 +116,43 @@ jobs.schedule("reminder", { payload: { chatId: "wrong", text: "typed" } });
 // @ts-expect-error Only declared job names can be scheduled.
 jobs.schedule("missing", { payload: { chatId: 1, text: "typed" } });
 Application.make({ jobs, token });
+
+const choice = callbackData("choice", Schema.Struct({ answer: Schema.String }));
+choice.pack({ answer: "yes" });
+// @ts-expect-error Callback payloads are inferred from their schema.
+choice.pack({ answer: 1 });
+
+const typedConversation = conversation({
+  handlers: (step) => ({
+    confirm: step.confirm(choice, ({ data }, state) => {
+      data.answer satisfies string;
+      state.orderId satisfies number;
+      return Effect.succeed(Conversation.next("note", { orderId: state.orderId }));
+    }),
+    note: step.note(text(), ({ text: note }, state) => {
+      note satisfies string;
+      state.orderId satisfies number;
+      return Effect.succeed(Conversation.end());
+    }),
+  }),
+  name: "typed",
+  states: {
+    confirm: Schema.Struct({ orderId: Schema.Int }),
+    note: Schema.Struct({ orderId: Schema.Int }),
+  },
+  store: MemoryConversations.make(),
+});
+declare const message: Message;
+typedConversation.enter(message, "confirm", { orderId: 1 });
+// @ts-expect-error Conversation entry state comes from the selected step schema.
+typedConversation.enter(message, "confirm", { orderId: "wrong" });
+
+conversation({
+  handlers: (step) => ({
+    // @ts-expect-error A transition can target only a declared step.
+    active: step.active(text(), () => Effect.succeed(Conversation.next("missing", {}))),
+  }),
+  name: "invalid-target",
+  states: { active: Schema.Struct({}) },
+  store: MemoryConversations.make(),
+});

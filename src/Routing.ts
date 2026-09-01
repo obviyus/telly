@@ -1,6 +1,11 @@
 import { Effect } from "effect";
 
 import { Bot, type BotApiError } from "./BotApi.js";
+import { withConversations } from "./internal/ConversationRuntime.js";
+import type {
+  ConversationProtocol,
+  ConversationProtocolError,
+} from "./internal/ConversationProtocol.js";
 import type { UpdateHandler } from "./Polling.js";
 import type {
   Animation,
@@ -119,6 +124,7 @@ type DefinitionHandler<in Match> = (
 export interface BotDefinition {
   readonly callbackQuery?: DefinitionHandler<CallbackQueryMatch>;
   readonly commands?: Readonly<Record<string, DefinitionHandler<CommandMatch>>>;
+  readonly conversations?: ReadonlyArray<ConversationProtocol<unknown>>;
   readonly text?: DefinitionHandler<TextMatch>;
 }
 
@@ -145,6 +151,9 @@ type CommandDefinitionError<D> = D extends { readonly commands: infer Commands }
 type DefinitionError<D> =
   | CommandDefinitionError<D>
   | (D extends { readonly callbackQuery: infer Handler } ? EffectError<Handler> : never)
+  | (D extends { readonly conversations: ReadonlyArray<infer Conversation> }
+    ? ConversationProtocolError<Conversation>
+    : never)
   | (D extends { readonly text: infer Handler } ? EffectError<Handler> : never);
 
 function makeFilter<A>(
@@ -195,6 +204,20 @@ export const Filter = {
     });
   },
 };
+
+/** Runs one filter against an update, resolving bot identity only when the filter needs it. */
+export const matchFilter = Effect.fn("Filter.match")(function* <A>(
+  filter: Filter<A>,
+  update: Update,
+): Effect.fn.Return<A | undefined, BotApiError, Bot> {
+  const state = filter[FilterTypeId];
+  const initial = state.match(update, undefined);
+  if (initial !== BotIdentityRequired) return initial;
+  const bot = yield* Bot;
+  const identity = yield* bot.me;
+  const matched = state.match(update, identity);
+  return matched === BotIdentityRequired ? undefined : matched;
+});
 
 /** Matches a new `update.message` command using Telegram's `bot_command` entity. */
 export function command(name: string): Filter<CommandMatch> {
@@ -363,7 +386,10 @@ export function defineBot(definition: BotDefinition): UpdateHandler<unknown> {
   if (definition.callbackQuery !== undefined) {
     routeList.push(on(callbackQuery(), definition.callbackQuery));
   }
-  return routes(...routeList);
+  const routed = routes(...routeList);
+  return definition.conversations === undefined
+    ? routed
+    : withConversations(definition.conversations, routed);
 }
 
 /** Binds one filter to the Effect that handles its extracted value. */

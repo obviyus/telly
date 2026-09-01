@@ -129,6 +129,9 @@ Guarantees:
 - Jobs persist a stable definition name and schema-encoded payload. They run once or repeat at a fixed interval. A caller-supplied identifier makes scheduling idempotent until its completed record reaches the configured retention limit.
 - Job execution is at least once. One fenced dispatch lease per bot prevents overlapping runners. Typed failures retry with persisted backoff; exhausted jobs park and stop repeating.
 - Repeating jobs preserve their intended cadence, never overlap themselves, and coalesce missed occurrences into one run after downtime. Cancellation prevents future work but cannot undo an external side effect that already started.
+- One named conversation is active per chat-and-user scope. Each step has its own state schema. State advances only after its handler succeeds, and a versioned compare-and-set rejects concurrent writes.
+- Conversation updates that do not match the active step fall through to normal routing. Multi-process conversation ordering requires the durable inbox; the conversation store does not duplicate its lease model.
+- Callback data is schema-validated untrusted input. Packing enforces Telegram's 64-byte UTF-8 limit; malformed, stale, and foreign data do not match its filter.
 - Updates with the same conversation key run in order. Updates with different keys run in parallel.
 - Concurrency is bounded. Polling pauses when the in-flight limit is reached. Every queue has a limit; the inbox default is 10,000 non-terminal updates.
 - Telly dispatches each update once inside one process, even when an unacknowledged batch is fetched again.
@@ -149,6 +152,8 @@ Done when:
 - Under `on-complete` and `inbox`, the fake proves at-least-once delivery within Telegram's update retention and, for `inbox`, within the durability of the supplied store.
 - A test proves the bot token appears in no error, log, trace, or URL in clear text.
 - Memory and SQLite job-store contract tests prove due-time claims, recurrence, cancellation, retry, interruption refunds, fencing, multi-process claims, and restart recovery.
+- Memory and SQLite conversation-store tests prove restart recovery, step-state decoding, compare-and-set conflicts, last-entry-wins replacement, and exit.
+- Callback-data tests prove typed round trips, direct filter routing, stale-data fallthrough, and the exact 64-byte limit.
 
 ## Batteries-included core
 

@@ -11,6 +11,18 @@ type DerivedConversationField =
   | "messageThreadId"
   | "replyParameters";
 
+export type ConversationMessage = Pick<Message, "chat" | "messageId"> &
+  Partial<
+    Pick<
+      Message,
+      | "businessConnectionId"
+      | "directMessagesTopic"
+      | "ephemeralMessageId"
+      | "isTopicMessage"
+      | "messageThreadId"
+    >
+  >;
+
 /** sendMessage options whose conversation and reply fields come from the triggering message. */
 export type ConversationMessageOptions = Omit<
   SendMessageParams,
@@ -23,7 +35,7 @@ function options(input: ConversationMessageInput): ConversationMessageOptions {
   return typeof input === "string" ? { text: input } : input;
 }
 
-function destination(message: Message) {
+function destination(message: ConversationMessage) {
   return {
     ...(message.businessConnectionId === undefined
       ? {}
@@ -40,7 +52,7 @@ function destination(message: Message) {
 
 /** Sends a new message to the triggering message's conversation without quoting it. */
 export function respond(
-  message: Message,
+  message: ConversationMessage,
   input: ConversationMessageInput,
 ): Effect.Effect<Message, BotApiError, Bot> {
   return sendMessage({ ...options(input), ...destination(message) });
@@ -48,7 +60,7 @@ export function respond(
 
 /** Sends a new message that quotes the triggering message. */
 export function reply(
-  message: Message,
+  message: ConversationMessage,
   input: ConversationMessageInput,
 ): Effect.Effect<Message, BotApiError, Bot> {
   return sendMessage({
