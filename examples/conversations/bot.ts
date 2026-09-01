@@ -20,30 +20,34 @@ const confirmation = callbackData("order", Schema.Struct({
   answer: Schema.Literals(["yes", "no"]),
 }));
 const order = conversation({
-  handlers: (step) => ({
-    confirm: step.confirm(confirmation, ({ callbackQuery: query, data }, state) => {
-      const answer = answerCallbackQuery({ callbackQueryId: query.id });
-      if (query.message === undefined) return answer.pipe(Effect.asVoid);
-      if (data.answer === "no") {
-        return Effect.all([answer, respond(query.message, "Order cancelled.")], {
+  name: "order",
+  steps: {
+    confirm: Conversation.step({
+      filter: confirmation,
+      run: ({ callbackQuery: query, data }, state) => {
+        const answer = answerCallbackQuery({ callbackQueryId: query.id });
+        if (query.message === undefined) return answer.pipe(Effect.asVoid);
+        if (data.answer === "no") {
+          return Effect.all([answer, respond(query.message, "Order cancelled.")], {
+            concurrency: "unbounded",
+            discard: true,
+          }).pipe(Effect.as(Conversation.end()));
+        }
+        return Effect.all([answer, respond(query.message, "Send a kitchen note.")], {
           concurrency: "unbounded",
           discard: true,
-        }).pipe(Effect.as(Conversation.end()));
-      }
-      return Effect.all([answer, respond(query.message, "Send a kitchen note.")], {
-        concurrency: "unbounded",
-        discard: true,
-      }).pipe(Effect.as(Conversation.next("note", state)));
+        }).pipe(Effect.as(Conversation.next("note", state)));
+      },
+      state: Schema.Struct({ orderId: Schema.Int }),
     }),
-    note: step.note(text(), ({ message, text: note }, state) =>
-      respond(message, `Order ${state.orderId}: ${note}`).pipe(
-        Effect.as(Conversation.end()),
-      )),
-  }),
-  name: "order",
-  states: {
-    confirm: Schema.Struct({ orderId: Schema.Int }),
-    note: Schema.Struct({ orderId: Schema.Int }),
+    note: Conversation.step({
+      filter: text(),
+      run: ({ message, text: note }, state) =>
+        respond(message, `Order ${state.orderId}: ${note}`).pipe(
+          Effect.as(Conversation.end()),
+        ),
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
   },
   store,
 });

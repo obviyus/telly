@@ -9,6 +9,8 @@ import {
 } from "./internal/GetUpdatesConflict.js";
 import {
   inboxDefaults,
+  makeInboxWake,
+  resolveInboxOptions,
   runInboxWorker,
   saveInboxUpdate,
 } from "./internal/InboxRuntime.js";
@@ -146,6 +148,8 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
   const batchSize = options.batchSize ?? 100;
   const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
   const polling = makePollingRequests(options.conflictRetryBudgetMs);
+  const inboxOptions = resolveInboxOptions(options);
+  const wake = makeInboxWake();
   let nextOffset = 0;
   yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
@@ -159,10 +163,10 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
       timeout: pollTimeoutSeconds,
     });
     for (const update of updates) {
-      const saved = yield* saveInboxUpdate(update, options);
+      const saved = yield* saveInboxUpdate(update, inboxOptions, wake);
       if (saved._tag === "Full") {
         yield* Effect.logWarning("Telegram inbox is full").pipe(
-          Effect.annotateLogs({ capacity: options.capacity ?? inboxDefaults.capacity }),
+          Effect.annotateLogs({ capacity: inboxOptions.capacity }),
         );
         yield* Effect.sleep(inboxDefaults.pollIntervalMs);
         return;
@@ -178,6 +182,6 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
 
   return yield* Effect.raceFirst(
     receive,
-    runInboxWorker(handler, options),
+    runInboxWorker(handler, inboxOptions, wake),
   ).pipe(Effect.onExit(() => flush));
 });

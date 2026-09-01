@@ -17,10 +17,7 @@ import {
   type InboxStoreService,
 } from "./Inbox.js";
 import { type Jobs, type JobStoreError } from "./Jobs.js";
-import {
-  makeInboxWebhook,
-  makeInboxWake,
-} from "./internal/InboxRuntime.js";
+import { makeInboxWebhook } from "./internal/InboxRuntime.js";
 import { runJobWorker } from "./internal/JobRuntime.js";
 import {
   pollInboxUpdates,
@@ -77,7 +74,6 @@ export const Application = {
       token: Redacted.isRedacted(options.token) ? options.token : Redacted.make(options.token),
     }).pipe(Layer.provide(options.httpClient ?? FetchHttpClient.layer));
     const runtime = ManagedRuntime.make(botLayer);
-    const inboxWake = options.inbox === undefined ? undefined : makeInboxWake();
     let activeStop: (() => Promise<void>) | undefined;
 
     const close = async () => {
@@ -99,7 +95,6 @@ export const Application = {
         ? pollInboxUpdates(handler, {
             ...options.inboxOptions,
             ...pollingOptions,
-            ...(inboxWake === undefined ? {} : { wake: inboxWake }),
           }).pipe(
             Effect.provideService(InboxStore, options.inbox),
           )
@@ -172,7 +167,6 @@ export const Application = {
             makeInboxWebhook(handler, webhookOptions.secretToken, {
               ...options.inboxOptions,
               ...webhookOptions,
-              ...(inboxWake === undefined ? {} : { wake: inboxWake }),
             }).pipe(
               Effect.provideService(InboxStore, options.inbox),
             ),

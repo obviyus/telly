@@ -49,6 +49,80 @@ export interface ConversationEnd {
   readonly _tag: "End";
 }
 
+type ConversationTransition = ConversationEnd | ConversationNext<string, unknown> | void;
+
+interface RuntimeConversationStep<out E> {
+  readonly decode: (input: unknown) => Exit.Exit<unknown, Schema.SchemaError>;
+  readonly encode: (input: unknown) => Exit.Exit<unknown, Schema.SchemaError>;
+  readonly filter: Filter<unknown>;
+  readonly run: (
+    match: unknown,
+    state: unknown,
+  ) => Effect.Effect<ConversationEnd | ConversationNext<string, unknown> | void, E, Bot>;
+}
+
+interface AnyConversationStep {
+  readonly [ConversationStepTypeId]: RuntimeConversationStep<unknown>;
+}
+
+export interface ConversationStep<in out State, out Transition, out E>
+  extends AnyConversationStep
+{
+  readonly [ConversationStepTypeId]: RuntimeConversationStep<E> & {
+    readonly State?: (state: State) => State;
+    readonly Transition?: Transition;
+  };
+}
+
+type ConversationSteps = Readonly<Record<string, AnyConversationStep>>;
+type StepKey<Steps> = Extract<keyof Steps, string>;
+type StepState<Step> = Step extends ConversationStep<infer State, infer _Transition, infer _Error>
+  ? State
+  : never;
+type StepError<Step> = Step extends ConversationStep<infer _State, infer _Transition, infer Error>
+  ? Error
+  : never;
+type ValidTransition<Steps> =
+  | ConversationEnd
+  | void
+  | {
+      [Step in StepKey<Steps>]: ConversationNext<Step, StepState<Steps[Step]>>;
+    }[StepKey<Steps>];
+type ValidSteps<Steps> = {
+  readonly [Step in keyof Steps]: ConversationStep<
+    StepState<Steps[Step]>,
+    ValidTransition<Steps>,
+    unknown
+  >;
+};
+
+function conversationStep<
+  StateSchema extends Schema.Codec<unknown, unknown, never, never>,
+  Match,
+  Success extends ConversationTransition,
+  Error,
+>(options: {
+  readonly filter: Filter<Match>;
+  readonly run: (
+    match: Match,
+    state: StateSchema["Type"],
+  ) => Effect.Effect<Success, Error, Bot>;
+  readonly state: StateSchema;
+}): ConversationStep<StateSchema["Type"], Success, Error> {
+  const codec = Schema.toCodecJson(options.state);
+  return {
+    [ConversationStepTypeId]: {
+      decode: Schema.decodeUnknownExit(codec),
+      encode: Schema.encodeUnknownExit(codec),
+      filter: options.filter,
+      run: (match, state) => options.run(
+        match as Match,
+        state as StateSchema["Type"],
+      ),
+    },
+  };
+}
+
 export const Conversation = {
   end(): ConversationEnd {
     return { _tag: "End" };
@@ -60,69 +134,19 @@ export const Conversation = {
   ): ConversationNext<Step, State> {
     return { _tag: "Next", state, step };
   },
+
+  step: conversationStep,
 };
 
-type ConversationStates = Readonly<
-  Record<string, Schema.Codec<unknown, unknown, never, never>>
->;
-type StateAt<States extends ConversationStates, Step extends keyof States> =
-  States[Step]["Type"];
-type ConversationTransition<States extends ConversationStates> =
-  | ConversationEnd
-  | {
-      [Step in Extract<keyof States, string>]: ConversationNext<
-        Step,
-        StateAt<States, Step>
-      >;
-    }[Extract<keyof States, string>];
-
-interface RuntimeConversationStep<Step extends string, out E> {
-  readonly error?: E;
-  readonly filter: Filter<unknown>;
-  readonly run: (
-    match: unknown,
-    state: unknown,
-  ) => Effect.Effect<ConversationEnd | ConversationNext<string, unknown> | void, E, Bot>;
-  readonly step: Step;
-}
-
-export interface ConversationStep<Step extends string, out E> {
-  readonly [ConversationStepTypeId]: RuntimeConversationStep<Step, E>;
-}
-
-type ConversationStepError<Value> = Value extends ConversationStep<string, infer Error>
-  ? Error
-  : never;
-type ConversationStepDefinitions<States extends ConversationStates> = {
-  readonly [Step in keyof States]: ConversationStep<Extract<Step, string>, unknown>;
-};
-type ConversationStepBuilders<States extends ConversationStates> = {
-  readonly [Step in Extract<keyof States, string>]: <Match, Error>(
-    filter: Filter<Match>,
-    run: (
-      match: Match,
-      state: StateAt<States, Step>,
-    ) => Effect.Effect<ConversationTransition<States> | void, Error, Bot>,
-  ) => ConversationStep<Step, Error>;
-};
-type ConversationDefinitionError<Steps> = Steps extends Readonly<Record<string, unknown>>
-  ? ConversationStepError<Steps[keyof Steps]>
-  : never;
-
-interface RuntimeStateCodec {
-  readonly decode: (input: unknown) => Exit.Exit<unknown, Schema.SchemaError>;
-  readonly encode: (input: unknown) => Exit.Exit<unknown, Schema.SchemaError>;
-}
-
-export interface DurableConversation<States extends ConversationStates, out Error>
+export interface DurableConversation<Steps extends ConversationSteps, out Error>
   extends ConversationProtocol<
     Error | BotApiError | ConversationConflict | ConversationStateInvalid
   >
 {
-  readonly enter: <Step extends Extract<keyof States, string>>(
+  readonly enter: <Step extends StepKey<Steps>>(
     message: Message,
     step: Step,
-    state: StateAt<States, Step>,
+    state: StepState<Steps[Step]>,
   ) => Effect.Effect<
     void,
     | ConversationConflict
@@ -141,19 +165,19 @@ export interface DurableConversation<States extends ConversationStates, out Erro
 }
 
 function encodeState(
-  codecs: ReadonlyMap<string, RuntimeStateCodec>,
+  steps: ReadonlyMap<string, RuntimeConversationStep<unknown>>,
   conversationName: string,
   step: string,
   state: unknown,
 ) {
-  const codec = codecs.get(step);
-  if (codec === undefined) {
+  const runtimeStep = steps.get(step);
+  if (runtimeStep === undefined) {
     return Effect.fail(new ConversationStateInvalid({
       conversation: conversationName,
       step,
     }));
   }
-  const encoded = codec.encode(state);
+  const encoded = runtimeStep.encode(state);
   return Exit.isSuccess(encoded)
     ? Effect.succeed(encoded.value)
     : Effect.fail(new ConversationStateInvalid({
@@ -164,76 +188,39 @@ function encodeState(
 
 /** Defines one durable, schema-checked conversation state machine. */
 export function conversation<
-  const States extends ConversationStates,
-  const Steps extends ConversationStepDefinitions<States>,
+  const Steps extends ConversationSteps,
 >(options: {
-  readonly handlers: (step: ConversationStepBuilders<States>) => Steps;
   readonly name: string;
-  readonly states: States;
+  readonly steps: Steps & ValidSteps<Steps>;
   readonly store: ConversationStoreService;
-}): DurableConversation<States, ConversationDefinitionError<Steps>> {
+}): DurableConversation<Steps, StepError<Steps[keyof Steps]>> {
   if (!/^[a-z0-9][a-z0-9_-]{0,63}$/u.test(options.name)) {
     throw new RangeError("Conversation names must use 1-64 lowercase letters, digits, dashes, or underscores");
   }
-  const codecs = new Map<string, RuntimeStateCodec>();
-  const builders: Partial<Record<string, unknown>> = {};
-  for (const [step, schema] of Object.entries(options.states)) {
+  const steps = new Map<string, RuntimeConversationStep<StepError<Steps[keyof Steps]>>>();
+  for (const [step, definition] of Object.entries(options.steps)) {
     if (!/^[a-z0-9][a-z0-9_-]{0,63}$/u.test(step)) {
       throw new RangeError(`Invalid conversation step: ${step}`);
     }
-    const codec = Schema.toCodecJson(schema);
-    codecs.set(step, {
-      decode: Schema.decodeUnknownExit(codec),
-      encode: Schema.encodeUnknownExit(codec),
-    });
-    builders[step] = <Match, Error>(
-      filter: Filter<Match>,
-      run: (
-        match: Match,
-        state: StateAt<States, Extract<keyof States, string>>,
-      ) => Effect.Effect<ConversationTransition<States> | void, Error, Bot>,
-    ): ConversationStep<string, Error> => ({
-      [ConversationStepTypeId]: {
-        filter,
-        run: (matchValue, stateValue) => run(
-          matchValue as Match,
-          stateValue as StateAt<States, Extract<keyof States, string>>,
-        ),
-        step,
-      },
-    });
-  }
-  const definitions = options.handlers(builders as ConversationStepBuilders<States>);
-  const runtimeSteps = new Map<
-    string,
-    RuntimeConversationStep<string, ConversationDefinitionError<Steps>>
-  >();
-  for (const step of Object.keys(options.states)) {
-    const definition = definitions[step];
-    if (definition === undefined || definition[ConversationStepTypeId].step !== step) {
-      throw new RangeError(`Conversation step ${step} must use its matching builder`);
-    }
-    runtimeSteps.set(
+    steps.set(
       step,
       definition[ConversationStepTypeId] as RuntimeConversationStep<
-        string,
-        ConversationDefinitionError<Steps>
+        StepError<Steps[keyof Steps]>
       >,
     );
   }
-  if (Object.keys(definitions).length !== runtimeSteps.size) {
-    throw new RangeError("Conversation handlers must match the declared states");
-  }
 
-  const enter = Effect.fn("Conversation.enter")(function* <
-    Step extends Extract<keyof States, string>,
-  >(message: Message, step: Step, state: StateAt<States, Step>) {
+  const enter = Effect.fn("Conversation.enter")(function* <Step extends StepKey<Steps>>(
+    message: Message,
+    step: Step,
+    state: StepState<Steps[Step]>,
+  ) {
     const scope = conversationScopeFromMessage(message);
     if (scope === undefined) {
       return yield* new ConversationScopeMissing({ conversation: options.name });
     }
     const bot = yield* Bot;
-    const encoded = yield* encodeState(codecs, options.name, step, state);
+    const encoded = yield* encodeState(steps, options.name, step, state);
     const committed = yield* options.store.commit({
       botId: bot.id,
       expected: "any",
@@ -266,10 +253,9 @@ export function conversation<
   return {
     [ConversationTypeId]: {
       handle: Effect.fn("Conversation.handle")(function* (record, update, scope, botId) {
-        const runtimeStep = runtimeSteps.get(record.step);
-        const codec = codecs.get(record.step);
-        if (runtimeStep === undefined || codec === undefined) return false;
-        const decoded = codec.decode(record.state);
+        const runtimeStep = steps.get(record.step);
+        if (runtimeStep === undefined) return false;
+        const decoded = runtimeStep.decode(record.state);
         if (Exit.isFailure(decoded)) return false;
         const matched = yield* matchFilter(runtimeStep.filter, update);
         if (matched === undefined) return false;
@@ -280,7 +266,7 @@ export function conversation<
           : {
               conversation: options.name,
               state: yield* encodeState(
-                codecs,
+                steps,
                 options.name,
                 transition.step,
                 transition.state,

@@ -9,27 +9,27 @@ import {
   JobsTypeId,
   jobDefaults,
   type ClaimedJob,
-  type JobOptions,
   type JobSettlement,
   type JobStoreError,
   type Jobs,
+  type JobsState,
 } from "../Jobs.js";
 import { makeDispatcher } from "./Dispatch.js";
 import { recordSettlement } from "./Telemetry.js";
 
-function retryDelay(attempts: number, options: JobOptions): number {
+function retryDelay(attempts: number, options: JobsState["options"]): number {
   return Math.min(
-    options.retryMaxMs ?? jobDefaults.retryMaxMs,
-    (options.retryBaseMs ?? jobDefaults.retryBaseMs) * 2 ** Math.max(0, attempts - 1),
+    options.retryMaxMs,
+    options.retryBaseMs * 2 ** Math.max(0, attempts - 1),
   );
 }
 
 function failedSettlement(
   job: ClaimedJob,
-  options: JobOptions,
+  options: JobsState["options"],
   reason: string,
 ): Extract<JobSettlement, { readonly _tag: "Parked" | "Retry" }> {
-  return job.attempts >= (options.maxAttempts ?? jobDefaults.maxAttempts)
+  return job.attempts >= options.maxAttempts
     ? { _tag: "Parked", reason }
     : { _tag: "Retry", delayMs: retryDelay(job.attempts, options) };
 }
@@ -40,10 +40,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
   const bot = yield* Bot;
   const state = jobs[JobsTypeId];
   const options = state.options;
-  const concurrency = options.concurrency ?? jobDefaults.concurrency;
-  const gracePeriodMs = options.gracePeriodMs ?? jobDefaults.gracePeriodMs;
-  const leaseMs = options.leaseMs ?? jobDefaults.leaseMs;
-  const maxAttempts = options.maxAttempts ?? jobDefaults.maxAttempts;
+  const { concurrency, doneRetentionMs, gracePeriodMs, leaseMs, maxAttempts } = options;
   yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "jobs" });
 
   const standby = Effect.forever(
@@ -54,8 +51,17 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
         return Effect.gen(function* () {
           yield* state.store.prune({
             botId: bot.id,
-            doneAgeMs: options.doneRetentionMs ?? jobDefaults.doneRetentionMs,
+            doneAgeMs: doneRetentionMs,
           });
+          const settle = (id: string, outcome: JobSettlement) =>
+            state.store.settle({
+              botId: bot.id,
+              fencingToken: token,
+              id,
+              outcome,
+            }).pipe(
+              Effect.tap(() => recordSettlement("jobs", outcome)),
+            );
           const handler = (claimed: ClaimedJob) => {
             const definition = state.definitions.get(claimed.name);
             const execution = definition === undefined
@@ -74,29 +80,10 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
                       options,
                       definition === undefined ? "unknown-job" : "attempts-exhausted",
                     );
-                return state.store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  id: claimed.id,
-                  outcome,
-                }).pipe(
-                  Effect.tap(() =>
-                    outcome._tag === "Done"
-                      ? recordSettlement("jobs", "done")
-                      : outcome._tag === "Retry"
-                      ? recordSettlement("jobs", "retry")
-                      : recordSettlement("jobs", "parked", outcome.reason)
-                  ),
-                );
+                return settle(claimed.id, outcome);
               }),
               Effect.onInterrupt(() =>
-                state.store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  id: claimed.id,
-                  outcome: { _tag: "Interrupted" },
-                }).pipe(
-                  Effect.tap(() => recordSettlement("jobs", "interrupted")),
+                settle(claimed.id, { _tag: "Interrupted" }).pipe(
                   Effect.catchTag("JobLeaseLost", () => Effect.void),
                   Effect.catchTag("JobStoreError", () => Effect.void),
                 )
@@ -126,16 +113,10 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
             }
             for (const item of claimed) {
               if (item.attempts > maxAttempts) {
-                yield* state.store.settle({
-                  botId: bot.id,
-                  fencingToken: token,
-                  id: item.id,
-                  outcome: { _tag: "Parked", reason: "attempts-exhausted" },
-                }).pipe(
-                  Effect.tap(() =>
-                    recordSettlement("jobs", "parked", "attempts-exhausted")
-                  ),
-                );
+                yield* settle(item.id, {
+                  _tag: "Parked",
+                  reason: "attempts-exhausted",
+                });
                 continue;
               }
               yield* dispatcher.submit(item, item.id).pipe(Effect.orDie, Effect.asVoid);
@@ -154,7 +135,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
             Effect.sleep(3_600_000).pipe(
               Effect.andThen(state.store.prune({
                 botId: bot.id,
-                doneAgeMs: options.doneRetentionMs ?? jobDefaults.doneRetentionMs,
+                doneAgeMs: doneRetentionMs,
               })),
             ),
           );

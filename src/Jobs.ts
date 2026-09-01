@@ -34,6 +34,8 @@ export const jobDefaults = {
   retryMaxMs: 60_000,
 } as const;
 
+type ResolvedJobOptions = Required<JobOptions>;
+
 export interface JobContext {
   readonly attempt: number;
   readonly id: string;
@@ -537,7 +539,7 @@ export interface ScheduleJobOptions<Payload> {
 
 export interface JobsState {
   readonly definitions: ReadonlyMap<string, RuntimeJobDefinition>;
-  readonly options: JobOptions;
+  readonly options: ResolvedJobOptions;
   readonly store: JobStoreService;
   readonly wake: {
     readonly current: () => number;
@@ -600,6 +602,28 @@ function jobId(id: string): void {
   }
 }
 
+function resolveJobOptions(options: JobOptions = {}): ResolvedJobOptions {
+  const resolved = {
+    capacity: options.capacity ?? jobDefaults.capacity,
+    concurrency: options.concurrency ?? jobDefaults.concurrency,
+    doneRetentionMs: options.doneRetentionMs ?? jobDefaults.doneRetentionMs,
+    gracePeriodMs: options.gracePeriodMs ?? jobDefaults.gracePeriodMs,
+    leaseMs: options.leaseMs ?? jobDefaults.leaseMs,
+    maxAttempts: options.maxAttempts ?? jobDefaults.maxAttempts,
+    retryBaseMs: options.retryBaseMs ?? jobDefaults.retryBaseMs,
+    retryMaxMs: options.retryMaxMs ?? jobDefaults.retryMaxMs,
+  };
+  positiveInteger(resolved.capacity, "Job capacity");
+  positiveInteger(resolved.concurrency, "Job concurrency");
+  nonNegativeSafeInteger(resolved.doneRetentionMs, "Job doneRetentionMs");
+  nonNegativeSafeInteger(resolved.gracePeriodMs, "Job gracePeriodMs");
+  positiveInteger(resolved.leaseMs, "Job leaseMs");
+  positiveInteger(resolved.maxAttempts, "Job maxAttempts");
+  nonNegativeSafeInteger(resolved.retryBaseMs, "Job retryBaseMs");
+  nonNegativeSafeInteger(resolved.retryMaxMs, "Job retryMaxMs");
+  return resolved;
+}
+
 function normalizeTiming(
   name: string,
   options: Pick<ScheduleJobOptions<unknown>, "after" | "at" | "every">,
@@ -637,25 +661,7 @@ export function defineJobs<const Definitions extends JobDefinitions>(
   definitions: Definitions,
   configuration: { readonly options?: JobOptions; readonly store: JobStoreService },
 ): Jobs<Definitions> {
-  const options = configuration.options ?? {};
-  if (options.capacity !== undefined) positiveInteger(options.capacity, "Job capacity");
-  if (options.concurrency !== undefined) positiveInteger(options.concurrency, "Job concurrency");
-  if (options.doneRetentionMs !== undefined) {
-    nonNegativeSafeInteger(options.doneRetentionMs, "Job doneRetentionMs");
-  }
-  if (options.gracePeriodMs !== undefined) {
-    nonNegativeSafeInteger(options.gracePeriodMs, "Job gracePeriodMs");
-  }
-  if (options.leaseMs !== undefined) positiveInteger(options.leaseMs, "Job leaseMs");
-  if (options.maxAttempts !== undefined) {
-    positiveInteger(options.maxAttempts, "Job maxAttempts");
-  }
-  if (options.retryBaseMs !== undefined) {
-    nonNegativeSafeInteger(options.retryBaseMs, "Job retryBaseMs");
-  }
-  if (options.retryMaxMs !== undefined) {
-    nonNegativeSafeInteger(options.retryMaxMs, "Job retryMaxMs");
-  }
+  const options = resolveJobOptions(configuration.options);
   const entries = Object.entries(definitions);
   const runtimeDefinitions = new Map<string, RuntimeJobDefinition>();
   for (const [name, definition] of entries) {
@@ -696,6 +702,7 @@ export function defineJobs<const Definitions extends JobDefinitions>(
     const scheduleValue: JobSchedule = everyMs === undefined
       ? { _tag: "Once" }
       : { _tag: "Repeat", intervalMs: everyMs };
+    // Declared timing stays stable when the same repeating job is registered after a restart.
     const fingerprint = JSON.stringify({
       afterMs: afterMs ?? null,
       atMs: atMs ?? null,
@@ -705,7 +712,7 @@ export function defineJobs<const Definitions extends JobDefinitions>(
     });
     const saved = yield* state.store.save({
       botId: bot.id,
-      capacity: state.options.capacity ?? jobDefaults.capacity,
+      capacity: state.options.capacity,
       fingerprint,
       id,
       name,
@@ -716,7 +723,7 @@ export function defineJobs<const Definitions extends JobDefinitions>(
     if (saved._tag === "Conflict") return yield* new JobConflict({ jobId: id });
     if (saved._tag === "Full") {
       return yield* new JobCapacityExceeded({
-        capacity: state.options.capacity ?? jobDefaults.capacity,
+        capacity: state.options.capacity,
       });
     }
     if (saved._tag === "Stored") yield* state.wake.signal;

@@ -26,7 +26,12 @@ import {
 } from "../index.ts";
 import { makeDispatcher } from "../src/internal/Dispatch.ts";
 import { runJobWorker } from "../src/internal/JobRuntime.ts";
-import { runInboxWorker, saveInboxUpdate } from "../src/internal/InboxRuntime.ts";
+import {
+  makeInboxWake,
+  resolveInboxOptions,
+  runInboxWorker,
+  saveInboxUpdate,
+} from "../src/internal/InboxRuntime.ts";
 import { makeWebhookFetch } from "../src/Webhook.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
@@ -257,11 +262,17 @@ test("durable inbox and job work emit save and settlement metrics", async () => 
     options: { maxAttempts: 1 },
     store: MemoryJobs.make(),
   });
+  const inboxOptions = resolveInboxOptions();
+  const inboxWake = makeInboxWake();
   const snapshots = await Effect.runPromise(Effect.gen(function* () {
-    yield* saveInboxUpdate(update);
-    yield* saveInboxUpdate(update);
+    yield* saveInboxUpdate(update, inboxOptions, inboxWake);
+    yield* saveInboxUpdate(update, inboxOptions, inboxWake);
     const inboxWorker = yield* Effect.forkChild(
-      runInboxWorker(() => Deferred.succeed(inboxHandled, undefined)),
+      runInboxWorker(
+        () => Deferred.succeed(inboxHandled, undefined),
+        inboxOptions,
+        inboxWake,
+      ),
     );
     yield* Deferred.await(inboxHandled);
     yield* Fiber.interrupt(inboxWorker);

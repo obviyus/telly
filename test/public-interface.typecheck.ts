@@ -128,22 +128,26 @@ choice.pack({ answer: "yes" });
 choice.pack({ answer: 1 });
 
 const typedConversation = conversation({
-  handlers: (step) => ({
-    confirm: step.confirm(choice, ({ data }, state) => {
-      data.answer satisfies string;
-      state.orderId satisfies number;
-      return Effect.succeed(Conversation.next("note", { orderId: state.orderId }));
-    }),
-    note: step.note(text(), ({ text: note }, state) => {
-      note satisfies string;
-      state.orderId satisfies number;
-      return Effect.succeed(Conversation.end());
-    }),
-  }),
   name: "typed",
-  states: {
-    confirm: Schema.Struct({ orderId: Schema.Int }),
-    note: Schema.Struct({ orderId: Schema.Int }),
+  steps: {
+    confirm: Conversation.step({
+      filter: choice,
+      run: ({ data }, state) => {
+        data.answer satisfies string;
+        state.orderId satisfies number;
+        return Effect.succeed(Conversation.next("note", { orderId: state.orderId }));
+      },
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
+    note: Conversation.step({
+      filter: text(),
+      run: ({ text: note }, state) => {
+        note satisfies string;
+        state.orderId satisfies number;
+        return Effect.succeed(Conversation.end());
+      },
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
   },
   store: MemoryConversations.make(),
 });
@@ -153,11 +157,32 @@ typedConversation.enter(message, "confirm", { orderId: 1 });
 typedConversation.enter(message, "confirm", { orderId: "wrong" });
 
 conversation({
-  handlers: (step) => ({
-    // @ts-expect-error A transition can target only a declared step.
-    active: step.active(text(), () => Effect.succeed(Conversation.next("missing", {}))),
-  }),
   name: "invalid-target",
-  states: { active: Schema.Struct({}) },
+  steps: {
+    // @ts-expect-error A transition can target only a declared step.
+    active: Conversation.step({
+      filter: text(),
+      run: () => Effect.succeed(Conversation.next("missing", {})),
+      state: Schema.Struct({}),
+    }),
+  },
+  store: MemoryConversations.make(),
+});
+
+conversation({
+  name: "invalid-state",
+  steps: {
+    // @ts-expect-error A transition state must match the target step schema.
+    first: Conversation.step({
+      filter: text(),
+      run: () => Effect.succeed(Conversation.next("second", { orderId: "wrong" })),
+      state: Schema.Struct({}),
+    }),
+    second: Conversation.step({
+      filter: text(),
+      run: () => Effect.succeed(Conversation.end()),
+      state: Schema.Struct({ orderId: Schema.Int }),
+    }),
+  },
   store: MemoryConversations.make(),
 });
