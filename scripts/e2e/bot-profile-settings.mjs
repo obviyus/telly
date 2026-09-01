@@ -1,7 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { fileURLToPath } from "node:url";
 
 import {
   Application,
@@ -19,21 +16,14 @@ import {
   setMyName,
   setMyShortDescription,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import {
+  createMethodProof,
+  openTelegramTestHarness,
+  publishMethodProof,
+} from "./harness.mjs";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
-const credential = await acquireTelegramTestCredential({ convexProjectDir });
-const proxy = await startTelegramTestApiProxy({
-  leaseHealth: {
-    assertHealthy: credential.assertLeaseHealthy,
-    whenUnhealthy: credential.whenLeaseUnhealthy,
-  },
-});
+const harness = await openTelegramTestHarness();
+const { credential, proxy } = harness;
 const app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
 const scope = { type: "default" };
 const menuChatId = Number(credential.testerUserId);
@@ -55,30 +45,12 @@ async function record(method, operation, verify) {
   const start = performance.now();
   const result = await app.run(operation);
   const observation = await verify(result);
-  const verdict = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{
+  const verdict = createMethodProof(method, observation, [{
       elapsedMs: Math.round(performance.now() - start),
       kind: "bot_api_result",
       observation,
-    }],
-  };
-  const serialized = `${JSON.stringify(verdict, null, 2)}\n`;
-  for (const secret of [credential.sutToken, credential.sutUsername]) {
-    if (serialized.includes(secret)) throw new Error(`${method} proof contains leased identity data`);
-  }
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(
-      path.join(methodDir, `${verdict.recorded_time.slice(0, 10)}.json`),
-      serialized,
-    );
-  }
-  return verdict;
+    }]);
+  return publishMethodProof(verdict, credential);
 }
 
 try {
@@ -226,7 +198,7 @@ try {
       }
     }
   }
-  for (const close of [() => app.close(), () => proxy.close(), () => credential.release()]) {
+  for (const close of [() => app.close(), () => harness.close()]) {
     try {
       await close();
     } catch (error) {

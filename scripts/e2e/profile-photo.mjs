@@ -1,8 +1,7 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import {
   Application,
@@ -10,16 +9,11 @@ import {
   removeMyProfilePhoto,
   setMyProfilePhoto,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import { openTelegramTestHarness, writeMethodProof } from "./harness.mjs";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 const fixtureDir = await mkdtemp(path.join(tmpdir(), "telly-profile-photo."));
 let credential;
+let harness;
 let proxy;
 let app;
 let temporaryPhotoActive = false;
@@ -34,33 +28,12 @@ async function waitForCount(userId, expected) {
 }
 
 async function writeProof(method, observation) {
-  const proof = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }],
-  };
-  const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-  for (const secret of [credential.sutToken, credential.sutUsername]) {
-    if (serialized.includes(secret)) throw new Error(`${method} proof contains leased identity data`);
-  }
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-  }
-  return proof;
+  return writeMethodProof(credential, method, observation);
 }
 
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const botId = Number(credential.sutBotId);
   if (!Number.isSafeInteger(botId)) throw new Error("Leased Telegram bot id is not a safe integer");
@@ -105,6 +78,5 @@ try {
 } finally {
   if (temporaryPhotoActive) await app?.run(removeMyProfilePhoto()).catch(() => {});
   await app?.close();
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
 }

@@ -1,8 +1,7 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import {
   Application,
@@ -20,16 +19,15 @@ import {
   setStickerSetTitle,
   uploadStickerFile,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
+import {
+  createMethodProof,
+  openTelegramTestHarness,
+  publishMethodProof,
+} from "./harness.mjs";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 const fixtureDir = await mkdtemp(path.join(tmpdir(), "telly-sticker-set."));
 let credential;
+let harness;
 let proxy;
 let app;
 let setName;
@@ -62,37 +60,18 @@ function generateWebp(name, color, size) {
 }
 
 function record(method, observation) {
-  pendingProofs.push({
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }],
-  });
+  pendingProofs.push(createMethodProof(method, observation));
 }
 
 async function publishProofs() {
   for (const proof of pendingProofs) {
-    const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-    for (const secret of [credential.sutToken, credential.sutUsername]) {
-      if (serialized.includes(secret)) throw new Error(`${proof.method} proof contains leased identity data`);
-    }
-    if (artifactDir !== undefined) {
-      const methodDir = path.resolve(repoRoot, artifactDir, proof.method);
-      await mkdir(methodDir, { recursive: true });
-      await writeFile(path.join(methodDir, `${proof.recorded_time.slice(0, 10)}.json`), serialized);
-    }
+    await publishMethodProof(proof, credential);
   }
 }
 
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const userId = Number(credential.testerUserId);
   if (!Number.isSafeInteger(userId)) throw new Error("Leased Telegram tester id is not a safe integer");
@@ -243,6 +222,5 @@ try {
 } finally {
   if (setExists) await app?.run(deleteStickerSet({ name: setName })).catch(() => {});
   await app?.close();
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
 }

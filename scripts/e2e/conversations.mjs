@@ -1,17 +1,18 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const skillScripts = path.join(repoRoot, ".agents/skills/telegram-e2e-userbot/scripts");
-const convexProjectDir = process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
+import {
+  openTelegramTestHarness,
+  readJsonLines,
+  repoRoot,
+  requireEvent,
+  skillScripts,
+  waitForChild,
+  waitForReady,
+} from "./harness.mjs";
 const scratch = await mkdtemp(path.join(tmpdir(), "telly-conversations-e2e."));
 const databasePath = path.join(scratch, "conversations.db");
 const proofPath = path.join(repoRoot, "runtime/proofs/conversations/2026-09-01.json");
@@ -22,38 +23,10 @@ const notePrompt = `note:${run}`;
 const noteText = `extra-${run}`;
 const doneText = `done:${run}:${noteText}`;
 let credential;
+let harness;
 let proxy;
 let recorder;
 let sut;
-
-function waitForChild(child, label) {
-  return new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      if (code === 0) resolve({ code, signal });
-      else reject(new Error(`${label} exited with code ${String(code)} signal ${String(signal)}`));
-    });
-  });
-}
-
-function waitForReady(child) {
-  return new Promise((resolve, reject) => {
-    let output = "";
-    const timeout = setTimeout(() => reject(new Error("Conversation bot did not become ready")), 15_000);
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      output += chunk;
-      if (output.includes("ready\n")) {
-        clearTimeout(timeout);
-        resolve();
-      }
-    });
-    child.once("exit", () => {
-      clearTimeout(timeout);
-      reject(new Error("Conversation bot exited before readiness"));
-    });
-  });
-}
 
 async function startSut() {
   const child = spawn("bun", ["run", "./scripts/e2e/fixtures/conversations-sut.mjs"], {
@@ -68,7 +41,7 @@ async function startSut() {
   });
   const completion = waitForChild(child, "Conversation bot");
   void completion.catch(() => undefined);
-  await waitForReady(child);
+  await waitForReady(child, "Conversation bot");
   return { child, completion };
 }
 
@@ -99,26 +72,12 @@ async function recordScenario(name, actions, seconds) {
   });
   await waitForChild(recorder, `Telegram recorder ${name}`);
   recorder = undefined;
-  return (await readFile(eventsPath, "utf8"))
-    .split(/\r?\n/u)
-    .filter(Boolean)
-    .map((line) => JSON.parse(line));
-}
-
-function requireEvent(events, predicate, label) {
-  const event = events.find(predicate);
-  if (event === undefined) throw new Error(`Missing Telegram event: ${label}`);
-  return event;
+  return readJsonLines(eventsPath);
 }
 
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   await proxy.drainUpdates(credential.sutToken);
 
   let running = await startSut();
@@ -213,7 +172,6 @@ try {
 } finally {
   if (recorder?.exitCode === null) recorder.kill("SIGTERM");
   if (sut?.exitCode === null) sut.kill("SIGTERM");
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
   await rm(scratch, { force: true, recursive: true });
 }

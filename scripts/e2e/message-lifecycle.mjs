@@ -1,10 +1,9 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { watch } from "node:fs";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import {
   Application,
@@ -44,15 +43,15 @@ import {
   unpinAllChatMessages,
   unpinChatMessage,
 } from "../../index.ts";
-import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-credential.mjs";
-import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const skillScripts = path.join(repoRoot, ".agents/skills/telegram-e2e-userbot/scripts");
-const convexProjectDir =
-  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
-  path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
-const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
+import {
+  createMethodProof,
+  openTelegramTestHarness,
+  publishMethodProof,
+  readJsonLines,
+  repoRoot,
+  skillScripts,
+  waitForChild,
+} from "./harness.mjs";
 const selected = new Set(process.env.TELLY_E2E_METHODS?.split(",").filter(Boolean) ?? []);
 const run = randomUUID();
 const openText = `telly-open-${run}`;
@@ -71,6 +70,7 @@ const ephemeralMessageIds = new Set();
 const verdicts = [];
 const failures = [];
 let credential;
+let harness;
 let proxy;
 let app;
 let recorder;
@@ -82,28 +82,6 @@ const png = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
   "base64",
 );
-
-function waitForChild(child) {
-  return new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      if (code === 0) resolve();
-      else reject(new Error(`Recorder exited with code ${String(code)} signal ${String(signal)}`));
-    });
-  });
-}
-
-async function readJsonLines(file) {
-  try {
-    return (await readFile(file, "utf8"))
-      .split(/\r?\n/u)
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
-  } catch (error) {
-    if (error && typeof error === "object" && error.code === "ENOENT") return [];
-    throw error;
-  }
-}
 
 function waitFor(file, predicate, timeoutMs = 15_000) {
   return new Promise((resolve, reject) => {
@@ -167,23 +145,11 @@ function eventView(event) {
 }
 
 async function writeVerdict(method, observation, timeline) {
-  const verdict = {
-    method,
-    passed: true,
-    recorded_time: new Date().toISOString(),
-    schemaVersion: 1,
-    timeline: [{ kind: "bot_api_result", observation }, ...timeline.map(eventView)],
-  };
-  const serialized = `${JSON.stringify(verdict, null, 2)}\n`;
-  for (const secret of [credential.sutToken, credential.sutUsername]) {
-    if (serialized.includes(secret)) throw new Error(`${method} proof contains leased identity data`);
-  }
-  if (artifactDir !== undefined) {
-    const methodDir = path.resolve(repoRoot, artifactDir, method);
-    await mkdir(methodDir, { recursive: true });
-    await writeFile(path.join(methodDir, `${verdict.recorded_time.slice(0, 10)}.json`), serialized);
-  }
-  verdicts.push(verdict);
+  const verdict = createMethodProof(method, observation, [
+    { kind: "bot_api_result", observation },
+    ...timeline.map(eventView),
+  ]);
+  verdicts.push(await publishMethodProof(verdict, credential));
 }
 
 async function observeMessage(messageId, predicate = () => true, afterIndex = 0) {
@@ -245,13 +211,8 @@ async function runProof(method, proof) {
 }
 
 try {
-  credential = await acquireTelegramTestCredential({ convexProjectDir });
-  proxy = await startTelegramTestApiProxy({
-    leaseHealth: {
-      assertHealthy: credential.assertLeaseHealthy,
-      whenUnhealthy: credential.whenLeaseUnhealthy,
-    },
-  });
+  harness = await openTelegramTestHarness();
+  ({ credential, proxy } = harness);
   await proxy.drainUpdates(credential.sutToken);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const chatId = Number(credential.testerUserId);
@@ -314,7 +275,7 @@ try {
   recorder.stderr.on("data", (chunk) => {
     recorderStderr = `${recorderStderr}${chunk}`.slice(-64_000);
   });
-  recorderCompletion = waitForChild(recorder);
+  recorderCompletion = waitForChild(recorder, "Telegram recorder");
   const recorderStoppedEarly = recorderCompletion.then(() => {
     throw new Error("Recorder exited before the harness finished");
   });
@@ -931,6 +892,5 @@ try {
   await writeFile(recorderStdoutPath, recorderStdout, { mode: 0o600 });
   await writeFile(recorderStderrPath, recorderStderr, { mode: 0o600 });
   await app?.close();
-  await proxy?.close();
-  await credential?.release();
+  await harness?.close();
 }
