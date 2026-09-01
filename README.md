@@ -1,102 +1,10 @@
-# Telly
+# 📺 Telly
 
-Telly will be an Effect-native Telegram Bot API framework designed primarily for agents.
+**The Effect-native Telegram Bot API framework where the correct bot is the easy bot.**
 
-Read [VISION.md](./VISION.md) for the product direction.
+Telly gives you one canonical way to build, run, and prove a Telegram bot. Coding agents are its first users, humans a close second — so every feature has one obvious path, every operation has typed errors, and major documented behaviors have executable tests. [VISION.md](./VISION.md) is the product contract behind all of it.
 
-## First methods
-
-Bot API methods are generated from the checked-in Telegram schema. Methods with no parameters take no arguments.
-
-```ts
-import { Application, getManagedBotToken, getMe, getMyName, sendMessage } from "telly";
-
-const token = process.env.BOT_TOKEN;
-if (token === undefined) throw new Error("Set BOT_TOKEN");
-
-const app = Application.make({ token });
-
-try {
-  const bot = await app.run(getMe());
-  const defaultName = await app.run(getMyName({}));
-  const message = await app.run(
-    sendMessage({ chatId: 123, text: "Hello from Telly" }),
-  );
-  console.log(bot.firstName, defaultName.name, message.messageId);
-} finally {
-  await app.close();
-}
-```
-
-Telly validates the standard Telegram token prefix as the numeric bot identifier. It uses that identifier to isolate inbox rows without storing or hashing the secret token.
-
-`Application.run` rejects with `BotApiError`. Its `message` explains the failure, and `retrySafe` states whether retrying can duplicate a side effect.
-
-Telly validates documented request limits before transport. This includes 129 UTF-8 byte, string length, array size, numeric range, and stable character-pattern checks across 125 request fields. TypeScript checks shapes and enum values; runtime validation handles values that types cannot know.
-
-```text
-sendMessage: request rejected before send: replyMarkup.inlineKeyboard[0][0].callbackData: expected 1–64 UTF-8 bytes, received 68
-```
-
-Validation errors never include the rejected value. Raw calls remain unvalidated for day-zero Bot API access.
-
-Telly retries a request at most twice after the first attempt. It honors Telegram's `retryAfter` value, retries Telegram `5xx` failures, and retries unknown outcomes only when the method is safe. A send may have succeeded before its connection failed. Opt into that duplicate risk for one call only:
-
-```ts
-import { retryUnknownOutcome, sendMessage } from "telly";
-
-await app.run(
-  sendMessage({ chatId: 123, text: "Retry even if this may send twice" }).pipe(
-    retryUnknownOutcome,
-  ),
-);
-```
-
-Message calls use Telegram's documented limits by default: 30 messages per second overall, one per second in one chat, and 20 per minute in one group. `allowPaidBroadcast: true` uses Telegram's paid 1000-per-second overall limit. Set `rateLimit: false` on `Application.make` only when another system owns message pacing.
-
-A method with optional fields still takes one options object: `await app.run(getMyName({}))`.
-
-Set common outgoing message options once on the application:
-
-```ts
-const app = Application.make({
-  token,
-  defaults: {
-    linkPreviewOptions: { isDisabled: true },
-    parseMode: "HTML",
-    protectContent: true,
-  },
-});
-```
-
-Defaults apply only to generated methods that accept the field at the top level. A field present on one call replaces its default. Set it to `undefined` to suppress the default for that call. Explicit `entities` or `captionEntities` suppress the `parseMode` default. `linkPreviewOptions` replaces the complete default object instead of merging its fields.
-
-`downloadFile({ fileId })` resolves Telegram's temporary file path and returns a `Uint8Array`. The hosted Bot API currently limits downloads to 20 MB, and resolved paths remain valid for at least one hour.
-
-Uploads use Web `Blob` values. Use `File` when Telegram should receive a filename: `sendPhoto({ chatId, photo: new File([bytes], "photo.png") })`.
-
-Managed bot tokens stay redacted and pass directly into another application:
-
-```ts
-const managedToken = await app.run(getManagedBotToken({ userId: 123 }));
-const managedApp = Application.make({ token: managedToken });
-```
-
-Tests use `FakeBotApi.make({ token })` from `telly/testing` and pass `fake.layer` to `Application.make` as `httpClient`. Seed `updates`, call `pushUpdate`, or set `webhookUrl` to test Telegram delivery without scripting transport replies. `serverRateLimit: true` enables a deterministic approximation of Telegram's documented `sendMessage` limits.
-
-## Reference bots
-
-| Bot | What it demonstrates | Run |
-| --- | --- | --- |
-| [Beginner](./examples/beginner) | `/start`, text routing, and replies | `BOT_TOKEN=... bun run examples/beginner/main.ts` |
-| [Interactive](./examples/conversations) | Buttons and a durable conversation | `BOT_TOKEN=... bun run examples/conversations/main.ts` |
-| [Production](./examples/production) | SQLite inbox, durable jobs, and a Bun webhook server | `BOT_TOKEN=... WEBHOOK_SECRET=... WEBHOOK_URL=https://... bun run examples/production/main.ts` |
-
-Each bot keeps its Telegram behavior in `bot.ts` and its process setup in `main.ts`. The behavior tests use the same exported bot with Telly's fake Bot API.
-
-## Polling
-
-`defineBot` is the beginner interface. It declares commands and ordinary text handlers without exposing routing machinery.
+## Your first broadcast
 
 ```ts
 import { Application, defineBot, reply, respond } from "telly";
@@ -114,138 +22,127 @@ const bot = defineBot({
 await Application.make({ token }).runPolling(bot);
 ```
 
-The default `on-complete` acknowledgment confirms only the contiguous prefix of successful updates. Use `on-receipt` when a process crash may lose accepted work.
+That is the whole bot. `runPolling` starts polling, surfaces failures through its Promise, handles stop signals, and closes the runtime. This exact bot lives in [`examples/beginner`](./examples/beginner) and runs in [`test/reference-bots.test.ts`](./test/reference-bots.test.ts).
 
-If another process briefly owns `getUpdates`, Telly checks that no webhook is active and retries for up to 60 seconds. An active webhook fails at once with `PollingConflictError`. Set `conflictRetryBudgetMs: 0` to disable conflict recovery.
+You never configured Effect. You do not have to.
 
-`respond` sends to the triggering chat without quoting. `reply` quotes the triggering message. Both preserve its business connection, forum thread, and direct-message topic.
+## 📺 Channel guide
 
-Advanced routing also provides `repliedMessage`, `regex`, `media`, `chatType`, and `mention` from the package root. Compose filters with `Filter.and`, `Filter.or`, and `Filter.not`, bind them with `on`, group first-match routes with `routes`, and run overlapping groups with `every`.
+Everything below lives behind one package interface, on one dispatch model, one error model, and one service model.
 
-Pure Message helpers resolve Telegram's overlapping fields without replacing the generated Message model:
+| Channel | What is on |
+| --- | --- |
+| [Routing](#routing) | Commands, text, media, mentions, regex, and composable filters |
+| [Typed callback data](#typed-callback-data) | Schema-checked buttons that route themselves |
+| [Conversations](#durable-conversations) | Multi-step flows with per-step state schemas |
+| [Jobs](#durable-jobs) | One-time and repeating work with durable stores |
+| [Durable inbox](#the-durable-inbox) | Save every update before acknowledging Telegram |
+| [Polling and webhooks](#webhooks) | One bot definition, two runtimes |
+| [Rate limits and retries](#rate-limits-and-retries) | Telegram's documented limits and safety-classified retries, on by default |
+| [Request validation](#request-validation) | Reject invalid calls before they touch the network |
+| [Testing](#testing) | A hermetic Bot API fake that speaks real Telegram protocol |
+| [Full schema coverage](#bot-api-coverage) | Every Bot API 10.3 method and type, generated and verified |
+
+Observability is built in too: hot-path outcomes emit Effect metrics and span attributes, and successful updates create no log noise.
+
+## Effect inside, optional outside
+
+Every Telly operation is an [Effect](https://effect.website/) value with typed success, error, and requirement channels. `Application` owns the runtime and bridges to Promises at the edge, so beginners call `app.run(...)` and `app.runPolling(...)` and never touch Effect machinery.
 
 ```ts
-import { messageMedia, messageReply, messageSender, messageText } from "telly";
+import { Application, getMe, sendMessage } from "telly";
 
-const text = messageText(message); // text, then media caption
-const media = messageMedia(message);
-const sender = messageSender(message); // senderChat, then from
-const repliedTo = messageReply(message);
+const app = Application.make({ token });
 
-if (media?.type === "photo") {
-  console.log(media.photo.fileId); // largest available size
+try {
+  const me = await app.run(getMe());
+  const sent = await app.run(sendMessage({ chatId: 123, text: "Hello from Telly" }));
+  console.log(me.firstName, sent.messageId);
+} finally {
+  await app.close();
 }
 ```
 
-`messageMedia` resolves Telegram's animation/document and live-photo/photo aliases. `messageReply` distinguishes same-chat messages, external messages, and stories. Forward details already use the generated `message.forwardOrigin` discriminated union, so they need no second helper.
-
-`updateContext` derives the effective chat, accessible message, user, and acting sender across every current update type:
+Advanced users compose those same values with Effect. The package root re-exports the `Effect` and `Schema` modules, so everyday composition needs no second import:
 
 ```ts
-const { chat, message, sender, user } = updateContext(update);
-```
+import { Effect, getMe, sendMessage } from "telly";
 
-The acting sender can be a user or a chat for anonymous administrators, poll votes, and reactions. The raw user remains separate when Telegram supplies both identities.
-
-Reuse one message destination with every generated send method:
-
-```ts
-await app.run(sendPhoto({ ...replyTo(message), photo }));
-await app.run(sendChatAction({ ...respondTo(message), action: "typing" }));
-```
-
-`replyTo` and `respondTo` preserve business connections, forum threads, direct-message topics, and ephemeral recipients when the generated method accepts those fields. Each method keeps only its supported target fields. `replyTo` also accepts Telegram quote options.
-
-Callback helpers remove identifier and edit-target branching:
-
-```ts
-await app.run(answerCallback(query, { text: "Saved" }));
-
-const target = callbackTarget(query);
-const edit = "ephemeralMessageId" in target
-  ? editEphemeralMessageText({ ...target, text: "Done" })
-  : editMessageText({ ...target, text: "Done" });
-await app.run(edit);
-```
-
-`messageEntities(message)` extracts all text or caption entities with their exact UTF-16 substrings. Pass entity types to select them, or use `entity("hashtag")` as a routing filter. `mention()` is the canonical filter for both username and user-object mentions.
-
-Escape dynamic values before using a parse mode:
-
-```ts
-const htmlText = `<b>${html.escape(userInput)}</b> ${html.mention(user)}`;
-const markdownText = `*${markdownV2.escape(userInput)}* ${markdownV2.mention(user)}`;
-```
-
-`command` matches new `update.message` text only. It excludes edits, captions, and channel posts. `every` runs handlers in order and fails fast, so a failed handler skips later handlers and stops polling.
-
-## Durable inbox
-
-Pass an `InboxStore` to save every update before Telegram receives an acknowledgment. One fenced worker replays saved updates, keeps each conversation in order, retries typed handler failures, and parks an update after five attempts.
-
-```ts
-import { Application, SqliteInbox } from "telly";
-
-const inbox = await SqliteInbox.open("./telly.db");
-
-const app = Application.make({
-  token,
-  inbox,
+const announce = Effect.gen(function* () {
+  const me = yield* getMe();
+  yield* sendMessage({ chatId: 123, text: `${me.firstName} is on the air.` });
 });
 
-try {
-  await app.runPolling(bot);
-} finally {
-  await app.close();
-  inbox.close();
-}
+await app.run(announce);
 ```
 
-`SqliteInbox` uses write-ahead logging, full synchronous durability, atomic write transactions, and a five-second busy timeout. `MemoryInbox` implements the same protocol but loses its contents when the process exits; use it only for development and adapter tests. Telly acknowledges only `Stored` or `Duplicate` updates and applies backpressure when its default 10,000-update capacity is full.
+The rest of the Effect library — Layers, Scopes, the Clock — comes from the `effect` package directly, and Telly's operations compose with all of it. Handlers are Effects. Layers wire real services in production and deterministic ones in tests. An optional HTTP client Layer replaces the default fetch transport without changing any operation. Failures are typed values: `app.run` rejects with `BotApiError`, whose `retrySafe` field states whether retrying can duplicate a side effect.
 
-Inbox delivery is at least once. A crash after a handler's external side effect but before durable settlement can run that handler again. Use `updateId` as the idempotency key for downstream writes and payments.
+## One dialect: camelCase
 
-## Webhooks
+Public fields use `camelCase`. Schema codecs translate to Telegram's `snake_case` wire keys, so `chatId` goes out as `chat_id` and `message.messageId` comes back typed. Decoded objects keep unknown fields under their wire names, so a day-zero Telegram field is readable before Telly types it.
 
-The same bot definition works with any server that accepts Web `Request` and `Response` values.
+A method with no Telegram parameters takes zero arguments: `getMe()`. A method with parameters takes exactly one options object: `getMyName({})`. No positional variants, no overloads.
+
+Set outgoing defaults once and they reach every generated method that accepts the field:
 
 ```ts
-const app = Application.make({ token });
-const webhook = app.startWebhook(bot, { secretToken });
-const server = Bun.serve({ fetch: webhook.fetch, port: 3000 });
-
-try {
-  await webhook.completed;
-} finally {
-  server.stop(true);
-  await app.close();
-}
+const app = Application.make({
+  token,
+  defaults: {
+    linkPreviewOptions: { isDisabled: true },
+    parseMode: "HTML",
+  },
+});
 ```
 
-Pass the same `secretToken` to Telegram's `setWebhook` method. Telly rejects missing or incorrect secrets before reading the request body.
+A key present on one call wins, including an explicit `undefined` as an opt-out. Uploads are Web `Blob` values — use `File` when Telegram should see a filename — and Telly picks JSON or multipart from the value.
+
+## Routing
+
+`defineBot` declares commands, text, and callback-query handlers without exposing routing machinery. Underneath sits a filter engine you can compose directly: `command`, `text`, `regex`, `media`, `mention`, `entity`, `chatType`, `callbackQuery`, and `repliedMessage`, combined with `Filter.and`, `Filter.or`, and `Filter.not`, bound with `on`, grouped first-match with `routes`, and run as overlapping groups with `every`.
+
+This is the heart of SuperSeriousBot's reply-based `sed` feature, ported in full in [`examples/superseriousbot`](./examples/superseriousbot):
+
+```ts
+import { Effect, Filter, on, regex, repliedMessage, reply, routes } from "telly";
+
+const sedBot = routes(
+  on(
+    Filter.and(repliedMessage(), regex(/^s\/[\s\S]*\/[\s\S]*/u)),
+    ([{ repliedMessage }, { text }]) => {
+      if (repliedMessage.text === undefined) return Effect.void;
+      const [, search = "", replacement = ""] = text.split("/");
+      return reply(repliedMessage, repliedMessage.text.replaceAll(search, replacement));
+    },
+  ),
+);
+```
+
+Both filter matches arrive typed, in order. Pure helpers resolve Telegram's overlapping fields without wrapping the generated models: `updateContext(update)` derives the effective chat, message, user, and acting sender for every update type; `messageText`, `messageMedia`, `messageSender`, `messageReply`, and `messageEntities` do the same for messages. `respondTo(message)` and `replyTo(message)` spread a full destination — business connection, forum thread, and topic included — into any generated send method. `html.escape` and `markdownV2.escape` keep user input from breaking your parse mode.
 
 ## Typed callback data
 
-One callback definition packs buttons and acts as its own routing filter.
+One callback definition packs buttons and acts as its own routing filter:
 
 ```ts
+import { answerCallback, callbackData, on, Schema } from "telly";
+
 const choice = callbackData("choice", Schema.Struct({
   answer: Schema.Literals(["yes", "no"]),
 }));
 
 choice.button("Yes", { answer: "yes" });
+
 on(choice, ({ callbackQuery, data }) =>
-  answerCallbackQuery({
-    callbackQueryId: callbackQuery.id,
-    text: `Selected ${data.answer}`,
-  }));
+  answerCallback(callbackQuery, { text: `You chose ${data.answer}` }));
 ```
 
-Packing validates the payload and rejects values larger than Telegram's 64-byte UTF-8 limit. Malformed, stale, or foreign callback data does not match the filter. Payload validation is not user authorization; check `callbackQuery.from` before a sensitive action.
+Packing validates the payload and enforces Telegram's exact 64-byte UTF-8 limit at pack time, not in production at 2 a.m. Malformed, stale, or foreign callback data simply does not match the filter. Payload validation is not authorization — check `callbackQuery.from` before sensitive actions.
 
 ## Durable conversations
 
-A conversation stores one schema-checked step for each chat and user. Successful handlers return `Conversation.next(...)` or `Conversation.end()`. Returning `void` keeps the current step.
+A conversation stores one schema-checked step per chat and user. Handlers return `Conversation.next(...)` or `Conversation.end()`; returning `void` keeps the current step.
 
 ```ts
 const order = conversation({
@@ -271,111 +168,185 @@ const order = conversation({
 });
 ```
 
-Attach it with `defineBot({ conversations: [order] })`. Prompt the user, then call `order.enter(message, "confirm", state)`. Entering a new conversation replaces the active conversation for that chat and user. [`examples/conversations/bot.ts`](./examples/conversations/bot.ts) shows a complete command → button → text flow with cancellation.
-
-Conversation state uses versioned compare-and-set writes. Use the durable inbox when multiple processes must preserve Telegram update order.
+Attach it with `defineBot({ conversations: [order] })` and start it with `order.enter(message, "confirm", { orderId: 42 })`. State advances only after a handler succeeds, and versioned compare-and-set writes reject concurrent updates. Updates that do not match the active step fall through to normal routing instead of vanishing. [`examples/conversations`](./examples/conversations) shows the complete command → button → text flow with cancellation.
 
 ## Durable jobs
 
-Define each job with a stable name and payload schema. The application runs due jobs beside polling or webhook delivery.
+Define each job once with a stable name and a payload schema. The application runs due jobs beside polling or webhook delivery:
 
 ```ts
-import {
-  Application,
-  defineBot,
-  defineJobs,
-  job,
-  Schema,
-  sendMessage,
-  SqliteJobs,
-} from "telly";
-
-const store = await SqliteJobs.open("./telly.db");
 const jobs = defineJobs({
   reminder: job({
     payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
     run: ({ chatId, text }) => sendMessage({ chatId, text }),
   }),
-}, { store });
-const token = process.env.BOT_TOKEN;
-if (token === undefined) throw new Error("Set BOT_TOKEN");
+}, { store: await SqliteJobs.open("./telly.db") });
+
 const app = Application.make({ jobs, token });
-const bot = defineBot({});
 
 await app.run(jobs.schedule("reminder", {
   after: "10 minutes",
   payload: { chatId: 123, text: "Stand up." },
 }));
-await app.runPolling(bot);
 ```
 
-Add `every` for fixed-interval work. Repeating jobs default to their definition name as the durable identifier. Completed identifiers remain idempotent for the configured retention period. Job delivery is at least once, so external side effects should use the job identifier as an idempotency key when possible.
+Repeating jobs keep their cadence, never overlap themselves, and coalesce missed occurrences into one run after downtime. A caller-supplied identifier makes scheduling idempotent until its completed record reaches the retention limit. Typed failures retry with persisted backoff; exhausted jobs park instead of looping forever. [`examples/jobs`](./examples/jobs) is a complete reminder bot.
 
-[`examples/jobs/bot.ts`](./examples/jobs/bot.ts) is a complete reminder bot. An application processes jobs only while its polling or webhook runtime is active.
+## The durable inbox
 
-## Observability
+Pass an inbox store and Telly saves every update durably before Telegram hears an acknowledgment:
 
-Telly records production signals through Effect's metric registry, tracer, and structured logger. It needs no telemetry option and no exporter dependency. Effect-native applications can attach their preferred exporter Layers.
+```ts
+import { Application, SqliteInbox } from "telly";
 
-Successful updates do not create Telly log lines. Retries and rate-limit waits log at debug level. Parked durable work and store failures produce structured warning or error logs.
+const inbox = await SqliteInbox.open("./telly.db");
+const app = Application.make({ token, inbox });
 
-| Metric | Attributes | Meaning |
-| --- | --- | --- |
-| `telly_bot_api_request_total` | `method`, `outcome` | Bot API attempts and bounded results |
-| `telly_bot_api_request_duration_ms` | `method` | Bot API attempt duration |
-| `telly_bot_api_delay_total` | `reason` | Rate-limit and retry waits |
-| `telly_bot_api_delay_ms_total` | `reason` | Total wait time |
-| `telly_dispatch_active` | `source` | Accepted work that has not settled |
-| `telly_dispatch_settled_total` | `source`, `outcome` | Completed, failed, or interrupted dispatches |
-| `telly_dispatch_rejected_total` | `source` | Work rejected at the concurrency limit or during shutdown |
-| `telly_webhook_request_total` | `result` | Webhook responses grouped by bounded result |
-| `telly_inbox_save_total` | `result` | Stored, duplicate, or full durable saves |
-| `telly_settlement_total` | `store`, `outcome` | Inbox and job settlements |
-
-Spans use bounded attributes such as `telegram.method`, `telegram.outcome`, `telegram.webhook.result`, and `telly.dispatch.source`. Metrics never contain tokens, URLs, chat identifiers, user identifiers, update identifiers, job identifiers, or arbitrary error text.
-
-## First real consumer
-
-[`examples/superseriousbot`](./examples/superseriousbot) ports SuperSeriousBot's reply-based `sed` feature. It composes `repliedMessage` and `regex`, replies to the original message, and runs through the durable SQLite inbox.
-
-```bash
-BOT_TOKEN=... bun run ./examples/superseriousbot/bot.ts
+try {
+  await app.runPolling(bot);
+} finally {
+  await app.close();
+  inbox.close();
+}
 ```
 
-## Benchmarks
+One fenced worker replays saved updates, keeps each conversation in order, retries typed handler failures with persisted backoff, and parks an update after five attempts. `SqliteInbox` uses write-ahead logging and full synchronous durability; `MemoryInbox` speaks the same protocol for development. The inbox acknowledges only atomic `Stored` or `Duplicate` results and applies backpressure at its default 10,000-update capacity instead of growing without bound.
 
-A public suite under [`benchmarks/`](./benchmarks/README.md) races Telly, grammY, and python-telegram-bot through the same deterministic Telegram update workload. The primary score starts from a parsed update object and includes each framework's native update construction or validation, routing, and awaited handler completion. It excludes JSON parsing, network time, and user handler work.
+Without an inbox, acknowledgment is still explicit: the default `on-complete` mode confirms only the contiguous prefix of completed updates, and `on-receipt` confirms on fetch when losing accepted work is acceptable.
 
-Telly wins primary throughput by 26%, all three latency percentiles, and median peak memory while validating every update into its public schema. grammY still starts faster and installs fewer bytes; those costs remain visible below and in the full report.
+### Reruns, guaranteed
 
-This baseline passed the suite's noise gate. Throughput variation was 2.8% for Telly and 4.1% for grammY.
+Be clear-eyed about what durability means:
 
-| Framework | Updates/s | CV | p50 latency | Median peak RSS | Cold startup |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Telly | 963,701 | 2.8% | 1.0 µs | 124.9 MiB | 159.3 ms |
-| grammY | 762,869 | 4.1% | 1.3 µs | 138.4 MiB | 44.7 ms |
-| python-telegram-bot | 28,080 | 4.0% | 37 µs | 41.4 MiB | 145.0 ms |
+- **Delivery is at least once.** A crash after your handler's external side effect but before durable settlement runs that handler again on restart.
+- **Idempotency is your half of the contract.** Key downstream writes and payments on `updateId` for updates and on the job identifier for jobs.
+- **Ordering is per conversation key.** Updates with the same key (by default, the chat) run in order; different keys run in parallel, under a bounded concurrency limit.
+- Within one process, each update dispatches once even when an unacknowledged batch is fetched again.
 
-CV is the coefficient of variation across throughput rounds. Peak RSS compares Telly with grammY directly under Node; the Python value describes the full Python stack.
+## Webhooks
 
-```bash
+The same bot definition serves any server that speaks Web `Request` and `Response`:
+
+```ts
+const app = Application.make({ token });
+const webhook = app.startWebhook(bot, { secretToken });
+const server = Bun.serve({ fetch: webhook.fetch, port: 3000 });
+
+try {
+  await app.run(setWebhook({ secretToken, url: webhookUrl }));
+  await webhook.completed;
+} finally {
+  await server.stop();
+  await app.close();
+}
+```
+
+Secret-token verification is on by default and rejects bad requests before reading the body. A webhook at capacity returns `503`, so Telegram keeps ownership and retries instead of Telly hoarding an internal queue. Each process remembers the latest 4096 completed update identifiers to absorb Telegram's redeliveries; add the durable inbox when restarts must not replay work into your side effects unkeyed.
+
+Polling is just as deliberate: after a `getUpdates` conflict, Telly asks `getWebhookInfo` who owns delivery instead of parsing error text. An overlapping poller gets a 60-second retry budget; an active webhook fails fast with `PollingConflictError`.
+
+## Rate limits and retries
+
+Message calls apply Telegram's documented limits by default: 30 messages per second overall, one per second per chat, 20 per minute per group, and the paid-broadcast 1000-per-second limit when `allowPaidBroadcast` is set. Every `429` with `retryAfter` pauses message calls bot-wide for at least the stated duration. Set `rateLimit: false` only when another system owns pacing.
+
+Retries are safety-classified per generated method. A request gets at most three attempts. Telly retries `429` and `5xx` rejections, and retries transport failures only when the method cannot duplicate a side effect. When a send *might* have landed before its connection died, you opt into the duplicate risk explicitly, per call:
+
+```ts
+await app.run(
+  sendMessage({ chatId: 123, text: "Worth sending twice" }).pipe(retryUnknownOutcome),
+);
+```
+
+## Request validation
+
+Telly rejects locally decidable documented constraints — UTF-8 byte limits, string lengths, array sizes, numeric ranges, character patterns — before the request leaves your process:
+
+```text
+sendMessage: request rejected before send: replyMarkup.inlineKeyboard[0][0].callbackData: expected 1–64 UTF-8 bytes, received 68
+```
+
+Validation errors name the public field path and the expected limit, and never echo the rejected value. Each constraint pins an exact excerpt of Telegram's documentation in [`overrides.json`](./bot-api/schema/overrides.json), so a wording change upstream forces a human re-review.
+
+The bot token and other secrets live in `Redacted` values and stay out of errors, logs, traces, and URLs.
+
+## Testing
+
+`telly/testing` includes a hermetic Bot API fake that reproduces Telegram's update queues, offsets, long polling, conflicts, webhook ownership, error shapes, and multipart uploads without network access. An excerpt from the executable [`test/reference-bots.test.ts`](./test/reference-bots.test.ts):
+
+```ts
+import { Application } from "telly";
+import { FakeBotApi } from "telly/testing";
+
+const fake = FakeBotApi.make({ token });
+const app = Application.make({ httpClient: fake.layer, rateLimit: false, token });
+
+await app.run(beginnerBot(update));
+
+expect(fake.requests[0]?.params).toEqual({
+  chat_id: 101,
+  text: "Hi! Send me anything.",
+});
+```
+
+Seed `updates`, call `pushUpdate`, or set `webhookUrl` to exercise delivery without scripting transport replies. `serverRateLimit: true` adds a deterministic approximation of Telegram's documented `sendMessage` limits. Deterministic Effect services drive time and transport, so unit tests never sleep.
+
+## Bot API coverage
+
+Telly generates its entire method and type surface — all 400 Bot API 10.3 types — from a pinned, hash-verified schema snapshot. `bun run schema:check` verifies provenance, version, names, and every type reference; [`bot-api/schema/README.md`](./bot-api/schema/README.md) documents the pipeline. New Telegram fields stay readable before Telly types them, because decoding preserves unknown fields.
+
+Beyond the hermetic fake, Telly proves methods against Telegram's real Test Server and records a structured event timeline for each one. The checked-in [coverage manifest](./bot-api/proofs/manifest.json) currently tracks 185 methods: 149 `proven` with linked timeline artifacts, and 36 `blocked` on Test Server prerequisites — each blocked entry records Telegram's exact error and an expiry date. Telly does not claim full live coverage until every entry is proven.
+
+## Prime-time performance
+
+VISION.md sets the goal: the lowest measured framework overhead of any Telegram Bot API framework, with correctness guarantees intact. The measured evidence so far comes from the checked-in [benchmark suite](./benchmarks/README.md), which races Telly, grammY, and python-telegram-bot through the same deterministic update workload. The primary score covers each framework's update construction or validation, routing, and awaited handler completion — no JSON parsing, no network, no user work.
+
+From the [accepted baseline](./benchmarks/baselines/2026-09-01T07-28-39-574fbca4-full.md), which passed the suite's noise gate:
+
+| Framework | Updates/s | CV | p50 | p95 | p99 | Median peak RSS | Cold startup | Installed size |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Telly | 963,701 | 2.8% | 1.0 µs | 1.3 µs | 1.6 µs | 124.9 MiB | 159.3 ms | 53.5 MiB |
+| grammY | 762,869 | 4.1% | 1.3 µs | 1.8 µs | 2.2 µs | 138.4 MiB | 44.7 ms | 2.6 MiB |
+| python-telegram-bot | 28,080 | 4.0% | 37 µs | 41 µs | 43 µs | 41.4 MiB | 145.0 ms | 5.4 MiB |
+
+Each framework gets its honest wins. Telly takes primary throughput by 26% and all three latency percentiles — while validating every update into its public schema, which grammY does not attempt. In the direct Node-versus-Node comparison, Telly's median peak memory also beats grammY's; python-telegram-bot's full Python stack posts the lowest memory figure of the three. grammY wins cold startup and installed size decisively: 44.7 ms and 2.6 MiB against Telly's 159.3 ms and 53.5 MiB, which include Effect and stay visible instead of being hidden. CV is the coefficient of variation across throughput rounds; installed size is a descriptive cross-ecosystem comparison, not a quality score.
+
+Reproduce it yourself:
+
+```sh
 bun run bench:setup
 bun run bench
 bun run bench:baseline --pin <idle-cpu>
 ```
 
-[`benchmarks/README.md`](./benchmarks/README.md) documents the method, the correctness contract, and how to read results honestly. The full baseline, including diagnostics, raw samples, and environment data, is [checked in](./benchmarks/baselines/2026-09-01T07-28-39-574fbca4-full.md).
+No sample is discarded, and every report ships its raw samples, variance, and environment. [`benchmarks/README.md`](./benchmarks/README.md) explains how to read the numbers honestly.
 
-## Bot API schema
+## Reference bots
 
-Development uses Bun 1.4. Published packages run on supported Node.js versions without Bun.
+Bots keep their Telegram behavior in `bot.ts`; the ones that need process setup keep it in `main.ts`. The beginner, interactive, and production bots run against the fake Bot API in [`test/reference-bots.test.ts`](./test/reference-bots.test.ts). The SuperSeriousBot port has its own behavior tests, and durable jobs have dedicated contract tests.
 
-The repository pins the complete Telegram Bot API 10.3 source snapshot and its provenance under `bot-api/schema/sources`.
+| Bot | What it demonstrates | Run |
+| --- | --- | --- |
+| [Beginner](./examples/beginner) | `/start`, text routing, replies | `BOT_TOKEN=... bun run examples/beginner/main.ts` |
+| [Interactive](./examples/conversations) | Buttons and a durable conversation | `BOT_TOKEN=... bun run examples/conversations/main.ts` |
+| [Jobs](./examples/jobs) | Durable scheduled reminders | `BOT_TOKEN=... bun run examples/jobs/bot.ts` |
+| [Production](./examples/production) | SQLite inbox, durable jobs, Bun webhook server | `BOT_TOKEN=... WEBHOOK_SECRET=... WEBHOOK_URL=https://... bun run examples/production/main.ts` |
+| [SuperSeriousBot](./examples/superseriousbot) | Real ported feature over the durable inbox | `BOT_TOKEN=... bun run examples/superseriousbot/bot.ts` |
 
-```bash
-bun run schema:check
-```
+## Runtimes and tooling
 
-The check verifies the source hash, Effect schema, version, entity names, and every type reference.
+Development uses Bun 1.4, pinned in `package.json`. The built artifact runs on Node.js 22 or newer without Bun — `bun run check` typechecks, runs the test suite, verifies the schema, and smoke-tests the build on Node. Runtime code sticks to Web platform primitives: `fetch`, `Request`, `Response`, `FormData`, `Blob`, `ReadableStream`, `AbortSignal`.
 
-Test the method and its transport contract with `bun test test/bot.test.ts`.
+## Go deeper
+
+- [VISION.md](./VISION.md) — the product and architecture contract, with every `Done when` condition
+- [AGENTS.md](./AGENTS.md) — how agents (and humans) work on this repository
+- [Bot API schema pipeline](./bot-api/schema/README.md) — sources, overrides, generation, checks
+- [Live-proof coverage manifest](./bot-api/proofs/manifest.json) — per-method Test Server evidence
+- [Benchmark methodology](./benchmarks/README.md) and the [accepted baseline](./benchmarks/baselines/2026-09-01T07-28-39-574fbca4-full.md)
+- [Examples](./examples) — the reference bots above
+
+## License
+
+[MIT](./LICENSE) © Ayaan ([@obviyus](https://github.com/obviyus))
+
+📺 *Stay tuned.*
