@@ -15,6 +15,7 @@ import {
   retryUnknownOutcome,
   type RequestMetadata,
 } from "./internal/RequestPolicy.js";
+import { trackBotApiRequest } from "./internal/Telemetry.js";
 import { User, type User as UserType } from "./types.generated.js";
 
 export { retryUnknownOutcome };
@@ -206,12 +207,12 @@ export class Bot extends Context.Service<
         const apiRoot = (options.apiRoot ?? defaultApiRoot).replace(/\/+$/u, "");
         const policy = makeRequestPolicy({ rateLimit: options.rateLimit !== false });
 
-        const request = Effect.fn("Bot.request")(function* (
+        const request = Effect.fn("Bot.request")(function* <A>(
           method: string,
           params: object,
           retrySafe: boolean,
+          decode: (value: unknown) => Effect.Effect<A, BotApiError>,
         ) {
-          yield* Effect.annotateCurrentSpan({ method });
           const body = requestBody(params);
           const request = HttpClientRequest.post(
             `${apiRoot}/bot${token}/${encodeURIComponent(method)}`,
@@ -220,15 +221,19 @@ export class Bot extends Context.Service<
               ? HttpClientRequest.bodyJsonUnsafe(body.body)
               : HttpClientRequest.bodyFormData(body.body),
           );
-          const response = yield* client.execute(request).pipe(
-            Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
-            Effect.mapError((error) => transportError(method, error, token, retrySafe)),
+          return yield* trackBotApiRequest(
+            method,
+            client.execute(request).pipe(
+              Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
+              Effect.mapError((error) => transportError(method, error, token, retrySafe)),
+              Effect.flatMap((response) => decodeEnvelope(response, method, token, retrySafe)),
+              Effect.flatMap((envelope) =>
+                envelope.ok
+                  ? decode(envelope.result)
+                  : Effect.fail(telegramRejected(method, envelope, token))
+              ),
+            ),
           );
-          const envelope = yield* decodeEnvelope(response, method, token, retrySafe);
-          if (!envelope.ok) {
-            return yield* telegramRejected(method, envelope, token);
-          }
-          return envelope.result;
         });
 
         const call = Effect.fn("Bot.call")(function* <A>(
@@ -241,7 +246,7 @@ export class Bot extends Context.Service<
             method,
             params,
             metadata,
-            () => request(method, params, metadata.retrySafe).pipe(Effect.flatMap(decode)),
+            () => request(method, params, metadata.retrySafe, decode),
           );
         });
 
@@ -263,30 +268,38 @@ export class Bot extends Context.Service<
             {},
             { rateLimit: "none", retrySafe: true },
             Effect.fn("Bot.downloadRequest")(function* () {
-              yield* Effect.annotateCurrentSpan({ method: "downloadFile" });
               const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
               const fileRequest = HttpClientRequest.get(
                 `${apiRoot}/file/bot${token}/${encodedPath}`,
               );
-              const response = yield* client.execute(fileRequest).pipe(
-                Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
-                Effect.mapError((error) => transportError("downloadFile", error, token, true)),
-              );
-              if (response.status === 200) {
-                const buffer = yield* response.arrayBuffer.pipe(
-                  Effect.mapError((error) => transportError("downloadFile", error, token, true)),
-                );
-                return new Uint8Array(buffer);
-              }
-              const envelope = yield* decodeEnvelope(response, "downloadFile", token, true);
-              if (!envelope.ok) {
-                return yield* telegramRejected("downloadFile", envelope, token);
-              }
-              return yield* invalidResponse(
+              return yield* trackBotApiRequest(
                 "downloadFile",
-                `file endpoint returned an unexpected success envelope with status ${response.status}`,
-                token,
-                true,
+                client.execute(fileRequest).pipe(
+                  Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
+                  Effect.mapError((error) => transportError("downloadFile", error, token, true)),
+                  Effect.flatMap((response) => {
+                    if (response.status === 200) {
+                      return response.arrayBuffer.pipe(
+                        Effect.map((buffer) => new Uint8Array(buffer)),
+                        Effect.mapError((error) =>
+                          transportError("downloadFile", error, token, true)
+                        ),
+                      );
+                    }
+                    return decodeEnvelope(response, "downloadFile", token, true).pipe(
+                      Effect.flatMap((envelope) =>
+                        envelope.ok
+                          ? Effect.fail(invalidResponse(
+                              "downloadFile",
+                              `file endpoint returned an unexpected success envelope with status ${response.status}`,
+                              token,
+                              true,
+                            ))
+                          : Effect.fail(telegramRejected("downloadFile", envelope, token))
+                      ),
+                    );
+                  }),
+                ),
               );
             }),
           );

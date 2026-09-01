@@ -15,6 +15,7 @@ import {
   type Jobs,
 } from "../Jobs.js";
 import { makeDispatcher } from "./Dispatch.js";
+import { recordSettlement } from "./Telemetry.js";
 
 function retryDelay(attempts: number, options: JobOptions): number {
   return Math.min(
@@ -23,7 +24,11 @@ function retryDelay(attempts: number, options: JobOptions): number {
   );
 }
 
-function failedSettlement(job: ClaimedJob, options: JobOptions, reason: string): JobSettlement {
+function failedSettlement(
+  job: ClaimedJob,
+  options: JobOptions,
+  reason: string,
+): Extract<JobSettlement, { readonly _tag: "Parked" | "Retry" }> {
   return job.attempts >= (options.maxAttempts ?? jobDefaults.maxAttempts)
     ? { _tag: "Parked", reason }
     : { _tag: "Retry", delayMs: retryDelay(job.attempts, options) };
@@ -39,6 +44,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
   const gracePeriodMs = options.gracePeriodMs ?? jobDefaults.gracePeriodMs;
   const leaseMs = options.leaseMs ?? jobDefaults.leaseMs;
   const maxAttempts = options.maxAttempts ?? jobDefaults.maxAttempts;
+  yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "jobs" });
 
   const standby = Effect.forever(
     state.store.acquire({ botId: bot.id, leaseMs }).pipe(
@@ -60,20 +66,29 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
                   scheduledAt: new Date(claimed.scheduledTimeMs),
                 });
             return Effect.result(execution).pipe(
-              Effect.flatMap((result) =>
-                state.store.settle({
+              Effect.flatMap((result) => {
+                const outcome = Result.isSuccess(result)
+                  ? { _tag: "Done" } as const
+                  : failedSettlement(
+                      claimed,
+                      options,
+                      definition === undefined ? "unknown-job" : "attempts-exhausted",
+                    );
+                return state.store.settle({
                   botId: bot.id,
                   fencingToken: token,
                   id: claimed.id,
-                  outcome: Result.isSuccess(result)
-                    ? { _tag: "Done" }
-                    : failedSettlement(
-                        claimed,
-                        options,
-                        definition === undefined ? "unknown-job" : "attempts-exhausted",
-                      ),
-                })
-              ),
+                  outcome,
+                }).pipe(
+                  Effect.tap(() =>
+                    outcome._tag === "Done"
+                      ? recordSettlement("jobs", "done")
+                      : outcome._tag === "Retry"
+                      ? recordSettlement("jobs", "retry")
+                      : recordSettlement("jobs", "parked", outcome.reason)
+                  ),
+                );
+              }),
               Effect.onInterrupt(() =>
                 state.store.settle({
                   botId: bot.id,
@@ -81,6 +96,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
                   id: claimed.id,
                   outcome: { _tag: "Interrupted" },
                 }).pipe(
+                  Effect.tap(() => recordSettlement("jobs", "interrupted")),
                   Effect.catchTag("JobLeaseLost", () => Effect.void),
                   Effect.catchTag("JobStoreError", () => Effect.void),
                 )
@@ -91,6 +107,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
             concurrency,
             conversationKey: (job) => job.id,
             gracePeriodMs,
+            source: "jobs",
           });
 
           const pump = Effect.forever(Effect.gen(function* () {
@@ -114,7 +131,11 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
                   fencingToken: token,
                   id: item.id,
                   outcome: { _tag: "Parked", reason: "attempts-exhausted" },
-                });
+                }).pipe(
+                  Effect.tap(() =>
+                    recordSettlement("jobs", "parked", "attempts-exhausted")
+                  ),
+                );
                 continue;
               }
               yield* dispatcher.submit(item, item.id).pipe(Effect.orDie, Effect.asVoid);
