@@ -190,7 +190,7 @@ await app.run(jobs.schedule("reminder", {
 }));
 ```
 
-Repeating jobs keep their cadence, never overlap themselves, and coalesce missed occurrences into one run after downtime. A caller-supplied identifier makes scheduling idempotent until its completed record reaches the retention limit. Typed failures retry with persisted backoff; exhausted jobs park instead of looping forever. [`examples/jobs`](./examples/jobs) is a complete reminder bot.
+Repeating jobs keep their cadence, never overlap themselves, and coalesce missed occurrences into one run after downtime. A past `at` value anchors a new repeating job at its next future occurrence. A caller-supplied identifier makes scheduling idempotent until its completed record reaches the retention limit. Typed failures retry with persisted backoff; exhausted jobs park instead of looping forever. [`examples/jobs`](./examples/jobs) is a complete reminder bot.
 
 ## The durable inbox
 
