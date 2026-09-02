@@ -6,9 +6,11 @@ import {
   Bot,
   BotApiError,
   deleteWebhook,
+  editMessageText,
   getUpdates,
   getWebhookInfo,
   sendMessage,
+  sendRichMessage,
   setWebhook,
 } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply, type FakeUpdate } from "../testing.ts";
@@ -167,6 +169,37 @@ test("serverRateLimit rejects an early message and accepts its timed retry", asy
   expect(result.first.text).toBe("first");
   expect(result.retried.text).toBe("second");
   expect(fake.requests.filter((call) => call.method === "sendMessage")).toHaveLength(3);
+});
+
+test("fake rich messages can be sent and edited", async () => {
+  const fake = FakeBotApi.make({ token });
+
+  const result = await Effect.runPromise(Effect.gen(function* () {
+    const sent = yield* sendRichMessage({
+      chatId: 63,
+      richMessage: { markdown: "## Native rich answer" },
+    });
+    const edited = yield* editMessageText({
+      chatId: sent.chat.id,
+      messageId: sent.messageId,
+      richMessage: { markdown: "## Edited rich answer" },
+    });
+    return { edited, sent };
+  }).pipe(Effect.provide(botLayer(fake))));
+
+  expect(result.sent).toMatchObject({
+    chat: { id: 63 },
+    richMessage: { blocks: [] },
+  });
+  expect(result.edited).toMatchObject({
+    chat: { id: 63 },
+    messageId: result.sent.messageId,
+    richMessage: { blocks: [] },
+  });
+  expect(fake.requests.map(({ method }) => method)).toEqual([
+    "sendRichMessage",
+    "editMessageText",
+  ]);
 });
 
 test("a scripted failure leaves semantic updates untouched", async () => {
