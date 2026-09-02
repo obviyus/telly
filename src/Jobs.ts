@@ -644,9 +644,10 @@ function normalizeTiming(
       if (atMs !== undefined && (!Number.isSafeInteger(atMs) || atMs < 0)) {
         throw new RangeError("at must be a valid Date on or after 1970-01-01");
       }
-      const runAtMs = atMs ?? (afterMs === undefined
-        ? now + (everyMs ?? 0)
-        : now + afterMs);
+      const declaredRunAtMs = atMs ?? now + (afterMs ?? everyMs ?? 0);
+      const runAtMs = atMs !== undefined && everyMs !== undefined && atMs < now
+        ? nextJobOccurrence(atMs, everyMs, now)
+        : declaredRunAtMs;
       if (!Number.isSafeInteger(runAtMs)) throw new RangeError("Job time exceeds safe integers");
       return { afterMs, atMs, everyMs, runAtMs };
     },

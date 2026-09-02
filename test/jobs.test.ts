@@ -1,8 +1,10 @@
 import { expect, test } from "bun:test";
-import { Effect } from "effect";
+import { Effect, Layer, Redacted } from "effect";
+import { TestClock } from "effect/testing";
 
 import {
   Application,
+  Bot,
   defineJobs,
   InvalidJobPayload,
   InvalidJobSchedule,
@@ -63,6 +65,51 @@ test("repeating jobs default to a stable definition identifier", async () => {
 
   expect(first).toBe("reminder");
   expect(second).toBe("reminder");
+});
+
+test("repeating jobs with a past cadence anchor start at the next occurrence", async () => {
+  const nextOccurrenceMs = Date.parse("2026-09-02T14:30:00Z");
+  const store = MemoryJobs.make();
+  const jobs = defineJobs({
+    habit: job({
+      payload: Schema.Struct({}),
+      run: () => Effect.void,
+    }),
+  }, { store });
+  const fake = FakeBotApi.make({ token });
+  const botLayer = Bot.layer({ rateLimit: false, token: Redacted.make(token) }).pipe(
+    Layer.provide(fake.layer),
+  );
+  const program = Effect.gen(function* () {
+    yield* TestClock.setTime(Date.parse("2026-09-02T04:18:00Z"));
+    yield* jobs.schedule("habit", {
+      at: new Date("2026-01-01T14:30:00Z"),
+      every: "1 day",
+      payload: {},
+    });
+    const lease = yield* store.acquire({ botId: 123456, leaseMs: 100_000_000 });
+    if (lease._tag !== "Acquired") throw new Error("Expected job lease");
+    const early = yield* store.claim({
+      botId: 123456,
+      fencingToken: lease.fencingToken,
+      limit: 1,
+    });
+    yield* TestClock.setTime(nextOccurrenceMs);
+    const due = yield* store.claim({
+      botId: 123456,
+      fencingToken: lease.fencingToken,
+      limit: 1,
+    });
+    return { due, early };
+  }).pipe(
+    Effect.provide(botLayer),
+    Effect.provide(TestClock.layer()),
+  );
+
+  const result = await Effect.runPromise(program);
+
+  expect(result.early).toEqual([]);
+  expect(result.due).toMatchObject([{ scheduledTimeMs: nextOccurrenceMs }]);
 });
 
 test("one-time jobs receive distinct automatic identifiers", async () => {
