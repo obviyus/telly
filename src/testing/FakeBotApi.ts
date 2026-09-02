@@ -418,9 +418,25 @@ export const FakeBotApi = {
         if (method === "answerCallbackQuery") {
           return okResponse(request, true);
         }
+        if (method === "editMessageText" && Predicate.isObject(params)) {
+          const messageId = integerField(params, "message_id");
+          if (messageId === undefined) return okResponse(request, true);
+          return okResponse(request, {
+            chat: {
+              id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
+              type: "private",
+            },
+            date: 1_700_000_000,
+            message_id: messageId,
+            ...(params["rich_message"] === undefined
+              ? { text: params["text"] }
+              : { rich_message: { blocks: [] } }),
+          });
+        }
+        const sendsMessage = method === "sendMessage" || method === "sendRichMessage";
         if (
           options.serverRateLimit === true &&
-          method === "sendMessage" &&
+          sendsMessage &&
           Predicate.isObject(params)
         ) {
           const now = yield* Effect.clockWith((clock) =>
@@ -436,7 +452,7 @@ export const FakeBotApi = {
             );
           }
         }
-        if (method !== "sendMessage" || !Predicate.isObject(params)) {
+        if (!sendsMessage || !Predicate.isObject(params)) {
           return rejectedResponse(request, 404, "Not Found");
         }
 
@@ -450,7 +466,9 @@ export const FakeBotApi = {
           date: 1_700_000_000,
           future_field: "kept",
           message_id: messageId,
-          text: params["text"],
+          ...(method === "sendRichMessage"
+            ? { rich_message: { blocks: [] } }
+            : { text: params["text"] }),
         });
       }),
     );
