@@ -129,13 +129,17 @@ map to the behavior being proved.
 node "$TELEGRAM_E2E_SKILL_DIR/scripts/telegram-test-doctor.mjs"
 ```
 
+For a direct-message-only proof, pass `--dm`. It keeps the identity, Test Server,
+proxy, bot, and privacy checks while marking group membership as not required.
+A proof that touches a group uses the default doctor and requires active membership.
+
 Require `ok: true`. The doctor leases one credential, restores its private TDLib
 state, confirms the pinned TDLib version on the Test Server, verifies the SUT
 through the Test Bot API proxy, then removes the state and releases the lease.
 
 Done when the doctor reports Convex source, loaded credentials, isolated TDLib
-state, Test Server, authorized user, Bot API proxy, disabled group privacy,
-active group membership, and the SUT bot.
+state, Test Server, authorized user, Bot API proxy, disabled group privacy, the
+selected scope, and the SUT bot. Group scope also reports active group membership.
 
 ## 4. Drive and record
 

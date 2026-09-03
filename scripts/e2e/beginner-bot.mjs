@@ -16,6 +16,9 @@ import {
 const proofDir = await mkdtemp(path.join(tmpdir(), "telly-beginner-bot."));
 const eventsPath = path.join(proofDir, "events.ndjson");
 const summaryPath = path.join(proofDir, "summary.json");
+const photoEventsPath = path.join(proofDir, "photo-events.ndjson");
+const photoSummaryPath = path.join(proofDir, "photo-summary.json");
+const photoPath = path.join(proofDir, "caption-command.png");
 const readyPath = path.join(proofDir, "recorder-ready.json");
 const scenarioPath = path.join(proofDir, "scenario.json");
 const recorderStdoutPath = path.join(proofDir, "recorder.stdout.log");
@@ -28,6 +31,9 @@ const echoInput = `telly-echo-input-${run}`;
 const echoPrefix = "echo:";
 const echoText = `${echoPrefix}${echoInput}`;
 const ignoredCommand = "/start@definitely_other_bot";
+const captionArgument = `telly-caption-${run}`;
+const captionCommand = `/describe ${captionArgument}`;
+const captionResponseText = `caption:${captionArgument}`;
 const CHILD_ENV_SECRET_KEY =
   /(?:^|_)(?:ACCESS_KEY|API_KEY|AUTH|COOKIE|CREDENTIAL|PASS|PASSWORD|PRIVATE_KEY|SECRET|SESSION|TOKEN)(?:_|$)/u;
 let credential;
@@ -54,6 +60,10 @@ try {
   harness = await openTelegramTestHarness();
   ({ credential, proxy } = harness);
   await proxy.drainUpdates(credential.sutToken);
+  await writeFile(photoPath, Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAABAAAAAQBPJcTWAAAAb0lEQVR4nO3PAQkAAAyEwO8feiyGCMIF0G0nxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzSg9sFe4OIMD8UiAAAAAElFTkSuQmCC",
+    "base64",
+  ));
 
   sut = spawn(
     "bun",
@@ -130,9 +140,48 @@ try {
   });
   recorderCompletion = waitForChild(recorder, "Telegram recorder");
   await recorderCompletion;
+
+  recorder = spawn(
+    "uv",
+    [
+      "run",
+      path.join(skillScripts, "user-record.py"),
+      "--send-photo",
+      photoPath,
+      "--send-caption",
+      captionCommand,
+      "--seconds",
+      "4",
+      "--record",
+      photoEventsPath,
+      "--output",
+      photoSummaryPath,
+      "--chat",
+      `@${credential.sutUsername}`,
+      "--sut-user-id",
+      credential.sutBotId,
+    ],
+    {
+      cwd: repoRoot,
+      env: { ...process.env, ...credential.driverEnv },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  recorder.stdout.setEncoding("utf8");
+  recorder.stderr.setEncoding("utf8");
+  recorder.stdout.on("data", (chunk) => {
+    recorderStdout = `${recorderStdout}${chunk}`.slice(-64_000);
+  });
+  recorder.stderr.on("data", (chunk) => {
+    recorderStderr = `${recorderStderr}${chunk}`.slice(-64_000);
+  });
+  recorderCompletion = waitForChild(recorder, "Telegram photo recorder");
+  await recorderCompletion;
   credential.assertLeaseHealthy();
 
   const events = await readJsonLines(eventsPath);
+  const photoEvents = await readJsonLines(photoEventsPath);
+  const photoSummary = JSON.parse(await Bun.file(photoSummaryPath).text());
   const startAction = requireEvent(
     events,
     (event) => event.kind === "action" && event.text === "/start" && event.status === "completed",
@@ -159,6 +208,14 @@ try {
       event.kind === "action" && event.text === ignoredCommand && event.status === "completed",
     "completed command for another bot",
   );
+  const captionResponse = requireEvent(
+    photoEvents,
+    (event) =>
+      event.kind === "message" &&
+      event.isSut === true &&
+      event.text === captionResponseText,
+    "caption command response",
+  );
   if (startResponse.replyToMessageId !== undefined && startResponse.replyToMessageId !== null) {
     throw new Error("respond unexpectedly quoted /start");
   }
@@ -173,6 +230,9 @@ try {
       (event.text === startText || event.text === `${echoPrefix}${ignoredCommand}`),
   );
   if (unexpected !== undefined) throw new Error("A command for another bot was handled");
+  if (captionResponse.replyToMessageId !== photoSummary.sentMessageId) {
+    throw new Error("Caption command response did not quote the photo");
+  }
 
   const shutdownStartedAt = Date.now();
   sut.kill("SIGTERM");
@@ -213,6 +273,16 @@ try {
         kind: "ignored_command",
         observation: "no later SUT response",
         observationWindowMs: 3_000,
+      },
+      {
+        kind: "photo_caption_command",
+        text: captionCommand,
+      },
+      {
+        botApiMessageId: captionResponse.botApiMessageId,
+        kind: "caption_command_response",
+        quotedMessageId: photoSummary.sentMessageId,
+        text: captionResponse.text,
       },
       {
         durationMs: shutdownDurationMs,

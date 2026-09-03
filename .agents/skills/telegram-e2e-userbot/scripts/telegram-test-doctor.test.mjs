@@ -2,6 +2,68 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { runTelegramTestDoctor } from "./telegram-test-doctor.mjs";
 
+test("doctor DM scope does not require an unrelated group", async () => {
+  let released = false;
+  let proxyClosed = false;
+  const methods = [];
+  const credential = {
+    driverEnv: {},
+    groupId: "-1001",
+    sutBotId: "42",
+    sutToken: "sut-token",
+    sutUsername: "sut_bot",
+    tdlibVersion: "1.8.56",
+    testerUserId: "123",
+    whenLeaseUnhealthy: new Promise(() => {}),
+    assertLeaseHealthy: () => {},
+    release: async () => {
+      released = true;
+    },
+  };
+  const result = await runTelegramTestDoctor({
+    acquireCredential: async () => credential,
+    fetchImpl: async (url) => {
+      methods.push(new URL(url).pathname.split("/").at(-1));
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          result: {
+            can_read_all_group_messages: true,
+            id: 42,
+            username: "sut_bot",
+          },
+        }),
+      };
+    },
+    requireGroupMembership: false,
+    runCommandImpl: async () => ({
+      status: 0,
+      stderr: "",
+      stdout: JSON.stringify({
+        authorized: true,
+        ok: true,
+        tdlibVersion: "1.8.56",
+        testDc: true,
+        user: { id: 123 },
+      }),
+      timedOut: false,
+    }),
+    startProxy: async () => ({
+      apiRoot: "http://127.0.0.1:19881",
+      close: async () => {
+        proxyClosed = true;
+      },
+    }),
+  });
+
+  assert.deepEqual(methods, ["getMe"]);
+  assert.equal(result.scope, "dm");
+  assert.equal(result.groupMembership, "not-required");
+  assert.equal(proxyClosed, true);
+  assert.equal(released, true);
+});
+
 test("doctor revocation after getMe prevents later Bot API calls and releases", async () => {
   const leaseError = new Error("doctor lease revoked");
   let healthy = true;
