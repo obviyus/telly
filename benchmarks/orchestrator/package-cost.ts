@@ -54,6 +54,8 @@ export async function measurePackageBytes(repoRoot: string) {
   );
   const grammyRoot = path.join(repoRoot, "benchmarks/runners/grammy");
   const grammyDependencies = await packageClosureBytes(grammyRoot, ["grammy"]);
+  const puregramRoot = path.join(repoRoot, "benchmarks/runners/puregram");
+  const puregramDependencies = await packageClosureBytes(puregramRoot, ["puregram"]);
   const pythonRoot = path.join(repoRoot, "benchmarks/runners/ptb/.venv/lib");
   const pythonVersions = await readdir(pythonRoot);
   const sitePackages = path.join(
@@ -68,6 +70,7 @@ export async function measurePackageBytes(repoRoot: string) {
   );
   return {
     grammy: grammyDependencies,
+    puregram: puregramDependencies,
     "python-telegram-bot": pythonBytes,
     telly: tellyOwn + tellyDependencies,
   } as const;

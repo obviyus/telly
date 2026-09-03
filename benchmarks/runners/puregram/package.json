@@ -1,0 +1,8 @@
+{
+  "name": "telly-benchmark-puregram",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "puregram": "3.9.1"
+  }
+}

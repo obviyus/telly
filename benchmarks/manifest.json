@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "frameworks": {
     "grammy": "1.46.0",
+    "puregram": "3.9.1",
     "pythonTelegramBot": "22.8"
   },
   "workload": {

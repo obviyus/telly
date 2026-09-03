@@ -7,6 +7,7 @@ import type {
 const frameworks: ReadonlyArray<FrameworkName> = [
   "telly",
   "grammy",
+  "puregram",
   "python-telegram-bot",
 ];
 
@@ -41,11 +42,11 @@ export function markdownReport(result: BenchmarkDocument, rawFile: string): stri
   const routingRows = frameworks.map((name) =>
     `| ${name} | ${integer(result.diagnostics.routing[name].median)} | ${percent(result.diagnostics.routing[name].coefficientOfVariation)} |`
   ).join("\n");
-  const decodeRows = (["telly", "python-telegram-bot"] as const).map((name) => {
+  const decodeRows = frameworks.map((name) => {
     const metric = result.diagnostics.decode[name];
     return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
   }).join("\n");
-  const heavyDecodeRows = (["telly", "python-telegram-bot"] as const).map((name) => {
+  const heavyDecodeRows = frameworks.map((name) => {
     const metric = result.diagnostics.heavyDecode[name];
     return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
   }).join("\n");
@@ -73,7 +74,7 @@ ${quality}
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 ${frameworks.map((name) => primaryRow(name, result.primary[name])).join("\n")}
 
-CV is the coefficient of variation across throughput rounds. Peak RSS compares Telly with grammY directly under Node. The Python value describes the full Python stack. Every process peak remains in the raw data.
+CV is the coefficient of variation across throughput rounds. Peak RSS compares the three Node frameworks directly. The Python value describes the full Python stack. Every process peak remains in the raw data.
 
 ## Routing-only diagnostic
 
@@ -87,7 +88,7 @@ ${routingRows}
 | --- | ---: |
 ${decodeRows}
 
-grammY reports N/A because it consumes Telegram update objects without constructing a validated domain model.
+grammY reports N/A because it consumes Telegram update objects directly. Puregram reports N/A because it has no public standalone decode interface.
 
 ## Complex decode diagnostic
 
@@ -95,7 +96,7 @@ grammY reports N/A because it consumes Telegram update objects without construct
 | --- | ---: |
 ${heavyDecodeRows}
 
-Complex fixtures add forwarded origins, nested replies, photo arrays, and inline keyboards. Each round decodes ${integer(result.workload.diagnosticOperations)} updates. This diagnostic proves sparse decoding beyond the primary shapes. grammY remains N/A for the same reason as the decode-only table.
+Complex fixtures add forwarded origins, nested replies, photo arrays, and inline keyboards. Each round decodes ${integer(result.workload.diagnosticOperations)} updates. This diagnostic proves sparse decoding beyond the primary shapes. grammY and Puregram remain N/A for the same reasons as the decode-only table.
 
 ## Cold startup
 
@@ -111,7 +112,7 @@ Framework delta subtracts a fresh hello-world process in the same runtime. Negat
 | --- | ---: |
 ${packageRows}
 
-Package size is descriptive across ecosystems. Telly includes its built artifact and production dependency closure. grammY includes its production dependency closure. python-telegram-bot includes its virtual environment site-packages without bytecode caches.
+Package size is descriptive across ecosystems. Telly includes its built artifact and production dependency closure. grammY and Puregram include their production dependency closures. python-telegram-bot includes its virtual environment site-packages without bytecode caches.
 
 ## Method
 
@@ -130,7 +131,7 @@ Package size is descriptive across ecosystems. Telly includes its built artifact
 - Governor: ${result.machine.cpuGovernor}
 - Kernel: ${result.machine.platform} ${result.machine.kernel} ${result.machine.architecture}
 - Runtimes: Node ${result.machine.node}, Bun ${result.machine.bun}, ${result.machine.python}
-- Frameworks: Telly ${result.versions.telly}, grammY ${result.versions.grammy}, python-telegram-bot ${result.versions["python-telegram-bot"]}
+- Frameworks: Telly ${result.versions.telly}, grammY ${result.versions.grammy}, Puregram ${result.versions.puregram}, python-telegram-bot ${result.versions["python-telegram-bot"]}
 - Pinned physical core idle before start: ${result.machine.pinnedCoreIdlePercent === null ? "not sampled" : `${result.machine.pinnedCoreIdlePercent.toFixed(1)}%`}
 - Load average at start: ${result.machine.loadAverage.map((value) => value.toFixed(2)).join(", ")}
 - Generated: ${result.generatedAt}

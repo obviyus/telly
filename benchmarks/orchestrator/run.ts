@@ -30,6 +30,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../
 const frameworkOrder: ReadonlyArray<FrameworkName> = [
   "telly",
   "grammy",
+  "puregram",
   "python-telegram-bot",
 ];
 
@@ -45,6 +46,7 @@ const Preset = Schema.Struct({
 const Manifest = Schema.Struct({
   frameworks: Schema.Struct({
     grammy: Schema.String,
+    puregram: Schema.String,
     pythonTelegramBot: Schema.String,
   }),
   presets: Schema.Record(Schema.String, Preset),
@@ -98,6 +100,8 @@ function runnerCommand(framework: FrameworkName): ReadonlyArray<string> {
       return ["node", path.join(repoRoot, "benchmarks/runners/telly.mjs")];
     case "grammy":
       return ["node", path.join(repoRoot, "benchmarks/runners/grammy/runner.mjs")];
+    case "puregram":
+      return ["node", path.join(repoRoot, "benchmarks/runners/puregram/runner.mjs")];
     case "python-telegram-bot":
       return [
         "uv",
@@ -214,6 +218,7 @@ async function startupSamples(options: {
     "node-baseline": [],
     "python-baseline": [],
     "python-telegram-bot": [],
+    puregram: [],
     telly: [],
   };
   const baselineCommands: Record<string, ReadonlyArray<string>> = {
@@ -381,12 +386,14 @@ try {
   const packageBytes = await measurePackageBytes(repoRoot);
   const versions = {
     grammy: ingress.find((result) => result.framework === "grammy")?.version ?? "missing",
+    puregram: ingress.find((result) => result.framework === "puregram")?.version ?? "missing",
     "python-telegram-bot": ingress.find((result) => result.framework === "python-telegram-bot")
       ?.version ?? "missing",
     telly: ingress.find((result) => result.framework === "telly")?.version ?? "missing",
   } as const;
   if (
     versions.grammy !== manifest.frameworks.grammy ||
+    versions.puregram !== manifest.frameworks.puregram ||
     versions["python-telegram-bot"] !== manifest.frameworks.pythonTelegramBot
   ) {
     throw new Error(`Resolved framework versions do not match benchmarks/manifest.json`);
@@ -404,6 +411,7 @@ try {
   ];
   const throughputSummaries = {
     grammy: summarize(throughput(ingress, "grammy")),
+    puregram: summarize(throughput(ingress, "puregram")),
     "python-telegram-bot": summarize(throughput(ingress, "python-telegram-bot")),
     telly: summarize(throughput(ingress, "telly")),
   };
@@ -432,6 +440,7 @@ try {
       },
       routing: {
         grammy: summarize(throughput(routing, "grammy")),
+        puregram: summarize(throughput(routing, "puregram")),
         "python-telegram-bot": summarize(throughput(routing, "python-telegram-bot")),
         telly: summarize(throughput(routing, "telly")),
       },
@@ -451,6 +460,11 @@ try {
         peakRssKiB: summarize(peakRss(ingress, "grammy")),
         throughput: throughputSummaries.grammy,
       },
+      puregram: {
+        latency: summarizeLatency(latency(latencyResults, "puregram")),
+        peakRssKiB: summarize(peakRss(ingress, "puregram")),
+        throughput: throughputSummaries.puregram,
+      },
       "python-telegram-bot": {
         latency: summarizeLatency(latency(latencyResults, "python-telegram-bot")),
         peakRssKiB: summarize(peakRss(ingress, "python-telegram-bot")),
@@ -469,6 +483,10 @@ try {
       grammy: {
         deltaNs: summarize(startupNs["grammy"] ?? []).median - nodeBaseline.median,
         total: summarize(startupNs["grammy"] ?? []),
+      },
+      puregram: {
+        deltaNs: summarize(startupNs["puregram"] ?? []).median - nodeBaseline.median,
+        total: summarize(startupNs["puregram"] ?? []),
       },
       "python-telegram-bot": {
         deltaNs: summarize(startupNs["python-telegram-bot"] ?? []).median -

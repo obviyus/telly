@@ -28,7 +28,7 @@
     "bench": "bun run build && bun benchmarks/orchestrator/run.ts --preset quick",
     "bench:baseline": "bun run build && bun benchmarks/orchestrator/run.ts --preset full --baseline",
     "bench:full": "bun run build && bun benchmarks/orchestrator/run.ts --preset full",
-    "bench:setup": "bun install --frozen-lockfile && bun install --cwd benchmarks/runners/grammy --frozen-lockfile && uv sync --project benchmarks/runners/ptb --frozen",
+    "bench:setup": "bun install --frozen-lockfile && bun install --cwd benchmarks/runners/grammy --frozen-lockfile && bun install --cwd benchmarks/runners/puregram --frozen-lockfile && uv sync --project benchmarks/runners/ptb --frozen",
     "build": "bun run ./scripts/build.ts && tsc --project ./tsconfig.build.json",
     "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
     "e2e:read-only-methods": "bun run ./scripts/e2e/read-only-methods.mjs",
