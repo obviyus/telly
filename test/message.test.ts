@@ -32,6 +32,40 @@ test("messageText prefers text and falls back to a media caption", () => {
   expect(messageText(message())).toBeUndefined();
 });
 
+test("messageText preserves readable context from a rich message", () => {
+  expect(messageText(message({
+    richMessage: {
+      blocks: [
+        {
+          size: 2,
+          text: ["Browser-based ", { text: "remote desktop", type: "bold" }],
+          type: "heading",
+        },
+        {
+          items: [{
+            blocks: [{
+              text: [{ text: "web_search", type: "code" }, ": Fact-checking"],
+              type: "paragraph",
+            }],
+            label: "•",
+          }],
+          type: "list",
+        },
+        {
+          blocks: [{ text: "No official SSH access.", type: "paragraph" }],
+          summary: "Details",
+          type: "details",
+        },
+      ],
+    },
+  }))).toBe([
+    "Browser-based remote desktop",
+    "• web_search: Fact-checking",
+    "Details",
+    "No official SSH access.",
+  ].join("\n"));
+});
+
 test("messageEntities extracts UTF-16 text spans and filters their types", () => {
   const hashtag = { length: 4, offset: 3, type: "hashtag" as const };
   const bold = { length: 4, offset: 12, type: "bold" as const };
