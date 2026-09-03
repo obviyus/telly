@@ -102,6 +102,8 @@ A key present on one call wins, including an explicit `undefined` as an opt-out.
 
 `defineBot` declares commands, text, and callback-query handlers without exposing routing machinery. Underneath sits a filter engine you can compose directly: `command`, `text`, `regex`, `media`, `mention`, `entity`, `chatType`, `callbackQuery`, and `repliedMessage`, combined with `Filter.and`, `Filter.or`, and `Filter.not`, bound with `on`, grouped first-match with `routes`, and run as overlapping groups with `every`.
 
+`command` matches a Telegram command at the start of either message text or a media caption, so `/describe` works when sent with a photo, video, or document.
+
 This is the heart of SuperSeriousBot's reply-based `sed` feature, ported in full in [`examples/superseriousbot`](./examples/superseriousbot):
 
 ```ts

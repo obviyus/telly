@@ -111,6 +111,34 @@ test("command extracts normalized command and both argument forms", async () => 
   });
 });
 
+test("command extracts a command and arguments from a media caption", async () => {
+  const fake = FakeBotApi.make({ token });
+  const app = Application.make({ httpClient: fake.layer, token });
+  let observed:
+    | { readonly argText: string; readonly args: ReadonlyArray<string>; readonly command: string }
+    | undefined;
+  const handler = routes(
+    on(command("edit"), (match) => Effect.sync(() => {
+      observed = match;
+    })),
+  );
+
+  try {
+    await app.run(handler(messageUpdate("/edit restore colors", {
+      caption: true,
+      entityLength: 5,
+    })));
+  } finally {
+    await app.close();
+  }
+
+  expect(observed).toMatchObject({
+    argText: "restore colors",
+    args: ["restore", "colors"],
+    command: "edit",
+  });
+});
+
 test("command accepts this bot target and rejects another bot target", async () => {
   const fake = FakeBotApi.make({
     replies: [FakeBotApiReply.ok(botIdentity())],
@@ -246,11 +274,8 @@ test("identity-free filters make no hidden Bot API call", async () => {
   expect(fake.requests).toEqual([]);
 });
 
-test("command excludes edited messages and captions", async () => {
-  const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok(botIdentity())],
-    token,
-  });
+test("command excludes edited messages", async () => {
+  const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   let handled = 0;
   const handler = routes(
@@ -264,11 +289,6 @@ test("command excludes edited messages and captions", async () => {
       edited: true,
       entityLength: 6,
       updateId: 106,
-    })));
-    await app.run(handler(messageUpdate("/start", {
-      caption: true,
-      entityLength: 6,
-      updateId: 107,
     })));
   } finally {
     await app.close();
