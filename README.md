@@ -119,7 +119,7 @@ const sedBot = routes(
 );
 ```
 
-Both filter matches arrive typed, in order. Pure helpers resolve Telegram's overlapping fields without wrapping the generated models: `updateContext(update)` derives the effective chat, message, user, and acting sender for every update type; `messageText`, `messageMedia`, `messageSender`, `messageReply`, and `messageEntities` do the same for messages. `respondTo(message)` and `replyTo(message)` spread a full destination — business connection, forum thread, and topic included — into any generated send method. `html.escape` and `markdownV2.escape` keep user input from breaking your parse mode.
+Both filter matches arrive typed, in order. Pure helpers resolve Telegram's overlapping fields without wrapping the generated models: `updateContext(update)` derives the effective chat, message, user, and acting sender for every update type; `messageText` returns readable text from plain, media, and rich messages; `messageMedia`, `messageSender`, `messageReply`, and `messageEntities` resolve the remaining message shapes. `respondTo(message)` and `replyTo(message)` spread a full destination — business connection, forum thread, and topic included — into any generated send method. `html.escape` and `markdownV2.escape` keep user input from breaking your parse mode.
 
 ## Typed callback data
 

@@ -9,6 +9,9 @@ import type {
   MessageEntity,
   MessageEntityType,
   PhotoSize,
+  RichBlock,
+  RichBlockCaption,
+  RichText,
   Sticker,
   Story,
   User,
@@ -42,9 +45,102 @@ export interface MessageEntitySpan {
   readonly text: string;
 }
 
-/** Returns message text, or the caption when the message carries media. */
+function joinText(parts: ReadonlyArray<string>, separator = "\n"): string {
+  return parts.filter((part) => part.length > 0).join(separator);
+}
+
+function richTextText(value: RichText): string {
+  if (typeof value === "string") return value;
+  if (!("type" in value)) return value.map(richTextText).join("");
+  switch (value.type) {
+    case "anchor":
+      return "";
+    case "button":
+      return richTextText(value.button.text);
+    case "custom_emoji":
+      return value.alternativeText;
+    case "mathematical_expression":
+      return value.expression;
+    default:
+      return richTextText(value.text);
+  }
+}
+
+function captionText(caption: RichBlockCaption | undefined): string {
+  return caption === undefined
+    ? ""
+    : joinText([
+        richTextText(caption.text),
+        caption.credit === undefined ? "" : richTextText(caption.credit),
+      ]);
+}
+
+function richBlocksText(blocks: ReadonlyArray<RichBlock>): string {
+  return joinText(blocks.map(richBlockText));
+}
+
+function richBlockText(block: RichBlock): string {
+  switch (block.type) {
+    case "anchor":
+    case "divider":
+      return "";
+    case "mathematical_expression":
+      return block.expression;
+    case "paragraph":
+    case "heading":
+    case "pre":
+    case "footer":
+    case "thinking":
+      return richTextText(block.text);
+    case "expandable_blockquote":
+    case "pullquote":
+      return joinText([
+        richTextText(block.text),
+        block.credit === undefined ? "" : richTextText(block.credit),
+      ]);
+    case "blockquote":
+      return joinText([
+        richBlocksText(block.blocks),
+        block.credit === undefined ? "" : richTextText(block.credit),
+      ]);
+    case "list":
+      return joinText(block.items.map((item) => {
+        const content = richBlocksText(item.blocks);
+        return item.label.length === 0 ? content : `${item.label} ${content}`;
+      }));
+    case "collage":
+    case "slideshow":
+      return joinText([richBlocksText(block.blocks), captionText(block.caption)]);
+    case "table":
+      return joinText([
+        block.caption === undefined ? "" : richTextText(block.caption),
+        ...block.cells.map((row) => joinText(
+          row.map((cell) => cell.text === undefined ? "" : richTextText(cell.text)),
+          "\t",
+        )),
+      ]);
+    case "details":
+      return joinText([richTextText(block.summary), richBlocksText(block.blocks)]);
+    case "buttons":
+      return joinText(block.buttons.map((button) => richTextText(button.text)), "\t");
+    case "map":
+    case "animation":
+    case "audio":
+    case "document":
+    case "photo":
+    case "video":
+    case "voice_note":
+      return captionText(block.caption);
+  }
+}
+
+/** Returns readable text from a plain, media, or rich message. */
 export function messageText(message: Message): string | undefined {
-  return message.text ?? message.caption;
+  if (message.text !== undefined) return message.text;
+  if (message.caption !== undefined) return message.caption;
+  if (message.richMessage === undefined) return undefined;
+  const text = richBlocksText(message.richMessage.blocks);
+  return text.length === 0 ? undefined : text;
 }
 
 /** Extracts entity substrings from message text or a media caption. */
