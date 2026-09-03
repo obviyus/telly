@@ -1,7 +1,7 @@
 import type { RunnerResult } from "./protocol.ts";
 import type { LatencySummary, Summary } from "./stats.ts";
 
-export type FrameworkName = "grammy" | "python-telegram-bot" | "telly";
+export type FrameworkName = "grammy" | "puregram" | "python-telegram-bot" | "telly";
 
 export interface FrameworkMetrics {
   readonly latency: LatencySummary;

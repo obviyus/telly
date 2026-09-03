@@ -1,6 +1,6 @@
 # Telly benchmark lab
 
-This suite races Telly, grammY, and python-telegram-bot through the same deterministic Telegram update workload.
+This suite races Telly, grammY, Puregram, and python-telegram-bot through the same deterministic Telegram update workload.
 
 The primary score starts with a parsed Telegram update object. It includes each framework's native update construction or validation, routing, and awaited handler completion. It excludes JSON parsing, network time, and user work.
 
@@ -49,10 +49,10 @@ Telly also rejects missing required fields, wrong primitive values, and invalid 
 
 ## Read results honestly
 
-The primary workloads are equivalent, but the frameworks make different product choices. Telly validates Telegram input into its public schema. python-telegram-bot constructs Python domain objects. grammY uses Telegram objects directly, so its decode-only result is `N/A`.
+The primary workloads are equivalent, but the frameworks make different product choices. Telly validates Telegram input into its public schema. python-telegram-bot constructs Python domain objects. grammY uses Telegram objects directly, so its decode-only result is `N/A`. Puregram constructs wrappers as part of ingress, but it has no public standalone decode interface, so its decode-only result is also `N/A`.
 
 Package sizes are not a quality score. Python and JavaScript package layouts differ. Telly also includes Effect and its configured persistence dependency.
 
-Cold startup and installed package cost include Effect. They stay visible because moving Effect outside the measured or installed package would hide a real Telly dependency.
+Cold startup and installed package cost include every production dependency. They stay visible because moving a dependency outside the measurement would hide a real cost. Puregram requires Node.js 22 or newer, which matches this suite's Node requirement.
 
 Do not compare reports from different machines as if they were one race. Use a quiet machine, pin the same CPU when possible, and compare results from the same source and environment.

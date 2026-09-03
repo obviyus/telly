@@ -1,0 +1,21 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "telly-benchmark-puregram",
+      "dependencies": {
+        "puregram": "3.9.1",
+      },
+    },
+  },
+  "packages": {
+    "@puregram/api": ["@puregram/api@10.3.2", "", {}, "sha512-qoLDEzE7oJOYd1BbjZY65+02RPhKr4cPqjA4nCahCW1ufhKxbI3ji1yOJDu8/q89DhtB25kdRx/mD+aRaBxhiQ=="],
+
+    "form-data-encoder": ["form-data-encoder@4.1.0", "", {}, "sha512-G6NsmEW15s0Uw9XnCg+33H3ViYRyiM0hMrMhhqQOR8NFc5GhYrI+6I3u7OTw7b91J2g8rtvMBZJDbcGb2YUniw=="],
+
+    "formdata-node": ["formdata-node@6.0.3", "", {}, "sha512-8e1++BCiTzUno9v5IZ2J6bv4RU+3UKDmqWUQD0MIMVCd9AdhWkO1gw57oo1mNEX1dMq2EGI+FbWz4B92pscSQg=="],
+
+    "puregram": ["puregram@3.9.1", "", { "dependencies": { "@puregram/api": "~10.3.1", "form-data-encoder": "^4.0.2", "formdata-node": "^6.0.3" } }, "sha512-rrMz38ApeVapPmMTlQC2FwTwwa9LVofbmX7j3s7BquU4uyHbLSmYbyGOQVSB1ewyN0B6xw5/f6BVrwO35C4jAw=="],
+  }
+}
