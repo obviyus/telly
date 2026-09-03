@@ -12,6 +12,7 @@ const USER_DRIVER_PATH = path.join(SKILL_DIR, "scripts", "user-driver.py");
 export async function runTelegramTestDoctor({
   acquireCredential = acquireTelegramTestCredential,
   fetchImpl = fetch,
+  requireGroupMembership = true,
   runCommandImpl = runCommand,
   startProxy = startTelegramTestApiProxy,
 } = {}) {
@@ -76,27 +77,29 @@ export async function runTelegramTestDoctor({
     if (bot.result?.can_read_all_group_messages !== true) {
       throw new Error("Telegram Test Server bot group privacy is enabled.");
     }
-    const membershipResponse = await fetchWithLease(
-      `${proxy.apiRoot}/bot${credential.sutToken}/getChatMember`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          chat_id: credential.groupId,
-          user_id: credential.sutBotId,
-        }),
-      },
-      lease,
-      fetchImpl,
-    );
-    const membership = await membershipResponse.json().catch(() => ({}));
-    lease.assertHealthy();
-    if (
-      !membershipResponse.ok ||
-      membership.ok !== true ||
-      !["administrator", "creator", "member"].includes(membership.result?.status)
-    ) {
-      throw new Error("Telegram Test Server bot is not an active member of the test group.");
+    if (requireGroupMembership) {
+      const membershipResponse = await fetchWithLease(
+        `${proxy.apiRoot}/bot${credential.sutToken}/getChatMember`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            chat_id: credential.groupId,
+            user_id: credential.sutBotId,
+          }),
+        },
+        lease,
+        fetchImpl,
+      );
+      const membership = await membershipResponse.json().catch(() => ({}));
+      lease.assertHealthy();
+      if (
+        !membershipResponse.ok ||
+        membership.ok !== true ||
+        !["administrator", "creator", "member"].includes(membership.result?.status)
+      ) {
+        throw new Error("Telegram Test Server bot is not an active member of the test group.");
+      }
     }
     return {
       ok: true,
@@ -108,7 +111,8 @@ export async function runTelegramTestDoctor({
       botApiProxy: true,
       sutBot: true,
       groupPrivacyDisabled: true,
-      groupMembership: true,
+      groupMembership: requireGroupMembership ? true : "not-required",
+      scope: requireGroupMembership ? "group" : "dm",
     };
   } finally {
     await proxy?.close();
@@ -117,7 +121,11 @@ export async function runTelegramTestDoctor({
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  runTelegramTestDoctor()
+  const args = process.argv.slice(2);
+  if (args.some((arg) => arg !== "--dm")) {
+    console.error(JSON.stringify({ ok: false, error: "Usage: telegram-test-doctor.mjs [--dm]" }));
+    process.exitCode = 1;
+  } else runTelegramTestDoctor({ requireGroupMembership: !args.includes("--dm") })
     .then((result) => console.log(JSON.stringify(result)))
     .catch((error) => {
       console.error(

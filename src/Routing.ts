@@ -214,7 +214,7 @@ export const matchFilter = Effect.fn("Filter.match")(function* <A>(
   return matched === BotIdentityRequired ? undefined : matched;
 });
 
-/** Matches a new `update.message` command using Telegram's `bot_command` entity. */
+/** Matches a new text or media-caption command using Telegram's `bot_command` entity. */
 export function command(name: string): Filter<CommandMatch> {
   if (!/^[A-Za-z0-9_]{1,32}$/u.test(name)) {
     throw new RangeError(`Invalid Telegram bot command: ${name}`);
@@ -223,8 +223,10 @@ export function command(name: string): Filter<CommandMatch> {
   return makeFilter((update, me) => {
     const message = update.message;
     if (message === undefined) return undefined;
-    const entity = message.entities?.[0];
-    const body = message.text;
+    const body = message.text ?? message.caption;
+    const entity = message.text === undefined
+      ? message.captionEntities?.[0]
+      : message.entities?.[0];
     if (
       body === undefined ||
       entity?.type !== "bot_command" ||

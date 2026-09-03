@@ -15,6 +15,7 @@ if (token === undefined || apiRoot === undefined || startText === undefined || e
 
 const bot = defineBot({
   commands: {
+    describe: ({ argText, message }) => reply(message, `caption:${argText}`),
     start: ({ message }) => respond(message, startText),
   },
   text: ({ message, text }) => reply(message, `${echoPrefix}${text}`),
