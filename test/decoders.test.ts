@@ -96,6 +96,14 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown {
     }
     return noFixture;
   }
+  return wireObject(reference, definition, nextStack);
+}
+
+function wireObject(
+  reference: string,
+  definition: (typeof spec.types)[string],
+  stack: ReadonlySet<string>,
+): unknown {
   const output: Record<string, unknown> = { future_field: `${reference}-future` };
   for (const field of definition.fields ?? []) {
     if (!field.required) continue;
@@ -106,7 +114,7 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown {
     }
     let value: unknown = noFixture;
     for (const candidate of fieldReferences(reference, field.name, field.types)) {
-      value = wireReference(candidate, nextStack);
+      value = wireReference(candidate, stack);
       if (value !== noFixture) break;
     }
     if (value === noFixture) return noFixture;

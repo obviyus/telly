@@ -288,6 +288,183 @@ export const FakeBotApi = {
       }
     };
 
+    const scriptedResponse = Effect.fnUntraced(function* (
+      scripted: FakeBotApiReply,
+      request: HttpClientRequest.HttpClientRequest,
+      signal: AbortSignal,
+      method: string | undefined,
+      filePath: string | undefined,
+    ) {
+      if (scripted._tag === "TransportFailure") {
+        return yield* Effect.fail(
+          new HttpClientError.HttpClientError({
+            reason: new HttpClientError.TransportError({
+              description: scripted.description,
+              request,
+            }),
+          }),
+        );
+      }
+      if (scripted._tag === "Body") {
+        return response(request, scripted.status, scripted.body);
+      }
+      if (scripted._tag === "File") {
+        return fileResponse(request, scripted.bytes);
+      }
+      if (scripted._tag === "Hang") {
+        signal.addEventListener(
+          "abort",
+          () => {
+            if (filePath !== undefined) abortedFilePaths.add(filePath);
+            if (method !== undefined) abortedMethods.add(method);
+          },
+          { once: true },
+        );
+        return yield* Effect.never;
+      }
+      if (scripted._tag === "Reject") {
+        return rejectedResponse(
+          request,
+          scripted.errorCode,
+          scripted.description,
+          scripted.parameters,
+        );
+      }
+      return okResponse(request, scripted.result);
+    });
+
+    const pollResponse = Effect.fnUntraced(function* (
+      request: HttpClientRequest.HttpClientRequest,
+      params: Record<string, unknown>,
+      signal: AbortSignal,
+    ) {
+      const method = "getUpdates";
+      if (webhookUrl !== "") {
+        return rejectedResponse(
+          request,
+          409,
+          "Conflict: can't use getUpdates method while webhook is active",
+        );
+      }
+      applyOffset(integerField(params, "offset"));
+      const limit = Math.max(1, Math.min(100, integerField(params, "limit") ?? 100));
+      const timeoutSeconds = Math.max(0, integerField(params, "timeout") ?? 0);
+
+      while (true) {
+        if (updates.length > 0) return okResponse(request, updates.slice(0, limit));
+        if (timeoutSeconds === 0) return okResponse(request, []);
+
+        completeParkedPoll("conflict");
+        const wait: ParkedPoll = { signal: Deferred.makeUnsafe<PollSignal>() };
+        parkedPoll = wait;
+        const recordAbort = () => abortedMethods.add(method);
+        signal.addEventListener("abort", recordAbort, { once: true });
+        const outcome = yield* Deferred.await(wait.signal).pipe(
+          Effect.timeoutOption(Duration.seconds(timeoutSeconds)),
+          Effect.onInterrupt(() => Effect.sync(() => abortedMethods.add(method))),
+          Effect.ensuring(
+            Effect.sync(() => {
+              signal.removeEventListener("abort", recordAbort);
+              if (parkedPoll === wait) parkedPoll = undefined;
+            }),
+          ),
+        );
+        if (Option.isNone(outcome)) return okResponse(request, []);
+        if (outcome.value === "conflict") {
+          return rejectedResponse(request, 409, "Conflict: terminated by other getUpdates request");
+        }
+      }
+    });
+
+    const sendResponse = Effect.fnUntraced(function* (
+      request: HttpClientRequest.HttpClientRequest,
+      method: string | undefined,
+      params: unknown,
+    ) {
+      const sendsMessage = method === "sendMessage" || method === "sendRichMessage";
+      if (options.serverRateLimit === true && sendsMessage && Predicate.isObject(params)) {
+        const now = yield* Effect.clockWith((clock) =>
+          Effect.sync(() => clock.currentTimeMillisUnsafe()),
+        );
+        const delayMs = rateLimitDelay(params, now);
+        if (delayMs > 0) {
+          return rejectedResponse(request, 429, "Too Many Requests: retry later", {
+            retryAfter: Math.max(1, Math.ceil(delayMs / 1_000)),
+          });
+        }
+      }
+      if (!sendsMessage || !Predicate.isObject(params)) {
+        return rejectedResponse(request, 404, "Not Found");
+      }
+
+      const messageId = nextMessageId;
+      nextMessageId += 1;
+      return okResponse(request, {
+        chat: {
+          id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
+          type: "private",
+        },
+        date: 1_700_000_000,
+        future_field: "kept",
+        message_id: messageId,
+        ...(method === "sendRichMessage"
+          ? { rich_message: { blocks: [] } }
+          : { text: params["text"] }),
+      });
+    });
+
+    const methodResponse = Effect.fnUntraced(function* (
+      request: HttpClientRequest.HttpClientRequest,
+      method: string | undefined,
+      params: unknown,
+      signal: AbortSignal,
+    ) {
+      if (method === "getUpdates" && Predicate.isObject(params)) {
+        return yield* pollResponse(request, params, signal);
+      }
+      if (method === "setWebhook" && Predicate.isObject(params)) {
+        const url = stringField(params, "url");
+        if (url === undefined) {
+          return rejectedResponse(request, 400, "Bad Request: url is required");
+        }
+        webhookUrl = url;
+        if (params["drop_pending_updates"] === true) updates = [];
+        if (url !== "") completeParkedPoll("conflict");
+        return okResponse(request, true);
+      }
+      if (method === "deleteWebhook" && Predicate.isObject(params)) {
+        webhookUrl = "";
+        if (params["drop_pending_updates"] === true) updates = [];
+        return okResponse(request, true);
+      }
+      if (method === "getWebhookInfo") {
+        return okResponse(request, {
+          has_custom_certificate: false,
+          pending_update_count: updates.length,
+          url: webhookUrl,
+        });
+      }
+      if (method === "answerCallbackQuery") {
+        return okResponse(request, true);
+      }
+      if (method === "editMessageText" && Predicate.isObject(params)) {
+        const messageId = integerField(params, "message_id");
+        if (messageId === undefined) return okResponse(request, true);
+        return okResponse(request, {
+          chat: {
+            id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
+            type: "private",
+          },
+          date: 1_700_000_000,
+          message_id: messageId,
+          ...(params["rich_message"] === undefined
+            ? { text: params["text"] }
+            : { rich_message: { blocks: [] } }),
+        });
+      }
+      return yield* sendResponse(request, method, params);
+    });
+
     const client = HttpClient.make(
       Effect.fnUntraced(function* (request, url, signal, fiber) {
         const methodMatch = url.pathname.match(/^\/bot([^/]+)\/([^/]+)$/u);
@@ -320,155 +497,10 @@ export const FakeBotApi = {
         }
 
         const scripted = replies.shift();
-        if (scripted?._tag === "TransportFailure") {
-          return yield* Effect.fail(
-            new HttpClientError.HttpClientError({
-              reason: new HttpClientError.TransportError({
-                description: scripted.description,
-                request,
-              }),
-            }),
-          );
+        if (scripted !== undefined) {
+          return yield* scriptedResponse(scripted, request, signal, method, filePath);
         }
-        if (scripted?._tag === "Body") {
-          return response(request, scripted.status, scripted.body);
-        }
-        if (scripted?._tag === "File") {
-          return fileResponse(request, scripted.bytes);
-        }
-        if (scripted?._tag === "Hang") {
-          signal.addEventListener(
-            "abort",
-            () => {
-              if (filePath !== undefined) abortedFilePaths.add(filePath);
-              if (method !== undefined) abortedMethods.add(method);
-            },
-            { once: true },
-          );
-          return yield* Effect.never;
-        }
-        if (scripted?._tag === "Reject") {
-          return rejectedResponse(
-            request,
-            scripted.errorCode,
-            scripted.description,
-            scripted.parameters,
-          );
-        }
-        if (scripted?._tag === "Ok") {
-          return okResponse(request, scripted.result);
-        }
-        if (method === "getUpdates" && Predicate.isObject(params)) {
-          if (webhookUrl !== "") {
-            return rejectedResponse(
-              request,
-              409,
-              "Conflict: can't use getUpdates method while webhook is active",
-            );
-          }
-          applyOffset(integerField(params, "offset"));
-          const limit = Math.max(1, Math.min(100, integerField(params, "limit") ?? 100));
-          const timeoutSeconds = Math.max(0, integerField(params, "timeout") ?? 0);
-
-          while (true) {
-            if (updates.length > 0) return okResponse(request, updates.slice(0, limit));
-            if (timeoutSeconds === 0) return okResponse(request, []);
-
-            completeParkedPoll("conflict");
-            const wait: ParkedPoll = { signal: Deferred.makeUnsafe<PollSignal>() };
-            parkedPoll = wait;
-            const recordAbort = () => abortedMethods.add(method);
-            signal.addEventListener("abort", recordAbort, { once: true });
-            const outcome = yield* Deferred.await(wait.signal).pipe(
-              Effect.timeoutOption(Duration.seconds(timeoutSeconds)),
-              Effect.onInterrupt(() => Effect.sync(() => abortedMethods.add(method))),
-              Effect.ensuring(
-                Effect.sync(() => {
-                  signal.removeEventListener("abort", recordAbort);
-                  if (parkedPoll === wait) parkedPoll = undefined;
-                }),
-              ),
-            );
-            if (Option.isNone(outcome)) return okResponse(request, []);
-            if (outcome.value === "conflict") {
-              return rejectedResponse(
-                request,
-                409,
-                "Conflict: terminated by other getUpdates request",
-              );
-            }
-          }
-        }
-        if (method === "setWebhook" && Predicate.isObject(params)) {
-          const url = stringField(params, "url");
-          if (url === undefined) {
-            return rejectedResponse(request, 400, "Bad Request: url is required");
-          }
-          webhookUrl = url;
-          if (params["drop_pending_updates"] === true) updates = [];
-          if (url !== "") completeParkedPoll("conflict");
-          return okResponse(request, true);
-        }
-        if (method === "deleteWebhook" && Predicate.isObject(params)) {
-          webhookUrl = "";
-          if (params["drop_pending_updates"] === true) updates = [];
-          return okResponse(request, true);
-        }
-        if (method === "getWebhookInfo") {
-          return okResponse(request, {
-            has_custom_certificate: false,
-            pending_update_count: updates.length,
-            url: webhookUrl,
-          });
-        }
-        if (method === "answerCallbackQuery") {
-          return okResponse(request, true);
-        }
-        if (method === "editMessageText" && Predicate.isObject(params)) {
-          const messageId = integerField(params, "message_id");
-          if (messageId === undefined) return okResponse(request, true);
-          return okResponse(request, {
-            chat: {
-              id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
-              type: "private",
-            },
-            date: 1_700_000_000,
-            message_id: messageId,
-            ...(params["rich_message"] === undefined
-              ? { text: params["text"] }
-              : { rich_message: { blocks: [] } }),
-          });
-        }
-        const sendsMessage = method === "sendMessage" || method === "sendRichMessage";
-        if (options.serverRateLimit === true && sendsMessage && Predicate.isObject(params)) {
-          const now = yield* Effect.clockWith((clock) =>
-            Effect.sync(() => clock.currentTimeMillisUnsafe()),
-          );
-          const delayMs = rateLimitDelay(params, now);
-          if (delayMs > 0) {
-            return rejectedResponse(request, 429, "Too Many Requests: retry later", {
-              retryAfter: Math.max(1, Math.ceil(delayMs / 1_000)),
-            });
-          }
-        }
-        if (!sendsMessage || !Predicate.isObject(params)) {
-          return rejectedResponse(request, 404, "Not Found");
-        }
-
-        const messageId = nextMessageId;
-        nextMessageId += 1;
-        return okResponse(request, {
-          chat: {
-            id: typeof params["chat_id"] === "number" ? params["chat_id"] : 7,
-            type: "private",
-          },
-          date: 1_700_000_000,
-          future_field: "kept",
-          message_id: messageId,
-          ...(method === "sendRichMessage"
-            ? { rich_message: { blocks: [] } }
-            : { text: params["text"] }),
-        });
+        return yield* methodResponse(request, method, params, signal);
       }),
     );
 

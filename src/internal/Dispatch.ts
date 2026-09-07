@@ -35,7 +35,7 @@ interface Lane {
   tail: Deferred.Deferred<void>;
 }
 
-export function defaultConversationKey(update: Update): number | string {
+function messageConversationKey(update: Update): string | undefined {
   const message =
     update.message ??
     update.editedMessage ??
@@ -44,7 +44,12 @@ export function defaultConversationKey(update: Update): number | string {
     update.businessMessage ??
     update.editedBusinessMessage ??
     update.guestMessage;
-  if (message !== undefined) return `chat:${message.chat.id}`;
+  return message === undefined ? undefined : `chat:${message.chat.id}`;
+}
+
+export function defaultConversationKey(update: Update): number | string {
+  const messageKey = messageConversationKey(update);
+  if (messageKey !== undefined) return messageKey;
   if (update.deletedBusinessMessages !== undefined) {
     return `chat:${update.deletedBusinessMessages.chat.id}`;
   }

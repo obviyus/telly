@@ -79,6 +79,19 @@ function richBlocksText(blocks: ReadonlyArray<RichBlock>): string {
   return joinText(blocks.map(richBlockText));
 }
 
+function textBlockText(block: Extract<RichBlock, { readonly text: RichText }>): string {
+  switch (block.type) {
+    case "expandable_blockquote":
+    case "pullquote":
+      return joinText([
+        richTextText(block.text),
+        block.credit === undefined ? "" : richTextText(block.credit),
+      ]);
+    default:
+      return richTextText(block.text);
+  }
+}
+
 function richBlockText(block: RichBlock): string {
   switch (block.type) {
     case "anchor":
@@ -91,13 +104,9 @@ function richBlockText(block: RichBlock): string {
     case "pre":
     case "footer":
     case "thinking":
-      return richTextText(block.text);
     case "expandable_blockquote":
     case "pullquote":
-      return joinText([
-        richTextText(block.text),
-        block.credit === undefined ? "" : richTextText(block.credit),
-      ]);
+      return textBlockText(block);
     case "blockquote":
       return joinText([
         richBlocksText(block.blocks),
@@ -130,13 +139,7 @@ function richBlockText(block: RichBlock): string {
         block.buttons.map((button) => richTextText(button.text)),
         "\t",
       );
-    case "map":
-    case "animation":
-    case "audio":
-    case "document":
-    case "photo":
-    case "video":
-    case "voice_note":
+    default:
       return captionText(block.caption);
   }
 }

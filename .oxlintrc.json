@@ -9,6 +9,7 @@
     "correctness": "error"
   },
   "rules": {
+    "complexity": ["error", { "max": 20 }],
     "typescript/no-misused-spread": [
       "error",
       {

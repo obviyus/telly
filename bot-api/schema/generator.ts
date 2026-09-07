@@ -188,7 +188,7 @@ function discriminatorValue(description: string): string | undefined {
   return match?.[1] ?? match?.[2];
 }
 
-function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
+function enumFieldTargets(spec: BotApiSpec): Map<string, FieldTarget> {
   const targets = new Map<string, FieldTarget>();
   for (const [enumName, definition] of Object.entries(spec.enums)) {
     for (const target of definition.applies_to ?? []) {
@@ -207,6 +207,11 @@ function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
     }
   }
 
+  return targets;
+}
+
+function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
+  const targets = enumFieldTargets(spec);
   for (const [parentName, definition] of Object.entries(spec.types)) {
     if (definition.subtypes === undefined) continue;
     const discriminators = definition.subtypes.map((subtypeName) => {
@@ -747,48 +752,56 @@ function validateConstraints(spec: BotApiSpec, overrides: GeneratorOverrides): v
         throw new Error(`Constraint field ${path} repeats ${constraint.kind}`);
       }
       seen.add(constraint.kind);
-      if (constraint.kind === "pattern") {
-        try {
-          new RegExp(constraint.source, "u");
-        } catch {
-          throw new Error(`Constraint pattern for ${path} is invalid`);
-        }
-        if (!references.every((reference) => reference === "String")) {
-          throw new Error(`Constraint pattern for ${path} requires String`);
-        }
-        if (constraint.expected.length === 0) {
-          throw new Error(`Constraint pattern for ${path} has no expected description`);
-        }
-        continue;
-      }
-      if (constraint.minimum === undefined && constraint.maximum === undefined) {
-        throw new Error(`Constraint ${constraint.kind} for ${path} has no bounds`);
-      }
-      if (
-        constraint.minimum !== undefined &&
-        constraint.maximum !== undefined &&
-        constraint.minimum > constraint.maximum
-      ) {
-        throw new Error(`Constraint ${constraint.kind} for ${path} has inverted bounds`);
-      }
-      if (
-        constraint.kind !== "range" &&
-        [constraint.minimum, constraint.maximum].some(
-          (bound) => bound !== undefined && (!Number.isInteger(bound) || bound < 0),
-        )
-      ) {
-        throw new Error(`Constraint ${constraint.kind} for ${path} requires natural bounds`);
-      }
-      const compatible =
-        constraint.kind === "items"
-          ? references.every((reference) => arrayItem(reference) !== undefined)
-          : constraint.kind === "range"
-            ? references.every((reference) => reference === "Float" || reference === "Integer")
-            : references.every((reference) => reference === "String");
-      if (!compatible) {
-        throw new Error(`Constraint ${constraint.kind} for ${path} has incompatible types`);
-      }
+      validateConstraint(path, constraint, references);
     }
+  }
+}
+
+function validateConstraint(
+  path: string,
+  constraint: typeof Constraint.Type,
+  references: ReadonlyArray<string>,
+): void {
+  if (constraint.kind === "pattern") {
+    try {
+      new RegExp(constraint.source, "u");
+    } catch {
+      throw new Error(`Constraint pattern for ${path} is invalid`);
+    }
+    if (!references.every((reference) => reference === "String")) {
+      throw new Error(`Constraint pattern for ${path} requires String`);
+    }
+    if (constraint.expected.length === 0) {
+      throw new Error(`Constraint pattern for ${path} has no expected description`);
+    }
+    return;
+  }
+  if (constraint.minimum === undefined && constraint.maximum === undefined) {
+    throw new Error(`Constraint ${constraint.kind} for ${path} has no bounds`);
+  }
+  if (
+    constraint.minimum !== undefined &&
+    constraint.maximum !== undefined &&
+    constraint.minimum > constraint.maximum
+  ) {
+    throw new Error(`Constraint ${constraint.kind} for ${path} has inverted bounds`);
+  }
+  if (
+    constraint.kind !== "range" &&
+    [constraint.minimum, constraint.maximum].some(
+      (bound) => bound !== undefined && (!Number.isInteger(bound) || bound < 0),
+    )
+  ) {
+    throw new Error(`Constraint ${constraint.kind} for ${path} requires natural bounds`);
+  }
+  const compatible =
+    constraint.kind === "items"
+      ? references.every((reference) => arrayItem(reference) !== undefined)
+      : constraint.kind === "range"
+        ? references.every((reference) => reference === "Float" || reference === "Integer")
+        : references.every((reference) => reference === "String");
+  if (!compatible) {
+    throw new Error(`Constraint ${constraint.kind} for ${path} has incompatible types`);
   }
 }
 
@@ -821,6 +834,32 @@ export function generateSources(
       }
     }
   }
+  validateFieldOverrides(spec, overrides, declaredTypes);
+  validateTypeOverrides(spec, overrides, declaredTypes);
+  for (const name of Object.keys(overrides.methods)) {
+    if (spec.methods[name] === undefined) {
+      throw new Error(`Override method ${name} is missing from the schema`);
+    }
+  }
+  for (const name of Object.keys(evidence)) {
+    if (spec.methods[name] === undefined) {
+      throw new Error(`Evidence method ${name} is missing from the schema`);
+    }
+  }
+  const targets = fieldTargets(spec);
+  return {
+    coverage: renderCoverage(spec, evidence),
+    decoders: renderDecoders(spec, overrides, targets),
+    methods: renderMethods(spec, overrides, targets),
+    types: renderTypes(spec, overrides, targets),
+  };
+}
+
+function validateFieldOverrides(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  declaredTypes: ReadonlySet<string>,
+): void {
   for (const [path, override] of Object.entries(overrides.fields)) {
     const separator = path.indexOf(".");
     const ownerName = separator === -1 ? path : path.slice(0, separator);
@@ -845,6 +884,13 @@ export function generateSources(
       }
     }
   }
+}
+
+function validateTypeOverrides(
+  spec: BotApiSpec,
+  overrides: GeneratorOverrides,
+  declaredTypes: ReadonlySet<string>,
+): void {
   for (const [name, override] of Object.entries(overrides.types)) {
     const definition = spec.types[name];
     if (definition === undefined) {
@@ -874,21 +920,4 @@ export function generateSources(
       }
     }
   }
-  for (const name of Object.keys(overrides.methods)) {
-    if (spec.methods[name] === undefined) {
-      throw new Error(`Override method ${name} is missing from the schema`);
-    }
-  }
-  for (const name of Object.keys(evidence)) {
-    if (spec.methods[name] === undefined) {
-      throw new Error(`Evidence method ${name} is missing from the schema`);
-    }
-  }
-  const targets = fieldTargets(spec);
-  return {
-    coverage: renderCoverage(spec, evidence),
-    decoders: renderDecoders(spec, overrides, targets),
-    methods: renderMethods(spec, overrides, targets),
-    types: renderTypes(spec, overrides, targets),
-  };
 }
