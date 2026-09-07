@@ -1,3 +1,4 @@
+import type { serve } from "bun";
 import type { EventEmitter } from "node:events";
 
 import {
@@ -32,7 +33,7 @@ const stopOnSignal = () => void close();
 const processEvents: EventEmitter = process;
 processEvents.once("SIGINT", stopOnSignal);
 processEvents.once("SIGTERM", stopOnSignal);
-let server: ReturnType<typeof Bun.serve> | undefined;
+let server: ReturnType<typeof serve> | undefined;
 
 try {
   const webhook = app.startWebhook(bot, { secretToken });

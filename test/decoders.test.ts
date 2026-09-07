@@ -56,7 +56,7 @@ function fieldReferences(owner: string, name: string, references: ReadonlyArray<
     : resolved.map((reference) => enumReference(reference, enumName));
 }
 
-function wireReference(reference: string, stack: ReadonlySet<string>): unknown | typeof noFixture {
+function wireReference(reference: string, stack: ReadonlySet<string>): unknown {
   const item = arrayItem(reference);
   if (item !== undefined) {
     const value = wireReference(item, stack);
@@ -99,7 +99,7 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown |
       output[field.name] = literal;
       continue;
     }
-    let value: unknown | typeof noFixture = noFixture;
+    let value: unknown = noFixture;
     for (const candidate of fieldReferences(reference, field.name, field.types)) {
       value = wireReference(candidate, nextStack);
       if (value !== noFixture) break;

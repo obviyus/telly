@@ -45,7 +45,7 @@ function check(value: unknown, constraint: Constraint): string | undefined {
   switch (constraint.kind) {
     case "codePoints":
       return typeof value === "string"
-        ? measured(constraint, " characters", [...value].length)
+        ? measured(constraint, " characters", Array.from(value).length)
         : undefined;
     case "items":
       return Array.isArray(value)

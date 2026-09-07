@@ -142,7 +142,8 @@ try {
   }
   console.log(JSON.stringify({ ok: true, proofs }));
 } finally {
-  for (const bot of [...bots]) await deleteDisposableBot(bot).catch(() => {});
+  const remainingBots = bots.slice();
+  for (const bot of remainingBots) await deleteDisposableBot(bot).catch(() => {});
   await localProxy?.close();
   await localServer?.close().catch(() => {});
   await harness.close();

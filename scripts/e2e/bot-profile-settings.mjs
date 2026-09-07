@@ -30,6 +30,7 @@ const menuChatId = Number(credential.testerUserId);
 if (!Number.isSafeInteger(menuChatId)) throw new Error("Leased Telegram tester id is not a safe integer");
 let snapshot;
 let runError;
+const cleanupErrors = [];
 
 async function waitForRead(read, matches, label) {
   for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -157,7 +158,6 @@ try {
 } catch (error) {
   runError = error;
 } finally {
-  const cleanupErrors = [];
   if (snapshot !== undefined) {
     const commandRestore = snapshot.commands.length === 0
       ? deleteMyCommands({ scope })
@@ -205,7 +205,8 @@ try {
       cleanupErrors.push(error);
     }
   }
-  const errors = [...(runError === undefined ? [] : [runError]), ...cleanupErrors];
+}
+const errors = [...(runError === undefined ? [] : [runError]), ...cleanupErrors];
   if (errors.length > 0) {
     console.error(JSON.stringify({
       error: errors.map((error) => error instanceof Error ? error.message : String(error)).join("; "),
@@ -213,4 +214,3 @@ try {
     }));
     throw new AggregateError(errors, "Bot profile proof failed");
   }
-}

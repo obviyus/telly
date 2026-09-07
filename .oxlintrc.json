@@ -1,0 +1,52 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [".agents/**", "**/*.generated.ts", "benchmarks/results/**", "dist/**"],
+  "options": {
+    "typeAware": true,
+    "denyWarnings": true
+  },
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/no-misused-spread": [
+      "error",
+      {
+        "allow": [
+          {
+            "from": "file",
+            "name": ["Message", "Update"],
+            "path": "src/types.generated.ts"
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.test.ts"],
+      "rules": {
+        "typescript/await-thenable": "off"
+      }
+    },
+    {
+      "files": ["**/*.typecheck.ts"],
+      "rules": {
+        "no-unused-expressions": "off",
+        "typescript/no-floating-promises": "off"
+      }
+    },
+    {
+      "files": ["test/application.test.ts"],
+      "rules": {
+        "typescript/no-base-to-string": "off"
+      }
+    },
+    {
+      "files": ["benchmarks/runners/js-common.mjs"],
+      "rules": {
+        "unicorn/no-new-array": "off"
+      }
+    }
+  ]
+}

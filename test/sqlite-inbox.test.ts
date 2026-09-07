@@ -97,7 +97,7 @@ test("SQLite inbox enforces capacity atomically across connections", async () =>
     const storedId = results[0]?._tag === "Stored" ? 21 : 22;
     const duplicate = await save(second, storedId, "chat:duplicate", 1);
 
-    expect(results.map((result) => result._tag).sort()).toEqual(["Full", "Stored"]);
+    expect(results.map((result) => result._tag).sort((left, right) => left.localeCompare(right))).toEqual(["Full", "Stored"]);
     expect(duplicate._tag).toBe("Duplicate");
   } finally {
     first.close();
@@ -117,7 +117,7 @@ test("SQLite inbox enforces capacity atomically across processes", async () => {
       saveInProcess(fixture.path, 24),
     ]);
 
-    expect(results.map((result) => result._tag).sort()).toEqual(["Full", "Stored"]);
+    expect(results.map((result) => result._tag).sort((left, right) => left.localeCompare(right))).toEqual(["Full", "Stored"]);
   } finally {
     await fixture.close();
   }
@@ -139,7 +139,7 @@ test("SQLite inbox claims one conversation head once across connections", async 
       Effect.runPromise(second.claim({ botId, fencingToken: lease.fencingToken, limit: 1 })),
     ]);
 
-    expect([...left, ...right].map((item) => item.updateId).sort()).toEqual([31, 33]);
+    expect([...left, ...right].map((item) => item.updateId).sort((left, right) => left - right)).toEqual([31, 33]);
   } finally {
     first.close();
     second.close();

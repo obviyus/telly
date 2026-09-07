@@ -294,7 +294,7 @@ try {
 } finally {
   if (webhookSet) await app?.run(deleteWebhook({ dropPendingUpdates: true })).catch(() => {});
   await stopTunnel(tunnel);
-  server?.stop(true);
+  await server?.stop(true);
   await webhook?.stop().catch(() => {});
   await app?.close();
   await harness?.close();

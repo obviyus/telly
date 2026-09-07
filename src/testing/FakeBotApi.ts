@@ -279,7 +279,8 @@ export const FakeBotApi = {
     const recordCall = (call: FakeBotApiCall) => {
       calls.push(call);
       const matching = calls.filter((item) => item.method === call.method);
-      for (const waiter of [...callWaiters]) {
+      const pendingWaiters = callWaiters.slice();
+      for (const waiter of pendingWaiters) {
         const matched = matching[waiter.ordinal - 1];
         if (waiter.method !== call.method || matched === undefined) continue;
         callWaiters.splice(callWaiters.indexOf(waiter), 1);
