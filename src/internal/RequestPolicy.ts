@@ -5,11 +5,7 @@ import * as Effect from "effect/Effect";
 import type { BotApiError } from "../BotApi.js";
 import { recordBotApiDelay } from "./Telemetry.js";
 
-export type RateLimitClass =
-  | "media-array"
-  | "message"
-  | "message-id-array"
-  | "none";
+export type RateLimitClass = "media-array" | "message" | "message-id-array" | "none";
 
 export interface RequestMetadata {
   readonly rateLimit: RateLimitClass;
@@ -29,10 +25,9 @@ interface RequestPolicy {
   ) => Effect.Effect<A, BotApiError>;
 }
 
-const RetryUnknownOutcome = Context.Reference<boolean>(
-  "telly/RequestPolicy/RetryUnknownOutcome",
-  { defaultValue: () => false },
-);
+const RetryUnknownOutcome = Context.Reference<boolean>("telly/RequestPolicy/RetryUnknownOutcome", {
+  defaultValue: () => false,
+});
 
 const maxAttempts = 3;
 const freeBroadcastIntervalMs = 1_000 / 30;
@@ -75,7 +70,11 @@ function isGroupChat(value: number | string): boolean {
   return typeof value === "string" || value < 0;
 }
 
-function retryDelay(error: BotApiError, failure: number, retryUnknown: boolean): number | undefined {
+function retryDelay(
+  error: BotApiError,
+  failure: number,
+  retryUnknown: boolean,
+): number | undefined {
   if (error.reason._tag === "TelegramRejected") {
     if (error.reason.errorCode === 429) {
       return error.reason.retryAfter === undefined
@@ -121,14 +120,14 @@ export function makeRequestPolicy(options: RequestPolicyOptions): RequestPolicy 
         const availableAt = Math.max(now, reservations.get(key) ?? now);
         reservations.set(key, availableAt + intervalMs * weight);
         return availableAt - now;
-      })
+      }),
     );
     yield* wait(method, delayMs, "rate-limit");
   });
 
   const awaitCooldown = Effect.fn("RequestPolicy.awaitCooldown")(function* (method: string) {
     const cooldownMs = yield* Effect.clockWith((clock) =>
-      Effect.sync(() => Math.max(0, globalResumeTime - clock.currentTimeMillisUnsafe()))
+      Effect.sync(() => Math.max(0, globalResumeTime - clock.currentTimeMillisUnsafe())),
     );
     yield* wait(method, cooldownMs, "rate-limit");
     return cooldownMs > 0;
@@ -176,7 +175,7 @@ export function makeRequestPolicy(options: RequestPolicyOptions): RequestPolicy 
           globalResumeTime,
           clock.currentTimeMillisUnsafe() + retryAfter * 1_000,
         );
-      })
+      }),
     );
   };
 
@@ -187,11 +186,10 @@ export function makeRequestPolicy(options: RequestPolicyOptions): RequestPolicy 
     request: () => Effect.Effect<A, BotApiError>,
   ): Effect.fn.Return<A, BotApiError> {
     const attempt = (failure: number): Effect.Effect<A, BotApiError> => {
-      const run = options.rateLimit && metadata.rateLimit !== "none"
-        ? awaitRateLimit(method, params, metadata).pipe(
-            Effect.andThen(Effect.suspend(request)),
-          )
-        : Effect.suspend(request);
+      const run =
+        options.rateLimit && metadata.rateLimit !== "none"
+          ? awaitRateLimit(method, params, metadata).pipe(Effect.andThen(Effect.suspend(request)))
+          : Effect.suspend(request);
       return run.pipe(
         Effect.catch((error) =>
           learnCooldown(error).pipe(
@@ -201,12 +199,10 @@ export function makeRequestPolicy(options: RequestPolicyOptions): RequestPolicy 
                 if (delayMs === undefined || failure + 1 >= maxAttempts) {
                   return Effect.fail(error);
                 }
-                return wait(method, delayMs, "retry").pipe(
-                  Effect.andThen(attempt(failure + 1)),
-                );
+                return wait(method, delayMs, "retry").pipe(Effect.andThen(attempt(failure + 1)));
               }),
             ),
-          )
+          ),
         ),
       );
     };

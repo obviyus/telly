@@ -14,10 +14,15 @@ const overrides = JSON.parse(
   await readFile(new URL("../bot-api/schema/overrides.json", import.meta.url), "utf8"),
 ) as {
   readonly fields: Readonly<Record<string, { readonly types: ReadonlyArray<string> }>>;
-  readonly types: Readonly<Record<string, {
-    readonly additionalTypes?: ReadonlyArray<string>;
-    readonly schema?: string;
-  }>>;
+  readonly types: Readonly<
+    Record<
+      string,
+      {
+        readonly additionalTypes?: ReadonlyArray<string>;
+        readonly schema?: string;
+      }
+    >
+  >;
 };
 const noFixture = Symbol("noFixture");
 
@@ -111,7 +116,7 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown {
 }
 
 for (const [name, definition] of Object.entries(spec.types).sort(([left], [right]) =>
-  left.localeCompare(right)
+  left.localeCompare(right),
 )) {
   if (name === "Update") continue;
   test(`compiled ${name} decoder agrees with its Effect Schema`, () => {
@@ -136,7 +141,9 @@ for (const [name, definition] of Object.entries(spec.types).sort(([left], [right
     delete missing[firstRequired.name as keyof typeof missing];
     const wrong = { ...wire, [firstRequired.name]: null };
 
-    expect(Schema.decodeUnknownExit(schema)(missing)._tag, `${name} missing reference`).toBe("Failure");
+    expect(Schema.decodeUnknownExit(schema)(missing)._tag, `${name} missing reference`).toBe(
+      "Failure",
+    );
     expect(Reflect.apply(decoder, undefined, [missing]), `${name} missing compiled`).toBe(
       Decoders.decodeFailure,
     );

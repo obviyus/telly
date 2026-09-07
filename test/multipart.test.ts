@@ -35,21 +35,21 @@ describe("multipart Bot API calls", () => {
     });
 
     const sent = await Effect.runPromise(
-      sendPhoto({ caption: "tiny dot", chatId: 7, photo }).pipe(
-        Effect.provide(botLayer(fake)),
-      ),
+      sendPhoto({ caption: "tiny dot", chatId: 7, photo }).pipe(Effect.provide(botLayer(fake))),
     );
 
     expect(sent.messageId).toBe(101);
-    expect(fake.requests).toEqual([{
-      contentType: "multipart/form-data",
-      files: {
-        photo: { fileName: "dot.png", size: 4, type: "image/png" },
+    expect(fake.requests).toEqual([
+      {
+        contentType: "multipart/form-data",
+        files: {
+          photo: { fileName: "dot.png", size: 4, type: "image/png" },
+        },
+        method: "sendPhoto",
+        params: { caption: "tiny dot", chat_id: "7" },
+        tracingDisabled: true,
       },
-      method: "sendPhoto",
-      params: { caption: "tiny dot", chat_id: "7" },
-      tracingDisabled: true,
-    }]);
+    ]);
   });
 
   test("sendPhoto keeps the JSON path for a Telegram file id", async () => {
@@ -59,9 +59,7 @@ describe("multipart Bot API calls", () => {
     });
 
     await Effect.runPromise(
-      sendPhoto({ chatId: 11, photo: "existing-file-id" }).pipe(
-        Effect.provide(botLayer(fake)),
-      ),
+      sendPhoto({ chatId: 11, photo: "existing-file-id" }).pipe(Effect.provide(botLayer(fake))),
     );
 
     expect(fake.requests[0]).toEqual({
@@ -130,11 +128,11 @@ describe("multipart Bot API calls", () => {
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      sendPhoto({ chatId: 17, photo: new Blob(["photo"]) }).pipe(
-        Effect.provide(botLayer(fake)),
+    const error = await Effect.runPromise(
+      Effect.flip(
+        sendPhoto({ chatId: 17, photo: new Blob(["photo"]) }).pipe(Effect.provide(botLayer(fake))),
       ),
-    ));
+    );
 
     expect(error.reason._tag).toBe("Transport");
     expect(error.retrySafe).toBe(false);

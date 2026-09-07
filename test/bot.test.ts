@@ -48,19 +48,20 @@ describe("sendMessage", () => {
   });
 
   test("returns Telegram rejection details after exhausting retries", async () => {
-    const limited = () => FakeBotApiReply.reject({
-      description: "Too Many Requests",
-      errorCode: 429,
-      parameters: { retryAfter: 9 },
-    });
+    const limited = () =>
+      FakeBotApiReply.reject({
+        description: "Too Many Requests",
+        errorCode: 429,
+        parameters: { retryAfter: 9 },
+      });
     const fake = FakeBotApi.make({
       replies: [limited(), limited(), limited()],
       token,
     });
     const program = Effect.gen(function* () {
-      const fiber = yield* Effect.flip(
-        sendMessage({ chatId: 11, text: "ratchet" }),
-      ).pipe(Effect.forkChild);
+      const fiber = yield* Effect.flip(sendMessage({ chatId: 11, text: "ratchet" })).pipe(
+        Effect.forkChild,
+      );
       yield* Effect.promise(() => fake.whenCalled("sendMessage"));
       yield* Effect.yieldNow;
       yield* TestClock.adjust("9 seconds");
@@ -68,10 +69,9 @@ describe("sendMessage", () => {
       return yield* Fiber.join(fiber);
     });
 
-    const error = await Effect.runPromise(program.pipe(
-      Effect.provide(botLayer(fake)),
-      Effect.provide(TestClock.layer()),
-    ));
+    const error = await Effect.runPromise(
+      program.pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+    );
 
     expect(error.reason).toEqual({
       _tag: "TelegramRejected",
@@ -114,16 +114,19 @@ describe("sendMessage", () => {
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chatId: 13, text: "cog" }).pipe(
-        Effect.provide(botLayer(fake)),
-        Effect.provideService(Tracer.Tracer, tracer),
+    const error = await Effect.runPromise(
+      Effect.flip(
+        sendMessage({ chatId: 13, text: "cog" }).pipe(
+          Effect.provide(botLayer(fake)),
+          Effect.provideService(Tracer.Tracer, tracer),
+        ),
       ),
-    ));
+    );
 
     expect(error.reason).toEqual({
       _tag: "Transport",
-      description: "Transport: failed POST /bot<token>/sendMessage (POST https://api.telegram.org/bot<token>/sendMessage)",
+      description:
+        "Transport: failed POST /bot<token>/sendMessage (POST https://api.telegram.org/bot<token>/sendMessage)",
     });
     expect(error.message).toBe(
       "sendMessage: no Telegram response: Transport: failed POST /bot<token>/sendMessage (POST https://api.telegram.org/bot<token>/sendMessage)",
@@ -132,13 +135,15 @@ describe("sendMessage", () => {
     expect(String(error)).toContain("BotApiError: sendMessage: no Telegram response:");
     expect(String(error)).not.toContain(token);
     expect(JSON.stringify(error)).not.toContain(token);
-    expect(JSON.stringify(
-      spans.map((span) => ({
-        attributes: Object.fromEntries(span.attributes),
-        exit: span.status._tag === "Ended" ? String(span.status.exit) : undefined,
-        name: span.name,
-      })),
-    )).not.toContain(token);
+    expect(
+      JSON.stringify(
+        spans.map((span) => ({
+          attributes: Object.fromEntries(span.attributes),
+          exit: span.status._tag === "Ended" ? String(span.status.exit) : undefined,
+          name: span.name,
+        })),
+      ),
+    ).not.toContain(token);
     expect(fake.requests).toHaveLength(1);
   });
 
@@ -148,9 +153,11 @@ describe("sendMessage", () => {
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chatId: 17, text: "bearing" }).pipe(Effect.provide(botLayer(fake))),
-    ));
+    const error = await Effect.runPromise(
+      Effect.flip(
+        sendMessage({ chatId: 17, text: "bearing" }).pipe(Effect.provide(botLayer(fake))),
+      ),
+    );
 
     expect(error.reason._tag).toBe("InvalidResponse");
     expect(error.message).toContain("sendMessage: Telegram returned an invalid response:");
@@ -163,13 +170,13 @@ describe("sendMessage", () => {
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      sendMessage({ chatId: 23, text: "pinion" }).pipe(Effect.provide(botLayer(fake))),
-    ));
+    const error = await Effect.runPromise(
+      Effect.flip(sendMessage({ chatId: 23, text: "pinion" }).pipe(Effect.provide(botLayer(fake)))),
+    );
 
     expect(error.reason._tag).toBe("InvalidResponse");
     if (error.reason._tag !== "InvalidResponse") throw new Error("Expected InvalidResponse");
-    expect(error.reason.description).toContain("[\"message_id\"]");
+    expect(error.reason.description).toContain('["message_id"]');
     expect(error.message).not.toContain(token);
   });
 
@@ -224,11 +231,13 @@ describe("sendMessage", () => {
 
 test("outgoing defaults follow each method's generated field subset", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok({
-      chat: { id: 47, type: "private" },
-      date: 1_700_000_000,
-      message_id: 61,
-    })],
+    replies: [
+      FakeBotApiReply.ok({
+        chat: { id: 47, type: "private" },
+        date: 1_700_000_000,
+        message_id: 61,
+      }),
+    ],
     token,
   });
   const layer = Bot.layer({
@@ -241,11 +250,13 @@ test("outgoing defaults follow each method's generated field subset", async () =
     token: Redacted.make(token),
   }).pipe(Layer.provide(fake.layer));
 
-  await Effect.runPromise(forwardMessage({
-    chatId: 47,
-    fromChatId: 49,
-    messageId: 51,
-  }).pipe(Effect.provide(layer)));
+  await Effect.runPromise(
+    forwardMessage({
+      chatId: 47,
+      fromChatId: 49,
+      messageId: 51,
+    }).pipe(Effect.provide(layer)),
+  );
 
   expect(fake.requests[0]?.params).toEqual({
     chat_id: 47,
@@ -258,11 +269,13 @@ test("outgoing defaults follow each method's generated field subset", async () =
 
 test("caption entities suppress a parse mode default", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok({
-      chat: { id: 53, type: "private" },
-      date: 1_700_000_001,
-      message_id: 63,
-    })],
+    replies: [
+      FakeBotApiReply.ok({
+        chat: { id: 53, type: "private" },
+        date: 1_700_000_001,
+        message_id: 63,
+      }),
+    ],
     token,
   });
   const layer = Bot.layer({
@@ -270,12 +283,14 @@ test("caption entities suppress a parse mode default", async () => {
     token: Redacted.make(token),
   }).pipe(Layer.provide(fake.layer));
 
-  await Effect.runPromise(sendPhoto({
-    caption: "photo",
-    captionEntities: [{ length: 5, offset: 0, type: "italic" }],
-    chatId: 53,
-    photo: "telegram-file-id",
-  }).pipe(Effect.provide(layer)));
+  await Effect.runPromise(
+    sendPhoto({
+      caption: "photo",
+      captionEntities: [{ length: 5, offset: 0, type: "italic" }],
+      chatId: 53,
+      photo: "telegram-file-id",
+    }).pipe(Effect.provide(layer)),
+  );
 
   expect(fake.requests[0]?.params).toEqual({
     caption: "photo",
@@ -288,13 +303,15 @@ test("caption entities suppress a parse mode default", async () => {
 describe("getMe", () => {
   test("sends an empty Telegram object and decodes the User", async () => {
     const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.ok({
-        first_name: "Telly Test",
-        future_field: "kept",
-        id: 73,
-        is_bot: true,
-        username: "telly_test_bot",
-      })],
+      replies: [
+        FakeBotApiReply.ok({
+          first_name: "Telly Test",
+          future_field: "kept",
+          id: 73,
+          is_bot: true,
+          username: "telly_test_bot",
+        }),
+      ],
       token,
     });
 
@@ -313,7 +330,6 @@ describe("getMe", () => {
       },
     ]);
   });
-
 });
 
 describe("read-only methods with optional fields", () => {
@@ -367,9 +383,7 @@ test("getUserProfilePhotos decodes its nested result", async () => {
   });
 
   const photos = await Effect.runPromise(
-    getUserProfilePhotos({ limit: 4, offset: 2, userId: 73 }).pipe(
-      Effect.provide(botLayer(fake)),
-    ),
+    getUserProfilePhotos({ limit: 4, offset: 2, userId: 73 }).pipe(Effect.provide(botLayer(fake))),
   );
 
   expect(photos.totalCount).toBe(0);
@@ -425,11 +439,13 @@ test("setMyDefaultAdministratorRights encodes nested camelCase fields", async ()
 
 test("sendVenue maps its public location fields to Telegram", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok({
-      chat: { id: 113, type: "private" },
-      date: 1_700_000_113,
-      message_id: 113,
-    })],
+    replies: [
+      FakeBotApiReply.ok({
+        chat: { id: 113, type: "private" },
+        date: 1_700_000_113,
+        message_id: 113,
+      }),
+    ],
     token,
   });
 
@@ -484,9 +500,7 @@ test("setChatTitle sends request-keyed replacement state", async () => {
   });
 
   const changed = await Effect.runPromise(
-    setChatTitle({ chatId: -100131, title: "Telly Room" }).pipe(
-      Effect.provide(botLayer(fake)),
-    ),
+    setChatTitle({ chatId: -100131, title: "Telly Room" }).pipe(Effect.provide(botLayer(fake))),
   );
 
   expect(changed).toBe(true);

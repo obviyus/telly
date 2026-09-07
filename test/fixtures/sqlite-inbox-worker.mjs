@@ -8,13 +8,15 @@ if (path === undefined || updateIdText === undefined) {
 const updateId = Number(updateIdText);
 const inbox = await SqliteInbox.open(path);
 try {
-  const result = await Effect.runPromise(inbox.save({
-    botId: 123456,
-    capacity: 1,
-    conversationKey: `chat:${updateId}`,
-    payload: { update_id: updateId },
-    updateId,
-  }));
+  const result = await Effect.runPromise(
+    inbox.save({
+      botId: 123456,
+      capacity: 1,
+      conversationKey: `chat:${updateId}`,
+      payload: { update_id: updateId },
+      updateId,
+    }),
+  );
   console.log(JSON.stringify(result));
 } finally {
   inbox.close();

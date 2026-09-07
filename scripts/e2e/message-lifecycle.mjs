@@ -153,15 +153,16 @@ async function writeVerdict(method, observation, timeline) {
 }
 
 async function observeMessage(messageId, predicate = () => true, afterIndex = 0) {
-  return waitFor(
-    eventsPath,
-    (events) => events.slice(afterIndex).find(
-      (event) =>
-        event.kind === "message" &&
-        (messageId === undefined || event.botApiMessageId === messageId) &&
-        event.isSut === true &&
-        predicate(event),
-    ),
+  return waitFor(eventsPath, (events) =>
+    events
+      .slice(afterIndex)
+      .find(
+        (event) =>
+          event.kind === "message" &&
+          (messageId === undefined || event.botApiMessageId === messageId) &&
+          event.isSut === true &&
+          predicate(event),
+      ),
   );
 }
 
@@ -180,12 +181,14 @@ async function deleteSetup(chatId, messageId) {
 
 async function sendEphemeralText(chatId, receiverUserId, label, replyMarkup) {
   const text = `telly-${label}-${run}`;
-  const message = await app.run(sendMessage({
-    chatId,
-    ephemeralMessageParameters: { receiverUserId },
-    replyMarkup,
-    text,
-  }));
+  const message = await app.run(
+    sendMessage({
+      chatId,
+      ephemeralMessageParameters: { receiverUserId },
+      replyMarkup,
+      text,
+    }),
+  );
   if (message.ephemeralMessageId === undefined) {
     throw new Error("Telegram returned no ephemeral message id");
   }
@@ -216,7 +219,8 @@ try {
   await proxy.drainUpdates(credential.sutToken);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const chatId = Number(credential.testerUserId);
-  if (!Number.isSafeInteger(chatId)) throw new Error("Leased Telegram tester id is not a safe integer");
+  if (!Number.isSafeInteger(chatId))
+    throw new Error("Leased Telegram tester id is not a safe integer");
 
   await writeFile(
     scenarioPath,
@@ -224,13 +228,15 @@ try {
       actions: [
         { atMs: 0, text: openText, type: "send" },
         ...(selected.has("answerCallbackQuery")
-          ? [{
-              atMs: 500,
-              buttonText: callbackButtonText,
-              messageText: callbackMessageText,
-              timeoutMs: 15_000,
-              type: "click",
-            }]
+          ? [
+              {
+                atMs: 500,
+                buttonText: callbackButtonText,
+                messageText: callbackMessageText,
+                timeoutMs: 15_000,
+                type: "click",
+              },
+            ]
           : []),
         ...(selected.has("answerInlineQuery")
           ? [{ atMs: 500, query: `telly-inline-${run}`, timeoutMs: 15_000, type: "inlineQuery" }]
@@ -281,18 +287,22 @@ try {
   });
   await Promise.race([waitFor(readyPath, (records) => records[0]), recorderStoppedEarly]);
   const initialAction = await Promise.race([
-    waitFor(
-      eventsPath,
-      (events) => events.find((event) => event.kind === "action" && event.status === "completed"),
+    waitFor(eventsPath, (events) =>
+      events.find((event) => event.kind === "action" && event.status === "completed"),
     ),
     recorderStoppedEarly,
   ]);
-  const initialMessage = await waitFor(eventsPath, (events) => events.find(
-    (event) => event.kind === "message" && event.isOutgoing === true && event.text === openText,
-  ));
+  const initialMessage = await waitFor(eventsPath, (events) =>
+    events.find(
+      (event) => event.kind === "message" && event.isOutgoing === true && event.text === openText,
+    ),
+  );
   const incomingUpdates = await app.run(getUpdates({ allowedUpdates: ["message"], timeout: 0 }));
-  const incomingMessage = incomingUpdates.find((update) => update.message?.text === openText)?.message;
-  if (incomingMessage === undefined) throw new Error("Bot API did not receive the userbot setup message");
+  const incomingMessage = incomingUpdates.find(
+    (update) => update.message?.text === openText,
+  )?.message;
+  if (incomingMessage === undefined)
+    throw new Error("Bot API did not receive the userbot setup message");
 
   await runProof("getUpdates", async () => ({
     observation: { messageId: incomingMessage.messageId, updateCount: incomingUpdates.length },
@@ -300,79 +310,97 @@ try {
   }));
 
   await runProof("answerCallbackQuery", async () => {
-    const message = await app.run(sendMessage({
-      chatId,
-      replyMarkup: {
-        inlineKeyboard: [[{ callbackData: `ack_${run}`, text: callbackButtonText }]],
-      },
-      text: callbackMessageText,
-    }));
+    const message = await app.run(
+      sendMessage({
+        chatId,
+        replyMarkup: {
+          inlineKeyboard: [[{ callbackData: `ack_${run}`, text: callbackButtonText }]],
+        },
+        text: callbackMessageText,
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const sent = await observeMessage(undefined, (event) => event.text === callbackMessageText);
     const offset = Math.max(...incomingUpdates.map((update) => update.updateId)) + 1;
-    const callbackUpdates = await app.run(getUpdates({
-      allowedUpdates: ["callback_query"],
-      offset,
-      timeout: 10,
-    }));
+    const callbackUpdates = await app.run(
+      getUpdates({
+        allowedUpdates: ["callback_query"],
+        offset,
+        timeout: 10,
+      }),
+    );
     const callbackQuery = callbackUpdates.find(
       (update) => update.callbackQuery?.data === `ack_${run}`,
     )?.callbackQuery;
     if (callbackQuery === undefined) throw new Error("Bot API did not receive the callback query");
-    const result = await app.run(answerCallbackQuery({
-      callbackQueryId: callbackQuery.id,
-      text: "Acknowledged",
-    }));
-    const click = await waitFor(eventsPath, (events) => events.find(
-      (event) =>
-        event.kind === "action" &&
-        event.actionType === "click" &&
-        event.buttonText === callbackButtonText &&
-        event.status === "completed",
-    ));
+    const result = await app.run(
+      answerCallbackQuery({
+        callbackQueryId: callbackQuery.id,
+        text: "Acknowledged",
+      }),
+    );
+    const click = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "action" &&
+          event.actionType === "click" &&
+          event.buttonText === callbackButtonText &&
+          event.status === "completed",
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
     return { observation: { result }, timeline: [sent, click] };
   });
 
   await runProof("answerInlineQuery", async () => {
     const offset = Math.max(...incomingUpdates.map((update) => update.updateId)) + 1;
-    const inlineUpdates = await app.run(getUpdates({
-      allowedUpdates: ["inline_query"],
-      offset,
-      timeout: 10,
-    }));
+    const inlineUpdates = await app.run(
+      getUpdates({
+        allowedUpdates: ["inline_query"],
+        offset,
+        timeout: 10,
+      }),
+    );
     const inlineQuery = inlineUpdates.find(
       (update) => update.inlineQuery?.query === `telly-inline-${run}`,
     )?.inlineQuery;
     if (inlineQuery === undefined) throw new Error("Bot API did not receive the inline query");
-    const result = await app.run(answerInlineQuery({
-      cacheTime: 0,
-      inlineQueryId: inlineQuery.id,
-      results: [{
-        id: `proof_${run}`,
-        inputMessageContent: { messageText: "Telly inline proof" },
-        title: "Telly proof",
-        type: "article",
-      }],
-    }));
-    const action = await waitFor(eventsPath, (events) => events.find(
-      (event) =>
-        event.kind === "action" &&
-        event.actionType === "inlineQuery" &&
-        event.status === "completed",
-    ));
+    const result = await app.run(
+      answerInlineQuery({
+        cacheTime: 0,
+        inlineQueryId: inlineQuery.id,
+        results: [
+          {
+            id: `proof_${run}`,
+            inputMessageContent: { messageText: "Telly inline proof" },
+            title: "Telly proof",
+            type: "article",
+          },
+        ],
+      }),
+    );
+    const action = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "action" &&
+          event.actionType === "inlineQuery" &&
+          event.status === "completed",
+      ),
+    );
     return { observation: { result }, timeline: [action] };
   });
 
   await runProof("createInvoiceLink", async () => {
-    const link = await app.run(createInvoiceLink({
-      currency: "XTR",
-      description: "Telly live proof",
-      payload: `telly_${run}`,
-      prices: [{ amount: 1, label: "Proof" }],
-      providerToken: "",
-      title: "Telly proof",
-    }));
+    const link = await app.run(
+      createInvoiceLink({
+        currency: "XTR",
+        description: "Telly live proof",
+        payload: `telly_${run}`,
+        prices: [{ amount: 1, label: "Proof" }],
+        providerToken: "",
+        title: "Telly proof",
+      }),
+    );
     return {
       observation: {
         hasHttpsLink: link.startsWith("https://"),
@@ -384,219 +412,325 @@ try {
   await runProof("editMessageText", async () => {
     const setup = await sendSetupText(chatId, "edit-text");
     const editedText = `telly-edited-text-${run}`;
-    const result = await app.run(editMessageText({ chatId, messageId: setup.message.messageId, text: editedText }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === setup.event.botApiMessageId && event.text === editedText,
-    ));
+    const result = await app.run(
+      editMessageText({ chatId, messageId: setup.message.messageId, text: editedText }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === setup.event.botApiMessageId &&
+          event.text === editedText,
+      ),
+    );
     await deleteSetup(chatId, setup.message.messageId);
-    return { observation: { messageId: result === true ? setup.message.messageId : result.messageId }, timeline: [setup.event, edited] };
+    return {
+      observation: { messageId: result === true ? setup.message.messageId : result.messageId },
+      timeline: [setup.event, edited],
+    };
   });
 
   await runProof("editMessageReplyMarkup", async () => {
-    const message = await app.run(sendMessage({
-      chatId,
-      text: `telly-markup-${run}`,
-      replyMarkup: { inlineKeyboard: [[{ callbackData: "before", text: "Before" }]] },
-    }));
+    const message = await app.run(
+      sendMessage({
+        chatId,
+        text: `telly-markup-${run}`,
+        replyMarkup: { inlineKeyboard: [[{ callbackData: "before", text: "Before" }]] },
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const sent = await observeMessage(undefined, (event) => event.text === `telly-markup-${run}`);
-    const result = await app.run(editMessageReplyMarkup({
-      chatId,
-      messageId: message.messageId,
-      replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit-meta" && event.botApiMessageId === sent.botApiMessageId && event.buttonTexts?.includes("After"),
-    ));
+    const result = await app.run(
+      editMessageReplyMarkup({
+        chatId,
+        messageId: message.messageId,
+        replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit-meta" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.buttonTexts?.includes("After"),
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
-    return { observation: { messageId: result === true ? message.messageId : result.messageId }, timeline: [sent, edited] };
+    return {
+      observation: { messageId: result === true ? message.messageId : result.messageId },
+      timeline: [sent, edited],
+    };
   });
 
   await runProof("editMessageCaption", async () => {
-    const message = await app.run(sendPhoto({
-      caption: `telly-caption-before-${run}`,
-      chatId,
-      photo: new File([png], "caption.png", { type: "image/png" }),
-    }));
+    const message = await app.run(
+      sendPhoto({
+        caption: `telly-caption-before-${run}`,
+        chatId,
+        photo: new File([png], "caption.png", { type: "image/png" }),
+      }),
+    );
     setupMessageIds.add(message.messageId);
-    const sent = await observeMessage(undefined, (event) => event.text === `telly-caption-before-${run}`);
+    const sent = await observeMessage(
+      undefined,
+      (event) => event.text === `telly-caption-before-${run}`,
+    );
     const caption = `telly-caption-after-${run}`;
-    const result = await app.run(editMessageCaption({ caption, chatId, messageId: message.messageId }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === sent.botApiMessageId && event.text === caption,
-    ));
+    const result = await app.run(
+      editMessageCaption({ caption, chatId, messageId: message.messageId }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.text === caption,
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
-    return { observation: { messageId: result === true ? message.messageId : result.messageId }, timeline: [sent, edited] };
+    return {
+      observation: { messageId: result === true ? message.messageId : result.messageId },
+      timeline: [sent, edited],
+    };
   });
 
   await runProof("editMessageMedia", async () => {
-    const message = await app.run(sendPhoto({
-      caption: `telly-media-before-${run}`,
-      chatId,
-      photo: new File([png], "before.png", { type: "image/png" }),
-    }));
+    const message = await app.run(
+      sendPhoto({
+        caption: `telly-media-before-${run}`,
+        chatId,
+        photo: new File([png], "before.png", { type: "image/png" }),
+      }),
+    );
     setupMessageIds.add(message.messageId);
-    const sent = await observeMessage(undefined, (event) => event.text === `telly-media-before-${run}`);
+    const sent = await observeMessage(
+      undefined,
+      (event) => event.text === `telly-media-before-${run}`,
+    );
     const caption = `telly-media-after-${run}`;
-    const result = await app.run(editMessageMedia({
-      chatId,
-      messageId: message.messageId,
-      media: {
-        caption,
-        media: new File([png], "after.png", { type: "image/png" }),
-        type: "photo",
-      },
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === sent.botApiMessageId && event.text === caption,
-    ));
+    const result = await app.run(
+      editMessageMedia({
+        chatId,
+        messageId: message.messageId,
+        media: {
+          caption,
+          media: new File([png], "after.png", { type: "image/png" }),
+          type: "photo",
+        },
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.text === caption,
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
-    return { observation: { messageId: result === true ? message.messageId : result.messageId }, timeline: [sent, edited] };
+    return {
+      observation: { messageId: result === true ? message.messageId : result.messageId },
+      timeline: [sent, edited],
+    };
   });
 
   await runProof("editEphemeralMessageText", async () => {
     const setup = await sendEphemeralText(chatId, chatId, "ephemeral-text");
     const text = `telly-ephemeral-edited-${run}`;
-    const result = await app.run(editEphemeralMessageText({
-      chatId,
-      ephemeralMessageId: setup.message.ephemeralMessageId,
-      receiverUserId: chatId,
-      text,
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === setup.event.botApiMessageId && event.text === text,
-    ));
+    const result = await app.run(
+      editEphemeralMessageText({
+        chatId,
+        ephemeralMessageId: setup.message.ephemeralMessageId,
+        receiverUserId: chatId,
+        text,
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === setup.event.botApiMessageId &&
+          event.text === text,
+      ),
+    );
     await deleteEphemeralSetup(chatId, chatId, setup.message.ephemeralMessageId);
     return { observation: { messageId: result.messageId }, timeline: [setup.event, edited] };
   });
 
   await runProof("editEphemeralMessageReplyMarkup", async () => {
-    const setup = await sendEphemeralText(
-      chatId,
-      chatId,
-      "ephemeral-markup",
-      { inlineKeyboard: [[{ callbackData: "before", text: "Before" }]] },
+    const setup = await sendEphemeralText(chatId, chatId, "ephemeral-markup", {
+      inlineKeyboard: [[{ callbackData: "before", text: "Before" }]],
+    });
+    const result = await app.run(
+      editEphemeralMessageReplyMarkup({
+        chatId,
+        ephemeralMessageId: setup.message.ephemeralMessageId,
+        receiverUserId: chatId,
+        replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
+      }),
     );
-    const result = await app.run(editEphemeralMessageReplyMarkup({
-      chatId,
-      ephemeralMessageId: setup.message.ephemeralMessageId,
-      receiverUserId: chatId,
-      replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit-meta" && event.botApiMessageId === setup.event.botApiMessageId && event.buttonTexts?.includes("After"),
-    ));
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit-meta" &&
+          event.botApiMessageId === setup.event.botApiMessageId &&
+          event.buttonTexts?.includes("After"),
+      ),
+    );
     await deleteEphemeralSetup(chatId, chatId, setup.message.ephemeralMessageId);
     return { observation: { messageId: result.messageId }, timeline: [setup.event, edited] };
   });
 
   await runProof("editEphemeralMessageCaption", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendPhoto({
-      caption: `telly-ephemeral-caption-before-${run}`,
-      chatId,
-      ephemeralMessageParameters: { receiverUserId: chatId },
-      photo: new File([png], "ephemeral-caption.png", { type: "image/png" }),
-    }));
-    if (message.ephemeralMessageId === undefined) throw new Error("Telegram returned no ephemeral message id");
+    const message = await app.run(
+      sendPhoto({
+        caption: `telly-ephemeral-caption-before-${run}`,
+        chatId,
+        ephemeralMessageParameters: { receiverUserId: chatId },
+        photo: new File([png], "ephemeral-caption.png", { type: "image/png" }),
+      }),
+    );
+    if (message.ephemeralMessageId === undefined)
+      throw new Error("Telegram returned no ephemeral message id");
     ephemeralMessageIds.add(message.ephemeralMessageId);
-    const sent = await observeMessage(undefined, (event) => event.contentType === "messagePhoto", before);
+    const sent = await observeMessage(
+      undefined,
+      (event) => event.contentType === "messagePhoto",
+      before,
+    );
     const caption = `telly-ephemeral-caption-after-${run}`;
-    const result = await app.run(editEphemeralMessageCaption({
-      caption,
-      chatId,
-      ephemeralMessageId: message.ephemeralMessageId,
-      receiverUserId: chatId,
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === sent.botApiMessageId && event.text === caption,
-    ));
+    const result = await app.run(
+      editEphemeralMessageCaption({
+        caption,
+        chatId,
+        ephemeralMessageId: message.ephemeralMessageId,
+        receiverUserId: chatId,
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.text === caption,
+      ),
+    );
     await deleteEphemeralSetup(chatId, chatId, message.ephemeralMessageId);
     return { observation: { messageId: result.messageId }, timeline: [sent, edited] };
   });
 
   await runProof("editEphemeralMessageMedia", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendPhoto({
-      caption: `telly-ephemeral-media-before-${run}`,
-      chatId,
-      ephemeralMessageParameters: { receiverUserId: chatId },
-      photo: new File([png], "ephemeral-before.png", { type: "image/png" }),
-    }));
-    if (message.ephemeralMessageId === undefined) throw new Error("Telegram returned no ephemeral message id");
+    const message = await app.run(
+      sendPhoto({
+        caption: `telly-ephemeral-media-before-${run}`,
+        chatId,
+        ephemeralMessageParameters: { receiverUserId: chatId },
+        photo: new File([png], "ephemeral-before.png", { type: "image/png" }),
+      }),
+    );
+    if (message.ephemeralMessageId === undefined)
+      throw new Error("Telegram returned no ephemeral message id");
     ephemeralMessageIds.add(message.ephemeralMessageId);
-    const sent = await observeMessage(undefined, (event) => event.contentType === "messagePhoto", before);
+    const sent = await observeMessage(
+      undefined,
+      (event) => event.contentType === "messagePhoto",
+      before,
+    );
     const caption = `telly-ephemeral-media-after-${run}`;
-    const result = await app.run(editEphemeralMessageMedia({
-      chatId,
-      ephemeralMessageId: message.ephemeralMessageId,
-      media: {
-        caption,
-        media: new File([png], "ephemeral-after.png", { type: "image/png" }),
-        type: "photo",
-      },
-      receiverUserId: chatId,
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === sent.botApiMessageId && event.text === caption,
-    ));
+    const result = await app.run(
+      editEphemeralMessageMedia({
+        chatId,
+        ephemeralMessageId: message.ephemeralMessageId,
+        media: {
+          caption,
+          media: new File([png], "ephemeral-after.png", { type: "image/png" }),
+          type: "photo",
+        },
+        receiverUserId: chatId,
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.text === caption,
+      ),
+    );
     await deleteEphemeralSetup(chatId, chatId, message.ephemeralMessageId);
     return { observation: { messageId: result.messageId }, timeline: [sent, edited] };
   });
 
   await runProof("deleteEphemeralMessage", async () => {
     const setup = await sendEphemeralText(chatId, chatId, "ephemeral-delete");
-    const result = await app.run(deleteEphemeralMessage({
-      chatId,
-      ephemeralMessageId: setup.message.ephemeralMessageId,
-      receiverUserId: chatId,
-    }));
+    const result = await app.run(
+      deleteEphemeralMessage({
+        chatId,
+        ephemeralMessageId: setup.message.ephemeralMessageId,
+        receiverUserId: chatId,
+      }),
+    );
     ephemeralMessageIds.delete(setup.message.ephemeralMessageId);
-    const deleted = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "delete" && event.botApiMessageId === setup.event.botApiMessageId,
-    ));
+    const deleted = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) => event.kind === "delete" && event.botApiMessageId === setup.event.botApiMessageId,
+      ),
+    );
     return { observation: { result }, timeline: [setup.event, deleted] };
   });
 
   await runProof("editMessageLiveLocation", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendLocation({
-      chatId,
-      latitude: 52.5,
-      livePeriod: 60,
-      longitude: 13.4,
-    }));
+    const message = await app.run(
+      sendLocation({
+        chatId,
+        latitude: 52.5,
+        livePeriod: 60,
+        longitude: 13.4,
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const sent = await observeMessage(
       undefined,
       (event) => event.contentType === "messageLiveLocation" && event.livePeriod === 60,
       before,
     );
-    const result = await app.run(editMessageLiveLocation({
-      chatId,
-      latitude: 52.6,
-      longitude: 13.5,
-      messageId: message.messageId,
-    }));
-    const edited = await waitFor(eventsPath, (events) => events.find(
-      (event) =>
-        event.kind === "edit" &&
-        event.botApiMessageId === sent.botApiMessageId &&
-        Math.abs(event.latitude - 52.6) < 0.001 &&
-        Math.abs(event.longitude - 13.5) < 0.001,
-    ));
+    const result = await app.run(
+      editMessageLiveLocation({
+        chatId,
+        latitude: 52.6,
+        longitude: 13.5,
+        messageId: message.messageId,
+      }),
+    );
+    const edited = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          Math.abs(event.latitude - 52.6) < 0.001 &&
+          Math.abs(event.longitude - 13.5) < 0.001,
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
-    return { observation: { messageId: result === true ? message.messageId : result.messageId }, timeline: [sent, edited] };
+    return {
+      observation: { messageId: result === true ? message.messageId : result.messageId },
+      timeline: [sent, edited],
+    };
   });
 
   await runProof("stopMessageLiveLocation", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendLocation({
-      chatId,
-      latitude: 52.7,
-      livePeriod: 60,
-      longitude: 13.6,
-    }));
+    const message = await app.run(
+      sendLocation({
+        chatId,
+        latitude: 52.7,
+        livePeriod: 60,
+        longitude: 13.6,
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const sent = await observeMessage(
       undefined,
@@ -618,9 +752,11 @@ try {
     const setup = await sendSetupText(chatId, "delete-one");
     const result = await app.run(deleteMessage({ chatId, messageId: setup.message.messageId }));
     setupMessageIds.delete(setup.message.messageId);
-    const deleted = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "delete" && event.botApiMessageId === setup.event.botApiMessageId,
-    ));
+    const deleted = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) => event.kind === "delete" && event.botApiMessageId === setup.event.botApiMessageId,
+      ),
+    );
     return { observation: { result }, timeline: [setup.event, deleted] };
   });
 
@@ -632,7 +768,9 @@ try {
     const result = await app.run(deleteMessages({ chatId, messageIds: apiIds }));
     apiIds.forEach((id) => setupMessageIds.delete(id));
     const deletions = await waitFor(eventsPath, (events) => {
-      const found = events.filter((event) => event.kind === "delete" && observedIds.includes(event.botApiMessageId));
+      const found = events.filter(
+        (event) => event.kind === "delete" && observedIds.includes(event.botApiMessageId),
+      );
       return found.length === observedIds.length ? found : undefined;
     });
     return { observation: { result }, timeline: [first.event, second.event, ...deletions] };
@@ -640,10 +778,13 @@ try {
 
   await runProof("copyMessage", async () => {
     const setup = await sendSetupText(chatId, "copy-one");
-    const copied = await app.run(copyMessage({ chatId, fromChatId: chatId, messageId: setup.message.messageId }));
+    const copied = await app.run(
+      copyMessage({ chatId, fromChatId: chatId, messageId: setup.message.messageId }),
+    );
     setupMessageIds.add(copied.messageId);
-    const observed = await observeMessage(undefined, (event) =>
-      event.text === setup.text && event.botApiMessageId !== setup.event.botApiMessageId
+    const observed = await observeMessage(
+      undefined,
+      (event) => event.text === setup.text && event.botApiMessageId !== setup.event.botApiMessageId,
     );
     await deleteSetup(chatId, copied.messageId);
     await deleteSetup(chatId, setup.message.messageId);
@@ -653,33 +794,49 @@ try {
   await runProof("copyMessages", async () => {
     const first = await sendSetupText(chatId, "copy-many-a");
     const second = await sendSetupText(chatId, "copy-many-b");
-    const copied = await app.run(copyMessages({
-      chatId,
-      fromChatId: chatId,
-      messageIds: [first.message.messageId, second.message.messageId],
-    }));
+    const copied = await app.run(
+      copyMessages({
+        chatId,
+        fromChatId: chatId,
+        messageIds: [first.message.messageId, second.message.messageId],
+      }),
+    );
     const copiedIds = copied.map((item) => item.messageId);
     copiedIds.forEach((id) => setupMessageIds.add(id));
     const observed = await waitFor(eventsPath, (events) => {
-      const copies = events.filter((event) =>
-        event.kind === "message" && event.isSut === true && (
-          (event.text === first.text && event.botApiMessageId !== first.event.botApiMessageId) ||
-          (event.text === second.text && event.botApiMessageId !== second.event.botApiMessageId)
-        )
+      const copies = events.filter(
+        (event) =>
+          event.kind === "message" &&
+          event.isSut === true &&
+          ((event.text === first.text && event.botApiMessageId !== first.event.botApiMessageId) ||
+            (event.text === second.text && event.botApiMessageId !== second.event.botApiMessageId)),
       );
       return copies.length === 2 ? copies : undefined;
     });
-    await app.run(deleteMessages({ chatId, messageIds: [...copiedIds, first.message.messageId, second.message.messageId] }));
-    [...copiedIds, first.message.messageId, second.message.messageId].forEach((id) => setupMessageIds.delete(id));
-    return { observation: { messageIds: copiedIds }, timeline: [first.event, second.event, ...observed] };
+    await app.run(
+      deleteMessages({
+        chatId,
+        messageIds: [...copiedIds, first.message.messageId, second.message.messageId],
+      }),
+    );
+    [...copiedIds, first.message.messageId, second.message.messageId].forEach((id) =>
+      setupMessageIds.delete(id),
+    );
+    return {
+      observation: { messageIds: copiedIds },
+      timeline: [first.event, second.event, ...observed],
+    };
   });
 
   await runProof("forwardMessage", async () => {
     const setup = await sendSetupText(chatId, "forward-one");
-    const forwarded = await app.run(forwardMessage({ chatId, fromChatId: chatId, messageId: setup.message.messageId }));
+    const forwarded = await app.run(
+      forwardMessage({ chatId, fromChatId: chatId, messageId: setup.message.messageId }),
+    );
     setupMessageIds.add(forwarded.messageId);
-    const observed = await observeMessage(undefined, (event) =>
-      event.text === setup.text && event.botApiMessageId !== setup.event.botApiMessageId
+    const observed = await observeMessage(
+      undefined,
+      (event) => event.text === setup.text && event.botApiMessageId !== setup.event.botApiMessageId,
     );
     await deleteSetup(chatId, forwarded.messageId);
     await deleteSetup(chatId, setup.message.messageId);
@@ -689,71 +846,111 @@ try {
   await runProof("forwardMessages", async () => {
     const first = await sendSetupText(chatId, "forward-many-a");
     const second = await sendSetupText(chatId, "forward-many-b");
-    const forwarded = await app.run(forwardMessages({
-      chatId,
-      fromChatId: chatId,
-      messageIds: [first.message.messageId, second.message.messageId],
-    }));
+    const forwarded = await app.run(
+      forwardMessages({
+        chatId,
+        fromChatId: chatId,
+        messageIds: [first.message.messageId, second.message.messageId],
+      }),
+    );
     const forwardedIds = forwarded.map((item) => item.messageId);
     forwardedIds.forEach((id) => setupMessageIds.add(id));
     const observed = await Promise.all([
-      observeMessage(undefined, (event) => event.text === first.text && event.botApiMessageId !== first.event.botApiMessageId),
-      observeMessage(undefined, (event) => event.text === second.text && event.botApiMessageId !== second.event.botApiMessageId),
+      observeMessage(
+        undefined,
+        (event) =>
+          event.text === first.text && event.botApiMessageId !== first.event.botApiMessageId,
+      ),
+      observeMessage(
+        undefined,
+        (event) =>
+          event.text === second.text && event.botApiMessageId !== second.event.botApiMessageId,
+      ),
     ]);
-    await app.run(deleteMessages({ chatId, messageIds: [...forwardedIds, first.message.messageId, second.message.messageId] }));
-    [...forwardedIds, first.message.messageId, second.message.messageId].forEach((id) => setupMessageIds.delete(id));
-    return { observation: { messageIds: forwardedIds }, timeline: [first.event, second.event, ...observed] };
+    await app.run(
+      deleteMessages({
+        chatId,
+        messageIds: [...forwardedIds, first.message.messageId, second.message.messageId],
+      }),
+    );
+    [...forwardedIds, first.message.messageId, second.message.messageId].forEach((id) =>
+      setupMessageIds.delete(id),
+    );
+    return {
+      observation: { messageIds: forwardedIds },
+      timeline: [first.event, second.event, ...observed],
+    };
   });
 
   await runProof("setMessageReaction", async () => {
     const messageId = incomingMessage.messageId;
-    const result = await app.run(setMessageReaction({
-      chatId,
-      messageId,
-      reaction: [{ emoji: "👍", type: "emoji" }],
-    }));
-    const reaction = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "reaction" && event.botApiMessageId === initialAction.botApiMessageId && event.reactionText.includes("👍"),
-    ));
+    const result = await app.run(
+      setMessageReaction({
+        chatId,
+        messageId,
+        reaction: [{ emoji: "👍", type: "emoji" }],
+      }),
+    );
+    const reaction = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "reaction" &&
+          event.botApiMessageId === initialAction.botApiMessageId &&
+          event.reactionText.includes("👍"),
+      ),
+    );
     await app.run(setMessageReaction({ chatId, messageId, reaction: [] }));
     return { observation: { result }, timeline: [initialAction, initialMessage, reaction] };
   });
 
   await runProof("sendPoll", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendPoll({
-      chatId,
-      options: [{ text: "Alpha" }, { text: "Beta" }],
-      question: `Telly poll ${run}`,
-    }));
+    const message = await app.run(
+      sendPoll({
+        chatId,
+        options: [{ text: "Alpha" }, { text: "Beta" }],
+        question: `Telly poll ${run}`,
+      }),
+    );
     setupMessageIds.add(message.messageId);
-    const observed = await observeMessage(undefined, (event) => event.contentType === "messagePoll", before);
+    const observed = await observeMessage(
+      undefined,
+      (event) => event.contentType === "messagePoll",
+      before,
+    );
     return { observation: { messageId: message.messageId }, timeline: [observed] };
   });
 
   await runProof("sendMediaGroup", async () => {
     const before = (await readJsonLines(eventsPath)).length;
     const caption = `telly-media-group-${run}`;
-    const messages = await app.run(sendMediaGroup({
-      chatId,
-      media: [
-        {
-          caption,
-          media: new File([png], "album-a.png", { type: "image/png" }),
-          type: "photo",
-        },
-        {
-          media: new File([png], "album-b.png", { type: "image/png" }),
-          type: "photo",
-        },
-      ],
-    }));
+    const messages = await app.run(
+      sendMediaGroup({
+        chatId,
+        media: [
+          {
+            caption,
+            media: new File([png], "album-a.png", { type: "image/png" }),
+            type: "photo",
+          },
+          {
+            media: new File([png], "album-b.png", { type: "image/png" }),
+            type: "photo",
+          },
+        ],
+      }),
+    );
     const messageIds = messages.map((message) => message.messageId);
     messageIds.forEach((messageId) => setupMessageIds.add(messageId));
     const observed = await waitFor(eventsPath, (events) => {
-      const photos = events.slice(before).filter(
-        (event) => event.kind === "message" && event.isSut === true && event.contentType === "messagePhoto",
-      );
+      const photos = events
+        .slice(before)
+        .filter(
+          (event) =>
+            event.kind === "message" &&
+            event.isSut === true &&
+            event.contentType === "messagePhoto",
+        );
       return photos.length === 2 ? photos : undefined;
     });
     await app.run(deleteMessages({ chatId, messageIds }));
@@ -763,15 +960,17 @@ try {
 
   await runProof("sendInvoice", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendInvoice({
-      chatId,
-      currency: "XTR",
-      description: "Telly live proof",
-      payload: `telly_${run}`,
-      prices: [{ amount: 1, label: "Proof" }],
-      providerToken: "",
-      title: "Telly proof",
-    }));
+    const message = await app.run(
+      sendInvoice({
+        chatId,
+        currency: "XTR",
+        description: "Telly live proof",
+        payload: `telly_${run}`,
+        prices: [{ amount: 1, label: "Proof" }],
+        providerToken: "",
+        title: "Telly proof",
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const observed = await observeMessage(
       undefined,
@@ -785,10 +984,12 @@ try {
   await runProof("sendRichMessage", async () => {
     const before = (await readJsonLines(eventsPath)).length;
     const text = `telly-rich-${run}`;
-    const message = await app.run(sendRichMessage({
-      chatId,
-      richMessage: { html: `<p>${text}</p>` },
-    }));
+    const message = await app.run(
+      sendRichMessage({
+        chatId,
+        richMessage: { html: `<p>${text}</p>` },
+      }),
+    );
     setupMessageIds.add(message.messageId);
     const observed = await observeMessage(
       undefined,
@@ -802,30 +1003,50 @@ try {
   await runProof("sendRichMessageDraft", async () => {
     const before = (await readJsonLines(eventsPath)).length;
     const text = `telly-rich-draft-${run}`;
-    const result = await app.run(sendRichMessageDraft({
-      chatId,
-      draftId: Date.now(),
-      richMessage: { html: `<p>${text}</p>` },
-    }));
-    const observed = await waitFor(eventsPath, (events) => events.slice(before).find(
-      (event) => event.kind === "draft" && event.contentType === "messageRichMessage" && event.text === text,
-    ));
+    const result = await app.run(
+      sendRichMessageDraft({
+        chatId,
+        draftId: Date.now(),
+        richMessage: { html: `<p>${text}</p>` },
+      }),
+    );
+    const observed = await waitFor(eventsPath, (events) =>
+      events
+        .slice(before)
+        .find(
+          (event) =>
+            event.kind === "draft" &&
+            event.contentType === "messageRichMessage" &&
+            event.text === text,
+        ),
+    );
     return { observation: { result }, timeline: [observed] };
   });
 
   await runProof("stopPoll", async () => {
     const before = (await readJsonLines(eventsPath)).length;
-    const message = await app.run(sendPoll({
-      chatId,
-      options: [{ text: "Open" }, { text: "Closed" }],
-      question: `Telly stop poll ${run}`,
-    }));
+    const message = await app.run(
+      sendPoll({
+        chatId,
+        options: [{ text: "Open" }, { text: "Closed" }],
+        question: `Telly stop poll ${run}`,
+      }),
+    );
     setupMessageIds.add(message.messageId);
-    const sent = await observeMessage(undefined, (event) => event.contentType === "messagePoll", before);
+    const sent = await observeMessage(
+      undefined,
+      (event) => event.contentType === "messagePoll",
+      before,
+    );
     const result = await app.run(stopPoll({ chatId, messageId: message.messageId }));
-    const stopped = await waitFor(eventsPath, (events) => events.find(
-      (event) => event.kind === "edit" && event.botApiMessageId === sent.botApiMessageId && event.pollIsClosed === true,
-    ));
+    const stopped = await waitFor(eventsPath, (events) =>
+      events.find(
+        (event) =>
+          event.kind === "edit" &&
+          event.botApiMessageId === sent.botApiMessageId &&
+          event.pollIsClosed === true,
+      ),
+    );
     await deleteSetup(chatId, message.messageId);
     return { observation: { isClosed: result.isClosed }, timeline: [sent, stopped] };
   });
@@ -860,9 +1081,9 @@ try {
     const text = `telly-draft-${run}`;
     const before = (await readJsonLines(eventsPath)).length;
     const result = await app.run(sendMessageDraft({ chatId, draftId, text }));
-    const observed = await waitFor(eventsPath, (events) => events.slice(before).find(
-      (event) => event.kind === "draft" && event.text === text,
-    ));
+    const observed = await waitFor(eventsPath, (events) =>
+      events.slice(before).find((event) => event.kind === "draft" && event.text === text),
+    );
     return { observation: { result }, timeline: [observed] };
   });
 
@@ -871,17 +1092,27 @@ try {
   console.log(JSON.stringify({ failures, ok: failures.length === 0, proofDir, verdicts }));
   if (failures.length > 0) process.exitCode = 1;
 } catch (error) {
-  console.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error), ok: false, proofDir }));
+  console.error(
+    JSON.stringify({
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+      proofDir,
+    }),
+  );
   throw error;
 } finally {
   if (app !== undefined && credential !== undefined) {
     const chatId = Number(credential.testerUserId);
     for (const ephemeralMessageId of ephemeralMessageIds) {
-      await app.run(deleteEphemeralMessage({
-        chatId,
-        ephemeralMessageId,
-        receiverUserId: chatId,
-      })).catch(() => {});
+      await app
+        .run(
+          deleteEphemeralMessage({
+            chatId,
+            ephemeralMessageId,
+            receiverUserId: chatId,
+          }),
+        )
+        .catch(() => {});
     }
     for (const messageId of setupMessageIds) {
       await app.run(deleteMessage({ chatId, messageId })).catch(() => {});

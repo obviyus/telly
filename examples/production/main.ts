@@ -1,12 +1,7 @@
 import type { serve } from "bun";
 import type { EventEmitter } from "node:events";
 
-import {
-  Application,
-  setWebhook,
-  SqliteInbox,
-  SqliteJobs,
-} from "../../index.ts";
+import { Application, setWebhook, SqliteInbox, SqliteJobs } from "../../index.ts";
 
 import { makeProductionBot } from "./bot.ts";
 
@@ -28,7 +23,7 @@ const jobStore = await SqliteJobs.open(database);
 const { bot, jobs } = makeProductionBot(jobStore);
 const app = Application.make({ inbox, jobs, token });
 let closing: Promise<void> | undefined;
-const close = () => closing ??= app.close();
+const close = () => (closing ??= app.close());
 const stopOnSignal = () => void close();
 const processEvents: EventEmitter = process;
 processEvents.once("SIGINT", stopOnSignal);

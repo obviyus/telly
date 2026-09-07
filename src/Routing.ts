@@ -111,9 +111,7 @@ export interface EntityMatch {
   readonly update: Update;
 }
 
-type DefinitionHandler<in Match> = (
-  match: Match,
-) => Effect.Effect<unknown, unknown, Bot>;
+type DefinitionHandler<in Match> = (match: Match) => Effect.Effect<unknown, unknown, Bot>;
 
 /** The canonical declarative shape for a bot's common update handlers. */
 export interface BotDefinition {
@@ -139,21 +137,23 @@ type RouteError<T> = T extends Route<infer E> ? E : never;
 type HandlerError<T> = T extends UpdateHandler<infer E> ? E : never;
 type EffectError<T> = T extends (
   ...args: ReadonlyArray<never>
-) => Effect.Effect<unknown, infer E, Bot> ? E : never;
+) => Effect.Effect<unknown, infer E, Bot>
+  ? E
+  : never;
 type CommandDefinitionError<D> = D extends { readonly commands: infer Commands }
-  ? Commands extends Readonly<Record<string, infer Handler>> ? EffectError<Handler> : never
+  ? Commands extends Readonly<Record<string, infer Handler>>
+    ? EffectError<Handler>
+    : never
   : never;
 type DefinitionError<D> =
   | CommandDefinitionError<D>
   | (D extends { readonly callbackQuery: infer Handler } ? EffectError<Handler> : never)
   | (D extends { readonly conversations: ReadonlyArray<infer Conversation> }
-    ? ConversationProtocolError<Conversation>
-    : never)
+      ? ConversationProtocolError<Conversation>
+      : never)
   | (D extends { readonly text: infer Handler } ? EffectError<Handler> : never);
 
-function makeFilter<A>(
-  match: FilterState<A>["match"],
-): Filter<A> {
+function makeFilter<A>(match: FilterState<A>["match"]): Filter<A> {
   return {
     [FilterTypeId]: { match },
   };
@@ -224,14 +224,9 @@ export function command(name: string): Filter<CommandMatch> {
     const message = update.message;
     if (message === undefined) return undefined;
     const body = message.text ?? message.caption;
-    const entity = message.text === undefined
-      ? message.captionEntities?.[0]
-      : message.entities?.[0];
-    if (
-      body === undefined ||
-      entity?.type !== "bot_command" ||
-      entity.offset !== 0
-    ) {
+    const entity =
+      message.text === undefined ? message.captionEntities?.[0] : message.entities?.[0];
+    if (body === undefined || entity?.type !== "bot_command" || entity.offset !== 0) {
       return undefined;
     }
     const token = body.slice(1, entity.length);
@@ -272,7 +267,8 @@ export function callbackQuery(): Filter<CallbackQueryMatch> {
   return makeFilter((update) =>
     update.callbackQuery === undefined
       ? undefined
-      : { callbackQuery: update.callbackQuery, update });
+      : { callbackQuery: update.callbackQuery, update },
+  );
 }
 
 /** Matches a new message that directly replies to another message. */
@@ -301,10 +297,7 @@ function mediaField<Kind extends MediaKind>(
   message: Message,
   kind: Kind,
 ): MediaKindMap[Kind] | undefined;
-function mediaField(
-  message: Message,
-  kind: MediaKind,
-): MediaKindMap[MediaKind] | undefined {
+function mediaField(message: Message, kind: MediaKind): MediaKindMap[MediaKind] | undefined {
   switch (kind) {
     case "animation":
       return message.animation;
@@ -413,15 +406,12 @@ export function routes<const Routes extends ReadonlyArray<Route<unknown>>>(
   ...routeList: Routes
 ): UpdateHandler<BotApiError | RouteError<Routes[number]>>;
 export function routes(...routeList: ReadonlyArray<Route<unknown>>): UpdateHandler<unknown> {
-  const dispatch = (
-    update: Update,
-    me: User | undefined,
-  ): Effect.Effect<unknown, unknown, Bot> => {
+  const dispatch = (update: Update, me: User | undefined): Effect.Effect<unknown, unknown, Bot> => {
     for (const route of routeList) {
       const effect = route[RouteTypeId].run(update, me);
       if (effect === BotIdentityRequired) {
         return Effect.flatMap(Bot, (bot) =>
-          Effect.flatMap(bot.me, (identity) => dispatch(update, identity))
+          Effect.flatMap(bot.me, (identity) => dispatch(update, identity)),
         );
       }
       if (effect === undefined) continue;

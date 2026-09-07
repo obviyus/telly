@@ -60,26 +60,25 @@ try {
   harness = await openTelegramTestHarness();
   ({ credential, proxy } = harness);
   await proxy.drainUpdates(credential.sutToken);
-  await writeFile(photoPath, Buffer.from(
-    "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAABAAAAAQBPJcTWAAAAb0lEQVR4nO3PAQkAAAyEwO8feiyGCMIF0G0nxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzSg9sFe4OIMD8UiAAAAAElFTkSuQmCC",
-    "base64",
-  ));
-
-  sut = spawn(
-    "bun",
-    ["run", "./scripts/e2e/fixtures/beginner-bot-sut.mjs"],
-    {
-      cwd: repoRoot,
-      env: {
-        ...sanitizedEnvironment(),
-        TELLY_E2E_API_ROOT: proxy.apiRoot,
-        TELLY_E2E_BOT_TOKEN: credential.sutToken,
-        TELLY_E2E_ECHO_PREFIX: echoPrefix,
-        TELLY_E2E_START_TEXT: startText,
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    },
+  await writeFile(
+    photoPath,
+    Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAABAAAAAQBPJcTWAAAAb0lEQVR4nO3PAQkAAAyEwO8feiyGCMIF0G0nxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzQgxxc0IMcXNCDHFzSg9sFe4OIMD8UiAAAAAElFTkSuQmCC",
+      "base64",
+    ),
   );
+
+  sut = spawn("bun", ["run", "./scripts/e2e/fixtures/beginner-bot-sut.mjs"], {
+    cwd: repoRoot,
+    env: {
+      ...sanitizedEnvironment(),
+      TELLY_E2E_API_ROOT: proxy.apiRoot,
+      TELLY_E2E_BOT_TOKEN: credential.sutToken,
+      TELLY_E2E_ECHO_PREFIX: echoPrefix,
+      TELLY_E2E_START_TEXT: startText,
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   sut.stdout.setEncoding("utf8");
   sut.stderr.setEncoding("utf8");
   sut.stdout.on("data", (chunk) => {
@@ -94,13 +93,17 @@ try {
 
   await writeFile(
     scenarioPath,
-    `${JSON.stringify({
-      actions: [
-        { atMs: 0, text: "/start", type: "send" },
-        { atMs: 1_500, text: echoInput, type: "send" },
-        { atMs: 3_000, text: ignoredCommand, type: "send" },
-      ],
-    }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        actions: [
+          { atMs: 0, text: "/start", type: "send" },
+          { atMs: 1_500, text: echoInput, type: "send" },
+          { atMs: 3_000, text: ignoredCommand, type: "send" },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
     { mode: 0o600 },
   );
 
@@ -211,9 +214,7 @@ try {
   const captionResponse = requireEvent(
     photoEvents,
     (event) =>
-      event.kind === "message" &&
-      event.isSut === true &&
-      event.text === captionResponseText,
+      event.kind === "message" && event.isSut === true && event.text === captionResponseText,
     "caption command response",
   );
   if (startResponse.replyToMessageId !== undefined && startResponse.replyToMessageId !== null) {
@@ -304,11 +305,13 @@ try {
   }
   console.log(JSON.stringify({ ok: true, proofDir, verdict }));
 } catch (error) {
-  console.error(JSON.stringify({
-    error: error instanceof Error ? error.message : String(error),
-    ok: false,
-    proofDir,
-  }));
+  console.error(
+    JSON.stringify({
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+      proofDir,
+    }),
+  );
   throw error;
 } finally {
   if (recorder?.exitCode === null) recorder.kill("SIGTERM");

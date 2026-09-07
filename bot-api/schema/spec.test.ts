@@ -41,8 +41,9 @@ describe("Bot API schema", () => {
       version: "10.3",
     });
     expect(result.spec.methods["getMe"]?.returns).toEqual(["User"]);
-    expect(result.spec.types["ForceReply"]?.fields?.find(({ name }) => name === "force_reply")?.types)
-      .toEqual(["True"]);
+    expect(
+      result.spec.types["ForceReply"]?.fields?.find(({ name }) => name === "force_reply")?.types,
+    ).toEqual(["True"]);
   });
 
   test("preserves an unknown top-level field for day-zero access", async () => {

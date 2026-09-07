@@ -50,26 +50,30 @@ async function recordScenario(name, actions, seconds) {
   const summaryPath = path.join(scratch, `${name}-summary.json`);
   const scenarioPath = path.join(scratch, `${name}-scenario.json`);
   await writeFile(scenarioPath, `${JSON.stringify({ actions }, null, 2)}\n`);
-  recorder = spawn("uv", [
-    "run",
-    path.join(skillScripts, "user-record.py"),
-    "--scenario",
-    scenarioPath,
-    "--seconds",
-    String(seconds),
-    "--record",
-    eventsPath,
-    "--output",
-    summaryPath,
-    "--chat",
-    `@${credential.sutUsername}`,
-    "--sut-user-id",
-    credential.sutBotId,
-  ], {
-    cwd: repoRoot,
-    env: { ...process.env, ...credential.driverEnv },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  recorder = spawn(
+    "uv",
+    [
+      "run",
+      path.join(skillScripts, "user-record.py"),
+      "--scenario",
+      scenarioPath,
+      "--seconds",
+      String(seconds),
+      "--record",
+      eventsPath,
+      "--output",
+      summaryPath,
+      "--chat",
+      `@${credential.sutUsername}`,
+      "--sut-user-id",
+      credential.sutBotId,
+    ],
+    {
+      cwd: repoRoot,
+      env: { ...process.env, ...credential.driverEnv },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
   await waitForChild(recorder, `Telegram recorder ${name}`);
   recorder = undefined;
   return readJsonLines(eventsPath);
@@ -82,16 +86,20 @@ try {
 
   let running = await startSut();
   sut = running.child;
-  const firstEvents = await recordScenario("enter", [
-    { atMs: 0, text: commandText, type: "send" },
-    {
-      atMs: 1_000,
-      buttonText: "Yes",
-      messageText: confirmText,
-      timeoutMs: 3_000,
-      type: "click",
-    },
-  ], 5);
+  const firstEvents = await recordScenario(
+    "enter",
+    [
+      { atMs: 0, text: commandText, type: "send" },
+      {
+        atMs: 1_000,
+        buttonText: "Yes",
+        messageText: confirmText,
+        timeoutMs: 3_000,
+        type: "click",
+      },
+    ],
+    5,
+  );
   credential.assertLeaseHealthy();
   const command = requireEvent(
     firstEvents,
@@ -105,8 +113,11 @@ try {
   );
   const click = requireEvent(
     firstEvents,
-    (event) => event.kind === "action" && event.actionType === "click" &&
-      event.buttonText === "Yes" && event.status === "completed",
+    (event) =>
+      event.kind === "action" &&
+      event.actionType === "click" &&
+      event.buttonText === "Yes" &&
+      event.status === "completed",
     "completed callback click",
   );
   const prompt = requireEvent(
@@ -121,9 +132,11 @@ try {
 
   running = await startSut();
   sut = running.child;
-  const secondEvents = await recordScenario("resume", [
-    { atMs: 0, text: noteText, type: "send" },
-  ], 4);
+  const secondEvents = await recordScenario(
+    "resume",
+    [{ atMs: 0, text: noteText, type: "send" }],
+    4,
+  );
   credential.assertLeaseHealthy();
   const note = requireEvent(
     secondEvents,

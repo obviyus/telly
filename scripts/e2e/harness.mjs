@@ -6,13 +6,11 @@ import { acquireTelegramTestCredential } from "../../.agents/skills/telegram-e2e
 import { startTelegramTestApiProxy } from "../../.agents/skills/telegram-e2e-userbot/scripts/telegram-test-api-proxy.mjs";
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-export const skillScripts = path.join(
-  repoRoot,
-  ".agents/skills/telegram-e2e-userbot/scripts",
-);
+export const skillScripts = path.join(repoRoot, ".agents/skills/telegram-e2e-userbot/scripts");
 export const artifactDir = process.env.TELLY_E2E_ARTIFACT_DIR;
 
-const convexProjectDir = process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
+const convexProjectDir =
+  process.env.TELLY_E2E_CONVEX_PROJECT_DIR ??
   path.resolve(repoRoot, "../openclaw/qa/convex-credential-broker");
 
 export function acquireTestCredential() {
@@ -34,7 +32,7 @@ export function startTestApiProxy(credential, options = {}) {
 }
 
 export async function openTelegramTestHarness(options = {}) {
-  const credential = options.credential ?? await acquireTestCredential();
+  const credential = options.credential ?? (await acquireTestCredential());
   try {
     const proxy = await startTestApiProxy(credential, options.proxy);
     let closed = false;
@@ -87,7 +85,11 @@ export function waitForOutput(child, getOutput, expected, timeoutMs, label) {
       if (getOutput().includes(expected)) finish();
     };
     const exited = (code, signal) => {
-      finish(new Error(`${label} exited before readiness: code ${String(code)} signal ${String(signal)}`));
+      finish(
+        new Error(
+          `${label} exited before readiness: code ${String(code)} signal ${String(signal)}`,
+        ),
+      );
     };
     const timeout = setTimeout(
       () => finish(new Error(`Timed out waiting for ${label}`)),
@@ -138,11 +140,7 @@ export function createMethodProof(method, observation, timeline) {
 
 export async function publishMethodProof(proof, credential, options = {}) {
   const serialized = `${JSON.stringify(proof, null, 2)}\n`;
-  for (const secret of [
-    credential.sutToken,
-    credential.sutUsername,
-    ...(options.secrets ?? []),
-  ]) {
+  for (const secret of [credential.sutToken, credential.sutUsername, ...(options.secrets ?? [])]) {
     if (serialized.includes(secret)) {
       throw new Error(`${proof.method} proof contains leased identity data`);
     }

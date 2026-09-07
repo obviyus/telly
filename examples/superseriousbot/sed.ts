@@ -1,11 +1,4 @@
-import {
-  Filter,
-  on,
-  regex,
-  repliedMessage,
-  reply,
-  routes,
-} from "../../index.ts";
+import { Filter, on, regex, repliedMessage, reply, routes } from "../../index.ts";
 import { Effect } from "effect";
 
 const sedExpression = /^s\/[\s\S]*\/[\s\S]*/u;
@@ -20,19 +13,13 @@ function parse(expression: string) {
 }
 
 export const sedBot = routes(
-  on(
-    Filter.and(repliedMessage(), regex(sedExpression)),
-    ([{ repliedMessage }, { text }]) => {
-      if (repliedMessage.text === undefined) return Effect.void;
-      const substitution = parse(text);
-      if (substitution === undefined) return Effect.void;
-      return reply(
-        repliedMessage,
-        repliedMessage.text.replaceAll(
-          substitution.search,
-          () => substitution.replacement,
-        ),
-      );
-    },
-  ),
+  on(Filter.and(repliedMessage(), regex(sedExpression)), ([{ repliedMessage }, { text }]) => {
+    if (repliedMessage.text === undefined) return Effect.void;
+    const substitution = parse(text);
+    if (substitution === undefined) return Effect.void;
+    return reply(
+      repliedMessage,
+      repliedMessage.text.replaceAll(substitution.search, () => substitution.replacement),
+    );
+  }),
 );

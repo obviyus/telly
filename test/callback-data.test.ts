@@ -28,10 +28,13 @@ function callbackUpdate(data: string): Update {
 }
 
 test("callback data round trips typed payloads and builds inline buttons", () => {
-  const choice = callbackData("choice", Schema.Struct({
-    answer: Schema.Literals(["yes", "no"]),
-    orderId: Schema.Int,
-  }));
+  const choice = callbackData(
+    "choice",
+    Schema.Struct({
+      answer: Schema.Literals(["yes", "no"]),
+      orderId: Schema.Int,
+    }),
+  );
 
   const packed = choice.pack({ answer: "yes", orderId: 42 });
 
@@ -60,7 +63,7 @@ test("callback data enforces Telegram's UTF-8 byte limit", () => {
 test("callback data treats malformed, foreign, and stale payloads as no match", () => {
   const choice = callbackData("choice", Schema.Struct({ answer: Schema.String }));
 
-  expect(choice.unpack("other:{\"answer\":\"yes\"}")).toBeUndefined();
+  expect(choice.unpack('other:{"answer":"yes"}')).toBeUndefined();
   expect(choice.unpack("choice:not-json")).toBeUndefined();
   expect(choice.unpack("choice:{}")).toBeUndefined();
 });
@@ -71,12 +74,16 @@ test("callback data routes decoded payloads and lets foreign callbacks fall thro
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const handler = routes(
-    on(choice, ({ data }) => Effect.sync(() => {
-      observed.push(`choice:${data.answer}`);
-    })),
-    on(callbackQuery(), ({ callbackQuery: query }) => Effect.sync(() => {
-      observed.push(`fallback:${query.data ?? "missing"}`);
-    })),
+    on(choice, ({ data }) =>
+      Effect.sync(() => {
+        observed.push(`choice:${data.answer}`);
+      }),
+    ),
+    on(callbackQuery(), ({ callbackQuery: query }) =>
+      Effect.sync(() => {
+        observed.push(`fallback:${query.data ?? "missing"}`);
+      }),
+    ),
   );
 
   try {

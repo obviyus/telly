@@ -27,14 +27,10 @@ function range(bounds: Bounds, unit: string): string {
   return `at most ${String(bounds.maximum)}${unit}`;
 }
 
-function measured(
-  bounds: Bounds,
-  unit: string,
-  received: number,
-): string | undefined {
+function measured(bounds: Bounds, unit: string, received: number): string | undefined {
   if (
-    bounds.minimum !== undefined && received < bounds.minimum ||
-    bounds.maximum !== undefined && received > bounds.maximum
+    (bounds.minimum !== undefined && received < bounds.minimum) ||
+    (bounds.maximum !== undefined && received > bounds.maximum)
   ) {
     return `expected ${range(bounds, unit)}, received ${received}`;
   }
@@ -48,9 +44,7 @@ function check(value: unknown, constraint: Constraint): string | undefined {
         ? measured(constraint, " characters", Array.from(value).length)
         : undefined;
     case "items":
-      return Array.isArray(value)
-        ? measured(constraint, " items", value.length)
-        : undefined;
+      return Array.isArray(value) ? measured(constraint, " items", value.length) : undefined;
     case "range":
       if (typeof value !== "number") return undefined;
       return Number.isFinite(value)

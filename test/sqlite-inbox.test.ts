@@ -47,13 +47,15 @@ function save(
   conversationKey: string,
   capacity = 100,
 ) {
-  return Effect.runPromise(store.save({
-    botId,
-    capacity,
-    conversationKey,
-    payload: { message: { future_field: "kept" }, update_id: updateId },
-    updateId,
-  }));
+  return Effect.runPromise(
+    store.save({
+      botId,
+      capacity,
+      conversationKey,
+      payload: { message: { future_field: "kept" }, update_id: updateId },
+      updateId,
+    }),
+  );
 }
 
 test("SQLite inbox replays saved updates after reopening the database", async () => {
@@ -66,18 +68,22 @@ test("SQLite inbox replays saved updates after reopening the database", async ()
   try {
     const lease = await Effect.runPromise(reopened.acquire({ botId, leaseMs: 30_000 }));
     if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
-    const claimed = await Effect.runPromise(reopened.claim({
-      botId,
-      fencingToken: lease.fencingToken,
-      limit: 10,
-    }));
+    const claimed = await Effect.runPromise(
+      reopened.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 10,
+      }),
+    );
 
-    expect(claimed).toEqual([{
-      attempts: 1,
-      conversationKey: "chat:1",
-      payload: { message: { future_field: "kept" }, update_id: 11 },
-      updateId: 11,
-    }]);
+    expect(claimed).toEqual([
+      {
+        attempts: 1,
+        conversationKey: "chat:1",
+        payload: { message: { future_field: "kept" }, update_id: 11 },
+        updateId: 11,
+      },
+    ]);
   } finally {
     reopened.close();
     await fixture.close();
@@ -97,7 +103,9 @@ test("SQLite inbox enforces capacity atomically across connections", async () =>
     const storedId = results[0]?._tag === "Stored" ? 21 : 22;
     const duplicate = await save(second, storedId, "chat:duplicate", 1);
 
-    expect(results.map((result) => result._tag).sort((left, right) => left.localeCompare(right))).toEqual(["Full", "Stored"]);
+    expect(
+      results.map((result) => result._tag).sort((left, right) => left.localeCompare(right)),
+    ).toEqual(["Full", "Stored"]);
     expect(duplicate._tag).toBe("Duplicate");
   } finally {
     first.close();
@@ -117,7 +125,9 @@ test("SQLite inbox enforces capacity atomically across processes", async () => {
       saveInProcess(fixture.path, 24),
     ]);
 
-    expect(results.map((result) => result._tag).sort((left, right) => left.localeCompare(right))).toEqual(["Full", "Stored"]);
+    expect(
+      results.map((result) => result._tag).sort((left, right) => left.localeCompare(right)),
+    ).toEqual(["Full", "Stored"]);
   } finally {
     await fixture.close();
   }
@@ -139,7 +149,9 @@ test("SQLite inbox claims one conversation head once across connections", async 
       Effect.runPromise(second.claim({ botId, fencingToken: lease.fencingToken, limit: 1 })),
     ]);
 
-    expect([...left, ...right].map((item) => item.updateId).sort((left, right) => left - right)).toEqual([31, 33]);
+    expect(
+      [...left, ...right].map((item) => item.updateId).sort((left, right) => left - right),
+    ).toEqual([31, 33]);
   } finally {
     first.close();
     second.close();
@@ -158,11 +170,15 @@ test("SQLite inbox fencing tokens reject former lease holders", async () => {
     const second = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (second._tag !== "Acquired") throw new Error("Expected second dispatch lease");
 
-    await expect(Effect.runPromise(store.renew({
-      botId,
-      fencingToken: first.fencingToken,
-      leaseMs: 30_000,
-    }))).rejects.toBeInstanceOf(InboxLeaseLost);
+    await expect(
+      Effect.runPromise(
+        store.renew({
+          botId,
+          fencingToken: first.fencingToken,
+          leaseMs: 30_000,
+        }),
+      ),
+    ).rejects.toBeInstanceOf(InboxLeaseLost);
     expect(second.fencingToken).toBeGreaterThan(first.fencingToken);
   } finally {
     store.close();
@@ -178,26 +194,34 @@ test("SQLite inbox reclaims unfinished work after lease succession", async () =>
     await save(store, 35, "chat:succession");
     const first = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (first._tag !== "Acquired") throw new Error("Expected first dispatch lease");
-    await Effect.runPromise(store.claim({
-      botId,
-      fencingToken: first.fencingToken,
-      limit: 1,
-    }));
+    await Effect.runPromise(
+      store.claim({
+        botId,
+        fencingToken: first.fencingToken,
+        limit: 1,
+      }),
+    );
     await Effect.runPromise(store.release({ botId, fencingToken: first.fencingToken }));
     const second = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (second._tag !== "Acquired") throw new Error("Expected second dispatch lease");
-    const reclaimed = await Effect.runPromise(store.claim({
-      botId,
-      fencingToken: second.fencingToken,
-      limit: 1,
-    }));
+    const reclaimed = await Effect.runPromise(
+      store.claim({
+        botId,
+        fencingToken: second.fencingToken,
+        limit: 1,
+      }),
+    );
 
-    await expect(Effect.runPromise(store.settle({
-      botId,
-      fencingToken: first.fencingToken,
-      outcome: { _tag: "Done" },
-      updateId: 35,
-    }))).rejects.toBeInstanceOf(InboxLeaseLost);
+    await expect(
+      Effect.runPromise(
+        store.settle({
+          botId,
+          fencingToken: first.fencingToken,
+          outcome: { _tag: "Done" },
+          updateId: 35,
+        }),
+      ),
+    ).rejects.toBeInstanceOf(InboxLeaseLost);
     expect(reclaimed.map((item) => [item.updateId, item.attempts])).toEqual([[35, 2]]);
   } finally {
     store.close();
@@ -214,23 +238,29 @@ test("SQLite inbox persists attempt refund and done pruning", async () => {
     const lease = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
     await Effect.runPromise(store.claim({ botId, fencingToken: lease.fencingToken, limit: 1 }));
-    await Effect.runPromise(store.settle({
-      botId,
-      fencingToken: lease.fencingToken,
-      outcome: { _tag: "Interrupted" },
-      updateId: 41,
-    }));
-    const reclaimed = await Effect.runPromise(store.claim({
-      botId,
-      fencingToken: lease.fencingToken,
-      limit: 1,
-    }));
-    await Effect.runPromise(store.settle({
-      botId,
-      fencingToken: lease.fencingToken,
-      outcome: { _tag: "Done" },
-      updateId: 41,
-    }));
+    await Effect.runPromise(
+      store.settle({
+        botId,
+        fencingToken: lease.fencingToken,
+        outcome: { _tag: "Interrupted" },
+        updateId: 41,
+      }),
+    );
+    const reclaimed = await Effect.runPromise(
+      store.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 1,
+      }),
+    );
+    await Effect.runPromise(
+      store.settle({
+        botId,
+        fencingToken: lease.fencingToken,
+        outcome: { _tag: "Done" },
+        updateId: 41,
+      }),
+    );
     await Effect.runPromise(store.prune({ botId, doneAgeMs: 0 }));
 
     expect(reclaimed[0]?.attempts).toBe(1);

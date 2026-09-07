@@ -75,18 +75,11 @@ function runStore<A>(operation: string, run: () => Promise<A>) {
 function runFenced<A>(operation: string, run: () => Promise<A>) {
   return Effect.tryPromise({
     try: run,
-    catch: (error) => error instanceof InboxLeaseLost
-      ? error
-      : storeError(operation, error),
+    catch: (error) => (error instanceof InboxLeaseLost ? error : storeError(operation, error)),
   });
 }
 
-async function requireLease(
-  tx: Client,
-  botId: number,
-  fencingToken: number,
-  now: number,
-) {
+async function requireLease(tx: Client, botId: number, fencingToken: number, now: number) {
   const result = await tx.execute({
     sql: `SELECT fencing_token, expires_at_ms
       FROM telly_inbox_leases WHERE bot_id = ?`,
@@ -149,35 +142,39 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
     withDatabaseLock(databaseKey, () => writeTransaction(client, run));
 
   return {
-    acquire: (options) => runStore("acquire", () => write(async (tx) => {
-      const now = await sqliteCurrentTime(tx);
-      const current = await tx.execute({
-        sql: "SELECT fencing_token, expires_at_ms FROM telly_inbox_leases WHERE bot_id = ?",
-        args: [options.botId],
-      });
-      const row = current.rows[0];
-      if (row !== undefined && sqliteInteger(row["expires_at_ms"], "expires_at_ms") > now) {
-        return { _tag: "Held" } as const;
-      }
-      const fencingToken = (row === undefined
-        ? 0
-        : sqliteInteger(row["fencing_token"], "fencing_token")) + 1;
-      await tx.execute({
-        sql: `INSERT INTO telly_inbox_leases (bot_id, fencing_token, expires_at_ms)
+    acquire: (options) =>
+      runStore("acquire", () =>
+        write(async (tx) => {
+          const now = await sqliteCurrentTime(tx);
+          const current = await tx.execute({
+            sql: "SELECT fencing_token, expires_at_ms FROM telly_inbox_leases WHERE bot_id = ?",
+            args: [options.botId],
+          });
+          const row = current.rows[0];
+          if (row !== undefined && sqliteInteger(row["expires_at_ms"], "expires_at_ms") > now) {
+            return { _tag: "Held" } as const;
+          }
+          const fencingToken =
+            (row === undefined ? 0 : sqliteInteger(row["fencing_token"], "fencing_token")) + 1;
+          await tx.execute({
+            sql: `INSERT INTO telly_inbox_leases (bot_id, fencing_token, expires_at_ms)
           VALUES (?, ?, ?)
           ON CONFLICT(bot_id) DO UPDATE SET
             fencing_token = excluded.fencing_token,
             expires_at_ms = excluded.expires_at_ms`,
-        args: [options.botId, fencingToken, now + options.leaseMs],
-      });
-      return { _tag: "Acquired", fencingToken } as const;
-    })),
+            args: [options.botId, fencingToken, now + options.leaseMs],
+          });
+          return { _tag: "Acquired", fencingToken } as const;
+        }),
+      ),
 
-    claim: (options) => runFenced("claim", () => write(async (tx) => {
-      const now = await sqliteCurrentTime(tx);
-      await requireLease(tx, options.botId, options.fencingToken, now);
-      const result = await tx.execute({
-        sql: `SELECT u.update_id, u.conversation_key, u.payload, u.attempts
+    claim: (options) =>
+      runFenced("claim", () =>
+        write(async (tx) => {
+          const now = await sqliteCurrentTime(tx);
+          await requireLease(tx, options.botId, options.fencingToken, now);
+          const result = await tx.execute({
+            sql: `SELECT u.update_id, u.conversation_key, u.payload, u.attempts
           FROM telly_inbox_updates AS u
           WHERE u.bot_id = ?
             AND u.state IN ('pending', 'running')
@@ -192,90 +189,106 @@ async function makeStore(client: Client, databaseKey: string): Promise<SqliteInb
               OR (u.state = 'running' AND u.running_token <> ?))
           ORDER BY u.update_id
           LIMIT ?`,
-        args: [options.botId, now, options.fencingToken, options.limit],
-      });
-      const claimed: Array<ClaimedUpdate> = [];
-      for (const row of result.rows) {
-        const updateId = sqliteInteger(row["update_id"], "update_id");
-        const attempts = sqliteInteger(row["attempts"], "attempts") + 1;
-        await tx.execute({
-          sql: `UPDATE telly_inbox_updates
+            args: [options.botId, now, options.fencingToken, options.limit],
+          });
+          const claimed: Array<ClaimedUpdate> = [];
+          for (const row of result.rows) {
+            const updateId = sqliteInteger(row["update_id"], "update_id");
+            const attempts = sqliteInteger(row["attempts"], "attempts") + 1;
+            await tx.execute({
+              sql: `UPDATE telly_inbox_updates
             SET state = 'running', running_token = ?, attempts = ?
             WHERE bot_id = ? AND update_id = ?`,
-          args: [options.fencingToken, attempts, options.botId, updateId],
-        });
-        claimed.push({
-          attempts,
-          conversationKey: sqliteText(row["conversation_key"], "conversation_key"),
-          payload: JSON.parse(sqliteText(row["payload"], "payload")),
-          updateId,
-        });
-      }
-      return claimed;
-    })),
+              args: [options.fencingToken, attempts, options.botId, updateId],
+            });
+            claimed.push({
+              attempts,
+              conversationKey: sqliteText(row["conversation_key"], "conversation_key"),
+              payload: JSON.parse(sqliteText(row["payload"], "payload")),
+              updateId,
+            });
+          }
+          return claimed;
+        }),
+      ),
 
-    prune: (options) => runStore("prune", () => write(async (tx) => {
-      const now = await sqliteCurrentTime(tx);
-      await tx.execute({
-        sql: `DELETE FROM telly_inbox_updates
+    prune: (options) =>
+      runStore("prune", () =>
+        write(async (tx) => {
+          const now = await sqliteCurrentTime(tx);
+          await tx.execute({
+            sql: `DELETE FROM telly_inbox_updates
           WHERE bot_id = ? AND state = 'done' AND terminal_time_ms <= ?`,
-        args: [options.botId, now - options.doneAgeMs],
-      });
-    })),
+            args: [options.botId, now - options.doneAgeMs],
+          });
+        }),
+      ),
 
-    release: (options) => runStore("release", () => write(async (tx) => {
-      await tx.execute({
-        sql: `UPDATE telly_inbox_leases SET expires_at_ms = 0
+    release: (options) =>
+      runStore("release", () =>
+        write(async (tx) => {
+          await tx.execute({
+            sql: `UPDATE telly_inbox_leases SET expires_at_ms = 0
           WHERE bot_id = ? AND fencing_token = ?`,
-        args: [options.botId, options.fencingToken],
-      });
-    })),
+            args: [options.botId, options.fencingToken],
+          });
+        }),
+      ),
 
-    renew: (options) => runFenced("renew", () => write(async (tx) => {
-      const now = await sqliteCurrentTime(tx);
-      await requireLease(tx, options.botId, options.fencingToken, now);
-      await tx.execute({
-        sql: `UPDATE telly_inbox_leases SET expires_at_ms = ?
+    renew: (options) =>
+      runFenced("renew", () =>
+        write(async (tx) => {
+          const now = await sqliteCurrentTime(tx);
+          await requireLease(tx, options.botId, options.fencingToken, now);
+          await tx.execute({
+            sql: `UPDATE telly_inbox_leases SET expires_at_ms = ?
           WHERE bot_id = ? AND fencing_token = ?`,
-        args: [now + options.leaseMs, options.botId, options.fencingToken],
-      });
-    })),
+            args: [now + options.leaseMs, options.botId, options.fencingToken],
+          });
+        }),
+      ),
 
-    save: (options) => runStore("save", () => write(async (tx) => {
-      const duplicate = await tx.execute({
-        sql: "SELECT 1 FROM telly_inbox_updates WHERE bot_id = ? AND update_id = ?",
-        args: [options.botId, options.updateId],
-      });
-      if (duplicate.rows.length > 0) return { _tag: "Duplicate" } as const;
-      const depth = await tx.execute({
-        sql: `SELECT COUNT(*) AS depth FROM telly_inbox_updates
+    save: (options) =>
+      runStore("save", () =>
+        write(async (tx) => {
+          const duplicate = await tx.execute({
+            sql: "SELECT 1 FROM telly_inbox_updates WHERE bot_id = ? AND update_id = ?",
+            args: [options.botId, options.updateId],
+          });
+          if (duplicate.rows.length > 0) return { _tag: "Duplicate" } as const;
+          const depth = await tx.execute({
+            sql: `SELECT COUNT(*) AS depth FROM telly_inbox_updates
           WHERE bot_id = ? AND state IN ('pending', 'running')`,
-        args: [options.botId],
-      });
-      if (sqliteInteger(depth.rows[0]?.["depth"], "depth") >= options.capacity) {
-        return { _tag: "Full" } as const;
-      }
-      const payload = JSON.stringify(options.payload);
-      if (payload === undefined) throw new TypeError("Inbox payload must be JSON-serializable");
-      await tx.execute({
-        sql: `INSERT INTO telly_inbox_updates
+            args: [options.botId],
+          });
+          if (sqliteInteger(depth.rows[0]?.["depth"], "depth") >= options.capacity) {
+            return { _tag: "Full" } as const;
+          }
+          const payload = JSON.stringify(options.payload);
+          if (payload === undefined) throw new TypeError("Inbox payload must be JSON-serializable");
+          await tx.execute({
+            sql: `INSERT INTO telly_inbox_updates
           (bot_id, update_id, conversation_key, payload, state)
           VALUES (?, ?, ?, ?, 'pending')`,
-        args: [options.botId, options.updateId, options.conversationKey, payload],
-      });
-      return { _tag: "Stored" } as const;
-    })),
+            args: [options.botId, options.updateId, options.conversationKey, payload],
+          });
+          return { _tag: "Stored" } as const;
+        }),
+      ),
 
-    settle: (options) => runFenced("settle", () => write(async (tx) => {
-      const now = await sqliteCurrentTime(tx);
-      await requireLease(tx, options.botId, options.fencingToken, now);
-      const update = settlementUpdate(options.outcome, now);
-      await tx.execute({
-        sql: `UPDATE telly_inbox_updates SET ${update.sql}
+    settle: (options) =>
+      runFenced("settle", () =>
+        write(async (tx) => {
+          const now = await sqliteCurrentTime(tx);
+          await requireLease(tx, options.botId, options.fencingToken, now);
+          const update = settlementUpdate(options.outcome, now);
+          await tx.execute({
+            sql: `UPDATE telly_inbox_updates SET ${update.sql}
           WHERE bot_id = ? AND update_id = ? AND state = 'running' AND running_token = ?`,
-        args: [...update.args, options.botId, options.updateId, options.fencingToken],
-      });
-    })),
+            args: [...update.args, options.botId, options.updateId, options.fencingToken],
+          });
+        }),
+      ),
 
     close: () => client.close(),
   };

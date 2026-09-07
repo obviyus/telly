@@ -69,10 +69,7 @@ import {
 } from "./harness.mjs";
 
 const run = promisify(execFileCallback);
-const helper = path.join(
-  repoRoot,
-  ".agents/skills/telegram-e2e-userbot/scripts/isolated-group.py",
-);
+const helper = path.join(repoRoot, ".agents/skills/telegram-e2e-userbot/scripts/isolated-group.py");
 const userDriver = path.join(
   repoRoot,
   ".agents/skills/telegram-e2e-userbot/scripts/user-driver.py",
@@ -202,12 +199,17 @@ async function ensureSecondaryTestUser(primaryDriverEnv) {
   } catch (error) {
     if (!error || typeof error !== "object" || error.code !== "ENOENT") throw error;
     const primaryConfig = JSON.parse(
-      await readFile(path.join(primaryDriverEnv.TELEGRAM_USER_DRIVER_STATE_DIR, "config.local.json"), "utf8"),
+      await readFile(
+        path.join(primaryDriverEnv.TELEGRAM_USER_DRIVER_STATE_DIR, "config.local.json"),
+        "utf8",
+      ),
     );
     config = {
       apiHash: primaryConfig.apiHash,
       apiId: primaryConfig.apiId,
-      databaseEncryptionKey: Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64"),
+      databaseEncryptionKey: Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString(
+        "base64",
+      ),
       testDc: true,
       testPhone: "9996636437",
     };
@@ -257,10 +259,12 @@ async function waitForSecondaryAccess() {
 
 async function waitForBotMessage(application, text) {
   for (let attempt = 0; attempt < 10; attempt += 1) {
-    const updates = await application.run(getUpdates({
-      allowedUpdates: ["message"],
-      timeout: 2,
-    }));
+    const updates = await application.run(
+      getUpdates({
+        allowedUpdates: ["message"],
+        timeout: 2,
+      }),
+    );
     const message = updates.find((update) => update.message?.text === text)?.message;
     if (message !== undefined) return message;
   }
@@ -280,7 +284,8 @@ try {
     throw new Error("Leased Telegram identifiers are not safe integers");
   }
   const member = await app.run(getChatMember({ chatId, userId: botId }));
-  if (member.status !== "administrator") throw new Error("Isolated group bot is not an administrator");
+  if (member.status !== "administrator")
+    throw new Error("Isolated group bot is not an administrator");
   await normalizeBotApiFixture(userId);
 
   await attempt("getChatAdministrators", async () => {
@@ -297,7 +302,9 @@ try {
     record("setChatTitle", { result, titleMatches: chat.title === "Telly title proof" });
   });
   await attempt("setChatDescription", async () => {
-    const result = await app.run(setChatDescription({ chatId, description: "Telly description proof" }));
+    const result = await app.run(
+      setChatDescription({ chatId, description: "Telly description proof" }),
+    );
     const chat = await app.run(getChat({ chatId }));
     record("setChatDescription", {
       descriptionMatches: chat.description === "Telly description proof",
@@ -305,10 +312,12 @@ try {
     });
   });
   await attempt("setChatPermissions", async () => {
-    const result = await app.run(setChatPermissions({
-      chatId,
-      permissions: { canSendMessages: false },
-    }));
+    const result = await app.run(
+      setChatPermissions({
+        chatId,
+        permissions: { canSendMessages: false },
+      }),
+    );
     const chat = await app.run(getChat({ chatId }));
     record("setChatPermissions", {
       canSendMessages: chat.permissions.canSendMessages ?? false,
@@ -334,10 +343,12 @@ try {
     { stdio: "inherit" },
   );
   await attempt("setChatPhoto", async () => {
-    const result = await app.run(setChatPhoto({
-      chatId,
-      photo: new File([await readFile(photoPath)], "chat.jpg", { type: "image/jpeg" }),
-    }));
+    const result = await app.run(
+      setChatPhoto({
+        chatId,
+        photo: new File([await readFile(photoPath)], "chat.jpg", { type: "image/jpeg" }),
+      }),
+    );
     const chat = await app.run(getChat({ chatId }));
     record("setChatPhoto", { hasPhoto: chat.photo !== undefined, result });
   });
@@ -349,90 +360,105 @@ try {
     });
   }
 
-  const ephemeralText = await app.run(sendMessage({
-    chatId,
-    ephemeralMessageParameters: { receiverUserId: userId },
-    replyMarkup: { inlineKeyboard: [[{ callbackData: "before", text: "Before" }]] },
-    text: "Telly ephemeral before",
-  }));
+  const ephemeralText = await app.run(
+    sendMessage({
+      chatId,
+      ephemeralMessageParameters: { receiverUserId: userId },
+      replyMarkup: { inlineKeyboard: [[{ callbackData: "before", text: "Before" }]] },
+      text: "Telly ephemeral before",
+    }),
+  );
   if (ephemeralText.ephemeralMessageId === undefined) {
     throw new Error("Telegram returned no ephemeral text id");
   }
   await attempt("editEphemeralMessageText", async () => {
-    await app.run(editEphemeralMessageText({
-      chatId,
-      ephemeralMessageId: ephemeralText.ephemeralMessageId,
-      receiverUserId: userId,
-      text: "Telly ephemeral after",
-    }));
-    record(
-      "editEphemeralMessageText",
-      ephemeralEditObservation(ephemeralText.ephemeralMessageId),
+    await app.run(
+      editEphemeralMessageText({
+        chatId,
+        ephemeralMessageId: ephemeralText.ephemeralMessageId,
+        receiverUserId: userId,
+        text: "Telly ephemeral after",
+      }),
     );
+    record("editEphemeralMessageText", ephemeralEditObservation(ephemeralText.ephemeralMessageId));
   });
   await attempt("editEphemeralMessageReplyMarkup", async () => {
-    await app.run(editEphemeralMessageReplyMarkup({
-      chatId,
-      ephemeralMessageId: ephemeralText.ephemeralMessageId,
-      receiverUserId: userId,
-      replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
-    }));
+    await app.run(
+      editEphemeralMessageReplyMarkup({
+        chatId,
+        ephemeralMessageId: ephemeralText.ephemeralMessageId,
+        receiverUserId: userId,
+        replyMarkup: { inlineKeyboard: [[{ callbackData: "after", text: "After" }]] },
+      }),
+    );
     record(
       "editEphemeralMessageReplyMarkup",
       ephemeralEditObservation(ephemeralText.ephemeralMessageId),
     );
   });
   await attempt("deleteEphemeralMessage", async () => {
-    const result = await app.run(deleteEphemeralMessage({
-      chatId,
-      ephemeralMessageId: ephemeralText.ephemeralMessageId,
-      receiverUserId: userId,
-    }));
+    const result = await app.run(
+      deleteEphemeralMessage({
+        chatId,
+        ephemeralMessageId: ephemeralText.ephemeralMessageId,
+        receiverUserId: userId,
+      }),
+    );
     record("deleteEphemeralMessage", { result });
   });
 
-  const ephemeralPhoto = await app.run(sendPhoto({
-    caption: "Telly ephemeral caption before",
-    chatId,
-    ephemeralMessageParameters: { receiverUserId: userId },
-    photo: new File([await readFile(photoPath)], "ephemeral.jpg", { type: "image/jpeg" }),
-  }));
+  const ephemeralPhoto = await app.run(
+    sendPhoto({
+      caption: "Telly ephemeral caption before",
+      chatId,
+      ephemeralMessageParameters: { receiverUserId: userId },
+      photo: new File([await readFile(photoPath)], "ephemeral.jpg", { type: "image/jpeg" }),
+    }),
+  );
   if (ephemeralPhoto.ephemeralMessageId === undefined) {
     throw new Error("Telegram returned no ephemeral photo id");
   }
   await attempt("editEphemeralMessageCaption", async () => {
-    await app.run(editEphemeralMessageCaption({
-      caption: "Telly ephemeral caption after",
-      chatId,
-      ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
-      receiverUserId: userId,
-    }));
+    await app.run(
+      editEphemeralMessageCaption({
+        caption: "Telly ephemeral caption after",
+        chatId,
+        ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
+        receiverUserId: userId,
+      }),
+    );
     record(
       "editEphemeralMessageCaption",
       ephemeralEditObservation(ephemeralPhoto.ephemeralMessageId),
     );
   });
   await attempt("editEphemeralMessageMedia", async () => {
-    await app.run(editEphemeralMessageMedia({
-      chatId,
-      ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
-      media: {
-        caption: "Telly ephemeral media after",
-        media: new File([await readFile(photoPath)], "ephemeral-edited.jpg", { type: "image/jpeg" }),
-        type: "photo",
-      },
-      receiverUserId: userId,
-    }));
+    await app.run(
+      editEphemeralMessageMedia({
+        chatId,
+        ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
+        media: {
+          caption: "Telly ephemeral media after",
+          media: new File([await readFile(photoPath)], "ephemeral-edited.jpg", {
+            type: "image/jpeg",
+          }),
+          type: "photo",
+        },
+        receiverUserId: userId,
+      }),
+    );
     record(
       "editEphemeralMessageMedia",
       ephemeralEditObservation(ephemeralPhoto.ephemeralMessageId),
     );
   });
-  await app.run(deleteEphemeralMessage({
-    chatId,
-    ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
-    receiverUserId: userId,
-  }));
+  await app.run(
+    deleteEphemeralMessage({
+      chatId,
+      ephemeralMessageId: ephemeralPhoto.ephemeralMessageId,
+      receiverUserId: userId,
+    }),
+  );
   const stickerPath = path.join(fixtureDir, "group-sticker.webp");
   execFileSync(
     "ffmpeg",
@@ -457,21 +483,28 @@ try {
   const stickerSetName = `telly_group_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}_by_${credential.sutUsername}`;
   let stickerSetExists = false;
   try {
-    await app.run(createNewStickerSet({
-      name: stickerSetName,
-      stickers: [{
-        emojiList: ["🟣"],
-        format: "static",
-        sticker: new File([await readFile(stickerPath)], "group-sticker.webp", { type: "image/webp" }),
-      }],
-      title: "Telly group proof",
-      userId,
-    }));
+    await app.run(
+      createNewStickerSet({
+        name: stickerSetName,
+        stickers: [
+          {
+            emojiList: ["🟣"],
+            format: "static",
+            sticker: new File([await readFile(stickerPath)], "group-sticker.webp", {
+              type: "image/webp",
+            }),
+          },
+        ],
+        title: "Telly group proof",
+        userId,
+      }),
+    );
     stickerSetExists = true;
     await attempt("setChatStickerSet", async () => {
       const result = await app.run(setChatStickerSet({ chatId, stickerSetName }));
       const chat = await app.run(getChat({ chatId }));
-      if (chat.stickerSetName !== stickerSetName) throw new Error("Group sticker set did not become visible");
+      if (chat.stickerSetName !== stickerSetName)
+        throw new Error("Group sticker set did not become visible");
       record("setChatStickerSet", { result, stickerSetMatches: true });
     });
     await attempt("deleteChatStickerSet", async () => {
@@ -491,17 +524,21 @@ try {
     throw new Error("Secondary Telegram bot id is not a safe integer");
   }
   secondaryApp = Application.make({ apiRoot: proxy.apiRoot, token: secondaryCredential.sutToken });
-  await run("uv", [
-    "run",
-    helper,
-    "add-bot",
-    "--chat-id",
-    String(chatId),
-    "--user-id",
-    String(secondaryId),
-    "--username",
-    secondaryCredential.sutUsername,
-  ], helperOptions);
+  await run(
+    "uv",
+    [
+      "run",
+      helper,
+      "add-bot",
+      "--chat-id",
+      String(chatId),
+      "--user-id",
+      String(secondaryId),
+      "--username",
+      secondaryCredential.sutUsername,
+    ],
+    helperOptions,
+  );
   secondaryMemberAdded = true;
   await waitForSecondaryAccess();
 
@@ -516,13 +553,15 @@ try {
     });
 
     const promoted = await attempt("promoteChatMember", async () => {
-      const result = await app.run(promoteChatMember({
-        canDeleteMessages: true,
-        canManageChat: true,
-        canPinMessages: true,
-        chatId,
-        userId: secondaryId,
-      }));
+      const result = await app.run(
+        promoteChatMember({
+          canDeleteMessages: true,
+          canManageChat: true,
+          canPinMessages: true,
+          chatId,
+          userId: secondaryId,
+        }),
+      );
       const member = await app.run(getChatMember({ chatId, userId: secondaryId }));
       if (member.status !== "administrator" || member.canDeleteMessages !== true) {
         throw new Error("Temporary bot promotion did not become visible");
@@ -531,11 +570,13 @@ try {
     });
     if (promoted) {
       await attempt("setChatAdministratorCustomTitle", async () => {
-        const result = await app.run(setChatAdministratorCustomTitle({
-          chatId,
-          customTitle: "Telly",
-          userId: secondaryId,
-        }));
+        const result = await app.run(
+          setChatAdministratorCustomTitle({
+            chatId,
+            customTitle: "Telly",
+            userId: secondaryId,
+          }),
+        );
         const member = await app.run(getChatMember({ chatId, userId: secondaryId }));
         if (member.status !== "administrator" || member.customTitle !== "Telly") {
           throw new Error("Temporary administrator title did not become visible");
@@ -549,87 +590,103 @@ try {
       proxy.drainUpdates(secondaryCredential.sutToken),
     ]);
     const reactionText = `Telly reaction ${crypto.randomUUID()}`;
-    const sent = await run("uv", [
-      "run",
-      helper,
-      "send-text",
-      "--chat-id",
-      String(chatId),
-      "--text",
-      reactionText,
-    ], helperOptions);
+    const sent = await run(
+      "uv",
+      ["run", helper, "send-text", "--chat-id", String(chatId), "--text", reactionText],
+      helperOptions,
+    );
     const tdMessageId = JSON.parse(sent.stdout).tdMessageId;
     const [primaryMessage, secondaryMessage] = await Promise.all([
       waitForBotMessage(app, reactionText),
       waitForBotMessage(secondaryApp, reactionText),
     ]);
-    await secondaryApp.run(setMessageReaction({
-      chatId,
-      messageId: secondaryMessage.messageId,
-      reaction: [{ emoji: "👍", type: "emoji" }],
-    }));
-    await attempt("deleteMessageReaction", async () => {
-      const result = await app.run(deleteMessageReaction({
+    await secondaryApp.run(
+      setMessageReaction({
         chatId,
-        messageId: primaryMessage.messageId,
-        userId: secondaryId,
-      }));
-      const inspected = await run("uv", [
-        "run",
-        helper,
-        "reaction-count",
-        "--chat-id",
-        String(chatId),
-        "--td-message-id",
-        String(tdMessageId),
-        "--expect",
-        "0",
-      ], helperOptions);
+        messageId: secondaryMessage.messageId,
+        reaction: [{ emoji: "👍", type: "emoji" }],
+      }),
+    );
+    await attempt("deleteMessageReaction", async () => {
+      const result = await app.run(
+        deleteMessageReaction({
+          chatId,
+          messageId: primaryMessage.messageId,
+          userId: secondaryId,
+        }),
+      );
+      const inspected = await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "reaction-count",
+          "--chat-id",
+          String(chatId),
+          "--td-message-id",
+          String(tdMessageId),
+          "--expect",
+          "0",
+        ],
+        helperOptions,
+      );
       const count = JSON.parse(inspected.stdout).reactionCount;
       if (count !== 0) throw new Error("Temporary bot reaction was not removed");
       record("deleteMessageReaction", { reactionCount: count, result });
     });
-    await secondaryApp.run(setMessageReaction({
-      chatId,
-      messageId: secondaryMessage.messageId,
-      reaction: [{ emoji: "👍", type: "emoji" }],
-    }));
+    await secondaryApp.run(
+      setMessageReaction({
+        chatId,
+        messageId: secondaryMessage.messageId,
+        reaction: [{ emoji: "👍", type: "emoji" }],
+      }),
+    );
     await attempt("deleteAllMessageReactions", async () => {
       const result = await app.run(deleteAllMessageReactions({ chatId, userId: secondaryId }));
-      const inspected = await run("uv", [
-        "run",
-        helper,
-        "reaction-count",
-        "--chat-id",
-        String(chatId),
-        "--td-message-id",
-        String(tdMessageId),
-        "--expect",
-        "0",
-      ], helperOptions);
+      const inspected = await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "reaction-count",
+          "--chat-id",
+          String(chatId),
+          "--td-message-id",
+          String(tdMessageId),
+          "--expect",
+          "0",
+        ],
+        helperOptions,
+      );
       const count = JSON.parse(inspected.stdout).reactionCount;
       if (count !== 0) throw new Error("Temporary bot reactions were not removed from the chat");
       record("deleteAllMessageReactions", { reactionCount: count, result });
     });
 
     if (promoted) {
-      await run("uv", [
-        "run",
-        helper,
-        "make-member",
-        "--chat-id",
-        String(chatId),
-        "--user-id",
-        String(secondaryId),
-      ], helperOptions);
+      await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "make-member",
+          "--chat-id",
+          String(chatId),
+          "--user-id",
+          String(secondaryId),
+        ],
+        helperOptions,
+      );
     }
     const restricted = await attempt("restrictChatMember", async () => {
-      const result = await app.run(restrictChatMember({
-        chatId,
-        permissions: { canSendMessages: false },
-        useIndependentChatPermissions: true,
-        userId: secondaryId,
-      }));
+      const result = await app.run(
+        restrictChatMember({
+          chatId,
+          permissions: { canSendMessages: false },
+          useIndependentChatPermissions: true,
+          userId: secondaryId,
+        }),
+      );
       const member = await app.run(getChatMember({ chatId, userId: secondaryId }));
       if (member.status !== "restricted" || member.canSendMessages !== false) {
         throw new Error("Temporary member restriction did not become visible");
@@ -637,43 +694,55 @@ try {
       record("restrictChatMember", { result, status: member.status });
     });
     if (restricted) {
-      await app.run(restrictChatMember({
-        chatId,
-        permissions: baselinePermissions,
-        useIndependentChatPermissions: true,
-        userId: secondaryId,
-      }));
+      await app.run(
+        restrictChatMember({
+          chatId,
+          permissions: baselinePermissions,
+          useIndependentChatPermissions: true,
+          userId: secondaryId,
+        }),
+      );
     }
 
     const banned = await attempt("banChatMember", async () => {
-      const result = await app.run(banChatMember({ chatId, revokeMessages: true, userId: secondaryId }));
+      const result = await app.run(
+        banChatMember({ chatId, revokeMessages: true, userId: secondaryId }),
+      );
       secondaryMemberAdded = false;
       const member = await app.run(getChatMember({ chatId, userId: secondaryId }));
-      if (member.status !== "kicked") throw new Error("Temporary member ban did not become visible");
+      if (member.status !== "kicked")
+        throw new Error("Temporary member ban did not become visible");
       record("banChatMember", { result, status: member.status });
     });
     let unbanned = false;
     if (banned) {
       unbanned = await attempt("unbanChatMember", async () => {
-        const result = await app.run(unbanChatMember({ chatId, onlyIfBanned: true, userId: secondaryId }));
+        const result = await app.run(
+          unbanChatMember({ chatId, onlyIfBanned: true, userId: secondaryId }),
+        );
         const member = await app.run(getChatMember({ chatId, userId: secondaryId }));
-        if (member.status !== "left") throw new Error("Temporary member unban did not become visible");
+        if (member.status !== "left")
+          throw new Error("Temporary member unban did not become visible");
         record("unbanChatMember", { result, status: member.status });
       });
     }
 
     if (unbanned) {
-      await run("uv", [
-        "run",
-        helper,
-        "add-bot",
-        "--chat-id",
-        String(chatId),
-        "--user-id",
-        String(secondaryId),
-        "--username",
-        secondaryCredential.sutUsername,
-      ], helperOptions);
+      await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "add-bot",
+          "--chat-id",
+          String(chatId),
+          "--user-id",
+          String(secondaryId),
+          "--username",
+          secondaryCredential.sutUsername,
+        ],
+        helperOptions,
+      );
       secondaryMemberAdded = true;
     }
     if (secondaryMemberAdded) {
@@ -687,15 +756,19 @@ try {
     }
   } finally {
     if (secondaryMemberAdded) {
-      await run("uv", [
-        "run",
-        helper,
-        "remove-member",
-        "--chat-id",
-        String(chatId),
-        "--user-id",
-        String(secondaryId),
-      ], helperOptions).catch(() => {});
+      await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "remove-member",
+          "--chat-id",
+          String(chatId),
+          "--user-id",
+          String(secondaryId),
+        ],
+        helperOptions,
+      ).catch(() => {});
       secondaryMemberAdded = false;
     }
     await secondaryApp.close();
@@ -707,29 +780,37 @@ try {
   let senderChatId;
   let senderBanApplied = false;
   await attempt("banChatSenderChat", async () => {
-    const senderSetup = await run("uv", [
-      "run",
-      helper,
-      "send-as-personal-channel",
-      "--chat-id",
-      String(chatId),
-      "--text",
-      `Telly sender ${crypto.randomUUID()}`,
-    ], helperOptions);
-    senderChatId = JSON.parse(senderSetup.stdout).senderChatId;
-    const result = await app.run(banChatSenderChat({ chatId, senderChatId }));
-    senderBanApplied = true;
-    let rejected = false;
-    try {
-      await run("uv", [
+    const senderSetup = await run(
+      "uv",
+      [
         "run",
         helper,
         "send-as-personal-channel",
         "--chat-id",
         String(chatId),
         "--text",
-        `Telly blocked sender ${crypto.randomUUID()}`,
-      ], helperOptions);
+        `Telly sender ${crypto.randomUUID()}`,
+      ],
+      helperOptions,
+    );
+    senderChatId = JSON.parse(senderSetup.stdout).senderChatId;
+    const result = await app.run(banChatSenderChat({ chatId, senderChatId }));
+    senderBanApplied = true;
+    let rejected = false;
+    try {
+      await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "send-as-personal-channel",
+          "--chat-id",
+          String(chatId),
+          "--text",
+          `Telly blocked sender ${crypto.randomUUID()}`,
+        ],
+        helperOptions,
+      );
     } catch (error) {
       const detail = `${error?.stderr ?? ""} ${error instanceof Error ? error.message : ""}`;
       if (!/(did not become visible|SENDER_CHAT|CHAT_SEND_AS)/u.test(detail)) throw error;
@@ -741,15 +822,19 @@ try {
   if (senderBanApplied) {
     await attempt("unbanChatSenderChat", async () => {
       const result = await app.run(unbanChatSenderChat({ chatId, senderChatId }));
-      await run("uv", [
-        "run",
-        helper,
-        "send-as-personal-channel",
-        "--chat-id",
-        String(chatId),
-        "--text",
-        `Telly restored sender ${crypto.randomUUID()}`,
-      ], helperOptions);
+      await run(
+        "uv",
+        [
+          "run",
+          helper,
+          "send-as-personal-channel",
+          "--chat-id",
+          String(chatId),
+          "--text",
+          `Telly restored sender ${crypto.randomUUID()}`,
+        ],
+        helperOptions,
+      );
       record("unbanChatSenderChat", { result, senderRestored: true });
     });
   }
@@ -762,25 +847,32 @@ try {
       expiresInFuture: link.expireDate === expireDate,
       hasHttpsLink: link.inviteLink.startsWith("https://"),
     });
-    const edited = await app.run(editChatInviteLink({
-      chatId,
-      inviteLink: link.inviteLink,
-      name: "Telly renamed",
-    }));
+    const edited = await app.run(
+      editChatInviteLink({
+        chatId,
+        inviteLink: link.inviteLink,
+        name: "Telly renamed",
+      }),
+    );
     record("editChatInviteLink", { nameMatches: edited.name === "Telly renamed" });
   });
   await attempt("revokeChatInviteLink", async () => {
-    const link = await app.run(createChatInviteLink({
-      chatId,
-      expireDate: Math.floor(Date.now() / 1_000) + 3_600,
-      name: "Telly revoke proof",
-    }));
+    const link = await app.run(
+      createChatInviteLink({
+        chatId,
+        expireDate: Math.floor(Date.now() / 1_000) + 3_600,
+        name: "Telly revoke proof",
+      }),
+    );
     const revoked = await app.run(revokeChatInviteLink({ chatId, inviteLink: link.inviteLink }));
     record("revokeChatInviteLink", { isRevoked: revoked.isRevoked });
   });
   await attempt("exportChatInviteLink", async () => {
     const link = await app.run(exportChatInviteLink({ chatId }));
-    record("exportChatInviteLink", { hasHttpsLink: link.startsWith("https://"), linkLength: link.length });
+    record("exportChatInviteLink", {
+      hasHttpsLink: link.startsWith("https://"),
+      linkLength: link.length,
+    });
   });
 
   let secondaryUser;
@@ -798,21 +890,25 @@ try {
   };
   const requestJoin = async (inviteLink) => {
     const user = await getSecondaryUser();
-    const staleUpdates = await app.run(getUpdates({
-      allowedUpdates: ["chat_join_request"],
-      timeout: 0,
-    }));
-    const offset = Math.max(0, ...staleUpdates.map((update) => update.updateId + 1));
-    await run(
-      "uv",
-      ["run", userDriver, "join", "--invite-link", inviteLink, "--json"],
-      { cwd: repoRoot, env: user.env, timeout: 60_000 },
+    const staleUpdates = await app.run(
+      getUpdates({
+        allowedUpdates: ["chat_join_request"],
+        timeout: 0,
+      }),
     );
-    const updates = await app.run(getUpdates({
-      allowedUpdates: ["chat_join_request"],
-      offset,
-      timeout: 10,
-    }));
+    const offset = Math.max(0, ...staleUpdates.map((update) => update.updateId + 1));
+    await run("uv", ["run", userDriver, "join", "--invite-link", inviteLink, "--json"], {
+      cwd: repoRoot,
+      env: user.env,
+      timeout: 60_000,
+    });
+    const updates = await app.run(
+      getUpdates({
+        allowedUpdates: ["chat_join_request"],
+        offset,
+        timeout: 10,
+      }),
+    );
     const request = updates.find(
       (update) =>
         update.chatJoinRequest?.chat.id === chatId &&
@@ -823,11 +919,13 @@ try {
   };
 
   await attempt("approveChatJoinRequest", async () => {
-    const link = await app.run(createChatInviteLink({
-      chatId,
-      createsJoinRequest: true,
-      name: "Telly approve proof",
-    }));
+    const link = await app.run(
+      createChatInviteLink({
+        chatId,
+        createsJoinRequest: true,
+        name: "Telly approve proof",
+      }),
+    );
     try {
       const user = await requestJoin(link.inviteLink);
       const result = await app.run(approveChatJoinRequest({ chatId, userId: user.userId }));
@@ -836,7 +934,15 @@ try {
       record("approveChatJoinRequest", { result, status: member.status });
       await run(
         "uv",
-        ["run", helper, "remove-member", "--chat-id", String(chatId), "--user-id", String(user.userId)],
+        [
+          "run",
+          helper,
+          "remove-member",
+          "--chat-id",
+          String(chatId),
+          "--user-id",
+          String(user.userId),
+        ],
         helperOptions,
       );
     } finally {
@@ -845,16 +951,19 @@ try {
   });
 
   await attempt("declineChatJoinRequest", async () => {
-    const link = await app.run(createChatInviteLink({
-      chatId,
-      createsJoinRequest: true,
-      name: "Telly decline proof",
-    }));
+    const link = await app.run(
+      createChatInviteLink({
+        chatId,
+        createsJoinRequest: true,
+        name: "Telly decline proof",
+      }),
+    );
     try {
       const user = await requestJoin(link.inviteLink);
       const result = await app.run(declineChatJoinRequest({ chatId, userId: user.userId }));
       const member = await app.run(getChatMember({ chatId, userId: user.userId }));
-      if (member.status !== "left") throw new Error("Declined user did not remain outside the group");
+      if (member.status !== "left")
+        throw new Error("Declined user did not remain outside the group");
       record("declineChatJoinRequest", { result, status: member.status });
     } finally {
       await app.run(revokeChatInviteLink({ chatId, inviteLink: link.inviteLink })).catch(() => {});
@@ -868,36 +977,48 @@ try {
   });
   if (topic !== undefined) {
     await attempt("editForumTopic", async () => {
-      const result = await app.run(editForumTopic({
-        chatId,
-        messageThreadId: topic.messageThreadId,
-        name: "Telly renamed topic",
-      }));
+      const result = await app.run(
+        editForumTopic({
+          chatId,
+          messageThreadId: topic.messageThreadId,
+          name: "Telly renamed topic",
+        }),
+      );
       record("editForumTopic", { result });
     });
     await attempt("closeForumTopic", async () => {
-      const result = await app.run(closeForumTopic({ chatId, messageThreadId: topic.messageThreadId }));
+      const result = await app.run(
+        closeForumTopic({ chatId, messageThreadId: topic.messageThreadId }),
+      );
       record("closeForumTopic", { result });
     });
     await attempt("reopenForumTopic", async () => {
-      const result = await app.run(reopenForumTopic({ chatId, messageThreadId: topic.messageThreadId }));
+      const result = await app.run(
+        reopenForumTopic({ chatId, messageThreadId: topic.messageThreadId }),
+      );
       record("reopenForumTopic", { result });
     });
     await attempt("unpinAllForumTopicMessages", async () => {
-      const message = await app.run(sendMessage({
-        chatId,
-        messageThreadId: topic.messageThreadId,
-        text: "Telly forum pin proof",
-      }));
+      const message = await app.run(
+        sendMessage({
+          chatId,
+          messageThreadId: topic.messageThreadId,
+          text: "Telly forum pin proof",
+        }),
+      );
       await app.run(pinChatMessage({ chatId, messageId: message.messageId }));
-      const result = await app.run(unpinAllForumTopicMessages({
-        chatId,
-        messageThreadId: topic.messageThreadId,
-      }));
+      const result = await app.run(
+        unpinAllForumTopicMessages({
+          chatId,
+          messageThreadId: topic.messageThreadId,
+        }),
+      );
       record("unpinAllForumTopicMessages", { result });
     });
     await attempt("deleteForumTopic", async () => {
-      const result = await app.run(deleteForumTopic({ chatId, messageThreadId: topic.messageThreadId }));
+      const result = await app.run(
+        deleteForumTopic({ chatId, messageThreadId: topic.messageThreadId }),
+      );
       record("deleteForumTopic", { result });
     });
   }
@@ -940,20 +1061,29 @@ try {
   console.log(JSON.stringify({ failures, ok: failures.length === 0, proofs: pendingProofs }));
   if (failures.length > 0) process.exitCode = 1;
 } finally {
-  if (secondaryMemberAdded && chatId !== undefined && credential !== undefined && secondaryCredential !== undefined) {
-    await run("uv", [
-      "run",
-      helper,
-      "remove-member",
-      "--chat-id",
-      String(chatId),
-      "--user-id",
-      String(secondaryCredential.sutBotId),
-    ], {
-      cwd: repoRoot,
-      env: { ...process.env, ...credential.driverEnv },
-      timeout: 60_000,
-    }).catch(() => {});
+  if (
+    secondaryMemberAdded &&
+    chatId !== undefined &&
+    credential !== undefined &&
+    secondaryCredential !== undefined
+  ) {
+    await run(
+      "uv",
+      [
+        "run",
+        helper,
+        "remove-member",
+        "--chat-id",
+        String(chatId),
+        "--user-id",
+        String(secondaryCredential.sutBotId),
+      ],
+      {
+        cwd: repoRoot,
+        env: { ...process.env, ...credential.driverEnv },
+        timeout: 60_000,
+      },
+    ).catch(() => {});
   }
   await secondaryApp?.close();
   await secondaryCredential?.release();

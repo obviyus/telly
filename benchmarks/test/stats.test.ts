@@ -1,10 +1,6 @@
 import { expect, test } from "bun:test";
 
-import {
-  percentile,
-  summarize,
-  summarizeLatency,
-} from "../orchestrator/stats.ts";
+import { percentile, summarize, summarizeLatency } from "../orchestrator/stats.ts";
 
 test("percentile interpolates ordered sample positions", () => {
   expect(percentile([40, 10, 30, 20], 0.5)).toBe(25);

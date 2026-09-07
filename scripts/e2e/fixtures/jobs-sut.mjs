@@ -18,21 +18,25 @@ if (token === undefined || apiRoot === undefined || databasePath === undefined) 
 }
 
 const store = await SqliteJobs.open(databasePath);
-const jobs = defineJobs({
-  reminder: job({
-    payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
-    run: ({ chatId, text }) => sendMessage({ chatId, text: `reminder:${text}` }),
-  }),
-}, { store });
+const jobs = defineJobs(
+  {
+    reminder: job({
+      payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
+      run: ({ chatId, text }) => sendMessage({ chatId, text: `reminder:${text}` }),
+    }),
+  },
+  { store },
+);
 const bot = defineBot({
   commands: {
-    remind: ({ argText, message, update }) => jobs.schedule("reminder", {
-      after: "1 second",
-      id: `reminder:${update.updateId}`,
-      payload: { chatId: message.chat.id, text: argText },
-    }).pipe(
-      Effect.flatMap(() => respond(message, `scheduled:${argText}`)),
-    ),
+    remind: ({ argText, message, update }) =>
+      jobs
+        .schedule("reminder", {
+          after: "1 second",
+          id: `reminder:${update.updateId}`,
+          payload: { chatId: message.chat.id, text: argText },
+        })
+        .pipe(Effect.flatMap(() => respond(message, `scheduled:${argText}`))),
   },
 });
 const app = Application.make({ apiRoot, jobs, token });

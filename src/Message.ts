@@ -104,25 +104,32 @@ function richBlockText(block: RichBlock): string {
         block.credit === undefined ? "" : richTextText(block.credit),
       ]);
     case "list":
-      return joinText(block.items.map((item) => {
-        const content = richBlocksText(item.blocks);
-        return item.label.length === 0 ? content : `${item.label} ${content}`;
-      }));
+      return joinText(
+        block.items.map((item) => {
+          const content = richBlocksText(item.blocks);
+          return item.label.length === 0 ? content : `${item.label} ${content}`;
+        }),
+      );
     case "collage":
     case "slideshow":
       return joinText([richBlocksText(block.blocks), captionText(block.caption)]);
     case "table":
       return joinText([
         block.caption === undefined ? "" : richTextText(block.caption),
-        ...block.cells.map((row) => joinText(
-          row.map((cell) => cell.text === undefined ? "" : richTextText(cell.text)),
-          "\t",
-        )),
+        ...block.cells.map((row) =>
+          joinText(
+            row.map((cell) => (cell.text === undefined ? "" : richTextText(cell.text))),
+            "\t",
+          ),
+        ),
       ]);
     case "details":
       return joinText([richTextText(block.summary), richBlocksText(block.blocks)]);
     case "buttons":
-      return joinText(block.buttons.map((button) => richTextText(button.text)), "\t");
+      return joinText(
+        block.buttons.map((button) => richTextText(button.text)),
+        "\t",
+      );
     case "map":
     case "animation":
     case "audio":

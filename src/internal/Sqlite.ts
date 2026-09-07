@@ -23,10 +23,7 @@ export async function writeTransaction<A>(
   }
 }
 
-export async function withDatabaseLock<A>(
-  key: string,
-  run: () => Promise<A>,
-): Promise<A> {
+export async function withDatabaseLock<A>(key: string, run: () => Promise<A>): Promise<A> {
   const previous = databaseLocks.get(key) ?? Promise.resolve();
   let unlock: () => void = () => {};
   const current = new Promise<void>((resolve) => {

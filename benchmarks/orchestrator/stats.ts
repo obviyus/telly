@@ -34,10 +34,8 @@ export function summarize(values: ReadonlyArray<number>): Summary {
   const ordered = sorted(values);
   const mean = ordered.reduce((total, value) => total + value, 0) / ordered.length;
   const median = percentile(ordered, 0.5);
-  const variance = ordered.reduce(
-    (total, value) => total + (value - mean) ** 2,
-    0,
-  ) / ordered.length;
+  const variance =
+    ordered.reduce((total, value) => total + (value - mean) ** 2, 0) / ordered.length;
   const medianAbsoluteDeviation = percentile(
     ordered.map((value) => Math.abs(value - median)),
     0.5,
@@ -48,9 +46,7 @@ export function summarize(values: ReadonlyArray<number>): Summary {
     mean,
     median,
     min: ordered[0] ?? 0,
-    relativeMedianAbsoluteDeviation: median === 0
-      ? 0
-      : medianAbsoluteDeviation / median,
+    relativeMedianAbsoluteDeviation: median === 0 ? 0 : medianAbsoluteDeviation / median,
     samples: ordered.length,
   };
 }

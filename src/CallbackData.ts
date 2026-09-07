@@ -41,7 +41,9 @@ export function callbackData<Payload, Encoded>(
   schema: Schema.Codec<Payload, Encoded, never, never>,
 ): CallbackData<Payload> {
   if (!/^[a-z0-9][a-z0-9_-]{0,31}$/u.test(name)) {
-    throw new RangeError("Callback data names must use 1-32 lowercase letters, digits, dashes, or underscores");
+    throw new RangeError(
+      "Callback data names must use 1-32 lowercase letters, digits, dashes, or underscores",
+    );
   }
   const prefix = `${name}:`;
   const codec = Schema.toCodecJson(schema);

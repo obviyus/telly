@@ -18,9 +18,7 @@ test("Application runs sendMessage without Effect setup", async () => {
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    const message = await app.run(
-      sendMessage({ chatId: 37, text: "application-test" }),
-    );
+    const message = await app.run(sendMessage({ chatId: 37, text: "application-test" }));
 
     expect(message.messageId).toBe(41);
     expect(fake.requests[0]?.params).toEqual({ chat_id: 37, text: "application-test" });
@@ -72,14 +70,16 @@ test("a present call field replaces or suppresses its outgoing default", async (
   });
 
   try {
-    await app.run(sendMessage({
-      chatId: 41,
-      disableNotification: false,
-      linkPreviewOptions: { url: "https://example.com/call" },
-      parseMode: undefined,
-      protectContent: undefined,
-      text: "plain call",
-    }));
+    await app.run(
+      sendMessage({
+        chatId: 41,
+        disableNotification: false,
+        linkPreviewOptions: { url: "https://example.com/call" },
+        parseMode: undefined,
+        protectContent: undefined,
+        text: "plain call",
+      }),
+    );
 
     expect(fake.requests[0]?.params).toEqual({
       chat_id: 41,
@@ -101,11 +101,13 @@ test("explicit entities suppress only the parse mode default", async () => {
   });
 
   try {
-    await app.run(sendMessage({
-      chatId: 43,
-      entities: [{ length: 4, offset: 0, type: "bold" }],
-      text: "bold",
-    }));
+    await app.run(
+      sendMessage({
+        chatId: 43,
+        entities: [{ length: 4, offset: 0, type: "bold" }],
+        text: "bold",
+      }),
+    );
 
     expect(fake.requests[0]?.params).toEqual({
       chat_id: 43,
@@ -120,10 +122,12 @@ test("explicit entities suppress only the parse mode default", async () => {
 
 test("Application rejects with a useful BotApiError", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.reject({
-      description: "Forbidden",
-      errorCode: 403,
-    })],
+    replies: [
+      FakeBotApiReply.reject({
+        description: "Forbidden",
+        errorCode: 403,
+      }),
+    ],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });
@@ -165,11 +169,13 @@ test("a managed bot token stays redacted between applications", async () => {
   expect(Bun.inspect(managedToken)).not.toContain(managedPlainToken);
 
   const managedFake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok({
-      first_name: "Managed Test",
-      id: 97,
-      is_bot: true,
-    })],
+    replies: [
+      FakeBotApiReply.ok({
+        first_name: "Managed Test",
+        id: 97,
+        is_bot: true,
+      }),
+    ],
     token: managedPlainToken,
   });
   const managedApp = Application.make({ httpClient: managedFake.layer, token: managedToken });
@@ -205,15 +211,19 @@ test("a rotated managed bot token is redacted", async () => {
 test("runPolling waits for close and removes its process listeners", async () => {
   const { promise: handled, resolve } = Promise.withResolvers<void>();
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok([{
-      message: {
-        chat: { id: 89, type: "private" },
-        date: 1_700_000_000,
-        message_id: 201,
-        text: "run-polling",
-      },
-      update_id: 201,
-    }])],
+    replies: [
+      FakeBotApiReply.ok([
+        {
+          message: {
+            chat: { id: 89, type: "private" },
+            date: 1_700_000_000,
+            message_id: 201,
+            text: "run-polling",
+          },
+          update_id: 201,
+        },
+      ]),
+    ],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });

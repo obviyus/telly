@@ -36,10 +36,12 @@ test("answerCallback derives the callback query identifier", async () => {
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    const answered = await app.run(answerCallback(query(), {
-      showAlert: true,
-      text: "Saved",
-    }));
+    const answered = await app.run(
+      answerCallback(query(), {
+        showAlert: true,
+        text: "Saved",
+      }),
+    );
 
     expect(answered).toBe(true);
     expect(fake.requests[0]?.params).toEqual({
@@ -53,36 +55,56 @@ test("answerCallback derives the callback query identifier", async () => {
 });
 
 test("callbackTarget derives inline, business, and inaccessible edit targets", () => {
-  expect(callbackTarget(query({
-    inlineMessageId: "inline-79",
-    message: message(),
-  }))).toEqual({ inlineMessageId: "inline-79" });
-  expect(callbackTarget(query({
-    message: message({ businessConnectionId: "business-81" }),
-  }))).toEqual({
+  expect(
+    callbackTarget(
+      query({
+        inlineMessageId: "inline-79",
+        message: message(),
+      }),
+    ),
+  ).toEqual({ inlineMessageId: "inline-79" });
+  expect(
+    callbackTarget(
+      query({
+        message: message({ businessConnectionId: "business-81" }),
+      }),
+    ),
+  ).toEqual({
     businessConnectionId: "business-81",
     chatId: 75,
     messageId: 77,
   });
-  expect(callbackTarget(query({
-    message: { chat: { id: 83, type: "supergroup" }, date: 0, messageId: 85 },
-  }))).toEqual({ chatId: 83, messageId: 85 });
+  expect(
+    callbackTarget(
+      query({
+        message: { chat: { id: 83, type: "supergroup" }, date: 0, messageId: 85 },
+      }),
+    ),
+  ).toEqual({ chatId: 83, messageId: 85 });
 });
 
 test("callbackTarget derives an ephemeral edit target", () => {
-  expect(callbackTarget(query({
-    message: message({
-      ephemeralMessageId: 87,
-      receiverUser: { firstName: "Grace", id: 89, isBot: false },
-    }),
-  }))).toEqual({
+  expect(
+    callbackTarget(
+      query({
+        message: message({
+          ephemeralMessageId: 87,
+          receiverUser: { firstName: "Grace", id: 89, isBot: false },
+        }),
+      }),
+    ),
+  ).toEqual({
     chatId: 75,
     ephemeralMessageId: 87,
     receiverUserId: 89,
   });
-  expect(callbackTarget(query({
-    message: message({ ephemeralMessageId: 91 }),
-  }))).toEqual({
+  expect(
+    callbackTarget(
+      query({
+        message: message({ ephemeralMessageId: 91 }),
+      }),
+    ),
+  ).toEqual({
     chatId: 75,
     ephemeralMessageId: 91,
     receiverUserId: 71,

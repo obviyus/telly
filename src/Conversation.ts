@@ -41,10 +41,7 @@ export interface ReplyTarget extends ConversationTarget {
 }
 
 /** sendMessage options whose conversation and reply fields come from the triggering message. */
-export type ConversationMessageOptions = Omit<
-  SendMessageParams,
-  keyof ReplyTarget
->;
+export type ConversationMessageOptions = Omit<SendMessageParams, keyof ReplyTarget>;
 
 function options(input: string | ConversationMessageOptions): ConversationMessageOptions {
   return typeof input === "string" ? { text: input } : input;
@@ -71,10 +68,7 @@ export function respondTo(message: ConversationMessage): ConversationTarget {
 }
 
 /** Derives destination and reply fields accepted by generated send methods. */
-export function replyTo(
-  message: ConversationMessage,
-  options: ReplyOptions = {},
-): ReplyTarget {
+export function replyTo(message: ConversationMessage, options: ReplyOptions = {}): ReplyTarget {
   return {
     ...respondTo(message),
     replyParameters: {

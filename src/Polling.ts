@@ -3,10 +3,7 @@ import * as Effect from "effect/Effect";
 import { Bot, type BotApiError } from "./BotApi.js";
 import { InboxStore, type InboxOptions, type InboxStoreError } from "./Inbox.js";
 import { defaultConversationKey, makeDispatcher } from "./internal/Dispatch.js";
-import {
-  makePollingRequests,
-  PollingConflictError,
-} from "./internal/GetUpdatesConflict.js";
+import { makePollingRequests, PollingConflictError } from "./internal/GetUpdatesConflict.js";
 import {
   inboxDefaults,
   makeInboxWake,
@@ -18,9 +15,7 @@ import type { Update, UpdateType } from "./types.generated.js";
 
 export type AcknowledgmentMode = "on-complete" | "on-receipt";
 
-export type UpdateHandler<E = never, A = unknown> = (
-  update: Update,
-) => Effect.Effect<A, E, Bot>;
+export type UpdateHandler<E = never, A = unknown> = (update: Update) => Effect.Effect<A, E, Bot>;
 
 export interface PollingOptions {
   readonly acknowledgment?: AcknowledgmentMode;
@@ -72,11 +67,11 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
     }
   };
 
-  const trackedHandler: UpdateHandler<E> = acknowledgment === "on-complete"
-    ? (update) => handler(update).pipe(
-        Effect.tap(() => Effect.sync(() => markComplete(update.updateId))),
-      )
-    : handler;
+  const trackedHandler: UpdateHandler<E> =
+    acknowledgment === "on-complete"
+      ? (update) =>
+          handler(update).pipe(Effect.tap(() => Effect.sync(() => markComplete(update.updateId))))
+      : handler;
   const dispatcher = yield* makeDispatcher(trackedHandler, {
     concurrency,
     conversationKey,
@@ -88,9 +83,7 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
     const available = yield* dispatcher.awaitCapacity;
     const requestOffset = nextOffset;
     const updates = yield* polling.getUpdates({
-      ...(options.allowedUpdates === undefined
-        ? {}
-        : { allowedUpdates: options.allowedUpdates }),
+      ...(options.allowedUpdates === undefined ? {} : { allowedUpdates: options.allowedUpdates }),
       ...(requestOffset === 0 ? {} : { offset: requestOffset }),
       limit: Math.min(
         100,
@@ -131,20 +124,15 @@ export const pollUpdates = Effect.fn("pollUpdates")(function* <E>(
     }
   });
 
-  return yield* Effect.raceFirst(
-    Effect.forever(poll),
-    dispatcher.join,
-  ).pipe(Effect.onExit(() => shutdown));
+  return yield* Effect.raceFirst(Effect.forever(poll), dispatcher.join).pipe(
+    Effect.onExit(() => shutdown),
+  );
 });
 
 export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
   handler: UpdateHandler<E>,
   options: InboxPollingOptions = {},
-): Effect.fn.Return<
-  never,
-  BotApiError | InboxStoreError | PollingConflictError,
-  Bot | InboxStore
-> {
+): Effect.fn.Return<never, BotApiError | InboxStoreError | PollingConflictError, Bot | InboxStore> {
   const batchSize = options.batchSize ?? 100;
   const pollTimeoutSeconds = options.pollTimeoutSeconds ?? 30;
   const polling = makePollingRequests(options.conflictRetryBudgetMs);
@@ -153,35 +141,34 @@ export const pollInboxUpdates = Effect.fn("pollInboxUpdates")(function* <E>(
   let nextOffset = 0;
   yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "inbox" });
 
-  const receive = Effect.forever(Effect.gen(function* () {
-    const updates = yield* polling.getUpdates({
-      ...(options.allowedUpdates === undefined
-        ? {}
-        : { allowedUpdates: options.allowedUpdates }),
-      ...(nextOffset === 0 ? {} : { offset: nextOffset }),
-      limit: Math.min(100, batchSize),
-      timeout: pollTimeoutSeconds,
-    });
-    for (const update of updates) {
-      const saved = yield* saveInboxUpdate(update, inboxOptions, wake);
-      if (saved._tag === "Full") {
-        yield* Effect.logWarning("Telegram inbox is full").pipe(
-          Effect.annotateLogs({ capacity: inboxOptions.capacity }),
-        );
-        yield* Effect.sleep(inboxDefaults.pollIntervalMs);
-        return;
+  const receive = Effect.forever(
+    Effect.gen(function* () {
+      const updates = yield* polling.getUpdates({
+        ...(options.allowedUpdates === undefined ? {} : { allowedUpdates: options.allowedUpdates }),
+        ...(nextOffset === 0 ? {} : { offset: nextOffset }),
+        limit: Math.min(100, batchSize),
+        timeout: pollTimeoutSeconds,
+      });
+      for (const update of updates) {
+        const saved = yield* saveInboxUpdate(update, inboxOptions, wake);
+        if (saved._tag === "Full") {
+          yield* Effect.logWarning("Telegram inbox is full").pipe(
+            Effect.annotateLogs({ capacity: inboxOptions.capacity }),
+          );
+          yield* Effect.sleep(inboxDefaults.pollIntervalMs);
+          return;
+        }
       }
-    }
-    const last = updates.at(-1);
-    if (last !== undefined) nextOffset = last.updateId + 1;
-  }));
+      const last = updates.at(-1);
+      if (last !== undefined) nextOffset = last.updateId + 1;
+    }),
+  );
 
-  const flush = Effect.suspend(() => nextOffset === 0
-    ? Effect.void
-    : polling.confirmOffset(nextOffset));
+  const flush = Effect.suspend(() =>
+    nextOffset === 0 ? Effect.void : polling.confirmOffset(nextOffset),
+  );
 
-  return yield* Effect.raceFirst(
-    receive,
-    runInboxWorker(handler, inboxOptions, wake),
-  ).pipe(Effect.onExit(() => flush));
+  return yield* Effect.raceFirst(receive, runInboxWorker(handler, inboxOptions, wake)).pipe(
+    Effect.onExit(() => flush),
+  );
 });

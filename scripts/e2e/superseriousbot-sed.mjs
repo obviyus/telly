@@ -44,33 +44,44 @@ try {
   void sutCompletion.catch(() => undefined);
   await waitForReady(sut, "Sed bot");
 
-  await writeFile(scenarioPath, `${JSON.stringify({
-    actions: [
-      { atMs: 0, text: sourceText, type: "send" },
-      { atMs: 1_000, replyToAction: 0, text: "s/old/new", type: "send" },
-      { atMs: 2_000, replyToAction: 0, text: "s/new", type: "send" },
-    ],
-  }, null, 2)}\n`);
-  recorder = spawn("uv", [
-    "run",
-    path.join(skillScripts, "user-record.py"),
-    "--scenario",
+  await writeFile(
     scenarioPath,
-    "--seconds",
-    "5",
-    "--record",
-    eventsPath,
-    "--output",
-    summaryPath,
-    "--chat",
-    `@${credential.sutUsername}`,
-    "--sut-user-id",
-    credential.sutBotId,
-  ], {
-    cwd: repoRoot,
-    env: { ...process.env, ...credential.driverEnv },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+    `${JSON.stringify(
+      {
+        actions: [
+          { atMs: 0, text: sourceText, type: "send" },
+          { atMs: 1_000, replyToAction: 0, text: "s/old/new", type: "send" },
+          { atMs: 2_000, replyToAction: 0, text: "s/new", type: "send" },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  recorder = spawn(
+    "uv",
+    [
+      "run",
+      path.join(skillScripts, "user-record.py"),
+      "--scenario",
+      scenarioPath,
+      "--seconds",
+      "5",
+      "--record",
+      eventsPath,
+      "--output",
+      summaryPath,
+      "--chat",
+      `@${credential.sutUsername}`,
+      "--sut-user-id",
+      credential.sutBotId,
+    ],
+    {
+      cwd: repoRoot,
+      env: { ...process.env, ...credential.driverEnv },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
   await waitForChild(recorder, "Telegram recorder");
   recorder = undefined;
   credential.assertLeaseHealthy();
@@ -110,9 +121,12 @@ try {
   if (corrected.replyToMessageId !== source.messageId) {
     throw new Error("Sed result did not quote the source message");
   }
-  if (events.some((event) =>
-    event.kind === "message" && event.isSut === true && event.elapsedMs > invalid.elapsedMs
-  )) {
+  if (
+    events.some(
+      (event) =>
+        event.kind === "message" && event.isSut === true && event.elapsedMs > invalid.elapsedMs,
+    )
+  ) {
     throw new Error("Invalid sed expression produced a bot response");
   }
 

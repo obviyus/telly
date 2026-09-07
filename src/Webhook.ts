@@ -8,10 +8,7 @@ import * as Schema from "effect/Schema";
 
 import { Bot } from "./BotApi.js";
 import type { UpdateHandler } from "./Polling.js";
-import {
-  defaultConversationKey,
-  makeDispatcher,
-} from "./internal/Dispatch.js";
+import { defaultConversationKey, makeDispatcher } from "./internal/Dispatch.js";
 import { Update, type Update as UpdateType } from "./types.generated.js";
 import { recordWebhookRequest } from "./internal/Telemetry.js";
 
@@ -52,9 +49,9 @@ function response(status: number): Response {
 }
 
 function digest(value: string): Promise<Uint8Array> {
-  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)).then(
-    (buffer) => new Uint8Array(buffer),
-  );
+  return crypto.subtle
+    .digest("SHA-256", new TextEncoder().encode(value))
+    .then((buffer) => new Uint8Array(buffer));
 }
 
 function equalDigest(left: Uint8Array, right: Uint8Array): boolean {
@@ -73,13 +70,14 @@ export function makeWebhookFetch<E, R>(
 ): (request: Request) => Effect.Effect<Response, E, R> {
   const secret = Redacted.isRedacted(secretToken) ? Redacted.value(secretToken) : secretToken;
   if (!/^[A-Za-z0-9_-]{1,256}$/u.test(secret)) {
-    throw new RangeError("Webhook secretToken must use 1-256 letters, digits, underscores, or dashes");
+    throw new RangeError(
+      "Webhook secretToken must use 1-256 letters, digits, underscores, or dashes",
+    );
   }
   const expectedDigest = digest(secret);
   return Effect.fn("Webhook.fetch")(function* (request: Request) {
-    const respond = (status: number) => recordWebhookRequest(status).pipe(
-      Effect.as(response(status)),
-    );
+    const respond = (status: number) =>
+      recordWebhookRequest(status).pipe(Effect.as(response(status)));
     if (request.method !== "POST") return yield* respond(405);
     const suppliedSecret = request.headers.get(secretHeader);
     if (suppliedSecret === null) return yield* respond(401);
@@ -156,7 +154,7 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
   const processUpdate = Effect.fn("Webhook.processUpdate")(function* (update: UpdateType) {
     yield* Effect.annotateCurrentSpan({ "telly.dispatch.source": "webhook" });
     const requestClaim = yield* Effect.sync(() =>
-      state === "running" ? claim(update.updateId) : undefined
+      state === "running" ? claim(update.updateId) : undefined,
     );
     if (requestClaim === undefined) return 503;
     if (requestClaim._tag === "Completed") return 200;
@@ -177,11 +175,7 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
     return finish(update.updateId, requestClaim.result, 500);
   });
 
-  const fetch = makeWebhookFetch(
-    options.secretToken,
-    processUpdate,
-    () => state === "running",
-  );
+  const fetch = makeWebhookFetch(options.secretToken, processUpdate, () => state === "running");
 
   const stop = Effect.suspend(() => {
     if (stopping !== undefined) return Deferred.await(stopping);
@@ -193,7 +187,7 @@ export const makeWebhook = Effect.fn("makeWebhook")(function* <E>(
         Effect.sync(() => {
           Deferred.doneUnsafe(stopped, exit);
           if (state !== "failed") Deferred.doneUnsafe(completion, exit);
-        })
+        }),
       ),
     );
   });

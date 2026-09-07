@@ -20,9 +20,12 @@ if (token === undefined || apiRoot === undefined || databasePath === undefined) 
 }
 
 const store = await SqliteConversations.open(databasePath);
-const confirmation = callbackData("order", Schema.Struct({
-  answer: Schema.Literals(["yes", "no"]),
-}));
+const confirmation = callbackData(
+  "order",
+  Schema.Struct({
+    answer: Schema.Literals(["yes", "no"]),
+  }),
+);
 const order = conversation({
   name: "order",
   steps: {
@@ -47,9 +50,7 @@ const order = conversation({
     note: Conversation.step({
       filter: text(),
       run: ({ message, text: note }, state) =>
-        respond(message, `done:${state.run}:${note}`).pipe(
-          Effect.as(Conversation.end()),
-        ),
+        respond(message, `done:${state.run}:${note}`).pipe(Effect.as(Conversation.end())),
       state: Schema.Struct({ run: Schema.String }),
     }),
   },
@@ -57,15 +58,18 @@ const order = conversation({
 });
 const bot = defineBot({
   commands: {
-    order: ({ argText, message }) => respond(message, {
-      replyMarkup: {
-        inlineKeyboard: [[
-          confirmation.button("Yes", { answer: "yes" }),
-          confirmation.button("No", { answer: "no" }),
-        ]],
-      },
-      text: `confirm:${argText}`,
-    }).pipe(Effect.andThen(order.enter(message, "confirm", { run: argText }))),
+    order: ({ argText, message }) =>
+      respond(message, {
+        replyMarkup: {
+          inlineKeyboard: [
+            [
+              confirmation.button("Yes", { answer: "yes" }),
+              confirmation.button("No", { answer: "no" }),
+            ],
+          ],
+        },
+        text: `confirm:${argText}`,
+      }).pipe(Effect.andThen(order.enter(message, "confirm", { run: argText }))),
   },
   conversations: [order],
 });

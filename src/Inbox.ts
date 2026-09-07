@@ -17,18 +17,14 @@ export interface InboxOptions {
   readonly retryMaxMs?: number;
 }
 
-export class InboxStoreError extends Schema.TaggedError<InboxStoreError>()(
-  "InboxStoreError",
-  {
-    description: Schema.String,
-    operation: Schema.String,
-  },
-) {}
+export class InboxStoreError extends Schema.TaggedError<InboxStoreError>()("InboxStoreError", {
+  description: Schema.String,
+  operation: Schema.String,
+}) {}
 
-export class InboxLeaseLost extends Schema.TaggedError<InboxLeaseLost>()(
-  "InboxLeaseLost",
-  { botId: Schema.Int },
-) {}
+export class InboxLeaseLost extends Schema.TaggedError<InboxLeaseLost>()("InboxLeaseLost", {
+  botId: Schema.Int,
+}) {}
 
 export type InboxSaveResult =
   | { readonly _tag: "Duplicate" }
@@ -91,18 +87,12 @@ export interface InboxStoreService {
   readonly claim: (
     options: ClaimInboxUpdates,
   ) => Effect.Effect<ReadonlyArray<ClaimedUpdate>, InboxStoreError | InboxLeaseLost>;
-  readonly prune: (
-    options: PruneInboxUpdates,
-  ) => Effect.Effect<void, InboxStoreError>;
-  readonly release: (
-    options: FencedInboxOperation,
-  ) => Effect.Effect<void, InboxStoreError>;
+  readonly prune: (options: PruneInboxUpdates) => Effect.Effect<void, InboxStoreError>;
+  readonly release: (options: FencedInboxOperation) => Effect.Effect<void, InboxStoreError>;
   readonly renew: (
     options: FencedInboxOperation & { readonly leaseMs: number },
   ) => Effect.Effect<void, InboxStoreError | InboxLeaseLost>;
-  readonly save: (
-    options: SaveInboxUpdate,
-  ) => Effect.Effect<InboxSaveResult, InboxStoreError>;
+  readonly save: (options: SaveInboxUpdate) => Effect.Effect<InboxSaveResult, InboxStoreError>;
   readonly settle: (
     options: SettleInboxUpdate,
   ) => Effect.Effect<void, InboxStoreError | InboxLeaseLost>;
@@ -177,11 +167,7 @@ export const MemoryInbox = {
     };
     const currentLease = (botId: number, fencingToken: number, now: number) => {
       const lease = botInbox(botId).lease;
-      if (
-        lease === undefined ||
-        lease.fencingToken !== fencingToken ||
-        lease.expiresAtMs <= now
-      ) {
+      if (lease === undefined || lease.fencingToken !== fencingToken || lease.expiresAtMs <= now) {
         return new InboxLeaseLost({ botId });
       }
       return lease;
@@ -191,76 +177,82 @@ export const MemoryInbox = {
       acquire: Effect.fn("MemoryInbox.acquire")(function* (options) {
         positiveInteger(options.botId, "botId");
         positiveInteger(options.leaseMs, "leaseMs");
-        return yield* Effect.clockWith((clock) => Effect.sync(() => {
-          const now = clock.currentTimeMillisUnsafe();
-          const inbox = botInbox(options.botId);
-          if (inbox.lease !== undefined && inbox.lease.expiresAtMs > now) {
-            return { _tag: "Held" } as const;
-          }
-          inbox.nextFencingToken += 1;
-          inbox.lease = {
-            expiresAtMs: now + options.leaseMs,
-            fencingToken: inbox.nextFencingToken,
-          };
-          return { _tag: "Acquired", fencingToken: inbox.nextFencingToken } as const;
-        }));
+        return yield* Effect.clockWith((clock) =>
+          Effect.sync(() => {
+            const now = clock.currentTimeMillisUnsafe();
+            const inbox = botInbox(options.botId);
+            if (inbox.lease !== undefined && inbox.lease.expiresAtMs > now) {
+              return { _tag: "Held" } as const;
+            }
+            inbox.nextFencingToken += 1;
+            inbox.lease = {
+              expiresAtMs: now + options.leaseMs,
+              fencingToken: inbox.nextFencingToken,
+            };
+            return { _tag: "Acquired", fencingToken: inbox.nextFencingToken } as const;
+          }),
+        );
       }),
 
       claim: Effect.fn("MemoryInbox.claim")(function* (options) {
         positiveInteger(options.limit, "limit");
-        return yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof InboxLeaseLost) return yield* lease;
-          return yield* Effect.sync(() => {
-            const inbox = botInbox(options.botId);
-            const heads = new Map<string, InboxRow>();
-            for (const row of inbox.rows.values()) {
-              if (row.state === "done" || row.state === "parked") continue;
-              const head = heads.get(row.conversationKey);
-              if (head === undefined || row.updateId < head.updateId) {
-                heads.set(row.conversationKey, row);
+        return yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof InboxLeaseLost) return yield* lease;
+            return yield* Effect.sync(() => {
+              const inbox = botInbox(options.botId);
+              const heads = new Map<string, InboxRow>();
+              for (const row of inbox.rows.values()) {
+                if (row.state === "done" || row.state === "parked") continue;
+                const head = heads.get(row.conversationKey);
+                if (head === undefined || row.updateId < head.updateId) {
+                  heads.set(row.conversationKey, row);
+                }
               }
-            }
-            const claimed: Array<ClaimedUpdate> = [];
-            for (const row of [...heads.values()].sort((left, right) =>
-              left.updateId - right.updateId
-            )) {
-              if (claimed.length >= options.limit) break;
-              if (row.state === "running" && row.fencingToken === options.fencingToken) continue;
-              if (row.state === "pending" && row.notBeforeMs > now) continue;
-              const running: RunningRow = {
-                attempts: row.attempts + 1,
-                conversationKey: row.conversationKey,
-                fencingToken: options.fencingToken,
-                payload: row.payload,
-                state: "running",
-                updateId: row.updateId,
-              };
-              inbox.rows.set(row.updateId, running);
-              claimed.push({
-                attempts: running.attempts,
-                conversationKey: running.conversationKey,
-                payload: structuredClone(running.payload),
-                updateId: running.updateId,
-              });
-            }
-            return claimed;
-          });
-        }));
+              const claimed: Array<ClaimedUpdate> = [];
+              for (const row of [...heads.values()].sort(
+                (left, right) => left.updateId - right.updateId,
+              )) {
+                if (claimed.length >= options.limit) break;
+                if (row.state === "running" && row.fencingToken === options.fencingToken) continue;
+                if (row.state === "pending" && row.notBeforeMs > now) continue;
+                const running: RunningRow = {
+                  attempts: row.attempts + 1,
+                  conversationKey: row.conversationKey,
+                  fencingToken: options.fencingToken,
+                  payload: row.payload,
+                  state: "running",
+                  updateId: row.updateId,
+                };
+                inbox.rows.set(row.updateId, running);
+                claimed.push({
+                  attempts: running.attempts,
+                  conversationKey: running.conversationKey,
+                  payload: structuredClone(running.payload),
+                  updateId: running.updateId,
+                });
+              }
+              return claimed;
+            });
+          }),
+        );
       }),
 
       prune: Effect.fn("MemoryInbox.prune")(function* (options) {
         nonNegativeNumber(options.doneAgeMs, "doneAgeMs");
-        yield* Effect.clockWith((clock) => Effect.sync(() => {
-          const cutoff = clock.currentTimeMillisUnsafe() - options.doneAgeMs;
-          const inbox = botInbox(options.botId);
-          for (const [updateId, row] of inbox.rows) {
-            if (row.state === "done" && row.terminalTimeMs <= cutoff) {
-              inbox.rows.delete(updateId);
+        yield* Effect.clockWith((clock) =>
+          Effect.sync(() => {
+            const cutoff = clock.currentTimeMillisUnsafe() - options.doneAgeMs;
+            const inbox = botInbox(options.botId);
+            for (const [updateId, row] of inbox.rows) {
+              if (row.state === "done" && row.terminalTimeMs <= cutoff) {
+                inbox.rows.delete(updateId);
+              }
             }
-          }
-        }));
+          }),
+        );
       }),
 
       release: Effect.fn("MemoryInbox.release")(function* (options) {
@@ -274,15 +266,17 @@ export const MemoryInbox = {
 
       renew: Effect.fn("MemoryInbox.renew")(function* (options) {
         positiveInteger(options.leaseMs, "leaseMs");
-        yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof InboxLeaseLost) return yield* lease;
-          botInbox(options.botId).lease = {
-            expiresAtMs: now + options.leaseMs,
-            fencingToken: options.fencingToken,
-          };
-        }));
+        yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof InboxLeaseLost) return yield* lease;
+            botInbox(options.botId).lease = {
+              expiresAtMs: now + options.leaseMs,
+              fencingToken: options.fencingToken,
+            };
+          }),
+        );
       }),
 
       save: Effect.fn("MemoryInbox.save")(function* (options) {
@@ -309,62 +303,64 @@ export const MemoryInbox = {
       }),
 
       settle: Effect.fn("MemoryInbox.settle")(function* (options) {
-        return yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof InboxLeaseLost) return yield* lease;
-          const inbox = botInbox(options.botId);
-          const row = inbox.rows.get(options.updateId);
-          if (
-            row === undefined ||
-            row.state !== "running" ||
-            row.fencingToken !== options.fencingToken
-          ) {
-            return;
-          }
-          switch (options.outcome._tag) {
-            case "Done":
-              inbox.rows.set(row.updateId, {
-                attempts: row.attempts,
-                conversationKey: row.conversationKey,
-                payload: row.payload,
-                state: "done",
-                terminalTimeMs: now,
-                updateId: row.updateId,
-              });
+        return yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof InboxLeaseLost) return yield* lease;
+            const inbox = botInbox(options.botId);
+            const row = inbox.rows.get(options.updateId);
+            if (
+              row === undefined ||
+              row.state !== "running" ||
+              row.fencingToken !== options.fencingToken
+            ) {
               return;
-            case "Parked":
-              inbox.rows.set(row.updateId, {
-                attempts: row.attempts,
-                conversationKey: row.conversationKey,
-                payload: row.payload,
-                state: "parked",
-                terminalTimeMs: now,
-                updateId: row.updateId,
-              });
-              return;
-            case "Retry":
-              nonNegativeNumber(options.outcome.delayMs, "delayMs");
-              inbox.rows.set(row.updateId, {
-                attempts: row.attempts,
-                conversationKey: row.conversationKey,
-                notBeforeMs: now + options.outcome.delayMs,
-                payload: row.payload,
-                state: "pending",
-                updateId: row.updateId,
-              });
-              return;
-            case "Interrupted":
-              inbox.rows.set(row.updateId, {
-                attempts: row.attempts - 1,
-                conversationKey: row.conversationKey,
-                notBeforeMs: now,
-                payload: row.payload,
-                state: "pending",
-                updateId: row.updateId,
-              });
-          }
-        }));
+            }
+            switch (options.outcome._tag) {
+              case "Done":
+                inbox.rows.set(row.updateId, {
+                  attempts: row.attempts,
+                  conversationKey: row.conversationKey,
+                  payload: row.payload,
+                  state: "done",
+                  terminalTimeMs: now,
+                  updateId: row.updateId,
+                });
+                return;
+              case "Parked":
+                inbox.rows.set(row.updateId, {
+                  attempts: row.attempts,
+                  conversationKey: row.conversationKey,
+                  payload: row.payload,
+                  state: "parked",
+                  terminalTimeMs: now,
+                  updateId: row.updateId,
+                });
+                return;
+              case "Retry":
+                nonNegativeNumber(options.outcome.delayMs, "delayMs");
+                inbox.rows.set(row.updateId, {
+                  attempts: row.attempts,
+                  conversationKey: row.conversationKey,
+                  notBeforeMs: now + options.outcome.delayMs,
+                  payload: row.payload,
+                  state: "pending",
+                  updateId: row.updateId,
+                });
+                return;
+              case "Interrupted":
+                inbox.rows.set(row.updateId, {
+                  attempts: row.attempts - 1,
+                  conversationKey: row.conversationKey,
+                  notBeforeMs: now,
+                  payload: row.payload,
+                  state: "pending",
+                  updateId: row.updateId,
+                });
+            }
+          }),
+        );
       }),
     });
   },

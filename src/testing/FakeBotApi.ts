@@ -293,9 +293,8 @@ export const FakeBotApi = {
         const methodMatch = url.pathname.match(/^\/bot([^/]+)\/([^/]+)$/u);
         const fileMatch = url.pathname.match(/^\/file\/bot([^/]+)\/(.+)$/u);
         const token = methodMatch?.[1] ?? fileMatch?.[1];
-        const method = methodMatch?.[2] === undefined
-          ? undefined
-          : decodeURIComponent(methodMatch[2]);
+        const method =
+          methodMatch?.[2] === undefined ? undefined : decodeURIComponent(methodMatch[2]);
         const filePath = fileMatch?.[2]?.split("/").map(decodeURIComponent).join("/");
         const details = bodyDetails(request.body);
         const params = details.params;
@@ -338,10 +337,14 @@ export const FakeBotApi = {
           return fileResponse(request, scripted.bytes);
         }
         if (scripted?._tag === "Hang") {
-          signal.addEventListener("abort", () => {
-            if (filePath !== undefined) abortedFilePaths.add(filePath);
-            if (method !== undefined) abortedMethods.add(method);
-          }, { once: true });
+          signal.addEventListener(
+            "abort",
+            () => {
+              if (filePath !== undefined) abortedFilePaths.add(filePath);
+              if (method !== undefined) abortedMethods.add(method);
+            },
+            { once: true },
+          );
           return yield* Effect.never;
         }
         if (scripted?._tag === "Reject") {
@@ -379,10 +382,12 @@ export const FakeBotApi = {
             const outcome = yield* Deferred.await(wait.signal).pipe(
               Effect.timeoutOption(Duration.seconds(timeoutSeconds)),
               Effect.onInterrupt(() => Effect.sync(() => abortedMethods.add(method))),
-              Effect.ensuring(Effect.sync(() => {
-                signal.removeEventListener("abort", recordAbort);
-                if (parkedPoll === wait) parkedPoll = undefined;
-              })),
+              Effect.ensuring(
+                Effect.sync(() => {
+                  signal.removeEventListener("abort", recordAbort);
+                  if (parkedPoll === wait) parkedPoll = undefined;
+                }),
+              ),
             );
             if (Option.isNone(outcome)) return okResponse(request, []);
             if (outcome.value === "conflict") {
@@ -435,22 +440,15 @@ export const FakeBotApi = {
           });
         }
         const sendsMessage = method === "sendMessage" || method === "sendRichMessage";
-        if (
-          options.serverRateLimit === true &&
-          sendsMessage &&
-          Predicate.isObject(params)
-        ) {
+        if (options.serverRateLimit === true && sendsMessage && Predicate.isObject(params)) {
           const now = yield* Effect.clockWith((clock) =>
-            Effect.sync(() => clock.currentTimeMillisUnsafe())
+            Effect.sync(() => clock.currentTimeMillisUnsafe()),
           );
           const delayMs = rateLimitDelay(params, now);
           if (delayMs > 0) {
-            return rejectedResponse(
-              request,
-              429,
-              "Too Many Requests: retry later",
-              { retryAfter: Math.max(1, Math.ceil(delayMs / 1_000)) },
-            );
+            return rejectedResponse(request, 429, "Too Many Requests: retry later", {
+              retryAfter: Math.max(1, Math.ceil(delayMs / 1_000)),
+            });
           }
         }
         if (!sendsMessage || !Predicate.isObject(params)) {

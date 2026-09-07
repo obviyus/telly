@@ -44,29 +44,29 @@ try {
     { stdio: "inherit" },
   );
   setName = `telly_emoji_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}_by_${credential.sutUsername}`;
-  await app.run(createNewStickerSet({
-    name: setName,
-    needsRepainting: true,
-    stickerType: "custom_emoji",
-    stickers: [{
-      emojiList: ["🟠"],
-      format: "static",
-      sticker: new File([await readFile(stickerPath)], "custom.webp", { type: "image/webp" }),
-    }],
-    title: "Telly emoji proof",
-    userId,
-  }));
+  await app.run(
+    createNewStickerSet({
+      name: setName,
+      needsRepainting: true,
+      stickerType: "custom_emoji",
+      stickers: [
+        {
+          emojiList: ["🟠"],
+          format: "static",
+          sticker: new File([await readFile(stickerPath)], "custom.webp", { type: "image/webp" }),
+        },
+      ],
+      title: "Telly emoji proof",
+      userId,
+    }),
+  );
   const stickerSet = await app.run(getStickerSet({ name: setName }));
   const customEmojiId = stickerSet.stickers[0]?.customEmojiId;
   if (customEmojiId === undefined) throw new Error("Temporary set has no custom emoji id");
   const result = await app.run(setCustomEmojiStickerSetThumbnail({ customEmojiId, name: setName }));
   await app.run(deleteStickerSet({ name: setName }));
   setName = undefined;
-  const proof = await writeMethodProof(
-    credential,
-    "setCustomEmojiStickerSetThumbnail",
-    { result },
-  );
+  const proof = await writeMethodProof(credential, "setCustomEmojiStickerSetThumbnail", { result });
   console.log(JSON.stringify({ ok: true, proof }));
 } finally {
   if (setName !== undefined) await app?.run(deleteStickerSet({ name: setName })).catch(() => {});

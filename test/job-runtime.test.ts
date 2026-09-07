@@ -26,15 +26,18 @@ function botLayer() {
 test("job worker runs a scheduled handler only after its due time", async () => {
   const handled = Deferred.makeUnsafe<string>();
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    reminder: job({
-      payload: Schema.Struct({ text: Schema.String }),
-      run: ({ text }) => Deferred.succeed(handled, text),
-    }),
-  }, {
-    options: { leaseMs: 30_000 },
-    store,
-  });
+  const jobs = defineJobs(
+    {
+      reminder: job({
+        payload: Schema.Struct({ text: Schema.String }),
+        run: ({ text }) => Deferred.succeed(handled, text),
+      }),
+    },
+    {
+      options: { leaseMs: 30_000 },
+      store,
+    },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("reminder", { after: "5 seconds", payload: { text: "stand up" } });
     const worker = yield* Effect.forkChild(runJobWorker(jobs));
@@ -44,10 +47,7 @@ test("job worker runs a scheduled handler only after its due time", async () => 
     const text = yield* Deferred.await(handled);
     yield* Fiber.interrupt(worker);
     return { early, text };
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const result = await Effect.runPromise(program);
 
@@ -59,18 +59,22 @@ test("job worker retries typed failures and parks an exhausted job", async () =>
   let attempts = 0;
   const secondAttempt = Deferred.makeUnsafe<void>();
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    failing: job({
-      payload: Schema.Struct({ value: Schema.Int }),
-      run: () => Effect.sync(() => {
-        attempts += 1;
-        if (attempts === 2) Effect.runSync(Deferred.succeed(secondAttempt, undefined));
-      }).pipe(Effect.andThen(Effect.fail("retry"))),
-    }),
-  }, {
-    options: { maxAttempts: 2, retryBaseMs: 1_000, retryMaxMs: 1_000 },
-    store,
-  });
+  const jobs = defineJobs(
+    {
+      failing: job({
+        payload: Schema.Struct({ value: Schema.Int }),
+        run: () =>
+          Effect.sync(() => {
+            attempts += 1;
+            if (attempts === 2) Effect.runSync(Deferred.succeed(secondAttempt, undefined));
+          }).pipe(Effect.andThen(Effect.fail("retry"))),
+      }),
+    },
+    {
+      options: { maxAttempts: 2, retryBaseMs: 1_000, retryMaxMs: 1_000 },
+      store,
+    },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("failing", { id: "failing", payload: { value: 7 } });
     const worker = yield* Effect.forkChild(runJobWorker(jobs));
@@ -80,10 +84,7 @@ test("job worker retries typed failures and parks an exhausted job", async () =>
     yield* TestClock.adjust("10 seconds");
     yield* Effect.yieldNow;
     yield* Fiber.interrupt(worker);
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   await Effect.runPromise(program);
 
@@ -98,25 +99,30 @@ test("job worker coalesces a slow repeating job without overlap", async () => {
   let maximumActive = 0;
   let runs = 0;
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    recurring: job({
-      payload: Schema.Struct({ name: Schema.String }),
-      run: () => Effect.acquireUseRelease(
-        Effect.sync(() => {
-          active += 1;
-          maximumActive = Math.max(maximumActive, active);
-          runs += 1;
-          if (runs === 1) Effect.runSync(Deferred.succeed(firstStarted, undefined));
-          if (runs === 2) Effect.runSync(Deferred.succeed(secondStarted, undefined));
-          return runs;
-        }),
-        (run) => run === 1 ? Deferred.await(releaseFirst) : Effect.void,
-        () => Effect.sync(() => {
-          active -= 1;
-        }),
-      ),
-    }),
-  }, { store });
+  const jobs = defineJobs(
+    {
+      recurring: job({
+        payload: Schema.Struct({ name: Schema.String }),
+        run: () =>
+          Effect.acquireUseRelease(
+            Effect.sync(() => {
+              active += 1;
+              maximumActive = Math.max(maximumActive, active);
+              runs += 1;
+              if (runs === 1) Effect.runSync(Deferred.succeed(firstStarted, undefined));
+              if (runs === 2) Effect.runSync(Deferred.succeed(secondStarted, undefined));
+              return runs;
+            }),
+            (run) => (run === 1 ? Deferred.await(releaseFirst) : Effect.void),
+            () =>
+              Effect.sync(() => {
+                active -= 1;
+              }),
+          ),
+      }),
+    },
+    { store },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("recurring", {
       at: new Date(0),
@@ -133,10 +139,7 @@ test("job worker coalesces a slow repeating job without overlap", async () => {
     yield* Deferred.await(secondStarted);
     yield* Fiber.interrupt(worker);
     return runsWhileBlocked;
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const runsWhileBlocked = await Effect.runPromise(program);
 
@@ -148,15 +151,18 @@ test("job worker coalesces a slow repeating job without overlap", async () => {
 test("job worker interruption refunds an unfinished attempt", async () => {
   const started = Deferred.makeUnsafe<void>();
   const memory = MemoryJobs.make();
-  const jobs = defineJobs({
-    waiting: job({
-      payload: Schema.Struct({ value: Schema.Int }),
-      run: () => Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never)),
-    }),
-  }, {
-    options: { gracePeriodMs: 0 },
-    store: memory,
-  });
+  const jobs = defineJobs(
+    {
+      waiting: job({
+        payload: Schema.Struct({ value: Schema.Int }),
+        run: () => Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never)),
+      }),
+    },
+    {
+      options: { gracePeriodMs: 0 },
+      store: memory,
+    },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("waiting", { id: "waiting", payload: { value: 1 } });
     const worker = yield* Effect.forkChild(runJobWorker(jobs));
@@ -165,10 +171,7 @@ test("job worker interruption refunds an unfinished attempt", async () => {
     const lease = yield* memory.acquire({ botId: 123456, leaseMs: 30_000 });
     if (lease._tag !== "Acquired") throw new Error("Expected replacement job lease");
     return yield* memory.claim({ botId: 123456, fencingToken: lease.fencingToken, limit: 1 });
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const reclaimed = await Effect.runPromise(program);
 
@@ -180,17 +183,21 @@ test("cancelling a running repeating job prevents its next occurrence", async ()
   const release = Deferred.makeUnsafe<void>();
   let runs = 0;
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    recurring: job({
-      payload: Schema.Struct({ value: Schema.Int }),
-      run: () => Effect.sync(() => {
-        runs += 1;
-      }).pipe(
-        Effect.andThen(Deferred.succeed(started, undefined)),
-        Effect.andThen(Deferred.await(release)),
-      ),
-    }),
-  }, { store });
+  const jobs = defineJobs(
+    {
+      recurring: job({
+        payload: Schema.Struct({ value: Schema.Int }),
+        run: () =>
+          Effect.sync(() => {
+            runs += 1;
+          }).pipe(
+            Effect.andThen(Deferred.succeed(started, undefined)),
+            Effect.andThen(Deferred.await(release)),
+          ),
+      }),
+    },
+    { store },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("recurring", {
       at: new Date(0),
@@ -206,10 +213,7 @@ test("cancelling a running repeating job prevents its next occurrence", async ()
     yield* Effect.yieldNow;
     yield* Fiber.interrupt(worker);
     return cancelled;
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const cancelled = await Effect.runPromise(program);
 
@@ -219,12 +223,15 @@ test("cancelling a running repeating job prevents its next occurrence", async ()
 
 test("job handler defects fail the worker and leave work reclaimable", async () => {
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    defective: job({
-      payload: Schema.Struct({ value: Schema.Int }),
-      run: () => Effect.die(new Error("job defect")),
-    }),
-  }, { store });
+  const jobs = defineJobs(
+    {
+      defective: job({
+        payload: Schema.Struct({ value: Schema.Int }),
+        run: () => Effect.die(new Error("job defect")),
+      }),
+    },
+    { store },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("defective", {
       id: "defective",
@@ -240,10 +247,7 @@ test("job handler defects fail the worker and leave work reclaimable", async () 
       limit: 1,
     });
     return { exit, reclaimed };
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const result = await Effect.runPromise(program);
 
@@ -261,20 +265,26 @@ test("job worker stops active handlers immediately after losing its lease", asyn
     ...memory,
     renew: (options) => Effect.fail(new JobLeaseLost({ botId: options.botId })),
   });
-  const jobs = defineJobs({
-    waiting: job({
-      payload: Schema.Struct({ value: Schema.Int }),
-      run: () => Deferred.succeed(started, undefined).pipe(
-        Effect.andThen(Effect.never),
-        Effect.onInterrupt(() => Effect.sync(() => {
-          wasInterrupted = true;
-        })),
-      ),
-    }),
-  }, {
-    options: { gracePeriodMs: 10_000, leaseMs: 30 },
-    store,
-  });
+  const jobs = defineJobs(
+    {
+      waiting: job({
+        payload: Schema.Struct({ value: Schema.Int }),
+        run: () =>
+          Deferred.succeed(started, undefined).pipe(
+            Effect.andThen(Effect.never),
+            Effect.onInterrupt(() =>
+              Effect.sync(() => {
+                wasInterrupted = true;
+              }),
+            ),
+          ),
+      }),
+    },
+    {
+      options: { gracePeriodMs: 10_000, leaseMs: 30 },
+      store,
+    },
+  );
   const program = Effect.gen(function* () {
     yield* jobs.schedule("waiting", { id: "waiting", payload: { value: 1 } });
     const worker = yield* Effect.forkChild(runJobWorker(jobs));
@@ -287,10 +297,7 @@ test("job worker stops active handlers immediately after losing its lease", asyn
     yield* TestClock.adjust("10 seconds");
     yield* Fiber.join(stopping);
     return interruptedByLeaseLoss;
-  }).pipe(
-    Effect.provide(botLayer()),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer()), Effect.provide(TestClock.layer()));
 
   const interruptedByLeaseLoss = await Effect.runPromise(program);
 

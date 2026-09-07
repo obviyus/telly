@@ -28,8 +28,13 @@ function messageContext(message: Message): UpdateContext {
 
 /** Derives the chat, accessible message, acting sender, and user from any known update. */
 export function updateContext(update: Update): UpdateContext {
-  const message = update.message ?? update.editedMessage ?? update.channelPost ??
-    update.editedChannelPost ?? update.businessMessage ?? update.editedBusinessMessage ??
+  const message =
+    update.message ??
+    update.editedMessage ??
+    update.channelPost ??
+    update.editedChannelPost ??
+    update.businessMessage ??
+    update.editedBusinessMessage ??
     update.guestMessage;
   if (message !== undefined) return messageContext(message);
 
@@ -45,10 +50,15 @@ export function updateContext(update: Update): UpdateContext {
     };
   }
 
-  const directUser = update.inlineQuery?.from ?? update.chosenInlineResult?.from ??
-    update.shippingQuery?.from ?? update.preCheckoutQuery?.from ??
-    update.purchasedPaidMedia?.from ?? update.businessConnection?.user ??
-    update.managedBot?.user ?? update.subscription?.user;
+  const directUser =
+    update.inlineQuery?.from ??
+    update.chosenInlineResult?.from ??
+    update.shippingQuery?.from ??
+    update.preCheckoutQuery?.from ??
+    update.purchasedPaidMedia?.from ??
+    update.businessConnection?.user ??
+    update.managedBot?.user ??
+    update.subscription?.user;
   if (directUser !== undefined) return userContext(directUser);
 
   const membership = update.myChatMember ?? update.chatMember ?? update.chatJoinRequest;
@@ -67,10 +77,9 @@ export function updateContext(update: Update): UpdateContext {
     if (reaction.actorChat !== undefined) {
       return { chat: reaction.chat, sender: { chat: reaction.actorChat, type: "chat" } };
     }
-    return reaction.user === undefined ? { chat: reaction.chat } : userContext(
-      reaction.user,
-      reaction.chat,
-    );
+    return reaction.user === undefined
+      ? { chat: reaction.chat }
+      : userContext(reaction.user, reaction.chat);
   }
 
   const boost = update.chatBoost;
@@ -86,7 +95,9 @@ export function updateContext(update: Update): UpdateContext {
       : userContext(boostUser, removedBoost.chat);
   }
 
-  const chat = update.deletedBusinessMessages?.chat ?? update.messageReactionCount?.chat ??
+  const chat =
+    update.deletedBusinessMessages?.chat ??
+    update.messageReactionCount?.chat ??
     update.stoppedMessageGeneration?.chat;
   return chat === undefined ? {} : { chat };
 }

@@ -50,7 +50,7 @@ try {
 
   await Promise.all(
     entries.map(([, built, published]) =>
-      rename(resolve(outdir, built), resolve(outdir, published))
+      rename(resolve(outdir, built), resolve(outdir, published)),
     ),
   );
   // Bun 1.4 drops imported bindings from re-export-only entries, so write the stable root entry after bundling implementations.

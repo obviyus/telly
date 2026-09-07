@@ -25,6 +25,5 @@ export interface ConversationProtocol<out E> {
   readonly [ConversationTypeId]: ConversationRuntime<E>;
 }
 
-export type ConversationProtocolError<Value> = Value extends ConversationProtocol<infer E>
-  ? E
-  : never;
+export type ConversationProtocolError<Value> =
+  Value extends ConversationProtocol<infer E> ? E : never;

@@ -169,10 +169,12 @@ type FieldTarget =
 function addFieldTarget(targets: Map<string, FieldTarget>, path: string, target: FieldTarget) {
   const existing = targets.get(path);
   if (existing !== undefined) {
-    const same = existing._tag === "Enum" && target._tag === "Enum"
-      ? existing.name === target.name
-      : existing._tag === "Literal" && target._tag === "Literal" &&
-        existing.value === target.value;
+    const same =
+      existing._tag === "Enum" && target._tag === "Enum"
+        ? existing.name === target.name
+        : existing._tag === "Literal" &&
+          target._tag === "Literal" &&
+          existing.value === target.value;
     if (same) {
       return;
     }
@@ -191,9 +193,8 @@ function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
   for (const [enumName, definition] of Object.entries(spec.enums)) {
     for (const target of definition.applies_to ?? []) {
       const [ownerName, fieldName] = target.split(".");
-      const owner = ownerName === undefined
-        ? undefined
-        : spec.types[ownerName] ?? spec.methods[ownerName];
+      const owner =
+        ownerName === undefined ? undefined : (spec.types[ownerName] ?? spec.methods[ownerName]);
       const field = owner?.fields?.find((candidate) => candidate.name === fieldName);
       if (ownerName === undefined || fieldName === undefined || field === undefined) {
         throw new Error(`Enum ${enumName} targets missing field ${target}`);
@@ -211,7 +212,10 @@ function fieldTargets(spec: BotApiSpec): ReadonlyMap<string, FieldTarget> {
     const discriminators = definition.subtypes.map((subtypeName) => {
       const fields = (spec.types[subtypeName]?.fields ?? []).flatMap((field) => {
         const value = discriminatorValue(field.description);
-        return field.required && field.types.length === 1 && field.types[0] === "String" && value !== undefined
+        return field.required &&
+          field.types.length === 1 &&
+          field.types[0] === "String" &&
+          value !== undefined
           ? [{ fieldName: field.name, subtypeName, value }]
           : [];
       });
@@ -257,9 +261,10 @@ function decoderTarget(
   if (target?._tag === "Literal") return { _tag: "Literal", value: target.value };
   return {
     _tag: "References",
-    references: target?._tag === "Enum"
-      ? references.map((reference) => enumReference(reference, target.name))
-      : references,
+    references:
+      target?._tag === "Enum"
+        ? references.map((reference) => enumReference(reference, target.name))
+        : references,
   };
 }
 
@@ -282,9 +287,7 @@ function fieldExpressions(
 }
 
 function publicFieldName(wireName: string): string {
-  const name = wireName.replace(/_([a-z0-9])/gu, (_, character: string) =>
-    character.toUpperCase()
-  );
+  const name = wireName.replace(/_([a-z0-9])/gu, (_, character: string) => character.toUpperCase());
   if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(name)) {
     throw new Error(`Telegram field ${wireName} cannot become a TypeScript identifier`);
   }
@@ -303,9 +306,7 @@ function renderConstraints(
 ): string {
   const entries = fields.flatMap((field) => {
     const configured = overrides.constraints[`${owner}.${field.wireName}`];
-    return configured === undefined
-      ? []
-      : [[field.publicName, configured.checks] as const];
+    return configured === undefined ? [] : [[field.publicName, configured.checks] as const];
   });
   return entries.length === 0
     ? ""
@@ -354,8 +355,8 @@ function decodedValue(target: DecoderTarget, raw: string): string {
   }
   return [
     "let decoded: unknown = decodeFailure;",
-    ...target.references.map((reference) =>
-      `if (decoded === decodeFailure) decoded = ${decoderName(reference)}(${raw});`
+    ...target.references.map(
+      (reference) => `if (decoded === decodeFailure) decoded = ${decoderName(reference)}(${raw});`,
     ),
   ].join("\n      ");
 }
@@ -367,8 +368,8 @@ function renderObjectDecoder(
   overrides: GeneratorOverrides,
 ): string {
   const fields = definition.fields ?? [];
-  const alwaysClone = fields.some((field) =>
-    field.required && publicFieldName(field.name) !== field.name
+  const alwaysClone = fields.some(
+    (field) => field.required && publicFieldName(field.name) !== field.name,
   );
   let requiredIndex = 0;
   const cases = fields.map((field) => {
@@ -378,19 +379,23 @@ function renderObjectDecoder(
     const assign = alwaysClone
       ? `output[${JSON.stringify(publicName)}] = decoded;`
       : publicName === field.name
-      ? `if (decoded !== raw) {
+        ? `if (decoded !== raw) {
         output ??= { ...source };
         output[${JSON.stringify(publicName)}] = decoded;
       }`
-      : `output ??= { ...source };
+        : `output ??= { ...source };
       output[${JSON.stringify(publicName)}] = decoded;
       delete output[${JSON.stringify(field.name)}];`;
     return `    case ${JSON.stringify(field.name)}: {
       const raw = source[key];
       ${decodedValue(target, "raw")}
       if (decoded === decodeFailure) return decodeFailure;
-      ${assign}${bit === undefined ? "" : `
-      seen |= ${bit};`}
+      ${assign}${
+        bit === undefined
+          ? ""
+          : `
+      seen |= ${bit};`
+      }
       break;
     }`;
   });
@@ -411,14 +416,14 @@ ${alwaysClone ? "    default:\n      output[key] = source[key];\n      break;" :
 }`;
 }
 
-function renderUnionDecoder(
-  name: string,
-  references: ReadonlyArray<string>,
-): string {
-  const attempts = references.map((reference, index) =>
-    `  const member${index} = ${decoderName(reference)}(input);
-  if (member${index} !== decodeFailure) return member${index};`
-  ).join("\n");
+function renderUnionDecoder(name: string, references: ReadonlyArray<string>): string {
+  const attempts = references
+    .map(
+      (reference, index) =>
+        `  const member${index} = ${decoderName(reference)}(input);
+  if (member${index} !== decodeFailure) return member${index};`,
+    )
+    .join("\n");
   return `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
 ${attempts}
   return decodeFailure;
@@ -495,14 +500,19 @@ export function _decodeArray<A>(
 }`;
   const enumDecoders = Object.entries(spec.enums)
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([name, definition]) => `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
+    .map(
+      ([
+        name,
+        definition,
+      ]) => `export function _decode${name}(input: unknown): Types.${name} | typeof decodeFailure {
   switch (input) {
 ${definition.values.map((value) => `    case ${JSON.stringify(value)}:`).join("\n")}
       return input;
     default:
       return decodeFailure;
   }
-}`)
+}`,
+    )
     .join("\n\n");
   const arrayDecoders = collectArrayReferences(spec, overrides, targets)
     .map((reference) => {
@@ -579,17 +589,19 @@ function renderObjectType(
     throw new Error(`Telegram type ${name} has colliding camelCase fields`);
   }
   const interfaceFields = rendered
-    .map((field) =>
-      `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type};`
+    .map(
+      (field) =>
+        `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type};`,
     )
     .join("\n");
   const encodedFields = rendered
     .map((field) => `    ${field.wireName}: ${field.schema},`)
     .join("\n");
 
-  const interfaceBody = interfaceFields.length === 0
-    ? "  readonly [key: string]: unknown;"
-    : `${interfaceFields}\n  readonly [key: string]: unknown;`;
+  const interfaceBody =
+    interfaceFields.length === 0
+      ? "  readonly [key: string]: unknown;"
+      : `${interfaceFields}\n  readonly [key: string]: unknown;`;
   const encodedBody = encodedFields.length === 0 ? "" : `\n${encodedFields}\n  `;
   const renamed = rendered.filter((field) => field.publicName !== field.wireName);
   const renderedConstraints = renderConstraints(name, rendered, overrides);
@@ -603,15 +615,18 @@ function renderObjectType(
       : "SchemaGetter.transform(Struct.renameKeys(wireKeys))";
     return `${renderedConstraints}${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => {\n  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n  const encoded = Schema.StructWithRest(\n    Schema.Struct({${encodedBody.replaceAll("\n", "\n  ")}}),\n    [Schema.Record(Schema.String, Schema.Unknown)],\n  );\n  const decodedSchema = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\n  const interpreted: Schema.Codec<${name}, unknown> = encoded.pipe(\n    Schema.decodeTo(decodedSchema, {\n      decode: SchemaGetter.transform(Struct.renameKeys(publicKeys)),\n      encode: ${encode},\n    }),\n  );\n  const decodeInterpreted = SchemaParser.decodeUnknownEffect(interpreted);\n  const encodeInterpreted = SchemaParser.encodeUnknownEffect(interpreted);\n  return Schema.Unknown.pipe(\n    Schema.decodeTo(decodedSchema, {\n      decode: SchemaGetter.transformOrFail((input, options) => {\n        const decoded = decode${name}(input);\n        return decoded === decodeFailure\n          ? decodeInterpreted(input, options)\n          : Effect.succeed(decoded);\n      }),\n      encode: SchemaGetter.transformOrFail((input, options) =>\n        encodeInterpreted(input, options)\n      ),\n    }),\n  );\n});\n`;
   }
-  const keys = renamed.length === 0
-    ? ""
-    : `  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n`;
-  const decode = renamed.length === 0
-    ? "SchemaGetter.passthrough()"
-    : "SchemaGetter.transform(Struct.renameKeys(publicKeys))";
-  const rename = renamed.length === 0
-    ? "SchemaGetter.passthrough()"
-    : "SchemaGetter.transform(Struct.renameKeys(wireKeys))";
+  const keys =
+    renamed.length === 0
+      ? ""
+      : `  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n`;
+  const decode =
+    renamed.length === 0
+      ? "SchemaGetter.passthrough()"
+      : "SchemaGetter.transform(Struct.renameKeys(publicKeys))";
+  const rename =
+    renamed.length === 0
+      ? "SchemaGetter.passthrough()"
+      : "SchemaGetter.transform(Struct.renameKeys(wireKeys))";
   const encode = constrained ? `${validationGetter(name)}.compose(${rename})` : rename;
   // The declared target carries camelCase fields; its encode getter adds request-only checks.
   return `${renderedConstraints}${docComment(definition.description)}export interface ${name} {\n${interfaceBody}\n}\nexport const ${name}: Schema.Codec<${name}, unknown> = Schema.suspend(() => {\n${keys}  const encoded = Schema.StructWithRest(\n    Schema.Struct({${encodedBody.replaceAll("\n", "\n  ")}}),\n    [Schema.Record(Schema.String, Schema.Unknown)],\n  );\n  const decoded = Schema.declare<${name}>((input): input is ${name} => Predicate.isObject(input));\n  return encoded.pipe(\n    Schema.decodeTo(decoded, {\n      decode: ${decode},\n      encode: ${encode},\n    }),\n  );\n});\n`;
@@ -671,8 +686,9 @@ function renderMethods(
         throw new Error(`Telegram method ${name} has colliding camelCase fields`);
       }
       const interfaceFields = rendered
-        .map((field) =>
-          `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type}${field.required ? "" : " | undefined"};`
+        .map(
+          (field) =>
+            `${docComment([field.description], "  ")}  readonly ${field.publicName}${field.required ? "" : "?"}: ${field.type}${field.required ? "" : " | undefined"};`,
         )
         .join("\n");
       const encodedFields = rendered
@@ -685,18 +701,22 @@ function renderMethods(
       const renderedConstraints = renderConstraints(name, rendered, overrides, paramsName);
       const constrained = renderedConstraints.length > 0;
       // Nested codecs can transform even when every top-level key is unchanged.
-      const paramsSchema = renamed.length === 0 && !constrained
-        ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({\n${encodedFields}\n}));`
-        : `${renderedConstraints}export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => {\n${renamed.length === 0 ? "" : `  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n`}  const encoded = Schema.Struct({\n${encodedFields.replaceAll("\n", "\n  ")}\n  });\n  const decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\n  return encoded.pipe(\n    Schema.decodeTo(decoded, {\n      decode: ${renamed.length === 0 ? "SchemaGetter.passthrough()" : "SchemaGetter.transform(Struct.renameKeys(publicKeys))"},\n      encode: ${constrained ? `${validationGetter(paramsName)}.compose(${renamed.length === 0 ? "SchemaGetter.passthrough()" : "SchemaGetter.transform(Struct.renameKeys(wireKeys))"})` : "SchemaGetter.transform(Struct.renameKeys(wireKeys))"},\n    }),\n  );\n});`;
-      const result = override.resultSchema ??
+      const paramsSchema =
+        renamed.length === 0 && !constrained
+          ? `export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => Schema.Struct({\n${encodedFields}\n}));`
+          : `${renderedConstraints}export const ${paramsName}: Schema.Codec<${paramsName}, Readonly<Record<string, unknown>>> = Schema.suspend(() => {\n${renamed.length === 0 ? "" : `  const publicKeys = { ${publicKeyMapping(renamed)} } as const;\n  const wireKeys = invertKeys(publicKeys);\n`}  const encoded = Schema.Struct({\n${encodedFields.replaceAll("\n", "\n  ")}\n  });\n  const decoded = Schema.declare<${paramsName}>((input): input is ${paramsName} => Predicate.isObject(input));\n  return encoded.pipe(\n    Schema.decodeTo(decoded, {\n      decode: ${renamed.length === 0 ? "SchemaGetter.passthrough()" : "SchemaGetter.transform(Struct.renameKeys(publicKeys))"},\n      encode: ${constrained ? `${validationGetter(paramsName)}.compose(${renamed.length === 0 ? "SchemaGetter.passthrough()" : "SchemaGetter.transform(Struct.renameKeys(wireKeys))"})` : "SchemaGetter.transform(Struct.renameKeys(wireKeys))"},\n    }),\n  );\n});`;
+      const result =
+        override.resultSchema ??
         unionSchema(method.returns, (reference) => schemaExpression(reference, "Types."));
-      const parameterDeclaration = fields.length === 0
-        ? ""
-        : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
+      const parameterDeclaration =
+        fields.length === 0
+          ? ""
+          : `export interface ${paramsName} {\n${interfaceFields}\n}\n${paramsSchema}\n\n`;
       const descriptorParams = fields.length === 0 ? "" : `  params: ${paramsName},\n`;
-      const descriptorDefaults = defaultFields.length === 0
-        ? ""
-        : `  defaultFields: [${defaultFields.map((field) => JSON.stringify(field)).join(", ")}],\n`;
+      const descriptorDefaults =
+        defaultFields.length === 0
+          ? ""
+          : `  defaultFields: [${defaultFields.map((field) => JSON.stringify(field)).join(", ")}],\n`;
       return `${docComment(method.description)}${parameterDeclaration}export const ${name} = callMethod({\n  method: ${JSON.stringify(name)},\n${descriptorDefaults}${descriptorParams}  rateLimit: ${JSON.stringify(override.rateLimit)},\n  result: Schema.suspend(() => ${result}),\n  retrySafe: ${override.retrySafe},\n});\n`;
     });
   return `${generatedHeader("bot-api/schema/sources/dofer/spec.json")}import * as Effect from "effect/Effect";\nimport * as Predicate from "effect/Predicate";\nimport * as Schema from "effect/Schema";\nimport * as SchemaGetter from "effect/SchemaGetter";\nimport * as Struct from "effect/Struct";\n\nimport { callMethod } from "./internal/CallMethod.js";\nimport * as Constraints from "./internal/Constraints.js";\nimport { invertKeys } from "./internal/SchemaKeys.js";\nimport * as Types from "./types.generated.js";\n\n${sections.join("\n")}`;
@@ -745,24 +765,26 @@ function validateConstraints(spec: BotApiSpec, overrides: GeneratorOverrides): v
         throw new Error(`Constraint ${constraint.kind} for ${path} has no bounds`);
       }
       if (
-        constraint.minimum !== undefined && constraint.maximum !== undefined &&
+        constraint.minimum !== undefined &&
+        constraint.maximum !== undefined &&
         constraint.minimum > constraint.maximum
       ) {
         throw new Error(`Constraint ${constraint.kind} for ${path} has inverted bounds`);
       }
       if (
         constraint.kind !== "range" &&
-        [constraint.minimum, constraint.maximum].some((bound) =>
-          bound !== undefined && (!Number.isInteger(bound) || bound < 0)
+        [constraint.minimum, constraint.maximum].some(
+          (bound) => bound !== undefined && (!Number.isInteger(bound) || bound < 0),
         )
       ) {
         throw new Error(`Constraint ${constraint.kind} for ${path} requires natural bounds`);
       }
-      const compatible = constraint.kind === "items"
-        ? references.every((reference) => arrayItem(reference) !== undefined)
-        : constraint.kind === "range"
-        ? references.every((reference) => reference === "Float" || reference === "Integer")
-        : references.every((reference) => reference === "String");
+      const compatible =
+        constraint.kind === "items"
+          ? references.every((reference) => arrayItem(reference) !== undefined)
+          : constraint.kind === "range"
+            ? references.every((reference) => reference === "Float" || reference === "Integer")
+            : references.every((reference) => reference === "String");
       if (!compatible) {
         throw new Error(`Constraint ${constraint.kind} for ${path} has incompatible types`);
       }

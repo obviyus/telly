@@ -27,17 +27,20 @@ function run<A, E>(effect: Effect.Effect<A, E>) {
 
 test("concurrent duplicate saves create one inbox update", async () => {
   const store = MemoryInbox.make();
-  const result = await run(Effect.all([
-    save(store, 11, "chat:1"),
-    save(store, 11, "chat:1"),
-  ], { concurrency: "unbounded" }));
+  const result = await run(
+    Effect.all([save(store, 11, "chat:1"), save(store, 11, "chat:1")], {
+      concurrency: "unbounded",
+    }),
+  );
   const lease = await run(store.acquire({ botId, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
-  const claimed = await run(store.claim({
-    botId,
-    fencingToken: lease.fencingToken,
-    limit: 10,
-  }));
+  const claimed = await run(
+    store.claim({
+      botId,
+      fencingToken: lease.fencingToken,
+      limit: 10,
+    }),
+  );
 
   expect(result.map((item) => item._tag).sort()).toEqual(["Duplicate", "Stored"]);
   expect(claimed.map((item) => item.updateId)).toEqual([11]);
@@ -53,19 +56,19 @@ test("duplicate saves succeed when the inbox is full", async () => {
 
 test("claim returns only eligible conversation heads", async () => {
   const store = MemoryInbox.make();
-  await run(Effect.all([
-    save(store, 31, "chat:4"),
-    save(store, 32, "chat:4"),
-    save(store, 33, "chat:5"),
-  ]));
+  await run(
+    Effect.all([save(store, 31, "chat:4"), save(store, 32, "chat:4"), save(store, 33, "chat:5")]),
+  );
   const lease = await run(store.acquire({ botId, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
 
-  const first = await run(store.claim({
-    botId,
-    fencingToken: lease.fencingToken,
-    limit: 3,
-  }));
+  const first = await run(
+    store.claim({
+      botId,
+      fencingToken: lease.fencingToken,
+      limit: 3,
+    }),
+  );
 
   expect(first.map((item) => item.updateId)).toEqual([31, 33]);
   expect(first.map((item) => item.attempts)).toEqual([1, 1]);
@@ -74,10 +77,7 @@ test("claim returns only eligible conversation heads", async () => {
 test("retry keeps later updates blocked until its store-timed delay ends", async () => {
   const store = MemoryInbox.make();
   const program = Effect.gen(function* () {
-    yield* Effect.all([
-      save(store, 41, "chat:6"),
-      save(store, 42, "chat:6"),
-    ]);
+    yield* Effect.all([save(store, 41, "chat:6"), save(store, 42, "chat:6")]);
     const lease = yield* store.acquire({ botId, leaseMs: 30_000 });
     if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
     const first = (yield* store.claim({
@@ -117,23 +117,33 @@ test("interrupted settlement refunds the claim attempt", async () => {
   await run(save(store, 51, "chat:7"));
   const lease = await run(store.acquire({ botId, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
-  const first = (await run(store.claim({
-    botId,
-    fencingToken: lease.fencingToken,
-    limit: 1,
-  })))[0];
+  const first = (
+    await run(
+      store.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 1,
+      }),
+    )
+  )[0];
   if (first === undefined) throw new Error("Expected claimed update");
-  await run(store.settle({
-    botId,
-    fencingToken: lease.fencingToken,
-    outcome: { _tag: "Interrupted" },
-    updateId: first.updateId,
-  }));
-  const second = (await run(store.claim({
-    botId,
-    fencingToken: lease.fencingToken,
-    limit: 1,
-  })))[0];
+  await run(
+    store.settle({
+      botId,
+      fencingToken: lease.fencingToken,
+      outcome: { _tag: "Interrupted" },
+      updateId: first.updateId,
+    }),
+  );
+  const second = (
+    await run(
+      store.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 1,
+      }),
+    )
+  )[0];
 
   expect(second?.attempts).toBe(1);
 });
@@ -149,11 +159,13 @@ test("new fencing token reclaims work and rejects stale mutations", async () => 
     const secondLease = yield* store.acquire({ botId, leaseMs: 1_000 });
     if (secondLease._tag !== "Acquired") throw new Error("Expected second dispatch lease");
     yield* store.release({ botId, fencingToken: firstLease.fencingToken });
-    const staleRenew = yield* Effect.result(store.renew({
-      botId,
-      fencingToken: firstLease.fencingToken,
-      leaseMs: 1_000,
-    }));
+    const staleRenew = yield* Effect.result(
+      store.renew({
+        botId,
+        fencingToken: firstLease.fencingToken,
+        leaseMs: 1_000,
+      }),
+    );
     const reclaimed = yield* store.claim({
       botId,
       fencingToken: secondLease.fencingToken,
@@ -176,12 +188,14 @@ test("prune removes old done rows so their update ids can be stored again", asyn
   const lease = await run(store.acquire({ botId, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Expected dispatch lease");
   await run(store.claim({ botId, fencingToken: lease.fencingToken, limit: 1 }));
-  await run(store.settle({
-    botId,
-    fencingToken: lease.fencingToken,
-    outcome: { _tag: "Done" },
-    updateId: 71,
-  }));
+  await run(
+    store.settle({
+      botId,
+      fencingToken: lease.fencingToken,
+      outcome: { _tag: "Done" },
+      updateId: 71,
+    }),
+  );
   await run(store.prune({ botId, doneAgeMs: 0 }));
 
   expect((await run(save(store, 71, "chat:9")))._tag).toBe("Stored");

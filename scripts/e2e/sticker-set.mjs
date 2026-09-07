@@ -19,11 +19,7 @@ import {
   setStickerSetTitle,
   uploadStickerFile,
 } from "../../index.ts";
-import {
-  createMethodProof,
-  openTelegramTestHarness,
-  publishMethodProof,
-} from "./harness.mjs";
+import { createMethodProof, openTelegramTestHarness, publishMethodProof } from "./harness.mjs";
 
 const fixtureDir = await mkdtemp(path.join(tmpdir(), "telly-sticker-set."));
 let credential;
@@ -74,7 +70,8 @@ try {
   ({ credential, proxy } = harness);
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const userId = Number(credential.testerUserId);
-  if (!Number.isSafeInteger(userId)) throw new Error("Leased Telegram tester id is not a safe integer");
+  if (!Number.isSafeInteger(userId))
+    throw new Error("Leased Telegram tester id is not a safe integer");
   const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
   setName = `telly_${suffix}_by_${credential.sutUsername}`;
 
@@ -84,11 +81,14 @@ try {
     readFile(generateWebp("blue.webp", "blue", 512)),
     readFile(generateWebp("thumbnail.webp", "yellow", 100)),
   ]);
-  const upload = (bytes, name) => app.run(uploadStickerFile({
-    sticker: new File([bytes], name, { type: "image/webp" }),
-    stickerFormat: "static",
-    userId,
-  }));
+  const upload = (bytes, name) =>
+    app.run(
+      uploadStickerFile({
+        sticker: new File([bytes], name, { type: "image/webp" }),
+        stickerFormat: "static",
+        userId,
+      }),
+    );
   const [red, green, blue] = await Promise.all([
     upload(redBytes, "red.webp"),
     upload(greenBytes, "green.webp"),
@@ -99,21 +99,25 @@ try {
     hasUniqueId: red.fileUniqueId.length > 0,
   });
 
-  const created = await app.run(createNewStickerSet({
-    name: setName,
-    stickers: [{ emojiList: ["🔴"], format: "static", sticker: red.fileId }],
-    title: "Telly proof",
-    userId,
-  }));
+  const created = await app.run(
+    createNewStickerSet({
+      name: setName,
+      stickers: [{ emojiList: ["🔴"], format: "static", sticker: red.fileId }],
+      title: "Telly proof",
+      userId,
+    }),
+  );
   setExists = true;
   let stickerSet = await app.run(getStickerSet({ name: setName }));
   record("createNewStickerSet", { result: created, stickerCount: stickerSet.stickers.length });
 
-  const added = await app.run(addStickerToSet({
-    name: setName,
-    sticker: { emojiList: ["🟢"], format: "static", sticker: green.fileId },
-    userId,
-  }));
+  const added = await app.run(
+    addStickerToSet({
+      name: setName,
+      sticker: { emojiList: ["🟢"], format: "static", sticker: green.fileId },
+      userId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("addStickerToSet", { result: added, stickerCount: stickerSet.stickers.length });
 
@@ -123,10 +127,12 @@ try {
     throw new Error("Telegram did not return both temporary stickers");
   }
 
-  const positioned = await app.run(setStickerPositionInSet({
-    position: 0,
-    sticker: greenSticker.fileId,
-  }));
+  const positioned = await app.run(
+    setStickerPositionInSet({
+      position: 0,
+      sticker: greenSticker.fileId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("setStickerPositionInSet", {
     firstStickerMatches: stickerSet.stickers[0]?.fileId === greenSticker.fileId,
@@ -135,30 +141,41 @@ try {
 
   const titled = await app.run(setStickerSetTitle({ name: setName, title: "Telly proof renamed" }));
   stickerSet = await app.run(getStickerSet({ name: setName }));
-  record("setStickerSetTitle", { result: titled, titleMatches: stickerSet.title === "Telly proof renamed" });
+  record("setStickerSetTitle", {
+    result: titled,
+    titleMatches: stickerSet.title === "Telly proof renamed",
+  });
 
-  const emojiSet = await app.run(setStickerEmojiList({
-    emojiList: ["✅"],
-    sticker: greenSticker.fileId,
-  }));
+  const emojiSet = await app.run(
+    setStickerEmojiList({
+      emojiList: ["✅"],
+      sticker: greenSticker.fileId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("setStickerEmojiList", {
-    emojiMatches: stickerSet.stickers.some((sticker) => sticker.fileId === greenSticker.fileId && sticker.emoji === "✅"),
+    emojiMatches: stickerSet.stickers.some(
+      (sticker) => sticker.fileId === greenSticker.fileId && sticker.emoji === "✅",
+    ),
     result: emojiSet,
   });
 
-  const keywordsSet = await app.run(setStickerKeywords({
-    keywords: ["telly", "proof"],
-    sticker: greenSticker.fileId,
-  }));
+  const keywordsSet = await app.run(
+    setStickerKeywords({
+      keywords: ["telly", "proof"],
+      sticker: greenSticker.fileId,
+    }),
+  );
   record("setStickerKeywords", { result: keywordsSet });
 
-  const replaced = await app.run(replaceStickerInSet({
-    name: setName,
-    oldSticker: redSticker.fileId,
-    sticker: { emojiList: ["🔵"], format: "static", sticker: blue.fileId },
-    userId,
-  }));
+  const replaced = await app.run(
+    replaceStickerInSet({
+      name: setName,
+      oldSticker: redSticker.fileId,
+      sticker: { emojiList: ["🔵"], format: "static", sticker: blue.fileId },
+      userId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("replaceStickerInSet", {
     result: replaced,
@@ -166,12 +183,14 @@ try {
     blueStickerPresent: stickerSet.stickers.some((sticker) => sticker.emoji === "🔵"),
   });
 
-  const thumbnailSet = await app.run(setStickerSetThumbnail({
-    format: "static",
-    name: setName,
-    thumbnail: new File([thumbnailBytes], "thumbnail.webp", { type: "image/webp" }),
-    userId,
-  }));
+  const thumbnailSet = await app.run(
+    setStickerSetThumbnail({
+      format: "static",
+      name: setName,
+      thumbnail: new File([thumbnailBytes], "thumbnail.webp", { type: "image/webp" }),
+      userId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("setStickerSetThumbnail", {
     hasThumbnail: stickerSet.thumbnail !== undefined,
@@ -189,26 +208,32 @@ try {
   record("deleteStickerSet", { result: deleted });
 
   setName = `telly_mask_${suffix}_by_${credential.sutUsername}`;
-  await app.run(createNewStickerSet({
-    name: setName,
-    stickerType: "mask",
-    stickers: [{
-      emojiList: ["🥸"],
-      format: "static",
-      maskPosition: { point: "eyes", scale: 1, xShift: 0, yShift: 0 },
-      sticker: red.fileId,
-    }],
-    title: "Telly mask proof",
-    userId,
-  }));
+  await app.run(
+    createNewStickerSet({
+      name: setName,
+      stickerType: "mask",
+      stickers: [
+        {
+          emojiList: ["🥸"],
+          format: "static",
+          maskPosition: { point: "eyes", scale: 1, xShift: 0, yShift: 0 },
+          sticker: red.fileId,
+        },
+      ],
+      title: "Telly mask proof",
+      userId,
+    }),
+  );
   setExists = true;
   stickerSet = await app.run(getStickerSet({ name: setName }));
   const maskSticker = stickerSet.stickers[0];
   if (maskSticker === undefined) throw new Error("Temporary mask set has no sticker");
-  const maskPositionSet = await app.run(setStickerMaskPosition({
-    maskPosition: { point: "mouth", scale: 1.1, xShift: 0.1, yShift: -0.1 },
-    sticker: maskSticker.fileId,
-  }));
+  const maskPositionSet = await app.run(
+    setStickerMaskPosition({
+      maskPosition: { point: "mouth", scale: 1.1, xShift: 0.1, yShift: -0.1 },
+      sticker: maskSticker.fileId,
+    }),
+  );
   stickerSet = await app.run(getStickerSet({ name: setName }));
   record("setStickerMaskPosition", {
     pointMatches: stickerSet.stickers[0]?.maskPosition?.point === "mouth",

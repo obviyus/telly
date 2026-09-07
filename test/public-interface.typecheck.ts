@@ -72,30 +72,31 @@ const routed = routes(
     message.chat.id satisfies number;
     return firstHandlerEffect;
   }),
-  on(Filter.make((update) => update.callbackQuery), (query) => {
-    query.id satisfies string;
-    return secondHandlerEffect;
-  }),
+  on(
+    Filter.make((update) => update.callbackQuery),
+    (query) => {
+      query.id satisfies string;
+      return secondHandlerEffect;
+    },
+  ),
 );
 
-const routedHandler: UpdateHandler<
-  BotApiError | FirstHandlerError | SecondHandlerError
-> = routed;
-const combinedHandler: UpdateHandler<
-  BotApiError | FirstHandlerError | SecondHandlerError
-> = every(routed, () => firstHandlerEffect);
+const routedHandler: UpdateHandler<BotApiError | FirstHandlerError | SecondHandlerError> = routed;
+const combinedHandler: UpdateHandler<BotApiError | FirstHandlerError | SecondHandlerError> = every(
+  routed,
+  () => firstHandlerEffect,
+);
 declare const update: Update;
 routedHandler(update);
 combinedHandler(update);
 
-const declarativeHandler: UpdateHandler<
-  BotApiError | FirstHandlerError | SecondHandlerError
-> = defineBot({
-  commands: {
-    start: () => firstHandlerEffect,
-  },
-  text: () => secondHandlerEffect,
-});
+const declarativeHandler: UpdateHandler<BotApiError | FirstHandlerError | SecondHandlerError> =
+  defineBot({
+    commands: {
+      start: () => firstHandlerEffect,
+    },
+    text: () => secondHandlerEffect,
+  });
 declarativeHandler(update);
 declare const token: string;
 Application.make({ token }).runPolling(declarativeHandler);
@@ -151,12 +152,15 @@ SqliteInbox.open("telly.db").then((inbox) => {
   inbox.close();
 });
 
-const jobs = defineJobs({
-  reminder: job({
-    payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
-    run: () => firstHandlerEffect,
-  }),
-}, { store: MemoryJobs.make() });
+const jobs = defineJobs(
+  {
+    reminder: job({
+      payload: Schema.Struct({ chatId: Schema.Int, text: Schema.String }),
+      run: () => firstHandlerEffect,
+    }),
+  },
+  { store: MemoryJobs.make() },
+);
 jobs.schedule("reminder", { payload: { chatId: 1, text: "typed" } });
 // @ts-expect-error Job payloads are inferred from their definition schema.
 jobs.schedule("reminder", { payload: { chatId: "wrong", text: "typed" } });

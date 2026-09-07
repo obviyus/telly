@@ -56,10 +56,7 @@ function runStore<A>(operation: string, run: () => Promise<A>) {
   });
 }
 
-async function makeStore(
-  client: Client,
-  databaseKey: string,
-): Promise<SqliteConversationStore> {
+async function makeStore(client: Client, databaseKey: string): Promise<SqliteConversationStore> {
   await withDatabaseLock(databaseKey, async () => {
     await client.execute("PRAGMA journal_mode = WAL");
     await client.execute("PRAGMA synchronous = FULL");
@@ -77,33 +74,32 @@ async function makeStore(
     withDatabaseLock(databaseKey, () => writeTransaction(client, run));
 
   return {
-    commit: (options) => runStore("commit", () => write(async (transaction) => {
-      const selected = await transaction.execute({
-        sql: `SELECT version FROM telly_conversations
+    commit: (options) =>
+      runStore("commit", () =>
+        write(async (transaction) => {
+          const selected = await transaction.execute({
+            sql: `SELECT version FROM telly_conversations
           WHERE bot_id = ? AND conversation_scope = ?`,
-        args: [options.botId, options.scope],
-      });
-      const row = selected.rows[0];
-      const currentVersion = row === undefined
-        ? undefined
-        : sqliteInteger(row["version"], "version");
-      if (
-        typeof options.expected === "number" && currentVersion !== options.expected
-      ) {
-        return "Conflict" as const;
-      }
-      if (options.next === undefined) {
-        await transaction.execute({
-          sql: "DELETE FROM telly_conversations WHERE bot_id = ? AND conversation_scope = ?",
-          args: [options.botId, options.scope],
-        });
-      } else {
-        const state = JSON.stringify(options.next.state);
-        if (state === undefined) {
-          throw new TypeError("Conversation state must be JSON-serializable");
-        }
-        await transaction.execute({
-          sql: `INSERT INTO telly_conversations
+            args: [options.botId, options.scope],
+          });
+          const row = selected.rows[0];
+          const currentVersion =
+            row === undefined ? undefined : sqliteInteger(row["version"], "version");
+          if (typeof options.expected === "number" && currentVersion !== options.expected) {
+            return "Conflict" as const;
+          }
+          if (options.next === undefined) {
+            await transaction.execute({
+              sql: "DELETE FROM telly_conversations WHERE bot_id = ? AND conversation_scope = ?",
+              args: [options.botId, options.scope],
+            });
+          } else {
+            const state = JSON.stringify(options.next.state);
+            if (state === undefined) {
+              throw new TypeError("Conversation state must be JSON-serializable");
+            }
+            await transaction.execute({
+              sql: `INSERT INTO telly_conversations
             (bot_id, conversation_scope, conversation_name, step, state, version)
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(bot_id, conversation_scope) DO UPDATE SET
@@ -111,37 +107,39 @@ async function makeStore(
               step = excluded.step,
               state = excluded.state,
               version = excluded.version`,
-          args: [
-            options.botId,
-            options.scope,
-            options.next.conversation,
-            options.next.step,
-            state,
-            (currentVersion ?? 0) + 1,
-          ],
-        });
-      }
-      return "Committed" as const;
-    })),
+              args: [
+                options.botId,
+                options.scope,
+                options.next.conversation,
+                options.next.step,
+                state,
+                (currentVersion ?? 0) + 1,
+              ],
+            });
+          }
+          return "Committed" as const;
+        }),
+      ),
 
-    load: (options) => runStore("load", () =>
-      withDatabaseLock(databaseKey, async () => {
-        const result = await client.execute({
-          sql: `SELECT conversation_name, step, state, version
+    load: (options) =>
+      runStore("load", () =>
+        withDatabaseLock(databaseKey, async () => {
+          const result = await client.execute({
+            sql: `SELECT conversation_name, step, state, version
             FROM telly_conversations WHERE bot_id = ? AND conversation_scope = ?`,
-          args: [options.botId, options.scope],
-        });
-        const row = result.rows[0];
-        if (row === undefined) return undefined;
-        const record: ConversationRecord = {
-          conversation: sqliteText(row["conversation_name"], "conversation_name"),
-          state: JSON.parse(sqliteText(row["state"], "state")),
-          step: sqliteText(row["step"], "step"),
-          version: sqliteInteger(row["version"], "version"),
-        };
-        return record;
-      })
-    ),
+            args: [options.botId, options.scope],
+          });
+          const row = result.rows[0];
+          if (row === undefined) return undefined;
+          const record: ConversationRecord = {
+            conversation: sqliteText(row["conversation_name"], "conversation_name"),
+            state: JSON.parse(sqliteText(row["state"], "state")),
+            step: sqliteText(row["step"], "step"),
+            version: sqliteInteger(row["version"], "version"),
+          };
+          return record;
+        }),
+      ),
 
     close: () => client.close(),
   };

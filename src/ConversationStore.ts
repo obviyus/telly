@@ -88,10 +88,7 @@ export const MemoryConversations = {
         return yield* Effect.sync(() => {
           const conversations = records(options.botId);
           const current = conversations.get(options.scope);
-          if (
-            typeof options.expected === "number" &&
-            current?.version !== options.expected
-          ) {
+          if (typeof options.expected === "number" && current?.version !== options.expected) {
             return "Conflict" as const;
           }
           if (options.next === undefined) {

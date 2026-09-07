@@ -54,13 +54,14 @@ export function makeInboxWake(): InboxWake {
       changed = Deferred.makeUnsafe<void>();
       Deferred.doneUnsafe(previous, Effect.void);
     }),
-    wait: (observed) => Effect.suspend(() =>
-      observed === version
-        ? Deferred.await(changed).pipe(
-            Effect.raceFirst(Effect.sleep(inboxDefaults.pollIntervalMs)),
-          )
-        : Effect.void
-    ),
+    wait: (observed) =>
+      Effect.suspend(() =>
+        observed === version
+          ? Deferred.await(changed).pipe(
+              Effect.raceFirst(Effect.sleep(inboxDefaults.pollIntervalMs)),
+            )
+          : Effect.void,
+      ),
   };
 }
 
@@ -100,10 +101,7 @@ export const saveInboxUpdate = Effect.fn("saveInboxUpdate")(function* (
 });
 
 function retryDelay(attempts: number, options: ResolvedInboxOptions): number {
-  return Math.min(
-    options.retryMaxMs,
-    options.retryBaseMs * 2 ** Math.max(0, attempts - 1),
-  );
+  return Math.min(options.retryMaxMs, options.retryBaseMs * 2 ** Math.max(0, attempts - 1));
 }
 
 function failedSettlement(
@@ -139,35 +137,43 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             doneAgeMs: doneRetentionMs,
           });
           const settle = (updateId: number, outcome: InboxSettlement) =>
-            store.settle({
-              botId: bot.id,
-              fencingToken: token,
-              outcome,
-              updateId,
-            }).pipe(
-              Effect.tap(() => recordSettlement("inbox", outcome)),
-              Effect.tap(() => wake.signal),
-            );
+            store
+              .settle({
+                botId: bot.id,
+                fencingToken: token,
+                outcome,
+                updateId,
+              })
+              .pipe(
+                Effect.tap(() => recordSettlement("inbox", outcome)),
+                Effect.tap(() => wake.signal),
+              );
           const claimed = new Map<number, { readonly attempts: number }>();
-          const trackedHandler: UpdateHandler<InboxLeaseLost | InboxStoreError, void> = (update) => {
+          const trackedHandler: UpdateHandler<InboxLeaseLost | InboxStoreError, void> = (
+            update,
+          ) => {
             const item = claimed.get(update.updateId);
             if (item === undefined) return Effect.die(new Error("Claimed update is missing"));
             return Effect.result(handler(update)).pipe(
-              Effect.flatMap((result) => settle(
-                update.updateId,
-                Result.isSuccess(result)
-                  ? { _tag: "Done" }
-                  : failedSettlement(item.attempts, options, "attempts-exhausted"),
-              )),
+              Effect.flatMap((result) =>
+                settle(
+                  update.updateId,
+                  Result.isSuccess(result)
+                    ? { _tag: "Done" }
+                    : failedSettlement(item.attempts, options, "attempts-exhausted"),
+                ),
+              ),
               Effect.onInterrupt(() =>
                 settle(update.updateId, { _tag: "Interrupted" }).pipe(
                   Effect.catchTag("InboxLeaseLost", () => Effect.void),
                   Effect.catchTag("InboxStoreError", () => Effect.void),
-                )
+                ),
               ),
-              Effect.ensuring(Effect.sync(() => {
-                if (claimed.get(update.updateId) === item) claimed.delete(update.updateId);
-              })),
+              Effect.ensuring(
+                Effect.sync(() => {
+                  if (claimed.get(update.updateId) === item) claimed.delete(update.updateId);
+                }),
+              ),
             );
           };
           const dispatcher = yield* makeDispatcher(trackedHandler, {
@@ -177,56 +183,63 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             source: "inbox",
           });
 
-          const pump = Effect.forever(Effect.gen(function* () {
-            const available = yield* dispatcher.awaitCapacity;
-            const wakeVersion = wake.current();
-            const items = yield* store.claim({
-              botId: bot.id,
-              fencingToken: token,
-              limit: available,
-            });
-            if (items.length === 0) {
-              yield* wake.wait(wakeVersion);
-              return;
-            }
-            for (const item of items) {
-              if (item.attempts > maxAttempts) {
-                yield* settle(item.updateId, {
-                  _tag: "Parked",
-                  reason: "attempts-exhausted",
-                });
-                continue;
-              }
-              const decoded = yield* Effect.result(Schema.decodeUnknownEffect(Update)(item.payload));
-              if (Result.isFailure(decoded)) {
-                yield* settle(item.updateId, {
-                  _tag: "Parked",
-                  reason: "invalid-update",
-                });
-                continue;
-              }
-              claimed.set(item.updateId, { attempts: item.attempts });
-              yield* dispatcher.submit(decoded.success, item.conversationKey).pipe(
-                Effect.orDie,
-                Effect.asVoid,
-              );
-            }
-          }));
-          const heartbeat = Effect.forever(
-            Effect.sleep(leaseMs / 3).pipe(
-              Effect.andThen(store.renew({
+          const pump = Effect.forever(
+            Effect.gen(function* () {
+              const available = yield* dispatcher.awaitCapacity;
+              const wakeVersion = wake.current();
+              const items = yield* store.claim({
                 botId: bot.id,
                 fencingToken: token,
-                leaseMs,
-              })),
+                limit: available,
+              });
+              if (items.length === 0) {
+                yield* wake.wait(wakeVersion);
+                return;
+              }
+              for (const item of items) {
+                if (item.attempts > maxAttempts) {
+                  yield* settle(item.updateId, {
+                    _tag: "Parked",
+                    reason: "attempts-exhausted",
+                  });
+                  continue;
+                }
+                const decoded = yield* Effect.result(
+                  Schema.decodeUnknownEffect(Update)(item.payload),
+                );
+                if (Result.isFailure(decoded)) {
+                  yield* settle(item.updateId, {
+                    _tag: "Parked",
+                    reason: "invalid-update",
+                  });
+                  continue;
+                }
+                claimed.set(item.updateId, { attempts: item.attempts });
+                yield* dispatcher
+                  .submit(decoded.success, item.conversationKey)
+                  .pipe(Effect.orDie, Effect.asVoid);
+              }
+            }),
+          );
+          const heartbeat = Effect.forever(
+            Effect.sleep(leaseMs / 3).pipe(
+              Effect.andThen(
+                store.renew({
+                  botId: bot.id,
+                  fencingToken: token,
+                  leaseMs,
+                }),
+              ),
             ),
           );
           const maintenance = Effect.forever(
             Effect.sleep(3_600_000).pipe(
-              Effect.andThen(store.prune({
-                botId: bot.id,
-                doneAgeMs: doneRetentionMs,
-              })),
+              Effect.andThen(
+                store.prune({
+                  botId: bot.id,
+                  doneAgeMs: doneRetentionMs,
+                }),
+              ),
             ),
           );
 
@@ -237,28 +250,25 @@ export const runInboxWorker = Effect.fn("runInboxWorker")(function* <E>(
             Effect.onExit((exit) => {
               if (Exit.isFailure(exit)) {
                 const error = Cause.findError(exit.cause);
-                if (
-                  Result.isSuccess(error) &&
-                  error.success instanceof InboxLeaseLost
-                ) {
+                if (Result.isSuccess(error) && error.success instanceof InboxLeaseLost) {
                   return dispatcher.cancel;
                 }
               }
               return dispatcher.drain;
             }),
             Effect.ensuring(
-              store.release({ botId: bot.id, fencingToken: token }).pipe(
-                Effect.catchTag("InboxStoreError", (error) =>
-                  Effect.logError("Telegram inbox lease release failed").pipe(
-                    Effect.annotateLogs({ operation: error.operation }),
-                  )
+              store
+                .release({ botId: bot.id, fencingToken: token })
+                .pipe(
+                  Effect.catchTag("InboxStoreError", (error) =>
+                    Effect.logError("Telegram inbox lease release failed").pipe(
+                      Effect.annotateLogs({ operation: error.operation }),
+                    ),
+                  ),
                 ),
-              ),
             ),
           );
-        }).pipe(
-          Effect.catchTag("InboxLeaseLost", () => Effect.void),
-        );
+        }).pipe(Effect.catchTag("InboxLeaseLost", () => Effect.void));
       }),
     ),
   );
@@ -282,24 +292,26 @@ export const makeInboxWebhook = Effect.fn("makeInboxWebhook")(function* <E>(
 
   const receive = makeWebhookFetch(
     secretToken,
-    (update) => saveInboxUpdate(update, resolved, wake).pipe(
-      Effect.map((saved) => saved._tag === "Full" ? 503 : 200),
-      Effect.catchTag("InboxStoreError", (error) =>
-        Effect.logError("Telegram inbox save failed").pipe(
-          Effect.annotateLogs({ operation: error.operation }),
-          Effect.as(503),
-        )
+    (update) =>
+      saveInboxUpdate(update, resolved, wake).pipe(
+        Effect.map((saved) => (saved._tag === "Full" ? 503 : 200)),
+        Effect.catchTag("InboxStoreError", (error) =>
+          Effect.logError("Telegram inbox save failed").pipe(
+            Effect.annotateLogs({ operation: error.operation }),
+            Effect.as(503),
+          ),
+        ),
       ),
-    ),
     () => accepting,
   );
-  const fetch = (request: Request) => receive(request).pipe(
-    Effect.provideService(Bot, bot),
-    Effect.provideService(InboxStore, store),
-  );
+  const fetch = (request: Request) =>
+    receive(request).pipe(
+      Effect.provideService(Bot, bot),
+      Effect.provideService(InboxStore, store),
+    );
   const completed = Fiber.join(worker).pipe(
     Effect.catchCause((cause) =>
-      Cause.hasInterruptsOnly(cause) ? Effect.void : Effect.failCause(cause)
+      Cause.hasInterruptsOnly(cause) ? Effect.void : Effect.failCause(cause),
     ),
   );
   const stop = Effect.suspend(() => {

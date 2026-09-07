@@ -21,12 +21,14 @@ async function database() {
 test("SQLite conversations resume persisted state after reopening", async () => {
   const fixture = await database();
   const first = await SqliteConversations.open(fixture.path);
-  await Effect.runPromise(first.commit({
-    botId,
-    expected: "any",
-    scope,
-    next: { conversation: "order", state: { orderId: 73 }, step: "note" },
-  }));
+  await Effect.runPromise(
+    first.commit({
+      botId,
+      expected: "any",
+      scope,
+      next: { conversation: "order", state: { orderId: 73 }, step: "note" },
+    }),
+  );
   first.close();
   const reopened = await SqliteConversations.open(fixture.path);
 
@@ -49,25 +51,31 @@ test("SQLite conversations commit one competing version across connections", asy
   const second = await SqliteConversations.open(fixture.path);
 
   try {
-    await Effect.runPromise(first.commit({
-      botId,
-      expected: "any",
-      scope,
-      next: { conversation: "order", state: { value: 1 }, step: "choice" },
-    }));
+    await Effect.runPromise(
+      first.commit({
+        botId,
+        expected: "any",
+        scope,
+        next: { conversation: "order", state: { value: 1 }, step: "choice" },
+      }),
+    );
     const results = await Promise.all([
-      Effect.runPromise(first.commit({
-        botId,
-        expected: 1,
-        scope,
-        next: { conversation: "order", state: { value: 2 }, step: "done" },
-      })),
-      Effect.runPromise(second.commit({
-        botId,
-        expected: 1,
-        scope,
-        next: { conversation: "order", state: { value: 3 }, step: "done" },
-      })),
+      Effect.runPromise(
+        first.commit({
+          botId,
+          expected: 1,
+          scope,
+          next: { conversation: "order", state: { value: 2 }, step: "done" },
+        }),
+      ),
+      Effect.runPromise(
+        second.commit({
+          botId,
+          expected: 1,
+          scope,
+          next: { conversation: "order", state: { value: 3 }, step: "done" },
+        }),
+      ),
     ]);
     const current = await Effect.runPromise(first.load({ botId, scope }));
 
@@ -87,18 +95,22 @@ test("SQLite conversations replace and end active state atomically", async () =>
   const store = await SqliteConversations.open(fixture.path);
 
   try {
-    await Effect.runPromise(store.commit({
-      botId,
-      expected: "any",
-      scope,
-      next: { conversation: "first", state: {}, step: "start" },
-    }));
-    await Effect.runPromise(store.commit({
-      botId,
-      expected: "any",
-      scope,
-      next: { conversation: "second", state: { ready: true }, step: "ready" },
-    }));
+    await Effect.runPromise(
+      store.commit({
+        botId,
+        expected: "any",
+        scope,
+        next: { conversation: "first", state: {}, step: "start" },
+      }),
+    );
+    await Effect.runPromise(
+      store.commit({
+        botId,
+        expected: "any",
+        scope,
+        next: { conversation: "second", state: { ready: true }, step: "ready" },
+      }),
+    );
     const replaced = await Effect.runPromise(store.load({ botId, scope }));
     const ended = await Effect.runPromise(store.commit({ botId, expected: "any", scope }));
     const current = await Effect.runPromise(store.load({ botId, scope }));

@@ -4,10 +4,7 @@ import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const [root, testing] = await Promise.all([
-  import("telly"),
-  import("telly/testing"),
-]);
+const [root, testing] = await Promise.all([import("telly"), import("telly/testing")]);
 
 if (!root.Application || !root.Bot || !root.BotApiError || !root.Filter) {
   throw new Error("telly application exports are incomplete");
@@ -25,18 +22,21 @@ if (!root.Message || !root.Chat || !root.User) {
   throw new Error("telly type exports are incomplete");
 }
 if (
-  !root.messageEntities || !root.messageMedia || !root.messageReply || !root.messageSender ||
-  !root.messageText || !root.updateContext
+  !root.messageEntities ||
+  !root.messageMedia ||
+  !root.messageReply ||
+  !root.messageSender ||
+  !root.messageText ||
+  !root.updateContext
 ) {
   throw new Error("telly message helper exports are incomplete");
 }
 if (!root.answerCallback || !root.callbackTarget || !root.html || !root.markdownV2) {
   throw new Error("telly callback and formatting helper exports are incomplete");
 }
-const overrides = JSON.parse(readFileSync(
-  new URL("../bot-api/schema/overrides.json", import.meta.url),
-  "utf8",
-));
+const overrides = JSON.parse(
+  readFileSync(new URL("../bot-api/schema/overrides.json", import.meta.url), "utf8"),
+);
 for (const method of Object.keys(overrides.methods)) {
   if (typeof root[method] !== "function") {
     throw new Error(`telly root does not export ${method}`);
@@ -62,16 +62,20 @@ const message = await Effect.runPromise(
 if (message.messageId !== 41 || message.chat.id !== 29 || message.text !== "node-smoke") {
   throw new Error("sendMessage failed under Node.js");
 }
-fake.enqueue(testing.FakeBotApiReply.ok({
-  chat: { id: 61, type: "private" },
-  date: 1_700_000_000,
-  message_id: 109,
-}));
+fake.enqueue(
+  testing.FakeBotApiReply.ok({
+    chat: { id: 61, type: "private" },
+    date: 1_700_000_000,
+    message_id: 109,
+  }),
+);
 const photoMessage = await Effect.runPromise(
-  root.sendPhoto({
-    chatId: 61,
-    photo: new File([new Uint8Array([1, 0, 9])], "node.png", { type: "image/png" }),
-  }).pipe(Effect.provide(bot)),
+  root
+    .sendPhoto({
+      chatId: 61,
+      photo: new File([new Uint8Array([1, 0, 9])], "node.png", { type: "image/png" }),
+    })
+    .pipe(Effect.provide(bot)),
 );
 if (photoMessage.messageId !== 109 || fake.requests.at(-1)?.contentType !== "multipart/form-data") {
   throw new Error("sendPhoto multipart failed under Node.js");
@@ -86,9 +90,7 @@ const invalidBot = root.Bot.layer({ token: Redacted.make(token) }).pipe(
 );
 const invalidResult = await Effect.runPromise(
   Effect.flip(
-    root.sendMessage({ chatId: 31, text: "invalid-result" }).pipe(
-      Effect.provide(invalidBot),
-    ),
+    root.sendMessage({ chatId: 31, text: "invalid-result" }).pipe(Effect.provide(invalidBot)),
   ),
 );
 if (!(invalidResult instanceof root.BotApiError)) {
@@ -133,23 +135,27 @@ const sqliteDirectory = mkdtempSync(join(tmpdir(), "telly-node-sqlite."));
 const sqlitePath = join(sqliteDirectory, "inbox.db");
 let sqliteInbox = await root.SqliteInbox.open(sqlitePath);
 try {
-  const saved = await Effect.runPromise(sqliteInbox.save({
-    botId: 123456,
-    capacity: 10,
-    conversationKey: "chat:node",
-    payload: { update_id: 501 },
-    updateId: 501,
-  }));
+  const saved = await Effect.runPromise(
+    sqliteInbox.save({
+      botId: 123456,
+      capacity: 10,
+      conversationKey: "chat:node",
+      payload: { update_id: 501 },
+      updateId: 501,
+    }),
+  );
   if (saved._tag !== "Stored") throw new Error("Node SQLite inbox did not save");
   sqliteInbox.close();
   sqliteInbox = await root.SqliteInbox.open(sqlitePath);
   const lease = await Effect.runPromise(sqliteInbox.acquire({ botId: 123456, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Node SQLite inbox lease was not acquired");
-  const claimed = await Effect.runPromise(sqliteInbox.claim({
-    botId: 123456,
-    fencingToken: lease.fencingToken,
-    limit: 1,
-  }));
+  const claimed = await Effect.runPromise(
+    sqliteInbox.claim({
+      botId: 123456,
+      fencingToken: lease.fencingToken,
+      limit: 1,
+    }),
+  );
   if (claimed[0]?.updateId !== 501) throw new Error("Node SQLite inbox did not replay");
 } finally {
   sqliteInbox.close();
@@ -158,16 +164,18 @@ try {
 const sqliteJobsPath = join(sqliteDirectory, "jobs.db");
 const sqliteJobs = await root.SqliteJobs.open(sqliteJobsPath);
 try {
-  const saved = await Effect.runPromise(sqliteJobs.save({
-    botId: 123456,
-    capacity: 10,
-    fingerprint: "node-job",
-    id: "node-job",
-    name: "reminder",
-    payload: { text: "persisted" },
-    runAtMs: 0,
-    schedule: { _tag: "Once" },
-  }));
+  const saved = await Effect.runPromise(
+    sqliteJobs.save({
+      botId: 123456,
+      capacity: 10,
+      fingerprint: "node-job",
+      id: "node-job",
+      name: "reminder",
+      payload: { text: "persisted" },
+      runAtMs: 0,
+      schedule: { _tag: "Once" },
+    }),
+  );
   if (saved._tag !== "Stored") throw new Error("Node SQLite jobs did not save");
 } finally {
   sqliteJobs.close();
@@ -176,16 +184,20 @@ try {
 const sqliteConversationsPath = join(sqliteDirectory, "conversations.db");
 const sqliteConversations = await root.SqliteConversations.open(sqliteConversationsPath);
 try {
-  const committed = await Effect.runPromise(sqliteConversations.commit({
-    botId: 123456,
-    expected: "any",
-    scope: "chat:1:user:2",
-    next: { conversation: "node", state: { step: 1 }, step: "active" },
-  }));
-  const loaded = await Effect.runPromise(sqliteConversations.load({
-    botId: 123456,
-    scope: "chat:1:user:2",
-  }));
+  const committed = await Effect.runPromise(
+    sqliteConversations.commit({
+      botId: 123456,
+      expected: "any",
+      scope: "chat:1:user:2",
+      next: { conversation: "node", state: { step: 1 }, step: "active" },
+    }),
+  );
+  const loaded = await Effect.runPromise(
+    sqliteConversations.load({
+      botId: 123456,
+      scope: "chat:1:user:2",
+    }),
+  );
   if (committed !== "Committed" || loaded?.version !== 1) {
     throw new Error("Node SQLite conversations did not persist");
   }

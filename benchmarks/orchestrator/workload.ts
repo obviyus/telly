@@ -183,12 +183,7 @@ export function expectedTotals(
     const entry = entries[index % entries.length];
     if (entry === undefined) throw new Error("Workload entry is missing");
     totals[entry.kind] += 1;
-    totals.checksum = foldChecksum(
-      totals.checksum,
-      entry.kind,
-      entry.payload,
-      entry.updateId,
-    );
+    totals.checksum = foldChecksum(totals.checksum, entry.kind, entry.payload, entry.updateId);
   }
   return totals;
 }

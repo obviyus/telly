@@ -1,8 +1,4 @@
-import type {
-  BenchmarkDocument,
-  FrameworkName,
-  FrameworkMetrics,
-} from "./model.ts";
+import type { BenchmarkDocument, FrameworkName, FrameworkMetrics } from "./model.ts";
 
 const frameworks: ReadonlyArray<FrameworkName> = [
   "telly",
@@ -36,26 +32,38 @@ function primaryRow(name: FrameworkName, metrics: FrameworkMetrics): string {
 }
 
 export function markdownReport(result: BenchmarkDocument, rawFile: string): string {
-  const winner = [...frameworks].sort((left, right) =>
-    result.primary[right].throughput.median - result.primary[left].throughput.median
-  )[0] ?? "unknown";
-  const routingRows = frameworks.map((name) =>
-    `| ${name} | ${integer(result.diagnostics.routing[name].median)} | ${percent(result.diagnostics.routing[name].coefficientOfVariation)} |`
-  ).join("\n");
-  const decodeRows = frameworks.map((name) => {
-    const metric = result.diagnostics.decode[name];
-    return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
-  }).join("\n");
-  const heavyDecodeRows = frameworks.map((name) => {
-    const metric = result.diagnostics.heavyDecode[name];
-    return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
-  }).join("\n");
-  const startupRows = frameworks.map((name) =>
-    `| ${name} | ${(result.startup[name].total.median / 1_000_000).toFixed(1)} | ${(result.startup[name].deltaNs / 1_000_000).toFixed(1)} |`
-  ).join("\n");
-  const packageRows = frameworks.map((name) =>
-    `| ${name} | ${packageMebibytes(result.packageBytes[name])} |`
-  ).join("\n");
+  const winner =
+    [...frameworks].sort(
+      (left, right) =>
+        result.primary[right].throughput.median - result.primary[left].throughput.median,
+    )[0] ?? "unknown";
+  const routingRows = frameworks
+    .map(
+      (name) =>
+        `| ${name} | ${integer(result.diagnostics.routing[name].median)} | ${percent(result.diagnostics.routing[name].coefficientOfVariation)} |`,
+    )
+    .join("\n");
+  const decodeRows = frameworks
+    .map((name) => {
+      const metric = result.diagnostics.decode[name];
+      return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
+    })
+    .join("\n");
+  const heavyDecodeRows = frameworks
+    .map((name) => {
+      const metric = result.diagnostics.heavyDecode[name];
+      return `| ${name} | ${metric === undefined ? "N/A" : integer(metric.median)} |`;
+    })
+    .join("\n");
+  const startupRows = frameworks
+    .map(
+      (name) =>
+        `| ${name} | ${(result.startup[name].total.median / 1_000_000).toFixed(1)} | ${(result.startup[name].deltaNs / 1_000_000).toFixed(1)} |`,
+    )
+    .join("\n");
+  const packageRows = frameworks
+    .map((name) => `| ${name} | ${packageMebibytes(result.packageBytes[name])} |`)
+    .join("\n");
   const quality = result.quality.publishable
     ? "✅ This run passed the noise checks."
     : `⚠️ Do not use this run for tight regression decisions:\n${result.quality.warnings.map((warning) => `- ${warning}`).join("\n")}`;
@@ -142,7 +150,7 @@ export function terminalReport(result: BenchmarkDocument): string {
   const maximum = Math.max(...frameworks.map((name) => result.primary[name].throughput.median));
   const rows = frameworks.map((name) => {
     const value = result.primary[name].throughput.median;
-    const blocks = Math.max(1, Math.round(value / maximum * 24));
+    const blocks = Math.max(1, Math.round((value / maximum) * 24));
     return `${name.padEnd(21)} ${"█".repeat(blocks).padEnd(24)} ${integer(value).padStart(12)} updates/s  CV ${percent(result.primary[name].throughput.coefficientOfVariation)}`;
   });
   return [
