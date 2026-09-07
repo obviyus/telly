@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    ".agents/**",
+    "**/*.md",
+    "**/*.generated.ts",
+    "benchmarks/baselines/**",
+    "benchmarks/results/**",
+    "bot-api/proofs/**",
+    "bot-api/schema/sources/**",
+    "bot-api/schema/coverage.json",
+    "runtime/proofs/**",
+    "skills-lock.json"
+  ],
+  "sortPackageJson": false
+}

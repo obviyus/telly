@@ -2,11 +2,7 @@ import { Application } from "./src/Application.js";
 import type { ApplicationOptions, Polling } from "./src/Application.js";
 import { Bot, BotApiError, retryUnknownOutcome } from "./src/BotApi.js";
 import type { BotApiOptions, MessageDefaults } from "./src/BotApi.js";
-import {
-  callbackData,
-  CallbackDataInvalid,
-  CallbackDataTooLong,
-} from "./src/CallbackData.js";
+import { callbackData, CallbackDataInvalid, CallbackDataTooLong } from "./src/CallbackData.js";
 import type { CallbackData, CallbackDataMatch } from "./src/CallbackData.js";
 import { answerCallback, callbackTarget } from "./src/CallbackQuery.js";
 import type { AnswerCallbackOptions, CallbackTarget } from "./src/CallbackQuery.js";

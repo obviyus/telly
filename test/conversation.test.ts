@@ -32,11 +32,13 @@ test("respond derives the complete conversation destination without quoting", as
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    const sent = await app.run(respond(sourceMessage(), {
-      disableNotification: true,
-      parseMode: "HTML",
-      text: "response",
-    }));
+    const sent = await app.run(
+      respond(sourceMessage(), {
+        disableNotification: true,
+        parseMode: "HTML",
+        text: "response",
+      }),
+    );
 
     expect(sent.text).toBe("response");
     expect(fake.requests[0]?.params).toEqual({
@@ -60,10 +62,12 @@ test("respondTo and replyTo compose with every generated send method", () => {
     directMessagesTopicId: 83,
     messageThreadId: 29,
   });
-  expect(replyTo(sourceMessage(), {
-    quote: "source",
-    quotePosition: 0,
-  })).toEqual({
+  expect(
+    replyTo(sourceMessage(), {
+      quote: "source",
+      quotePosition: 0,
+    }),
+  ).toEqual({
     businessConnectionId: "business-17",
     chatId: -1007001,
     directMessagesTopicId: 83,
@@ -137,11 +141,13 @@ test("generated methods keep only the target fields they support", async () => {
 });
 
 test("respondTo rejects an ephemeral message without its receiver", () => {
-  expect(() => respondTo({
-    chat: { id: 7006, type: "private" },
-    ephemeralMessageId: 57,
-    messageId: 0,
-  })).toThrow("Ephemeral message has no receiverUser");
+  expect(() =>
+    respondTo({
+      chat: { id: 7006, type: "private" },
+      ephemeralMessageId: 57,
+      messageId: 0,
+    }),
+  ).toThrow("Ephemeral message has no receiverUser");
 });
 
 test("reply quotes the triggering message", async () => {

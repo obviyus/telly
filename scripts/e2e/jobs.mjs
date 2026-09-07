@@ -46,29 +46,40 @@ try {
   void sutCompletion.catch(() => undefined);
   await waitForReady(sut, "Jobs bot");
 
-  await writeFile(scenarioPath, `${JSON.stringify({
-    actions: [{ atMs: 0, text: commandText, type: "send" }],
-  }, null, 2)}\n`);
-  recorder = spawn("uv", [
-    "run",
-    path.join(skillScripts, "user-record.py"),
-    "--scenario",
+  await writeFile(
     scenarioPath,
-    "--seconds",
-    "5",
-    "--record",
-    eventsPath,
-    "--output",
-    summaryPath,
-    "--chat",
-    `@${credential.sutUsername}`,
-    "--sut-user-id",
-    credential.sutBotId,
-  ], {
-    cwd: repoRoot,
-    env: { ...process.env, ...credential.driverEnv },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+    `${JSON.stringify(
+      {
+        actions: [{ atMs: 0, text: commandText, type: "send" }],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  recorder = spawn(
+    "uv",
+    [
+      "run",
+      path.join(skillScripts, "user-record.py"),
+      "--scenario",
+      scenarioPath,
+      "--seconds",
+      "5",
+      "--record",
+      eventsPath,
+      "--output",
+      summaryPath,
+      "--chat",
+      `@${credential.sutUsername}`,
+      "--sut-user-id",
+      credential.sutBotId,
+    ],
+    {
+      cwd: repoRoot,
+      env: { ...process.env, ...credential.driverEnv },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
   await waitForChild(recorder, "Telegram recorder");
   recorder = undefined;
   credential.assertLeaseHealthy();

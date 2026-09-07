@@ -30,12 +30,7 @@ import {
   verifyChat,
   verifyUser,
 } from "../../index.ts";
-import {
-  openTelegramTestHarness,
-  repoRoot,
-  skillScripts,
-  writeMethodProof,
-} from "./harness.mjs";
+import { openTelegramTestHarness, repoRoot, skillScripts, writeMethodProof } from "./harness.mjs";
 
 const run = promisify(execFileCallback);
 const botfather = path.join(skillScripts, "botfather-fixtures.py");
@@ -112,9 +107,7 @@ async function ensureBotModes() {
     throw new Error("BotFather MiniApp failed to open");
   }
   let bots = await snapshot();
-  let botLine = bots
-    .split(/\r?\n/u)
-    .find((line) => line.includes(`@${credential.sutUsername}`));
+  let botLine = bots.split(/\r?\n/u).find((line) => line.includes(`@${credential.sutUsername}`));
   if (botLine === undefined) {
     const searchRef = bots.match(/searchbox "Search" \[ref=(e\d+)\]/u)?.[1];
     if (searchRef === undefined) throw new Error("BotFather did not show bot search");
@@ -125,9 +118,7 @@ async function ensureBotModes() {
     }
     for (let attempt = 0; attempt < 50 && botLine === undefined; attempt += 1) {
       bots = await snapshot();
-      botLine = bots
-        .split(/\r?\n/u)
-        .find((line) => line.includes(`@${credential.sutUsername}`));
+      botLine = bots.split(/\r?\n/u).find((line) => line.includes(`@${credential.sutUsername}`));
       if (botLine === undefined) await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
@@ -161,13 +152,7 @@ async function editStoryWhenReady(operation) {
 }
 
 async function readBusinessState() {
-  await run("uv", [
-    "run",
-    entitlements,
-    "business-account-state",
-    "--output",
-    businessStateFile,
-  ], {
+  await run("uv", ["run", entitlements, "business-account-state", "--output", businessStateFile], {
     cwd: repoRoot,
     env: { ...process.env, ...credential.driverEnv },
     timeout: 60_000,
@@ -178,21 +163,27 @@ async function readBusinessState() {
 async function restoreBusinessAccount() {
   if (businessConnectionId === undefined || originalBusinessState === undefined) return;
   const state = originalBusinessState;
-  await app.run(setBusinessAccountBio({
-    bio: state.bio,
-    businessConnectionId,
-  }));
-  await app.run(setBusinessAccountName({
-    businessConnectionId,
-    firstName: state.firstName,
-    lastName: state.lastName,
-  }));
-  if (giftSettingsChanged) {
-    await app.run(setBusinessAccountGiftSettings({
-      acceptedGiftTypes: state.acceptedGiftTypes,
+  await app.run(
+    setBusinessAccountBio({
+      bio: state.bio,
       businessConnectionId,
-      showGiftButton: state.showGiftButton,
-    }));
+    }),
+  );
+  await app.run(
+    setBusinessAccountName({
+      businessConnectionId,
+      firstName: state.firstName,
+      lastName: state.lastName,
+    }),
+  );
+  if (giftSettingsChanged) {
+    await app.run(
+      setBusinessAccountGiftSettings({
+        acceptedGiftTypes: state.acceptedGiftTypes,
+        businessConnectionId,
+        showGiftButton: state.showGiftButton,
+      }),
+    );
     giftSettingsChanged = false;
   }
   originalBusinessState = undefined;
@@ -214,12 +205,15 @@ try {
       timeout: 60_000,
     });
     const setup = JSON.parse(businessSetup.stdout);
-    if (setup.confirmed !== true) throw new Error("Telegram business connection stayed unconfirmed");
-    const updates = await app.run(getUpdates({
-      allowedUpdates: ["business_connection"],
-      offset,
-      timeout: 50,
-    }));
+    if (setup.confirmed !== true)
+      throw new Error("Telegram business connection stayed unconfirmed");
+    const updates = await app.run(
+      getUpdates({
+        allowedUpdates: ["business_connection"],
+        offset,
+        timeout: 50,
+      }),
+    );
     connection = updates
       .filter((update) => update.businessConnection !== undefined)
       .at(-1)?.businessConnection;
@@ -229,57 +223,73 @@ try {
   if (!fetched.isEnabled) throw new Error("Telly returned a disabled business connection");
   businessConnectionId = connection.id;
   originalBusinessState = await readBusinessState();
-  const proofs = [await writeProof("getBusinessConnection", {
-    canConnectToBusiness: bot.canConnectToBusiness,
-    canManageBots: bot.canManageBots,
-    isEnabled: fetched.isEnabled,
-  })];
+  const proofs = [
+    await writeProof("getBusinessConnection", {
+      canConnectToBusiness: bot.canConnectToBusiness,
+      canManageBots: bot.canManageBots,
+      isEnabled: fetched.isEnabled,
+    }),
+  ];
   const failures = [];
   const balance = await app.run(getBusinessAccountStarBalance({ businessConnectionId }));
-  proofs.push(await writeProof("getBusinessAccountStarBalance", {
-    amountIsNonnegative: balance.amount >= 0,
-  }));
+  proofs.push(
+    await writeProof("getBusinessAccountStarBalance", {
+      amountIsNonnegative: balance.amount >= 0,
+    }),
+  );
   const gifts = await app.run(getBusinessAccountGifts({ businessConnectionId, limit: 1 }));
-  proofs.push(await writeProof("getBusinessAccountGifts", {
-    resultCount: gifts.gifts.length,
-    totalCount: gifts.totalCount,
-  }));
+  proofs.push(
+    await writeProof("getBusinessAccountGifts", {
+      resultCount: gifts.gifts.length,
+      totalCount: gifts.totalCount,
+    }),
+  );
 
   const proofBio = `Telly business proof ${crypto.randomUUID().slice(0, 8)}`;
-  const bioResult = await app.run(setBusinessAccountBio({
-    bio: proofBio,
-    businessConnectionId,
-  }));
+  const bioResult = await app.run(
+    setBusinessAccountBio({
+      bio: proofBio,
+      businessConnectionId,
+    }),
+  );
   proofs.push(await writeProof("setBusinessAccountBio", { accepted: true, result: bioResult }));
   await app.run(setBusinessAccountBio({ bio: originalBusinessState.bio, businessConnectionId }));
 
-  const nameResult = await app.run(setBusinessAccountName({
-    businessConnectionId,
-    firstName: "Telly Business",
-    lastName: "Proof",
-  }));
+  const nameResult = await app.run(
+    setBusinessAccountName({
+      businessConnectionId,
+      firstName: "Telly Business",
+      lastName: "Proof",
+    }),
+  );
   proofs.push(await writeProof("setBusinessAccountName", { accepted: true, result: nameResult }));
-  await app.run(setBusinessAccountName({
-    businessConnectionId,
-    firstName: originalBusinessState.firstName,
-    lastName: originalBusinessState.lastName,
-  }));
+  await app.run(
+    setBusinessAccountName({
+      businessConnectionId,
+      firstName: originalBusinessState.firstName,
+      lastName: originalBusinessState.lastName,
+    }),
+  );
 
   const acceptedGiftTypes = {
     ...originalBusinessState.acceptedGiftTypes,
     unlimitedGifts: !originalBusinessState.acceptedGiftTypes.unlimitedGifts,
   };
   try {
-    const giftsResult = await app.run(setBusinessAccountGiftSettings({
-      acceptedGiftTypes,
-      businessConnectionId,
-      showGiftButton: originalBusinessState.showGiftButton,
-    }));
+    const giftsResult = await app.run(
+      setBusinessAccountGiftSettings({
+        acceptedGiftTypes,
+        businessConnectionId,
+        showGiftButton: originalBusinessState.showGiftButton,
+      }),
+    );
     giftSettingsChanged = true;
-    proofs.push(await writeProof("setBusinessAccountGiftSettings", {
-      accepted: true,
-      result: giftsResult,
-    }));
+    proofs.push(
+      await writeProof("setBusinessAccountGiftSettings", {
+        accepted: true,
+        result: giftsResult,
+      }),
+    );
   } catch (error) {
     failures.push({
       method: "setBusinessAccountGiftSettings",
@@ -289,10 +299,12 @@ try {
 
   const proofUsername = `tellyqa${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;
   try {
-    const result = await app.run(setBusinessAccountUsername({
-      businessConnectionId,
-      username: proofUsername,
-    }));
+    const result = await app.run(
+      setBusinessAccountUsername({
+        businessConnectionId,
+        username: proofUsername,
+      }),
+    );
     proofs.push(await writeProof("setBusinessAccountUsername", { accepted: true, result }));
   } catch (error) {
     failures.push({
@@ -300,10 +312,14 @@ try {
       error: error instanceof Error ? error.message : String(error),
     });
   } finally {
-    await app.run(setBusinessAccountUsername({
-      businessConnectionId,
-      username: originalBusinessState.username,
-    })).catch(() => {});
+    await app
+      .run(
+        setBusinessAccountUsername({
+          businessConnectionId,
+          username: originalBusinessState.username,
+        }),
+      )
+      .catch(() => {});
   }
 
   const profilePath = path.join(scratch, "business-profile.jpg");
@@ -321,15 +337,17 @@ try {
   ]);
   let profileSet = false;
   try {
-    const result = await app.run(setBusinessAccountProfilePhoto({
-      businessConnectionId,
-      photo: {
-        photo: new File([await readFile(profilePath)], "business-profile.jpg", {
-          type: "image/jpeg",
-        }),
-        type: "static",
-      },
-    }));
+    const result = await app.run(
+      setBusinessAccountProfilePhoto({
+        businessConnectionId,
+        photo: {
+          photo: new File([await readFile(profilePath)], "business-profile.jpg", {
+            type: "image/jpeg",
+          }),
+          type: "static",
+        },
+      }),
+    );
     profileSet = true;
     proofs.push(await writeProof("setBusinessAccountProfilePhoto", { accepted: true, result }));
     const removed = await app.run(removeBusinessAccountProfilePhoto({ businessConnectionId }));
@@ -350,40 +368,60 @@ try {
   const storyAfterPath = path.join(scratch, "story-after.jpg");
   await Promise.all([
     run("ffmpeg", [
-      "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
-      "color=c=orange:s=1080x1920:d=0.1", "-frames:v", "1", storyBeforePath,
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=orange:s=1080x1920:d=0.1",
+      "-frames:v",
+      "1",
+      storyBeforePath,
     ]),
     run("ffmpeg", [
-      "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
-      "color=c=green:s=1080x1920:d=0.1", "-frames:v", "1", storyAfterPath,
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=green:s=1080x1920:d=0.1",
+      "-frames:v",
+      "1",
+      storyAfterPath,
     ]),
   ]);
   let storyId;
   try {
-    const story = await app.run(postStory({
-      activePeriod: 6 * 3_600,
-      businessConnectionId,
-      caption: "Telly story proof",
-      content: {
-        photo: new File([await readFile(storyBeforePath)], "story-before.jpg", {
-          type: "image/jpeg",
-        }),
-        type: "photo",
-      },
-    }));
+    const story = await app.run(
+      postStory({
+        activePeriod: 6 * 3_600,
+        businessConnectionId,
+        caption: "Telly story proof",
+        content: {
+          photo: new File([await readFile(storyBeforePath)], "story-before.jpg", {
+            type: "image/jpeg",
+          }),
+          type: "photo",
+        },
+      }),
+    );
     storyId = story.id;
     proofs.push(await writeProof("postStory", { storyCreated: story.id > 0 }));
-    const edited = await editStoryWhenReady(editStory({
-      businessConnectionId,
-      caption: "Telly story edited",
-      content: {
-        photo: new File([await readFile(storyAfterPath)], "story-after.jpg", {
-          type: "image/jpeg",
-        }),
-        type: "photo",
-      },
-      storyId,
-    }));
+    const edited = await editStoryWhenReady(
+      editStory({
+        businessConnectionId,
+        caption: "Telly story edited",
+        content: {
+          photo: new File([await readFile(storyAfterPath)], "story-after.jpg", {
+            type: "image/jpeg",
+          }),
+          type: "photo",
+        },
+        storyId,
+      }),
+    );
     proofs.push(await writeProof("editStory", { sameStory: edited.id === storyId }));
     const deleted = await app.run(deleteStory({ businessConnectionId, storyId }));
     storyId = undefined;
@@ -412,9 +450,11 @@ try {
     const verifiedChat = await app.run(verifyChat({ chatId: `@${credential.sutUsername}` }));
     chatVerified = true;
     proofs.push(await writeProof("verifyChat", { result: verifiedChat }));
-    const removedChat = await app.run(removeChatVerification({
-      chatId: `@${credential.sutUsername}`,
-    }));
+    const removedChat = await app.run(
+      removeChatVerification({
+        chatId: `@${credential.sutUsername}`,
+      }),
+    );
     chatVerified = false;
     proofs.push(await writeProof("removeChatVerification", { result: removedChat }));
   } catch (error) {
@@ -427,9 +467,13 @@ try {
       await app.run(removeUserVerification({ userId: testerUserId })).catch(() => {});
     }
     if (chatVerified) {
-      await app.run(removeChatVerification({
-        chatId: `@${credential.sutUsername}`,
-      })).catch(() => {});
+      await app
+        .run(
+          removeChatVerification({
+            chatId: `@${credential.sutUsername}`,
+          }),
+        )
+        .catch(() => {});
     }
   }
 
@@ -447,28 +491,36 @@ try {
       proofs.push(await writeProof("getManagedBotToken", { redacted: true }));
 
       const access = await app.run(getManagedBotAccessSettings({ userId: managedBotId }));
-      proofs.push(await writeProof("getManagedBotAccessSettings", {
-        isAccessRestricted: access.isAccessRestricted,
-      }));
+      proofs.push(
+        await writeProof("getManagedBotAccessSettings", {
+          isAccessRestricted: access.isAccessRestricted,
+        }),
+      );
       const isAccessRestricted = !access.isAccessRestricted;
-      const accessResult = await app.run(setManagedBotAccessSettings({
-        addedUserIds: [],
-        isAccessRestricted,
-        userId: managedBotId,
-      }));
+      const accessResult = await app.run(
+        setManagedBotAccessSettings({
+          addedUserIds: [],
+          isAccessRestricted,
+          userId: managedBotId,
+        }),
+      );
       const changedAccess = await app.run(getManagedBotAccessSettings({ userId: managedBotId }));
       if (changedAccess.isAccessRestricted !== isAccessRestricted) {
         throw new Error("Managed bot access setting did not change");
       }
-      proofs.push(await writeProof("setManagedBotAccessSettings", {
-        changed: true,
-        result: accessResult,
-      }));
-      await app.run(setManagedBotAccessSettings({
-        addedUserIds: access.addedUsers?.map((user) => user.id) ?? [],
-        isAccessRestricted: access.isAccessRestricted,
-        userId: managedBotId,
-      }));
+      proofs.push(
+        await writeProof("setManagedBotAccessSettings", {
+          changed: true,
+          result: accessResult,
+        }),
+      );
+      await app.run(
+        setManagedBotAccessSettings({
+          addedUserIds: access.addedUsers?.map((user) => user.id) ?? [],
+          isAccessRestricted: access.isAccessRestricted,
+          userId: managedBotId,
+        }),
+      );
 
       const replacement = await app.run(replaceManagedBotToken({ userId: managedBotId }));
       if (!Redacted.isRedacted(replacement)) {

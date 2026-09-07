@@ -160,60 +160,48 @@ export function trackBotApiRequest<A>(
       Effect.onExit((exit) => {
         const outcome = botApiOutcome(exit);
         const durationMs = Number(clock.currentTimeNanosUnsafe() - startedAt) / 1_000_000;
-        const requestCounter = cached(
-          requestCounters,
-          `${method}:${outcome}`,
-          () => Metric.withAttributes(botApiRequestTotal, { method, outcome }),
+        const requestCounter = cached(requestCounters, `${method}:${outcome}`, () =>
+          Metric.withAttributes(botApiRequestTotal, { method, outcome }),
         );
-        const duration = cached(
-          requestDurations,
-          method,
-          () => Metric.withAttributes(botApiRequestDuration, { method }),
+        const duration = cached(requestDurations, method, () =>
+          Metric.withAttributes(botApiRequestDuration, { method }),
         );
-        return Effect.all([
-          Metric.update(requestCounter, 1),
-          Metric.update(duration, durationMs),
-          Effect.annotateCurrentSpan({ "telegram.outcome": outcome }),
-        ], { discard: true });
+        return Effect.all(
+          [
+            Metric.update(requestCounter, 1),
+            Metric.update(duration, durationMs),
+            Effect.annotateCurrentSpan({ "telegram.outcome": outcome }),
+          ],
+          { discard: true },
+        );
       }),
     );
   });
 }
 
 export function recordBotApiDelay(reason: "rate_limit" | "retry", delayMs: number) {
-  const count = cached(
-    delayCounters,
-    reason,
-    () => Metric.withAttributes(botApiDelayTotal, { reason }),
+  const count = cached(delayCounters, reason, () =>
+    Metric.withAttributes(botApiDelayTotal, { reason }),
   );
-  const duration = cached(
-    delayDurations,
-    reason,
-    () => Metric.withAttributes(botApiDelayMsTotal, { reason }),
+  const duration = cached(delayDurations, reason, () =>
+    Metric.withAttributes(botApiDelayMsTotal, { reason }),
   );
-  return Effect.all([
-    Metric.update(count, 1),
-    Metric.update(duration, delayMs),
-  ], { discard: true });
+  return Effect.all([Metric.update(count, 1), Metric.update(duration, delayMs)], { discard: true });
 }
 
 export function trackDispatch<A, E, R>(
   source: DispatchSource,
   effect: Effect.Effect<A, E, R>,
 ): Effect.Effect<A, E, R> {
-  const active = cached(
-    activeGauges,
-    source,
-    () => Metric.withAttributes(dispatchActive, { source }),
+  const active = cached(activeGauges, source, () =>
+    Metric.withAttributes(dispatchActive, { source }),
   );
   return Metric.modify(active, 1).pipe(
     Effect.andThen(effect),
     Effect.onExit((exit) => {
       const outcome = dispatchOutcome(exit);
-      const settled = cached(
-        settledCounters,
-        `${source}:${outcome}`,
-        () => Metric.withAttributes(dispatchSettledTotal, { outcome, source }),
+      const settled = cached(settledCounters, `${source}:${outcome}`, () =>
+        Metric.withAttributes(dispatchSettledTotal, { outcome, source }),
       );
       return Metric.update(settled, 1);
     }),
@@ -222,20 +210,16 @@ export function trackDispatch<A, E, R>(
 }
 
 export function recordDispatchRejected(source: DispatchSource) {
-  const counter = cached(
-    rejectedCounters,
-    source,
-    () => Metric.withAttributes(dispatchRejectedTotal, { source }),
+  const counter = cached(rejectedCounters, source, () =>
+    Metric.withAttributes(dispatchRejectedTotal, { source }),
   );
   return Metric.update(counter, 1);
 }
 
 export function recordWebhookRequest(status: number) {
   const result = webhookResult(status);
-  const counter = cached(
-    webhookCounters,
-    result,
-    () => Metric.withAttributes(webhookRequestTotal, { result }),
+  const counter = cached(webhookCounters, result, () =>
+    Metric.withAttributes(webhookRequestTotal, { result }),
   );
   return Metric.update(counter, 1).pipe(
     Effect.andThen(Effect.annotateCurrentSpan({ "telegram.webhook.result": result })),
@@ -244,25 +228,18 @@ export function recordWebhookRequest(status: number) {
 
 export function recordInboxSave(result: "Duplicate" | "Full" | "Stored") {
   const normalized = result.toLowerCase();
-  const counter = cached(
-    inboxSaveCounters,
-    normalized,
-    () => Metric.withAttributes(inboxSaveTotal, { result: normalized }),
+  const counter = cached(inboxSaveCounters, normalized, () =>
+    Metric.withAttributes(inboxSaveTotal, { result: normalized }),
   );
   return Metric.update(counter, 1).pipe(
     Effect.andThen(Effect.annotateCurrentSpan({ "telly.inbox.save_result": normalized })),
   );
 }
 
-export function recordSettlement(
-  store: SettlementStore,
-  settlement: DurableSettlement,
-) {
+export function recordSettlement(store: SettlementStore, settlement: DurableSettlement) {
   const outcome = settlementOutcome(settlement);
-  const counter = cached(
-    settlementCounters,
-    `${store}:${outcome}`,
-    () => Metric.withAttributes(settlementTotal, { outcome, store }),
+  const counter = cached(settlementCounters, `${store}:${outcome}`, () =>
+    Metric.withAttributes(settlementTotal, { outcome, store }),
   );
   return Metric.update(counter, 1).pipe(
     Effect.andThen(

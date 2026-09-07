@@ -336,7 +336,20 @@ Bots keep their Telegram behavior in `bot.ts`; the ones that need process setup 
 
 ## Runtimes and tooling
 
-Development uses Bun 1.4, pinned in `package.json`. The built artifact runs on Node.js 22 or newer without Bun — `bun run check` typechecks, runs the test suite, verifies the schema, and smoke-tests the build on Node. Runtime code sticks to Web platform primitives: `fetch`, `Request`, `Response`, `FormData`, `Blob`, `ReadableStream`, `AbortSignal`.
+Development uses Bun 1.4, pinned in `package.json`. Oxfmt formats source and configuration files, Oxlint with tsgolint runs type-aware lint rules, and TypeScript 7 checks types. The existing Bun build produces artifacts that run on Node.js 22 or newer without Bun. The Oxc command-line tools support Node.js 20.19 or newer in the 20.x series, or Node.js 22.12 or newer.
+
+| Command | Purpose |
+| --- | --- |
+| `bun run format` | Format maintained source and configuration files |
+| `bun run format:check` | Check formatting without writing files |
+| `bun run lint` | Run type-aware linting; warnings fail the check |
+| `bun run lint:fix` | Apply safe lint fixes |
+| `bun run typecheck` | Check runtime, test, example, and benchmark types |
+| `bun run check` | Run formatting, linting, types, tests, schema checks, and the Node build smoke test |
+
+Generated code, source snapshots, proof artifacts, benchmark results, imported skills, and Markdown stay outside the formatter. Generated code remains covered by typechecking and the schema generator check. Lint exceptions preserve compile-only assertions, Bun's asynchronous test matchers, deliberate redaction checks, and benchmark array allocation. The spread rule allows generated `Message` and `Update` interfaces because they describe plain data, not class instances.
+
+Runtime code sticks to Web platform primitives: `fetch`, `Request`, `Response`, `FormData`, `Blob`, `ReadableStream`, `AbortSignal`.
 
 ## Go deeper
 

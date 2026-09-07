@@ -25,28 +25,24 @@ function save(
   id: string,
   options: { readonly capacity?: number; readonly fingerprint?: string } = {},
 ) {
-  return Effect.runPromise(store.save({
-    botId,
-    capacity: options.capacity ?? 100,
-    fingerprint: options.fingerprint ?? `fingerprint:${id}`,
-    id,
-    name: "reminder",
-    payload: { chatId: 77, text: id },
-    runAtMs: 0,
-    schedule: { _tag: "Once" },
-  }));
+  return Effect.runPromise(
+    store.save({
+      botId,
+      capacity: options.capacity ?? 100,
+      fingerprint: options.fingerprint ?? `fingerprint:${id}`,
+      id,
+      name: "reminder",
+      payload: { chatId: 77, text: id },
+      runAtMs: 0,
+      schedule: { _tag: "Once" },
+    }),
+  );
 }
 
 async function claimInProcess(path: string, fencingToken: number) {
   const child = spawn(
     "bun",
-    [
-      "run",
-      "./test/fixtures/sqlite-jobs-worker.mjs",
-      path,
-      String(botId),
-      String(fencingToken),
-    ],
+    ["run", "./test/fixtures/sqlite-jobs-worker.mjs", path, String(botId), String(fencingToken)],
     { cwd: new URL("..", import.meta.url), stdio: ["ignore", "pipe", "pipe"] },
   );
   let stdout = "";
@@ -74,19 +70,23 @@ test("SQLite jobs persist scheduled work across reopening the database", async (
   try {
     const lease = await Effect.runPromise(reopened.acquire({ botId, leaseMs: 30_000 }));
     if (lease._tag !== "Acquired") throw new Error("Expected job lease");
-    const claimed = await Effect.runPromise(reopened.claim({
-      botId,
-      fencingToken: lease.fencingToken,
-      limit: 1,
-    }));
+    const claimed = await Effect.runPromise(
+      reopened.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 1,
+      }),
+    );
 
-    expect(claimed).toEqual([{
-      attempts: 1,
-      id: "persistent",
-      name: "reminder",
-      payload: { chatId: 77, text: "persistent" },
-      scheduledTimeMs: 0,
-    }]);
+    expect(claimed).toEqual([
+      {
+        attempts: 1,
+        id: "persistent",
+        name: "reminder",
+        payload: { chatId: 77, text: "persistent" },
+        scheduledTimeMs: 0,
+      },
+    ]);
   } finally {
     reopened.close();
     await fixture.close();
@@ -153,18 +153,24 @@ test("SQLite jobs fence former workers and reclaim unfinished work", async () =>
     await Effect.runPromise(store.release({ botId, fencingToken: first.fencingToken }));
     const second = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (second._tag !== "Acquired") throw new Error("Expected second job lease");
-    const reclaimed = await Effect.runPromise(store.claim({
-      botId,
-      fencingToken: second.fencingToken,
-      limit: 1,
-    }));
+    const reclaimed = await Effect.runPromise(
+      store.claim({
+        botId,
+        fencingToken: second.fencingToken,
+        limit: 1,
+      }),
+    );
 
-    await expect(Effect.runPromise(store.settle({
-      botId,
-      fencingToken: first.fencingToken,
-      id: "reclaimed",
-      outcome: { _tag: "Done" },
-    }))).rejects.toBeInstanceOf(JobLeaseLost);
+    await expect(
+      Effect.runPromise(
+        store.settle({
+          botId,
+          fencingToken: first.fencingToken,
+          id: "reclaimed",
+          outcome: { _tag: "Done" },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(JobLeaseLost);
     expect(reclaimed).toMatchObject([{ attempts: 2, id: "reclaimed" }]);
   } finally {
     store.close();
@@ -184,23 +190,29 @@ test("SQLite jobs persist cancellation, interruption refunds, and done pruning",
     const lease = await Effect.runPromise(store.acquire({ botId, leaseMs: 30_000 }));
     if (lease._tag !== "Acquired") throw new Error("Expected job lease");
     await Effect.runPromise(store.claim({ botId, fencingToken: lease.fencingToken, limit: 1 }));
-    await Effect.runPromise(store.settle({
-      botId,
-      fencingToken: lease.fencingToken,
-      id: "completed",
-      outcome: { _tag: "Interrupted" },
-    }));
-    const resumed = await Effect.runPromise(store.claim({
-      botId,
-      fencingToken: lease.fencingToken,
-      limit: 1,
-    }));
-    await Effect.runPromise(store.settle({
-      botId,
-      fencingToken: lease.fencingToken,
-      id: "completed",
-      outcome: { _tag: "Done" },
-    }));
+    await Effect.runPromise(
+      store.settle({
+        botId,
+        fencingToken: lease.fencingToken,
+        id: "completed",
+        outcome: { _tag: "Interrupted" },
+      }),
+    );
+    const resumed = await Effect.runPromise(
+      store.claim({
+        botId,
+        fencingToken: lease.fencingToken,
+        limit: 1,
+      }),
+    );
+    await Effect.runPromise(
+      store.settle({
+        botId,
+        fencingToken: lease.fencingToken,
+        id: "completed",
+        outcome: { _tag: "Done" },
+      }),
+    );
     await Effect.runPromise(store.prune({ botId, doneAgeMs: 0 }));
     const reused = await save(store, "completed", { fingerprint: "new" });
 

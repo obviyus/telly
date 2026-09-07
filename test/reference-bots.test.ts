@@ -1,11 +1,6 @@
 import { expect, test } from "bun:test";
 
-import {
-  Application,
-  MemoryConversations,
-  MemoryJobs,
-  type Update,
-} from "../index.ts";
+import { Application, MemoryConversations, MemoryJobs, type Update } from "../index.ts";
 import { beginnerBot } from "../examples/beginner/bot.ts";
 import { makeOrderBot } from "../examples/conversations/bot.ts";
 import { makeProductionBot } from "../examples/production/bot.ts";
@@ -107,9 +102,10 @@ test("interactive bot completes an order conversation", async () => {
     const inlineKeyboard = Reflect.get(replyMarkup, "inline_keyboard");
     const firstRow = Array.isArray(inlineKeyboard) ? inlineKeyboard[0] : undefined;
     const yesButton = Array.isArray(firstRow) ? firstRow[0] : undefined;
-    const callbackData = typeof yesButton === "object" && yesButton !== null
-      ? Reflect.get(yesButton, "callback_data")
-      : undefined;
+    const callbackData =
+      typeof yesButton === "object" && yesButton !== null
+        ? Reflect.get(yesButton, "callback_data")
+        : undefined;
     if (typeof callbackData !== "string") throw new Error("Yes button has no callback data");
     const confirmed: Update = {
       callbackQuery: {

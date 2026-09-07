@@ -26,67 +26,82 @@ function messageContext(message: Message): UpdateContext {
   };
 }
 
+function messageUpdateContext(update: Update): UpdateContext | undefined {
+  const message =
+    update.message ??
+    update.editedMessage ??
+    update.channelPost ??
+    update.editedChannelPost ??
+    update.businessMessage ??
+    update.editedBusinessMessage ??
+    update.guestMessage;
+  return message === undefined ? undefined : messageContext(message);
+}
+
+function directUserContext(update: Update): UpdateContext | undefined {
+  const directUser =
+    update.inlineQuery?.from ??
+    update.chosenInlineResult?.from ??
+    update.shippingQuery?.from ??
+    update.preCheckoutQuery?.from ??
+    update.purchasedPaidMedia?.from ??
+    update.businessConnection?.user ??
+    update.managedBot?.user ??
+    update.subscription?.user;
+  return directUser === undefined ? undefined : userContext(directUser);
+}
+
+function actorContext(user: User | undefined, chat?: Chat, actorChat?: Chat): UpdateContext {
+  const context = chat === undefined ? {} : { chat };
+  if (actorChat !== undefined) {
+    return { ...context, sender: { chat: actorChat, type: "chat" } };
+  }
+  return user === undefined ? context : userContext(user, chat);
+}
+
 /** Derives the chat, accessible message, acting sender, and user from any known update. */
 export function updateContext(update: Update): UpdateContext {
-  const message = update.message ?? update.editedMessage ?? update.channelPost ??
-    update.editedChannelPost ?? update.businessMessage ?? update.editedBusinessMessage ??
-    update.guestMessage;
-  if (message !== undefined) return messageContext(message);
+  const message = messageUpdateContext(update);
+  if (message !== undefined) return message;
 
   const callback = update.callbackQuery;
   if (callback !== undefined) {
     return {
-      ...(callback.message === undefined ? {} : { chat: callback.message.chat }),
+      ...userContext(callback.from, callback.message?.chat),
       ...(callback.message === undefined || callback.message.date === 0
         ? {}
         : { message: callback.message as Message }),
-      sender: { type: "user", user: callback.from },
-      user: callback.from,
     };
   }
 
-  const directUser = update.inlineQuery?.from ?? update.chosenInlineResult?.from ??
-    update.shippingQuery?.from ?? update.preCheckoutQuery?.from ??
-    update.purchasedPaidMedia?.from ?? update.businessConnection?.user ??
-    update.managedBot?.user ?? update.subscription?.user;
-  if (directUser !== undefined) return userContext(directUser);
+  const directUser = directUserContext(update);
+  if (directUser !== undefined) return directUser;
 
   const membership = update.myChatMember ?? update.chatMember ?? update.chatJoinRequest;
   if (membership !== undefined) return userContext(membership.from, membership.chat);
 
   const pollAnswer = update.pollAnswer;
   if (pollAnswer !== undefined) {
-    if (pollAnswer.voterChat !== undefined) {
-      return { sender: { chat: pollAnswer.voterChat, type: "chat" } };
-    }
-    return pollAnswer.user === undefined ? {} : userContext(pollAnswer.user);
+    return actorContext(pollAnswer.user, undefined, pollAnswer.voterChat);
   }
 
   const reaction = update.messageReaction;
   if (reaction !== undefined) {
-    if (reaction.actorChat !== undefined) {
-      return { chat: reaction.chat, sender: { chat: reaction.actorChat, type: "chat" } };
-    }
-    return reaction.user === undefined ? { chat: reaction.chat } : userContext(
-      reaction.user,
-      reaction.chat,
-    );
+    return actorContext(reaction.user, reaction.chat, reaction.actorChat);
   }
 
   const boost = update.chatBoost;
   if (boost !== undefined) {
-    const boostUser = boost.boost.source.user;
-    return boostUser === undefined ? { chat: boost.chat } : userContext(boostUser, boost.chat);
+    return actorContext(boost.boost.source.user, boost.chat);
   }
   const removedBoost = update.removedChatBoost;
   if (removedBoost !== undefined) {
-    const boostUser = removedBoost.source.user;
-    return boostUser === undefined
-      ? { chat: removedBoost.chat }
-      : userContext(boostUser, removedBoost.chat);
+    return actorContext(removedBoost.source.user, removedBoost.chat);
   }
 
-  const chat = update.deletedBusinessMessages?.chat ?? update.messageReactionCount?.chat ??
+  const chat =
+    update.deletedBusinessMessages?.chat ??
+    update.messageReactionCount?.chat ??
     update.stoppedMessageGeneration?.chat;
   return chat === undefined ? {} : { chat };
 }

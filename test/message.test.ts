@@ -33,37 +33,47 @@ test("messageText prefers text and falls back to a media caption", () => {
 });
 
 test("messageText preserves readable context from a rich message", () => {
-  expect(messageText(message({
-    richMessage: {
-      blocks: [
-        {
-          size: 2,
-          text: ["Browser-based ", { text: "remote desktop", type: "bold" }],
-          type: "heading",
+  expect(
+    messageText(
+      message({
+        richMessage: {
+          blocks: [
+            {
+              size: 2,
+              text: ["Browser-based ", { text: "remote desktop", type: "bold" }],
+              type: "heading",
+            },
+            {
+              items: [
+                {
+                  blocks: [
+                    {
+                      text: [{ text: "web_search", type: "code" }, ": Fact-checking"],
+                      type: "paragraph",
+                    },
+                  ],
+                  label: "•",
+                },
+              ],
+              type: "list",
+            },
+            {
+              blocks: [{ text: "No official SSH access.", type: "paragraph" }],
+              summary: "Details",
+              type: "details",
+            },
+          ],
         },
-        {
-          items: [{
-            blocks: [{
-              text: [{ text: "web_search", type: "code" }, ": Fact-checking"],
-              type: "paragraph",
-            }],
-            label: "•",
-          }],
-          type: "list",
-        },
-        {
-          blocks: [{ text: "No official SSH access.", type: "paragraph" }],
-          summary: "Details",
-          type: "details",
-        },
-      ],
-    },
-  }))).toBe([
-    "Browser-based remote desktop",
-    "• web_search: Fact-checking",
-    "Details",
-    "No official SSH access.",
-  ].join("\n"));
+      }),
+    ),
+  ).toBe(
+    [
+      "Browser-based remote desktop",
+      "• web_search: Fact-checking",
+      "Details",
+      "No official SSH access.",
+    ].join("\n"),
+  );
 });
 
 test("messageEntities extracts UTF-16 text spans and filters their types", () => {
@@ -78,9 +88,7 @@ test("messageEntities extracts UTF-16 text spans and filters their types", () =>
     { entity: hashtag, text: "#tag" },
     { entity: bold, text: "bold" },
   ]);
-  expect(messageEntities(source, "hashtag")).toEqual([
-    { entity: hashtag, text: "#tag" },
-  ]);
+  expect(messageEntities(source, "hashtag")).toEqual([{ entity: hashtag, text: "#tag" }]);
 });
 
 test("messageEntities extracts caption spans", () => {
@@ -90,9 +98,7 @@ test("messageEntities extracts caption spans", () => {
     captionEntities: [italic],
   });
 
-  expect(messageEntities(source, "italic")).toEqual([
-    { entity: italic, text: "caption" },
-  ]);
+  expect(messageEntities(source, "italic")).toEqual([{ entity: italic, text: "caption" }]);
 });
 
 test("messageMedia resolves Telegram media aliases to the specific type", () => {
@@ -220,11 +226,15 @@ test("messageReply normalizes Telegram's three reply variants", () => {
   };
   const story = { chat, id: 43 };
 
-  expect(messageReply(message({
-    externalReply,
-    replyToMessage: repliedMessage,
-    replyToStory: story,
-  }))).toEqual({ message: repliedMessage, type: "message" });
+  expect(
+    messageReply(
+      message({
+        externalReply,
+        replyToMessage: repliedMessage,
+        replyToStory: story,
+      }),
+    ),
+  ).toEqual({ message: repliedMessage, type: "message" });
   expect(messageReply(message({ externalReply, replyToStory: story }))).toEqual({
     reply: externalReply,
     type: "external",

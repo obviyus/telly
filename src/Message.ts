@@ -79,6 +79,19 @@ function richBlocksText(blocks: ReadonlyArray<RichBlock>): string {
   return joinText(blocks.map(richBlockText));
 }
 
+function textBlockText(block: Extract<RichBlock, { readonly text: RichText }>): string {
+  switch (block.type) {
+    case "expandable_blockquote":
+    case "pullquote":
+      return joinText([
+        richTextText(block.text),
+        block.credit === undefined ? "" : richTextText(block.credit),
+      ]);
+    default:
+      return richTextText(block.text);
+  }
+}
+
 function richBlockText(block: RichBlock): string {
   switch (block.type) {
     case "anchor":
@@ -91,45 +104,42 @@ function richBlockText(block: RichBlock): string {
     case "pre":
     case "footer":
     case "thinking":
-      return richTextText(block.text);
     case "expandable_blockquote":
     case "pullquote":
-      return joinText([
-        richTextText(block.text),
-        block.credit === undefined ? "" : richTextText(block.credit),
-      ]);
+      return textBlockText(block);
     case "blockquote":
       return joinText([
         richBlocksText(block.blocks),
         block.credit === undefined ? "" : richTextText(block.credit),
       ]);
     case "list":
-      return joinText(block.items.map((item) => {
-        const content = richBlocksText(item.blocks);
-        return item.label.length === 0 ? content : `${item.label} ${content}`;
-      }));
+      return joinText(
+        block.items.map((item) => {
+          const content = richBlocksText(item.blocks);
+          return item.label.length === 0 ? content : `${item.label} ${content}`;
+        }),
+      );
     case "collage":
     case "slideshow":
       return joinText([richBlocksText(block.blocks), captionText(block.caption)]);
     case "table":
       return joinText([
         block.caption === undefined ? "" : richTextText(block.caption),
-        ...block.cells.map((row) => joinText(
-          row.map((cell) => cell.text === undefined ? "" : richTextText(cell.text)),
-          "\t",
-        )),
+        ...block.cells.map((row) =>
+          joinText(
+            row.map((cell) => (cell.text === undefined ? "" : richTextText(cell.text))),
+            "\t",
+          ),
+        ),
       ]);
     case "details":
       return joinText([richTextText(block.summary), richBlocksText(block.blocks)]);
     case "buttons":
-      return joinText(block.buttons.map((button) => richTextText(button.text)), "\t");
-    case "map":
-    case "animation":
-    case "audio":
-    case "document":
-    case "photo":
-    case "video":
-    case "voice_note":
+      return joinText(
+        block.buttons.map((button) => richTextText(button.text)),
+        "\t",
+      );
+    default:
       return captionText(block.caption);
   }
 }

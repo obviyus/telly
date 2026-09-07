@@ -1,13 +1,7 @@
 import { expect, test } from "bun:test";
 import { Deferred, Effect } from "effect";
 
-import {
-  Application,
-  InboxLeaseLost,
-  InboxStore,
-  InboxStoreError,
-  MemoryInbox,
-} from "../index.ts";
+import { Application, InboxLeaseLost, InboxStore, InboxStoreError, MemoryInbox } from "../index.ts";
 import { FakeBotApi, FakeBotApiReply } from "../testing.ts";
 
 const token = "123456:inbox-runtime-test";
@@ -61,12 +55,15 @@ test("inbox webhook acknowledges durable save before its handler completes", asy
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, inbox, token });
   const webhook = app.startWebhook(
-    () => Effect.sync(started.resolve).pipe(
-      Effect.andThen(Deferred.await(gate)),
-      Effect.andThen(Effect.sync(() => {
-        completed = true;
-      })),
-    ),
+    () =>
+      Effect.sync(started.resolve).pipe(
+        Effect.andThen(Deferred.await(gate)),
+        Effect.andThen(
+          Effect.sync(() => {
+            completed = true;
+          }),
+        ),
+      ),
     { secretToken },
   );
 
@@ -84,13 +81,15 @@ test("inbox webhook acknowledges durable save before its handler completes", asy
 
 test("inbox webhook returns 503 when durable capacity is full", async () => {
   const memory = MemoryInbox.make();
-  await Effect.runPromise(memory.save({
-    botId: 123456,
-    capacity: 1,
-    conversationKey: "chat:1",
-    payload: update(30, 1),
-    updateId: 30,
-  }));
+  await Effect.runPromise(
+    memory.save({
+      botId: 123456,
+      capacity: 1,
+      conversationKey: "chat:1",
+      payload: update(30, 1),
+      updateId: 30,
+    }),
+  );
   const inbox = InboxStore.of({
     ...memory,
     acquire: () => Effect.succeed({ _tag: "Held" } as const),
@@ -114,10 +113,13 @@ test("inbox webhook returns 503 when its store fails", async () => {
   const memory = MemoryInbox.make();
   const inbox = InboxStore.of({
     ...memory,
-    save: () => Effect.fail(new InboxStoreError({
-      description: "database unavailable",
-      operation: "save",
-    })),
+    save: () =>
+      Effect.fail(
+        new InboxStoreError({
+          description: "database unavailable",
+          operation: "save",
+        }),
+      ),
   });
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, inbox, token });
@@ -142,15 +144,18 @@ test("inbox retries typed failures before later updates in the same chat", async
     token,
   });
   const webhook = app.startWebhook(
-    (item) => Effect.sync(() => {
-      handled.push(item.updateId);
-      if (handled.length === 3) finished.resolve();
-      return handled.length;
-    }).pipe(
-      Effect.flatMap((attempt) => item.updateId === 51 && attempt === 1
-        ? Effect.fail(new HandlerError("retry"))
-        : Effect.void),
-    ),
+    (item) =>
+      Effect.sync(() => {
+        handled.push(item.updateId);
+        if (handled.length === 3) finished.resolve();
+        return handled.length;
+      }).pipe(
+        Effect.flatMap((attempt) =>
+          item.updateId === 51 && attempt === 1
+            ? Effect.fail(new HandlerError("retry"))
+            : Effect.void,
+        ),
+      ),
     { concurrency: 2, secretToken },
   );
 
@@ -175,14 +180,15 @@ test("inbox parks repeated typed failures and advances the chat", async () => {
     token,
   });
   const webhook = app.startWebhook(
-    (item) => Effect.sync(() => {
-      handled.push(item.updateId);
-      if (item.updateId === 62) laterHandled.resolve();
-    }).pipe(
-      Effect.andThen(item.updateId === 61
-        ? Effect.fail(new HandlerError("poison"))
-        : Effect.void),
-    ),
+    (item) =>
+      Effect.sync(() => {
+        handled.push(item.updateId);
+        if (item.updateId === 62) laterHandled.resolve();
+      }).pipe(
+        Effect.andThen(
+          item.updateId === 61 ? Effect.fail(new HandlerError("poison")) : Effect.void,
+        ),
+      ),
     { concurrency: 2, secretToken },
   );
 
@@ -198,21 +204,20 @@ test("inbox preserves handler defects and leaves the update reclaimable", async 
   const inbox = MemoryInbox.make();
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, inbox, token });
-  const webhook = app.startWebhook(
-    () => Effect.die(new Error("handler defect")),
-    { secretToken },
-  );
+  const webhook = app.startWebhook(() => Effect.die(new Error("handler defect")), { secretToken });
 
   await webhook.fetch(request(update(71, 701)));
   await expect(webhook.completed).rejects.toThrow("handler defect");
   await app.close().catch(() => undefined);
   const lease = await Effect.runPromise(inbox.acquire({ botId: 123456, leaseMs: 30_000 }));
   if (lease._tag !== "Acquired") throw new Error("Expected replacement lease");
-  const reclaimed = await Effect.runPromise(inbox.claim({
-    botId: 123456,
-    fencingToken: lease.fencingToken,
-    limit: 1,
-  }));
+  const reclaimed = await Effect.runPromise(
+    inbox.claim({
+      botId: 123456,
+      fencingToken: lease.fencingToken,
+      limit: 1,
+    }),
+  );
 
   expect(reclaimed.map((item) => [item.updateId, item.attempts])).toEqual([[71, 2]]);
 });
@@ -234,13 +239,16 @@ test("losing the dispatch lease interrupts handlers without graceful delay", asy
     token,
   });
   const webhook = app.startWebhook(
-    () => Effect.sync(started.resolve).pipe(
-      Effect.andThen(Effect.never),
-      Effect.onInterrupt(() => Effect.sync(() => {
-        wasInterrupted = true;
-        interrupted.resolve();
-      })),
-    ),
+    () =>
+      Effect.sync(started.resolve).pipe(
+        Effect.andThen(Effect.never),
+        Effect.onInterrupt(() =>
+          Effect.sync(() => {
+            wasInterrupted = true;
+            interrupted.resolve();
+          }),
+        ),
+      ),
     { secretToken },
   );
 

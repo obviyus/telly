@@ -56,10 +56,12 @@ const Transport = Schema.TaggedStruct("Transport", {
 });
 
 const InvalidRequest = Schema.TaggedStruct("InvalidRequest", {
-  issues: Schema.Array(Schema.Struct({
-    message: Schema.String,
-    path: Schema.String,
-  })),
+  issues: Schema.Array(
+    Schema.Struct({
+      message: Schema.String,
+      path: Schema.String,
+    }),
+  ),
 });
 
 export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError", {
@@ -74,12 +76,12 @@ export class BotApiError extends Schema.TaggedError<BotApiError>()("BotApiError"
           .map((issue) => `${issue.path}: ${issue.message}`)
           .join("; ")}`;
       case "TelegramRejected": {
-        const retry = this.reason.retryAfter === undefined
-          ? ""
-          : ` (retry after ${this.reason.retryAfter}s)`;
-        const migration = this.reason.migrateToChatId === undefined
-          ? ""
-          : ` (chat migrated to ${this.reason.migrateToChatId})`;
+        const retry =
+          this.reason.retryAfter === undefined ? "" : ` (retry after ${this.reason.retryAfter}s)`;
+        const migration =
+          this.reason.migrateToChatId === undefined
+            ? ""
+            : ` (chat migrated to ${this.reason.migrateToChatId})`;
         return `${this.method}: Telegram rejected the call: ${this.reason.errorCode} ${this.reason.description}${retry}${migration}`;
       }
       case "InvalidResponse":
@@ -129,12 +131,7 @@ function botIdFromToken(token: string): number {
   return botId;
 }
 
-function invalidResponse(
-  method: string,
-  description: string,
-  token: string,
-  retrySafe: boolean,
-) {
+function invalidResponse(method: string, description: string, token: string, retrySafe: boolean) {
   return new BotApiError({
     method,
     reason: {
@@ -156,11 +153,7 @@ function transportError(method: string, error: unknown, token: string, retrySafe
   });
 }
 
-function telegramRejected(
-  method: string,
-  failure: typeof TelegramFailure.Type,
-  token: string,
-) {
+function telegramRejected(method: string, failure: typeof TelegramFailure.Type, token: string) {
   return new BotApiError({
     method,
     reason: {
@@ -209,13 +202,8 @@ export class Bot extends Context.Service<
       },
       decode: (value: unknown) => Effect.Effect<A, BotApiError>,
     ) => Effect.Effect<A, BotApiError>;
-    readonly callRaw: (
-      method: string,
-      params?: object,
-    ) => Effect.Effect<unknown, BotApiError>;
-    readonly downloadRaw: (
-      filePath: string,
-    ) => Effect.Effect<Uint8Array, BotApiError>;
+    readonly callRaw: (method: string, params?: object) => Effect.Effect<unknown, BotApiError>;
+    readonly downloadRaw: (filePath: string) => Effect.Effect<Uint8Array, BotApiError>;
     /** This bot's identity. Successful lookups are cached; failed lookups may retry. */
     readonly me: Effect.Effect<UserType, BotApiError>;
   }
@@ -253,7 +241,7 @@ export class Bot extends Context.Service<
               Effect.flatMap((envelope) =>
                 envelope.ok
                   ? decode(envelope.result)
-                  : Effect.fail(telegramRejected(method, envelope, token))
+                  : Effect.fail(telegramRejected(method, envelope, token)),
               ),
             ),
           );
@@ -265,18 +253,12 @@ export class Bot extends Context.Service<
           metadata: RequestMetadata,
           decode: (value: unknown) => Effect.Effect<A, BotApiError>,
         ) {
-          return yield* policy.execute(
-            method,
-            params,
-            metadata,
-            () => request(method, params, metadata.retrySafe, decode),
+          return yield* policy.execute(method, params, metadata, () =>
+            request(method, params, metadata.retrySafe, decode),
           );
         });
 
-        const callRaw = Effect.fn("Bot.callRaw")(function* (
-          method: string,
-          params: object = {},
-        ) {
+        const callRaw = Effect.fn("Bot.callRaw")(function* (method: string, params: object = {}) {
           return yield* call(
             method,
             params,
@@ -305,20 +287,22 @@ export class Bot extends Context.Service<
                       return response.arrayBuffer.pipe(
                         Effect.map((buffer) => new Uint8Array(buffer)),
                         Effect.mapError((error) =>
-                          transportError("downloadFile", error, token, true)
+                          transportError("downloadFile", error, token, true),
                         ),
                       );
                     }
                     return decodeEnvelope(response, "downloadFile", token, true).pipe(
                       Effect.flatMap((envelope) =>
                         envelope.ok
-                          ? Effect.fail(invalidResponse(
-                              "downloadFile",
-                              `file endpoint returned an unexpected success envelope with status ${response.status}`,
-                              token,
-                              true,
-                            ))
-                          : Effect.fail(telegramRejected("downloadFile", envelope, token))
+                          ? Effect.fail(
+                              invalidResponse(
+                                "downloadFile",
+                                `file endpoint returned an unexpected success envelope with status ${response.status}`,
+                                token,
+                                true,
+                              ),
+                            )
+                          : Effect.fail(telegramRejected("downloadFile", envelope, token)),
                       ),
                     );
                   }),
@@ -329,11 +313,8 @@ export class Bot extends Context.Service<
         });
 
         const fetchMe = Effect.fn("Bot.me")(function* () {
-          return yield* call(
-            "getMe",
-            {},
-            { rateLimit: "none", retrySafe: true },
-            (body) => Schema.decodeUnknownEffect(User)(body).pipe(
+          return yield* call("getMe", {}, { rateLimit: "none", retrySafe: true }, (body) =>
+            Schema.decodeUnknownEffect(User)(body).pipe(
               Effect.mapError((error) => invalidResponse("getMe", error.message, token, true)),
             ),
           );
@@ -348,14 +329,13 @@ export class Bot extends Context.Service<
             Effect.onExit((exit) =>
               Effect.sync(() => {
                 if (identityState._tag !== "Pending" || identityState.request !== pending) return;
-                identityState = exit._tag === "Success"
-                  ? { _tag: "Ready", user: exit.value }
-                  : { _tag: "Empty" };
+                identityState =
+                  exit._tag === "Success" ? { _tag: "Ready", user: exit.value } : { _tag: "Empty" };
                 Deferred.doneUnsafe(
                   pending,
                   exit._tag === "Failure" && Cause.hasInterruptsOnly(exit.cause) ? me : exit,
                 );
-              })
+              }),
             ),
           );
         });

@@ -19,12 +19,15 @@ import { FakeBotApi } from "../testing.ts";
 const token = "123456:jobs";
 
 function fixture(options: { readonly capacity?: number } = {}) {
-  const jobs = defineJobs({
-    reminder: job({
-      payload: Schema.Struct({ count: Schema.Int, text: Schema.String }),
-      run: () => Effect.void,
-    }),
-  }, { options, store: MemoryJobs.make() });
+  const jobs = defineJobs(
+    {
+      reminder: job({
+        payload: Schema.Struct({ count: Schema.Int, text: Schema.String }),
+        run: () => Effect.void,
+      }),
+    },
+    { options, store: MemoryJobs.make() },
+  );
   const fake = FakeBotApi.make({ token });
   return {
     app: Application.make({ httpClient: fake.layer, jobs, token }),
@@ -35,29 +38,40 @@ function fixture(options: { readonly capacity?: number } = {}) {
 test("jobs validate payloads before persistence", async () => {
   const { app, jobs } = fixture();
 
-  await expect(app.run(jobs.schedule("reminder", {
-    payload: { count: 1.5, text: "invalid integer" },
-  }))).rejects.toBeInstanceOf(InvalidJobPayload);
+  await expect(
+    app.run(
+      jobs.schedule("reminder", {
+        payload: { count: 1.5, text: "invalid integer" },
+      }),
+    ),
+  ).rejects.toBeInstanceOf(InvalidJobPayload);
   await app.close();
 });
 
 test("jobs reject ambiguous timing before persistence", async () => {
   const { app, jobs } = fixture();
 
-  await expect(app.run(jobs.schedule("reminder", {
-    after: "1 minute",
-    at: new Date("2030-01-01T00:00:00Z"),
-    payload: { count: 1, text: "ambiguous" },
-  }))).rejects.toBeInstanceOf(InvalidJobSchedule);
+  await expect(
+    app.run(
+      jobs.schedule("reminder", {
+        after: "1 minute",
+        at: new Date("2030-01-01T00:00:00Z"),
+        payload: { count: 1, text: "ambiguous" },
+      }),
+    ),
+  ).rejects.toBeInstanceOf(InvalidJobSchedule);
   await app.close();
 });
 
 test("repeating jobs default to a stable definition identifier", async () => {
   const { app, jobs } = fixture();
-  const schedule = () => app.run(jobs.schedule("reminder", {
-    every: "1 hour",
-    payload: { count: 2, text: "same declaration" },
-  }));
+  const schedule = () =>
+    app.run(
+      jobs.schedule("reminder", {
+        every: "1 hour",
+        payload: { count: 2, text: "same declaration" },
+      }),
+    );
 
   const first = await schedule();
   const second = await schedule();
@@ -70,12 +84,15 @@ test("repeating jobs default to a stable definition identifier", async () => {
 test("repeating jobs with a past cadence anchor start at the next occurrence", async () => {
   const nextOccurrenceMs = Date.parse("2026-09-02T14:30:00Z");
   const store = MemoryJobs.make();
-  const jobs = defineJobs({
-    habit: job({
-      payload: Schema.Struct({}),
-      run: () => Effect.void,
-    }),
-  }, { store });
+  const jobs = defineJobs(
+    {
+      habit: job({
+        payload: Schema.Struct({}),
+        run: () => Effect.void,
+      }),
+    },
+    { store },
+  );
   const fake = FakeBotApi.make({ token });
   const botLayer = Bot.layer({ rateLimit: false, token: Redacted.make(token) }).pipe(
     Layer.provide(fake.layer),
@@ -101,10 +118,7 @@ test("repeating jobs with a past cadence anchor start at the next occurrence", a
       limit: 1,
     });
     return { due, early };
-  }).pipe(
-    Effect.provide(botLayer),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer), Effect.provide(TestClock.layer()));
 
   const result = await Effect.runPromise(program);
 
@@ -115,12 +129,16 @@ test("repeating jobs with a past cadence anchor start at the next occurrence", a
 test("one-time jobs receive distinct automatic identifiers", async () => {
   const { app, jobs } = fixture();
 
-  const first = await app.run(jobs.schedule("reminder", {
-    payload: { count: 3, text: "first" },
-  }));
-  const second = await app.run(jobs.schedule("reminder", {
-    payload: { count: 4, text: "second" },
-  }));
+  const first = await app.run(
+    jobs.schedule("reminder", {
+      payload: { count: 3, text: "first" },
+    }),
+  );
+  const second = await app.run(
+    jobs.schedule("reminder", {
+      payload: { count: 4, text: "second" },
+    }),
+  );
   await app.close();
 
   expect(first).toStartWith("reminder:");
@@ -130,38 +148,52 @@ test("one-time jobs receive distinct automatic identifiers", async () => {
 
 test("jobs reject conflicting explicit identifiers", async () => {
   const { app, jobs } = fixture();
-  await app.run(jobs.schedule("reminder", {
-    id: "stable",
-    payload: { count: 5, text: "first declaration" },
-  }));
+  await app.run(
+    jobs.schedule("reminder", {
+      id: "stable",
+      payload: { count: 5, text: "first declaration" },
+    }),
+  );
 
-  await expect(app.run(jobs.schedule("reminder", {
-    id: "stable",
-    payload: { count: 6, text: "different declaration" },
-  }))).rejects.toBeInstanceOf(JobConflict);
+  await expect(
+    app.run(
+      jobs.schedule("reminder", {
+        id: "stable",
+        payload: { count: 6, text: "different declaration" },
+      }),
+    ),
+  ).rejects.toBeInstanceOf(JobConflict);
   await app.close();
 });
 
 test("jobs enforce bounded durable capacity", async () => {
   const { app, jobs } = fixture({ capacity: 1 });
-  await app.run(jobs.schedule("reminder", {
-    id: "first",
-    payload: { count: 7, text: "fills capacity" },
-  }));
+  await app.run(
+    jobs.schedule("reminder", {
+      id: "first",
+      payload: { count: 7, text: "fills capacity" },
+    }),
+  );
 
-  await expect(app.run(jobs.schedule("reminder", {
-    id: "second",
-    payload: { count: 8, text: "too much work" },
-  }))).rejects.toBeInstanceOf(JobCapacityExceeded);
+  await expect(
+    app.run(
+      jobs.schedule("reminder", {
+        id: "second",
+        payload: { count: 8, text: "too much work" },
+      }),
+    ),
+  ).rejects.toBeInstanceOf(JobCapacityExceeded);
   await app.close();
 });
 
 test("job cancellation is idempotent", async () => {
   const { app, jobs } = fixture();
-  const id = await app.run(jobs.schedule("reminder", {
-    id: "cancel-me",
-    payload: { count: 9, text: "cancelled" },
-  }));
+  const id = await app.run(
+    jobs.schedule("reminder", {
+      id: "cancel-me",
+      payload: { count: 9, text: "cancelled" },
+    }),
+  );
 
   const first = await app.run(jobs.cancel(id));
   const second = await app.run(jobs.cancel(id));

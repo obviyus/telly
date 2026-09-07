@@ -42,18 +42,14 @@ export interface JobContext {
   readonly scheduledAt: Date;
 }
 
-export class JobStoreError extends Schema.TaggedError<JobStoreError>()(
-  "JobStoreError",
-  {
-    description: Schema.String,
-    operation: Schema.String,
-  },
-) {}
+export class JobStoreError extends Schema.TaggedError<JobStoreError>()("JobStoreError", {
+  description: Schema.String,
+  operation: Schema.String,
+}) {}
 
-export class JobLeaseLost extends Schema.TaggedError<JobLeaseLost>()(
-  "JobLeaseLost",
-  { botId: Schema.Int },
-) {}
+export class JobLeaseLost extends Schema.TaggedError<JobLeaseLost>()("JobLeaseLost", {
+  botId: Schema.Int,
+}) {}
 
 export class InvalidJobPayload extends Schema.TaggedError<InvalidJobPayload>()(
   "InvalidJobPayload",
@@ -71,10 +67,9 @@ export class InvalidJobSchedule extends Schema.TaggedError<InvalidJobSchedule>()
   },
 ) {}
 
-export class JobConflict extends Schema.TaggedError<JobConflict>()(
-  "JobConflict",
-  { jobId: Schema.String },
-) {}
+export class JobConflict extends Schema.TaggedError<JobConflict>()("JobConflict", {
+  jobId: Schema.String,
+}) {}
 
 export class JobCapacityExceeded extends Schema.TaggedError<JobCapacityExceeded>()(
   "JobCapacityExceeded",
@@ -146,39 +141,28 @@ export interface PruneJobs {
 
 export interface JobStoreService {
   /** Acquires exclusive claim authority for one bot. Tokens must increase after expiry. */
-  readonly acquire: (
-    options: JobLeaseOptions,
-  ) => Effect.Effect<JobLeaseResult, JobStoreError>;
-  readonly cancel: (
-    options: { readonly botId: number; readonly id: string },
-  ) => Effect.Effect<boolean, JobStoreError>;
+  readonly acquire: (options: JobLeaseOptions) => Effect.Effect<JobLeaseResult, JobStoreError>;
+  readonly cancel: (options: {
+    readonly botId: number;
+    readonly id: string;
+  }) => Effect.Effect<boolean, JobStoreError>;
   /** Atomically claims due jobs and unfinished jobs owned by an older fencing token. */
   readonly claim: (
     options: ClaimJobs,
   ) => Effect.Effect<ReadonlyArray<ClaimedJob>, JobStoreError | JobLeaseLost>;
-  readonly prune: (
-    options: PruneJobs,
-  ) => Effect.Effect<void, JobStoreError>;
-  readonly release: (
-    options: FencedJobOperation,
-  ) => Effect.Effect<void, JobStoreError>;
+  readonly prune: (options: PruneJobs) => Effect.Effect<void, JobStoreError>;
+  readonly release: (options: FencedJobOperation) => Effect.Effect<void, JobStoreError>;
   /** Renews only the current lease. A stale token fails with JobLeaseLost. */
   readonly renew: (
     options: FencedJobOperation & { readonly leaseMs: number },
   ) => Effect.Effect<void, JobStoreError | JobLeaseLost>;
   /** Saves one idempotent job or reports a conflicting identifier without changing it. */
-  readonly save: (
-    options: SaveJob,
-  ) => Effect.Effect<JobSaveResult, JobStoreError>;
+  readonly save: (options: SaveJob) => Effect.Effect<JobSaveResult, JobStoreError>;
   /** Atomically settles only work claimed by the current token. Done rearms repeating jobs. */
-  readonly settle: (
-    options: SettleJob,
-  ) => Effect.Effect<void, JobStoreError | JobLeaseLost>;
+  readonly settle: (options: SettleJob) => Effect.Effect<void, JobStoreError | JobLeaseLost>;
 }
 
-export class JobStore extends Context.Service<JobStore, JobStoreService>()(
-  "telly/JobStore",
-) {}
+export class JobStore extends Context.Service<JobStore, JobStoreService>()("telly/JobStore") {}
 
 type ScheduledRow = {
   attempts: number;
@@ -254,11 +238,7 @@ export const MemoryJobs = {
     };
     const currentLease = (botId: number, fencingToken: number, now: number) => {
       const lease = botJobs(botId).lease;
-      if (
-        lease === undefined ||
-        lease.fencingToken !== fencingToken ||
-        lease.expiresAtMs <= now
-      ) {
+      if (lease === undefined || lease.fencingToken !== fencingToken || lease.expiresAtMs <= now) {
         return new JobLeaseLost({ botId });
       }
       return lease;
@@ -268,19 +248,21 @@ export const MemoryJobs = {
       acquire: Effect.fn("MemoryJobs.acquire")(function* (options) {
         positiveInteger(options.botId, "botId");
         positiveInteger(options.leaseMs, "leaseMs");
-        return yield* Effect.clockWith((clock) => Effect.sync(() => {
-          const now = clock.currentTimeMillisUnsafe();
-          const jobs = botJobs(options.botId);
-          if (jobs.lease !== undefined && jobs.lease.expiresAtMs > now) {
-            return { _tag: "Held" } as const;
-          }
-          jobs.nextFencingToken += 1;
-          jobs.lease = {
-            expiresAtMs: now + options.leaseMs,
-            fencingToken: jobs.nextFencingToken,
-          };
-          return { _tag: "Acquired", fencingToken: jobs.nextFencingToken } as const;
-        }));
+        return yield* Effect.clockWith((clock) =>
+          Effect.sync(() => {
+            const now = clock.currentTimeMillisUnsafe();
+            const jobs = botJobs(options.botId);
+            if (jobs.lease !== undefined && jobs.lease.expiresAtMs > now) {
+              return { _tag: "Held" } as const;
+            }
+            jobs.nextFencingToken += 1;
+            jobs.lease = {
+              expiresAtMs: now + options.leaseMs,
+              fencingToken: jobs.nextFencingToken,
+            };
+            return { _tag: "Acquired", fencingToken: jobs.nextFencingToken } as const;
+          }),
+        );
       }),
 
       cancel: Effect.fn("MemoryJobs.cancel")(function* (options) {
@@ -289,55 +271,61 @@ export const MemoryJobs = {
 
       claim: Effect.fn("MemoryJobs.claim")(function* (options) {
         positiveInteger(options.limit, "limit");
-        return yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof JobLeaseLost) return yield* lease;
-          return yield* Effect.sync(() => {
-            const jobs = botJobs(options.botId);
-            const eligible = [...jobs.rows.values()]
-              .filter((row) =>
-                (row.state === "scheduled" && row.nextRunMs <= now) ||
-                (row.state === "running" && row.fencingToken !== options.fencingToken)
-              )
-              .sort((left, right) =>
-                left.scheduledTimeMs - right.scheduledTimeMs || left.id.localeCompare(right.id)
-              )
-              .slice(0, options.limit);
-            return eligible.map((row) => {
-              const running: RunningRow = {
-                attempts: row.attempts + 1,
-                fencingToken: options.fencingToken,
-                fingerprint: row.fingerprint,
-                id: row.id,
-                name: row.name,
-                payload: row.payload,
-                schedule: row.schedule,
-                scheduledTimeMs: row.scheduledTimeMs,
-                state: "running",
-              };
-              jobs.rows.set(row.id, running);
-              return {
-                attempts: running.attempts,
-                id: running.id,
-                name: running.name,
-                payload: structuredClone(running.payload),
-                scheduledTimeMs: running.scheduledTimeMs,
-              };
+        return yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof JobLeaseLost) return yield* lease;
+            return yield* Effect.sync(() => {
+              const jobs = botJobs(options.botId);
+              const eligible = [...jobs.rows.values()]
+                .filter(
+                  (row) =>
+                    (row.state === "scheduled" && row.nextRunMs <= now) ||
+                    (row.state === "running" && row.fencingToken !== options.fencingToken),
+                )
+                .sort(
+                  (left, right) =>
+                    left.scheduledTimeMs - right.scheduledTimeMs || left.id.localeCompare(right.id),
+                )
+                .slice(0, options.limit);
+              return eligible.map((row) => {
+                const running: RunningRow = {
+                  attempts: row.attempts + 1,
+                  fencingToken: options.fencingToken,
+                  fingerprint: row.fingerprint,
+                  id: row.id,
+                  name: row.name,
+                  payload: row.payload,
+                  schedule: row.schedule,
+                  scheduledTimeMs: row.scheduledTimeMs,
+                  state: "running",
+                };
+                jobs.rows.set(row.id, running);
+                return {
+                  attempts: running.attempts,
+                  id: running.id,
+                  name: running.name,
+                  payload: structuredClone(running.payload),
+                  scheduledTimeMs: running.scheduledTimeMs,
+                };
+              });
             });
-          });
-        }));
+          }),
+        );
       }),
 
       prune: Effect.fn("MemoryJobs.prune")(function* (options) {
         nonNegativeSafeInteger(options.doneAgeMs, "doneAgeMs");
-        yield* Effect.clockWith((clock) => Effect.sync(() => {
-          const cutoff = clock.currentTimeMillisUnsafe() - options.doneAgeMs;
-          const jobs = botJobs(options.botId);
-          for (const [id, row] of jobs.rows) {
-            if (row.state === "done" && row.terminalTimeMs <= cutoff) jobs.rows.delete(id);
-          }
-        }));
+        yield* Effect.clockWith((clock) =>
+          Effect.sync(() => {
+            const cutoff = clock.currentTimeMillisUnsafe() - options.doneAgeMs;
+            const jobs = botJobs(options.botId);
+            for (const [id, row] of jobs.rows) {
+              if (row.state === "done" && row.terminalTimeMs <= cutoff) jobs.rows.delete(id);
+            }
+          }),
+        );
       }),
 
       release: Effect.fn("MemoryJobs.release")(function* (options) {
@@ -349,15 +337,17 @@ export const MemoryJobs = {
 
       renew: Effect.fn("MemoryJobs.renew")(function* (options) {
         positiveInteger(options.leaseMs, "leaseMs");
-        yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof JobLeaseLost) return yield* lease;
-          botJobs(options.botId).lease = {
-            expiresAtMs: now + options.leaseMs,
-            fencingToken: options.fencingToken,
-          };
-        }));
+        yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof JobLeaseLost) return yield* lease;
+            botJobs(options.botId).lease = {
+              expiresAtMs: now + options.leaseMs,
+              fencingToken: options.fencingToken,
+            };
+          }),
+        );
       }),
 
       save: Effect.fn("MemoryJobs.save")(function* (options) {
@@ -372,8 +362,8 @@ export const MemoryJobs = {
           const existing = jobs.rows.get(options.id);
           if (existing !== undefined) {
             return existing.fingerprint === options.fingerprint
-              ? { _tag: "Existing" } as const
-              : { _tag: "Conflict" } as const;
+              ? ({ _tag: "Existing" } as const)
+              : ({ _tag: "Conflict" } as const);
           }
           let active = 0;
           for (const row of jobs.rows.values()) {
@@ -396,39 +386,67 @@ export const MemoryJobs = {
       }),
 
       settle: Effect.fn("MemoryJobs.settle")(function* (options) {
-        return yield* Effect.clockWith((clock) => Effect.gen(function* () {
-          const now = clock.currentTimeMillisUnsafe();
-          const lease = currentLease(options.botId, options.fencingToken, now);
-          if (lease instanceof JobLeaseLost) return yield* lease;
-          const jobs = botJobs(options.botId);
-          const row = jobs.rows.get(options.id);
-          if (
-            row === undefined ||
-            row.state !== "running" ||
-            row.fencingToken !== options.fencingToken
-          ) {
-            return;
-          }
-          switch (options.outcome._tag) {
-            case "Done":
-              if (row.schedule._tag === "Repeat") {
-                const scheduledTimeMs = nextJobOccurrence(
-                  row.scheduledTimeMs,
-                  row.schedule.intervalMs,
-                  now,
-                );
+        return yield* Effect.clockWith((clock) =>
+          Effect.gen(function* () {
+            const now = clock.currentTimeMillisUnsafe();
+            const lease = currentLease(options.botId, options.fencingToken, now);
+            if (lease instanceof JobLeaseLost) return yield* lease;
+            const jobs = botJobs(options.botId);
+            const row = jobs.rows.get(options.id);
+            if (
+              row === undefined ||
+              row.state !== "running" ||
+              row.fencingToken !== options.fencingToken
+            ) {
+              return;
+            }
+            switch (options.outcome._tag) {
+              case "Done":
+                if (row.schedule._tag === "Repeat") {
+                  const scheduledTimeMs = nextJobOccurrence(
+                    row.scheduledTimeMs,
+                    row.schedule.intervalMs,
+                    now,
+                  );
+                  jobs.rows.set(row.id, {
+                    attempts: 0,
+                    fingerprint: row.fingerprint,
+                    id: row.id,
+                    name: row.name,
+                    nextRunMs: scheduledTimeMs,
+                    payload: row.payload,
+                    schedule: row.schedule,
+                    scheduledTimeMs,
+                    state: "scheduled",
+                  });
+                } else {
+                  jobs.rows.set(row.id, {
+                    attempts: row.attempts,
+                    fingerprint: row.fingerprint,
+                    id: row.id,
+                    name: row.name,
+                    payload: row.payload,
+                    schedule: row.schedule,
+                    scheduledTimeMs: row.scheduledTimeMs,
+                    state: "done",
+                    terminalTimeMs: now,
+                  });
+                }
+                return;
+              case "Interrupted":
                 jobs.rows.set(row.id, {
-                  attempts: 0,
+                  attempts: row.attempts - 1,
                   fingerprint: row.fingerprint,
                   id: row.id,
                   name: row.name,
-                  nextRunMs: scheduledTimeMs,
+                  nextRunMs: now,
                   payload: row.payload,
                   schedule: row.schedule,
-                  scheduledTimeMs,
+                  scheduledTimeMs: row.scheduledTimeMs,
                   state: "scheduled",
                 });
-              } else {
+                return;
+              case "Parked":
                 jobs.rows.set(row.id, {
                   attempts: row.attempts,
                   fingerprint: row.fingerprint,
@@ -437,52 +455,26 @@ export const MemoryJobs = {
                   payload: row.payload,
                   schedule: row.schedule,
                   scheduledTimeMs: row.scheduledTimeMs,
-                  state: "done",
+                  state: "parked",
                   terminalTimeMs: now,
                 });
-              }
-              return;
-            case "Interrupted":
-              jobs.rows.set(row.id, {
-                attempts: row.attempts - 1,
-                fingerprint: row.fingerprint,
-                id: row.id,
-                name: row.name,
-                nextRunMs: now,
-                payload: row.payload,
-                schedule: row.schedule,
-                scheduledTimeMs: row.scheduledTimeMs,
-                state: "scheduled",
-              });
-              return;
-            case "Parked":
-              jobs.rows.set(row.id, {
-                attempts: row.attempts,
-                fingerprint: row.fingerprint,
-                id: row.id,
-                name: row.name,
-                payload: row.payload,
-                schedule: row.schedule,
-                scheduledTimeMs: row.scheduledTimeMs,
-                state: "parked",
-                terminalTimeMs: now,
-              });
-              return;
-            case "Retry":
-              nonNegativeSafeInteger(options.outcome.delayMs, "delayMs");
-              jobs.rows.set(row.id, {
-                attempts: row.attempts,
-                fingerprint: row.fingerprint,
-                id: row.id,
-                name: row.name,
-                nextRunMs: now + options.outcome.delayMs,
-                payload: row.payload,
-                schedule: row.schedule,
-                scheduledTimeMs: row.scheduledTimeMs,
-                state: "scheduled",
-              });
-          }
-        }));
+                return;
+              case "Retry":
+                nonNegativeSafeInteger(options.outcome.delayMs, "delayMs");
+                jobs.rows.set(row.id, {
+                  attempts: row.attempts,
+                  fingerprint: row.fingerprint,
+                  id: row.id,
+                  name: row.name,
+                  nextRunMs: now + options.outcome.delayMs,
+                  payload: row.payload,
+                  schedule: row.schedule,
+                  scheduledTimeMs: row.scheduledTimeMs,
+                  state: "scheduled",
+                });
+            }
+          }),
+        );
       }),
     });
   },
@@ -490,10 +482,7 @@ export const MemoryJobs = {
 
 interface RuntimeJobDefinition<out Payload = unknown> {
   readonly encode: (payload: unknown) => Effect.Effect<unknown, InvalidJobPayload>;
-  readonly execute: (
-    payload: unknown,
-    context: JobContext,
-  ) => Effect.Effect<unknown, unknown, Bot>;
+  readonly execute: (payload: unknown, context: JobContext) => Effect.Effect<unknown, unknown, Bot>;
   readonly Payload?: Payload;
 }
 
@@ -503,25 +492,25 @@ export interface JobDefinition<out Payload> {
 
 export function job<Payload, Encoded, E>(options: {
   readonly payload: Schema.Codec<Payload, Encoded, never, never>;
-  readonly run: (
-    payload: Payload,
-    context: JobContext,
-  ) => Effect.Effect<unknown, E, Bot>;
+  readonly run: (payload: Payload, context: JobContext) => Effect.Effect<unknown, E, Bot>;
 }): JobDefinition<Payload> {
   const codec = Schema.toCodecJson(options.payload);
   return {
     [JobDefinitionTypeId]: {
-      encode: (payload) => Schema.encodeUnknownEffect(codec)(payload).pipe(
-        Effect.mapError(() =>
-          new InvalidJobPayload({
-            description: "Payload does not match its job schema",
-            jobName: "unbound",
-          })
+      encode: (payload) =>
+        Schema.encodeUnknownEffect(codec)(payload).pipe(
+          Effect.mapError(
+            () =>
+              new InvalidJobPayload({
+                description: "Payload does not match its job schema",
+                jobName: "unbound",
+              }),
+          ),
         ),
-      ),
-      execute: (payload, context) => Schema.decodeUnknownEffect(codec)(payload).pipe(
-        Effect.flatMap((decoded) => options.run(decoded, context)),
-      ),
+      execute: (payload, context) =>
+        Schema.decodeUnknownEffect(codec)(payload).pipe(
+          Effect.flatMap((decoded) => options.run(decoded, context)),
+        ),
     },
   };
 }
@@ -556,11 +545,7 @@ export interface Jobs<Definitions extends JobDefinitions = JobDefinitions> {
     options: ScheduleJobOptions<JobPayload<Definitions[Name]>>,
   ) => Effect.Effect<
     string,
-    | InvalidJobPayload
-    | InvalidJobSchedule
-    | JobCapacityExceeded
-    | JobConflict
-    | JobStoreError,
+    InvalidJobPayload | InvalidJobSchedule | JobCapacityExceeded | JobConflict | JobStoreError,
     Bot
   >;
 }
@@ -576,9 +561,8 @@ function makeWake(): JobsState["wake"] {
       changed = Deferred.makeUnsafe<void>();
       Deferred.doneUnsafe(previous, Effect.void);
     }),
-    wait: (observed) => Effect.suspend(() =>
-      observed === version ? Deferred.await(changed) : Effect.void
-    ),
+    wait: (observed) =>
+      Effect.suspend(() => (observed === version ? Deferred.await(changed) : Effect.void)),
   };
 }
 
@@ -634,27 +618,27 @@ function normalizeTiming(
       if (options.at !== undefined && options.after !== undefined) {
         throw new RangeError("A job cannot use both at and after");
       }
-      const everyMs = options.every === undefined
-        ? undefined
-        : durationMillis(options.every, "every", false);
-      const afterMs = options.after === undefined
-        ? undefined
-        : durationMillis(options.after, "after", true);
+      const everyMs =
+        options.every === undefined ? undefined : durationMillis(options.every, "every", false);
+      const afterMs =
+        options.after === undefined ? undefined : durationMillis(options.after, "after", true);
       const atMs = options.at?.getTime();
       if (atMs !== undefined && (!Number.isSafeInteger(atMs) || atMs < 0)) {
         throw new RangeError("at must be a valid Date on or after 1970-01-01");
       }
       const declaredRunAtMs = atMs ?? now + (afterMs ?? everyMs ?? 0);
-      const runAtMs = atMs !== undefined && everyMs !== undefined && atMs < now
-        ? nextJobOccurrence(atMs, everyMs, now)
-        : declaredRunAtMs;
+      const runAtMs =
+        atMs !== undefined && everyMs !== undefined && atMs < now
+          ? nextJobOccurrence(atMs, everyMs, now)
+          : declaredRunAtMs;
       if (!Number.isSafeInteger(runAtMs)) throw new RangeError("Job time exceeds safe integers");
       return { afterMs, atMs, everyMs, runAtMs };
     },
-    catch: (error) => new InvalidJobSchedule({
-      description: error instanceof Error ? error.message : String(error),
-      jobName: name,
-    }),
+    catch: (error) =>
+      new InvalidJobSchedule({
+        description: error instanceof Error ? error.message : String(error),
+        jobName: name,
+      }),
   });
 }
 
@@ -684,52 +668,52 @@ export function defineJobs<const Definitions extends JobDefinitions>(
     return cancelled;
   });
 
-  const schedule: Jobs<Definitions>["schedule"] = Effect.fn("Jobs.schedule")(function* (
-    name,
-    options,
-  ) {
-    const definition = state.definitions.get(name);
-    if (definition === undefined) return yield* Effect.die(new Error(`Unknown job: ${name}`));
-    const bot = yield* Bot;
-    const now = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
-    const { afterMs, atMs, everyMs, runAtMs } = yield* normalizeTiming(name, options, now);
-    const id = options.id ?? (everyMs === undefined ? `${name}:${crypto.randomUUID()}` : name);
-    jobId(id);
-    const payload = yield* definition.encode(options.payload).pipe(
-      Effect.mapError((error) =>
-        new InvalidJobPayload({ description: error.description, jobName: name })
-      ),
-    );
-    const scheduleValue: JobSchedule = everyMs === undefined
-      ? { _tag: "Once" }
-      : { _tag: "Repeat", intervalMs: everyMs };
-    // Declared timing stays stable when the same repeating job is registered after a restart.
-    const fingerprint = JSON.stringify({
-      afterMs: afterMs ?? null,
-      atMs: atMs ?? null,
-      everyMs: everyMs ?? null,
-      name,
-      payload,
-    });
-    const saved = yield* state.store.save({
-      botId: bot.id,
-      capacity: state.options.capacity,
-      fingerprint,
-      id,
-      name,
-      payload,
-      runAtMs,
-      schedule: scheduleValue,
-    });
-    if (saved._tag === "Conflict") return yield* new JobConflict({ jobId: id });
-    if (saved._tag === "Full") {
-      return yield* new JobCapacityExceeded({
-        capacity: state.options.capacity,
+  const schedule: Jobs<Definitions>["schedule"] = Effect.fn("Jobs.schedule")(
+    function* (name, options) {
+      const definition = state.definitions.get(name);
+      if (definition === undefined) return yield* Effect.die(new Error(`Unknown job: ${name}`));
+      const bot = yield* Bot;
+      const now = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
+      const { afterMs, atMs, everyMs, runAtMs } = yield* normalizeTiming(name, options, now);
+      const id = options.id ?? (everyMs === undefined ? `${name}:${crypto.randomUUID()}` : name);
+      jobId(id);
+      const payload = yield* definition
+        .encode(options.payload)
+        .pipe(
+          Effect.mapError(
+            (error) => new InvalidJobPayload({ description: error.description, jobName: name }),
+          ),
+        );
+      const scheduleValue: JobSchedule =
+        everyMs === undefined ? { _tag: "Once" } : { _tag: "Repeat", intervalMs: everyMs };
+      // Declared timing stays stable when the same repeating job is registered after a restart.
+      const fingerprint = JSON.stringify({
+        afterMs: afterMs ?? null,
+        atMs: atMs ?? null,
+        everyMs: everyMs ?? null,
+        name,
+        payload,
       });
-    }
-    if (saved._tag === "Stored") yield* state.wake.signal;
-    return id;
-  });
+      const saved = yield* state.store.save({
+        botId: bot.id,
+        capacity: state.options.capacity,
+        fingerprint,
+        id,
+        name,
+        payload,
+        runAtMs,
+        schedule: scheduleValue,
+      });
+      if (saved._tag === "Conflict") return yield* new JobConflict({ jobId: id });
+      if (saved._tag === "Full") {
+        return yield* new JobCapacityExceeded({
+          capacity: state.options.capacity,
+        });
+      }
+      if (saved._tag === "Stored") yield* state.wake.signal;
+      return id;
+    },
+  );
 
   return { [JobsTypeId]: state, cancel, schedule };
 }

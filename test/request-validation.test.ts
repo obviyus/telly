@@ -36,18 +36,23 @@ test("nested callback data over 64 UTF-8 bytes is rejected before transport", as
   const fake = FakeBotApi.make({ token });
   const callbackData = "🔒".repeat(17);
 
-  const error = await rejected(sendMessage({
-    chatId: 17,
-    replyMarkup: { inlineKeyboard: [[{ callbackData, text: "Open" }]] },
-    text: "Choose",
-  }), fake);
+  const error = await rejected(
+    sendMessage({
+      chatId: 17,
+      replyMarkup: { inlineKeyboard: [[{ callbackData, text: "Open" }]] },
+      text: "Choose",
+    }),
+    fake,
+  );
 
   expect(error.reason).toEqual({
     _tag: "InvalidRequest",
-    issues: [{
-      message: "expected 1–64 UTF-8 bytes, received 68",
-      path: "replyMarkup.inlineKeyboard[0][0].callbackData",
-    }],
+    issues: [
+      {
+        message: "expected 1–64 UTF-8 bytes, received 68",
+        path: "replyMarkup.inlineKeyboard[0][0].callbackData",
+      },
+    ],
   });
   expect(error.message).not.toContain(callbackData);
   expect(error.retrySafe).toBe(true);
@@ -58,13 +63,15 @@ test("a callback data value at the UTF-8 byte boundary is sent", async () => {
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    await app.run(sendMessage({
-      chatId: 19,
-      replyMarkup: {
-        inlineKeyboard: [[{ callbackData: "🔒".repeat(16), text: "Open" }]],
-      },
-      text: "Choose",
-    }));
+    await app.run(
+      sendMessage({
+        chatId: 19,
+        replyMarkup: {
+          inlineKeyboard: [[{ callbackData: "🔒".repeat(16), text: "Open" }]],
+        },
+        text: "Choose",
+      }),
+    );
 
     expect(fake.requests).toHaveLength(1);
   } finally {
@@ -75,14 +82,16 @@ test("a callback data value at the UTF-8 byte boundary is sent", async () => {
 test("response decoding does not apply outgoing request constraints", async () => {
   const callbackData = "r".repeat(65);
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok({
-      chat: { id: 21, type: "private" },
-      date: 1_700_000_000,
-      message_id: 41,
-      reply_markup: {
-        inline_keyboard: [[{ callback_data: callbackData, text: "Old" }]],
-      },
-    })],
+    replies: [
+      FakeBotApiReply.ok({
+        chat: { id: 21, type: "private" },
+        date: 1_700_000_000,
+        message_id: 41,
+        reply_markup: {
+          inline_keyboard: [[{ callback_data: callbackData, text: "Old" }]],
+        },
+      }),
+    ],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });
@@ -103,10 +112,13 @@ test("documented numeric and array ranges reject invalid requests", async () => 
     issues: [{ message: "expected 1–100, received 101", path: "limit" }],
   });
 
-  const media = await rejected(sendMediaGroup({
-    chatId: 23,
-    media: [{ media: "telegram-file-id", type: "photo" }],
-  }), FakeBotApi.make({ token }));
+  const media = await rejected(
+    sendMediaGroup({
+      chatId: 23,
+      media: [{ media: "telegram-file-id", type: "photo" }],
+    }),
+    FakeBotApi.make({ token }),
+  );
   expect(media.reason).toMatchObject({
     _tag: "InvalidRequest",
     issues: [{ message: "expected 2–10 items, received 1", path: "media" }],
@@ -120,15 +132,20 @@ test("documented string lengths and patterns reject invalid requests", async () 
     issues: [{ message: "expected 0–64 characters, received 65", path: "name" }],
   });
 
-  const command = await rejected(setMyCommands({
-    commands: [{ command: "Not-Allowed", description: "Invalid command" }],
-  }), FakeBotApi.make({ token }));
+  const command = await rejected(
+    setMyCommands({
+      commands: [{ command: "Not-Allowed", description: "Invalid command" }],
+    }),
+    FakeBotApi.make({ token }),
+  );
   expect(command.reason).toMatchObject({
     _tag: "InvalidRequest",
-    issues: [{
-      message: "expected lowercase English letters, digits, and underscores",
-      path: "commands[0].command",
-    }],
+    issues: [
+      {
+        message: "expected lowercase English letters, digits, and underscores",
+        path: "commands[0].command",
+      },
+    ],
   });
 });
 
@@ -142,10 +159,7 @@ test("character limits count astral Unicode as code points", async () => {
     await app.close();
   }
 
-  const error = await rejected(
-    setMyName({ name: "🔒".repeat(65) }),
-    FakeBotApi.make({ token }),
-  );
+  const error = await rejected(setMyName({ name: "🔒".repeat(65) }), FakeBotApi.make({ token }));
   expect(error.reason).toMatchObject({
     _tag: "InvalidRequest",
     issues: [{ message: "expected 0–64 characters, received 65", path: "name" }],

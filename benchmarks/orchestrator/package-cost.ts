@@ -20,10 +20,7 @@ async function bytesInPath(
   return total;
 }
 
-async function packageClosureBytes(
-  root: string,
-  names: ReadonlyArray<string>,
-): Promise<number> {
+async function packageClosureBytes(root: string, names: ReadonlyArray<string>): Promise<number> {
   const queue = [...names];
   const packages = new Set<string>();
   const visited = new Set<string>();

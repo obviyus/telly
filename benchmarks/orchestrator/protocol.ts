@@ -46,11 +46,8 @@ export function assertRunnerResult(
     );
   }
   const expectsLatency = options.mode === "floor" || options.mode === "latency";
-  const expectedRounds = options.mode === "floor"
-    ? 0
-    : options.mode === "latency"
-    ? 1
-    : options.rounds;
+  const expectedRounds =
+    options.mode === "floor" ? 0 : options.mode === "latency" ? 1 : options.rounds;
   if (result.rounds.length !== expectedRounds) {
     throw new Error(`Runner round count is wrong for ${options.framework}/${options.mode}`);
   }
@@ -58,7 +55,9 @@ export function assertRunnerResult(
     throw new Error(`Runner latency shape is wrong for ${options.framework}/${options.mode}`);
   }
   if (expectsLatency && result.latencyNs?.length !== options.operations) {
-    throw new Error(`Runner latency sample count is wrong for ${options.framework}/${options.mode}`);
+    throw new Error(
+      `Runner latency sample count is wrong for ${options.framework}/${options.mode}`,
+    );
   }
   if (options.mode === "floor") {
     return;

@@ -1,12 +1,7 @@
 import { expect, test } from "bun:test";
 import { Deferred, Effect } from "effect";
 
-import {
-  Application,
-  defineBot,
-  respond,
-  type Update,
-} from "../index.ts";
+import { Application, defineBot, respond, type Update } from "../index.ts";
 import { FakeBotApi } from "../testing.ts";
 
 const token = "123456:webhook-test";
@@ -47,10 +42,12 @@ test("webhook rejects wrong methods, secrets, and malformed updates", async () =
 
   try {
     const wrongMethod = await webhook.fetch(new Request("https://bot.example/telegram"));
-    const missingSecret = await webhook.fetch(new Request("https://bot.example/telegram", {
-      body: "{}",
-      method: "POST",
-    }));
+    const missingSecret = await webhook.fetch(
+      new Request("https://bot.example/telegram", {
+        body: "{}",
+        method: "POST",
+      }),
+    );
     const wrongSecret = await webhook.fetch(request({}, "wrong-secret"));
     const malformedJson = await webhook.fetch(request("{"));
     const invalidUpdate = await webhook.fetch(request({ ok: true }));
@@ -70,14 +67,18 @@ test("webhook rejects invalid dispatch options", async () => {
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
 
-  expect(() => app.startWebhook(() => Effect.void, {
-    concurrency: 0,
-    secretToken,
-  })).toThrow("concurrency must be a positive integer");
-  expect(() => app.startWebhook(() => Effect.void, {
-    gracePeriodMs: -1,
-    secretToken,
-  })).toThrow("gracePeriodMs must be a non-negative number");
+  expect(() =>
+    app.startWebhook(() => Effect.void, {
+      concurrency: 0,
+      secretToken,
+    }),
+  ).toThrow("concurrency must be a positive integer");
+  expect(() =>
+    app.startWebhook(() => Effect.void, {
+      gracePeriodMs: -1,
+      secretToken,
+    }),
+  ).toThrow("gracePeriodMs must be a non-negative number");
 
   await app.close();
 });
@@ -93,13 +94,15 @@ test("webhook runs a defineBot handler and acknowledges after completion", async
   const webhook = app.startWebhook(bot, { secretToken });
 
   try {
-    const delivered = await webhook.fetch(request({
-      ...update(301, 701, "/start"),
-      message: {
-        ...update(301, 701, "/start").message,
-        entities: [{ length: 6, offset: 0, type: "bot_command" }],
-      },
-    }));
+    const delivered = await webhook.fetch(
+      request({
+        ...update(301, 701, "/start"),
+        message: {
+          ...update(301, 701, "/start").message,
+          entities: [{ length: 6, offset: 0, type: "bot_command" }],
+        },
+      }),
+    );
 
     expect(delivered.status).toBe(200);
     expect(fake.requests[0]?.params).toMatchObject({
@@ -119,15 +122,16 @@ test("webhook keeps updates from one chat in order", async () => {
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const webhook = app.startWebhook(
-    (item: Update) => Effect.gen(function* () {
-      handled.push(item.updateId);
-      if (item.updateId === 311) {
-        firstStarted.resolve();
-        yield* Deferred.await(firstGate);
-      } else {
-        secondStarted.resolve();
-      }
-    }),
+    (item: Update) =>
+      Effect.gen(function* () {
+        handled.push(item.updateId);
+        if (item.updateId === 311) {
+          firstStarted.resolve();
+          yield* Deferred.await(firstGate);
+        } else {
+          secondStarted.resolve();
+        }
+      }),
     { concurrency: 2, secretToken },
   );
 
@@ -155,10 +159,11 @@ test("webhook runs different chats concurrently", async () => {
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const webhook = app.startWebhook(
-    (item: Update) => Effect.sync(() => {
-      started.add(item.updateId);
-      if (started.size === 2) bothStarted.resolve();
-    }).pipe(Effect.andThen(Deferred.await(gate))),
+    (item: Update) =>
+      Effect.sync(() => {
+        started.add(item.updateId);
+        if (started.size === 2) bothStarted.resolve();
+      }).pipe(Effect.andThen(Deferred.await(gate))),
     { concurrency: 2, secretToken },
   );
 
@@ -207,10 +212,11 @@ test("webhook shares concurrent duplicates and remembers completion", async () =
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const webhook = app.startWebhook(
-    () => Effect.sync(() => {
-      handled += 1;
-      started.resolve();
-    }).pipe(Effect.andThen(Deferred.await(gate))),
+    () =>
+      Effect.sync(() => {
+        handled += 1;
+        started.resolve();
+      }).pipe(Effect.andThen(Deferred.await(gate))),
     { concurrency: 1, secretToken },
   );
 
@@ -233,10 +239,9 @@ test("webhook returns 500 on handler failure and then stops accepting work", asy
   class HandlerError extends Error {}
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
-  const webhook = app.startWebhook(
-    () => Effect.fail(new HandlerError("handler failed")),
-    { secretToken },
-  );
+  const webhook = app.startWebhook(() => Effect.fail(new HandlerError("handler failed")), {
+    secretToken,
+  });
   let failure: unknown;
 
   try {
@@ -263,12 +268,15 @@ test("webhook stop drains active work and completes pending response", async () 
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const webhook = app.startWebhook(
-    () => Effect.sync(started.resolve).pipe(
-      Effect.andThen(Deferred.await(gate)),
-      Effect.andThen(Effect.sync(() => {
-        completed = true;
-      })),
-    ),
+    () =>
+      Effect.sync(started.resolve).pipe(
+        Effect.andThen(Deferred.await(gate)),
+        Effect.andThen(
+          Effect.sync(() => {
+            completed = true;
+          }),
+        ),
+      ),
     { gracePeriodMs: 1_000, secretToken },
   );
 
@@ -290,10 +298,11 @@ test("webhook stop returns 503 after interrupting work beyond the grace period",
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const webhook = app.startWebhook(
-    () => Effect.sync(started.resolve).pipe(
-      Effect.andThen(Effect.never),
-      Effect.onInterrupt(() => Effect.sync(interrupted.resolve)),
-    ),
+    () =>
+      Effect.sync(started.resolve).pipe(
+        Effect.andThen(Effect.never),
+        Effect.onInterrupt(() => Effect.sync(interrupted.resolve)),
+      ),
     { gracePeriodMs: 0, secretToken },
   );
 

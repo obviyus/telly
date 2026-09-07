@@ -19,10 +19,7 @@ function botLayer(fake: FakeBotApi, rateLimit = true) {
 }
 
 function withTestRuntime<A, E>(fake: FakeBotApi, effect: Effect.Effect<A, E, Bot>) {
-  return effect.pipe(
-    Effect.provide(botLayer(fake)),
-    Effect.provide(TestClock.layer()),
-  );
+  return effect.pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer()));
 }
 
 test("429 waits for retryAfter before retrying", async () => {
@@ -97,15 +94,11 @@ test("a learned 429 cooldown pauses calls already waiting for a rate slot", asyn
   });
   const program = Effect.gen(function* () {
     yield* sendMessage({ chatId: 22, text: "prime" });
-    const queued = yield* sendMessage({ chatId: 22, text: "queued" }).pipe(
-      Effect.forkChild,
-    );
+    const queued = yield* sendMessage({ chatId: 22, text: "queued" }).pipe(Effect.forkChild);
     const queuedAgain = yield* sendMessage({ chatId: 22, text: "queued-again" }).pipe(
       Effect.forkChild,
     );
-    const limited = yield* sendMessage({ chatId: 21, text: "limited" }).pipe(
-      Effect.forkChild,
-    );
+    const limited = yield* sendMessage({ chatId: 21, text: "limited" }).pipe(Effect.forkChild);
     yield* Effect.yieldNow;
 
     yield* TestClock.adjust("34 millis");
@@ -187,11 +180,7 @@ test("paid broadcasts use the documented thousand-per-second overall limit", asy
 
 test("batch message methods reserve one slot per resulting message", async () => {
   const fake = FakeBotApi.make({
-    replies: [FakeBotApiReply.ok([
-      { message_id: 91 },
-      { message_id: 92 },
-      { message_id: 93 },
-    ])],
+    replies: [FakeBotApiReply.ok([{ message_id: 91 }, { message_id: 92 }, { message_id: 93 }])],
     token,
   });
   const program = Effect.gen(function* () {
@@ -200,9 +189,7 @@ test("batch message methods reserve one slot per resulting message", async () =>
       fromChatId: 62,
       messageIds: [1, 2, 3],
     });
-    const nextChat = yield* sendMessage({ chatId: 63, text: "overall" }).pipe(
-      Effect.forkChild,
-    );
+    const nextChat = yield* sendMessage({ chatId: 63, text: "overall" }).pipe(Effect.forkChild);
     yield* Effect.yieldNow;
 
     yield* TestClock.adjust("99 millis");
@@ -256,11 +243,11 @@ test("unknown send outcomes retry only with explicit opt-in", async () => {
     ],
     token,
   });
-  const defaultError = await Effect.runPromise(Effect.flip(
-    sendMessage({ chatId: 71, text: "default" }).pipe(
-      Effect.provide(botLayer(defaultFake)),
+  const defaultError = await Effect.runPromise(
+    Effect.flip(
+      sendMessage({ chatId: 71, text: "default" }).pipe(Effect.provide(botLayer(defaultFake))),
     ),
-  ));
+  );
 
   expect(defaultError.reason._tag).toBe("Transport");
   expect(defaultFake.requests).toHaveLength(1);
@@ -350,11 +337,11 @@ test("Telegram client rejections do not retry", async () => {
     replies: [FakeBotApiReply.reject({ description: "Bad Request", errorCode: 400 })],
     token,
   });
-  const error = await Effect.runPromise(Effect.flip(
-    sendMessage({ chatId: 82, text: "rejected" }).pipe(
-      Effect.provide(botLayer(clientFake)),
+  const error = await Effect.runPromise(
+    Effect.flip(
+      sendMessage({ chatId: 82, text: "rejected" }).pipe(Effect.provide(botLayer(clientFake))),
     ),
-  ));
+  );
 
   expect(error.reason._tag).toBe("TelegramRejected");
   expect(clientFake.requests).toHaveLength(1);
@@ -364,9 +351,7 @@ test("interrupting a paced call cancels its wait", async () => {
   const fake = FakeBotApi.make({ token });
   const program = Effect.gen(function* () {
     yield* sendMessage({ chatId: 91, text: "first" });
-    const waiting = yield* sendMessage({ chatId: 91, text: "second" }).pipe(
-      Effect.forkChild,
-    );
+    const waiting = yield* sendMessage({ chatId: 91, text: "second" }).pipe(Effect.forkChild);
     yield* Effect.yieldNow;
     yield* Fiber.interrupt(waiting);
   });
@@ -381,10 +366,7 @@ test("rate limiting can be disabled for an externally managed policy", async () 
   const program = Effect.gen(function* () {
     yield* sendMessage({ chatId: 101, text: "first" });
     yield* sendMessage({ chatId: 101, text: "second" });
-  }).pipe(
-    Effect.provide(botLayer(fake, false)),
-    Effect.provide(TestClock.layer()),
-  );
+  }).pipe(Effect.provide(botLayer(fake, false)), Effect.provide(TestClock.layer()));
 
   await Effect.runPromise(program);
 

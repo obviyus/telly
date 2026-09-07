@@ -51,27 +51,94 @@ let livePhotoImageBytes;
 
 const mediaFixtures = {
   sendAnimation: {
-    args: ["-f", "lavfi", "-i", "color=c=red:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=red:s=64x64:d=0.3",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-an",
+    ],
     name: "animation.mp4",
   },
   sendAudio: {
-    args: ["-f", "lavfi", "-i", "sine=frequency=440:duration=0.3", "-codec:a", "libmp3lame", "-b:a", "32k"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "sine=frequency=440:duration=0.3",
+      "-codec:a",
+      "libmp3lame",
+      "-b:a",
+      "32k",
+    ],
     name: "audio.mp3",
   },
   sendSticker: {
-    args: ["-f", "lavfi", "-i", "color=c=green:s=64x64:d=0.1", "-frames:v", "1", "-c:v", "libwebp", "-lossless", "1"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=green:s=64x64:d=0.1",
+      "-frames:v",
+      "1",
+      "-c:v",
+      "libwebp",
+      "-lossless",
+      "1",
+    ],
     name: "sticker.webp",
   },
   sendVideo: {
-    args: ["-f", "lavfi", "-i", "color=c=blue:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=blue:s=64x64:d=0.3",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-an",
+    ],
     name: "video.mp4",
   },
   sendVideoNote: {
-    args: ["-f", "lavfi", "-i", "color=c=blue:s=64x64:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=blue:s=64x64:d=0.3",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-an",
+    ],
     name: "video-note.mp4",
   },
   sendVoice: {
-    args: ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=mono", "-t", "0.3", "-c:a", "libopus", "-b:a", "16k"],
+    args: [
+      "-f",
+      "lavfi",
+      "-i",
+      "anullsrc=r=48000:cl=mono",
+      "-t",
+      "0.3",
+      "-c:a",
+      "libopus",
+      "-b:a",
+      "16k",
+    ],
     name: "voice.ogg",
   },
 };
@@ -79,11 +146,9 @@ const mediaFixtures = {
 const mediaFixture = mediaFixtures[method];
 if (mediaFixture !== undefined) {
   const mediaPath = path.join(proofDir, mediaFixture.name);
-  execFileSync(
-    "ffmpeg",
-    ["-hide_banner", "-loglevel", "error", ...mediaFixture.args, mediaPath],
-    { stdio: "inherit" },
-  );
+  execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", ...mediaFixture.args, mediaPath], {
+    stdio: "inherit",
+  });
   mediaBytes = await readFile(mediaPath);
 }
 if (method === "sendLivePhoto") {
@@ -91,12 +156,39 @@ if (method === "sendLivePhoto") {
   const videoPath = path.join(proofDir, "live-photo.mp4");
   execFileSync(
     "ffmpeg",
-    ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=orange:s=512x512:d=0.1", "-frames:v", "1", imagePath],
+    [
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=orange:s=512x512:d=0.1",
+      "-frames:v",
+      "1",
+      imagePath,
+    ],
     { stdio: "inherit" },
   );
   execFileSync(
     "ffmpeg",
-    ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=orange:s=512x512:d=0.3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", videoPath],
+    [
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=orange:s=512x512:d=0.3",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-an",
+      videoPath,
+    ],
     { stdio: "inherit" },
   );
   [livePhotoImageBytes, livePhotoBytes] = await Promise.all([
@@ -151,12 +243,15 @@ function sendOperation(chatId) {
       return sendPhoto({
         caption: sentText,
         chatId,
-        photo: new Blob([
-          Buffer.from(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-            "base64",
-          ),
-        ], { type: "image/png" }),
+        photo: new Blob(
+          [
+            Buffer.from(
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+              "base64",
+            ),
+          ],
+          { type: "image/png" },
+        ),
       });
     case "sendSticker":
       return sendSticker({
@@ -338,26 +433,26 @@ try {
   const result = await Effect.runPromise(sendOperation(chatId).pipe(Effect.provide(bot)));
   const sendsMessage = method !== "sendChatAction";
   const shouldDelete = sendsMessage && method !== "sendMessage";
-  const sentContent = sendsMessage ? result.text ?? result.caption : undefined;
+  const sentContent = sendsMessage ? (result.text ?? result.caption) : undefined;
   if (sendsMessage) {
     sentMessageId = result.messageId;
     await writeFile(
       path.join(proofDir, "sent.json"),
-      `${JSON.stringify({
-        date: result.date,
-        message_id: result.messageId,
-        text: sentContent,
-      }, null, 2)}\n`,
+      `${JSON.stringify(
+        {
+          date: result.date,
+          message_id: result.messageId,
+          text: sentContent,
+        },
+        null,
+        2,
+      )}\n`,
       { mode: 0o600 },
     );
   }
 
   const observed = await Promise.race([
-    waitFor(
-      eventsPath,
-      (events) => events.find(matchesObservedEvent),
-      15_000,
-    ),
+    waitFor(eventsPath, (events) => events.find(matchesObservedEvent), 15_000),
     recorderStoppedEarly,
   ]);
   let observedDeletion;
@@ -375,11 +470,11 @@ try {
     observedDeletion = await Promise.race([
       waitFor(
         eventsPath,
-        (events) => events.find(
-          (event) =>
-            event.kind === "delete" &&
-            event.botApiMessageId === observed.botApiMessageId,
-        ),
+        (events) =>
+          events.find(
+            (event) =>
+              event.kind === "delete" && event.botApiMessageId === observed.botApiMessageId,
+          ),
         15_000,
       ),
       recorderStoppedEarly,
@@ -413,13 +508,15 @@ try {
       },
       ...(observedDeletion === undefined
         ? []
-        : [{
-            elapsedMs: observedDeletion.elapsedMs,
-            isPermanent: observedDeletion.isPermanent,
-            isSut: true,
-            kind: observedDeletion.kind,
-            observerBotApiMessageId: observedDeletion.botApiMessageId,
-          }]),
+        : [
+            {
+              elapsedMs: observedDeletion.elapsedMs,
+              isPermanent: observedDeletion.isPermanent,
+              isSut: true,
+              kind: observedDeletion.kind,
+              observerBotApiMessageId: observedDeletion.botApiMessageId,
+            },
+          ]),
     ],
   };
   const serializedVerdict = `${JSON.stringify(verdict, null, 2)}\n`;
@@ -436,7 +533,13 @@ try {
   }
   console.log(JSON.stringify({ ok: true, proofDir, verdict }));
 } catch (error) {
-  console.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error), ok: false, proofDir }));
+  console.error(
+    JSON.stringify({
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+      proofDir,
+    }),
+  );
   throw error;
 } finally {
   if (

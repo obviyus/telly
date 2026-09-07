@@ -7,16 +7,9 @@ import * as Scope from "effect/Scope";
 
 import { Bot } from "../BotApi.js";
 import type { Update } from "../types.generated.js";
-import {
-  type DispatchSource,
-  recordDispatchRejected,
-  trackDispatch,
-} from "./Telemetry.js";
+import { type DispatchSource, recordDispatchRejected, trackDispatch } from "./Telemetry.js";
 
-export class DispatchFull extends Schema.TaggedError<DispatchFull>()(
-  "DispatchFull",
-  {},
-) {}
+export class DispatchFull extends Schema.TaggedError<DispatchFull>()("DispatchFull", {}) {}
 
 export interface DispatchOptions<Item> {
   readonly concurrency: number;
@@ -42,15 +35,21 @@ interface Lane {
   tail: Deferred.Deferred<void>;
 }
 
-export function defaultConversationKey(update: Update): number | string {
-  const message = update.message ??
+function messageConversationKey(update: Update): string | undefined {
+  const message =
+    update.message ??
     update.editedMessage ??
     update.channelPost ??
     update.editedChannelPost ??
     update.businessMessage ??
     update.editedBusinessMessage ??
     update.guestMessage;
-  if (message !== undefined) return `chat:${message.chat.id}`;
+  return message === undefined ? undefined : `chat:${message.chat.id}`;
+}
+
+export function defaultConversationKey(update: Update): number | string {
+  const messageKey = messageConversationKey(update);
+  if (messageKey !== undefined) return messageKey;
   if (update.deletedBusinessMessages !== undefined) {
     return `chat:${update.deletedBusinessMessages.chat.id}`;
   }
@@ -107,7 +106,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
   });
 
   const awaitCompletion = Effect.suspend(() =>
-    active === 0 ? Effect.void : Deferred.await(nextCompletion)
+    active === 0 ? Effect.void : Deferred.await(nextCompletion),
   );
 
   const submit = (item: Item, conversationKey?: number | string) =>
@@ -132,28 +131,29 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
       lane.pending += 1;
       active += 1;
 
-      const task = trackDispatch(options.source, Deferred.await(previous).pipe(
-        Effect.andThen(Effect.suspend(() => handler(item))),
-        Effect.onExit((exit) =>
-          Effect.sync(() => {
-            Deferred.doneUnsafe(result, Effect.succeed(exit));
-          })
+      const task = trackDispatch(
+        options.source,
+        Deferred.await(previous).pipe(
+          Effect.andThen(Effect.suspend(() => handler(item))),
+          Effect.onExit((exit) =>
+            Effect.sync(() => {
+              Deferred.doneUnsafe(result, Effect.succeed(exit));
+            }),
+          ),
+          Effect.ensuring(
+            Effect.sync(() => {
+              lane.pending -= 1;
+              if (lane.pending === 0) lanes.delete(key);
+              Deferred.doneUnsafe(done, Effect.void);
+              active -= 1;
+              const completed = nextCompletion;
+              nextCompletion = Deferred.makeUnsafe<void>();
+              Deferred.doneUnsafe(completed, Effect.void);
+            }),
+          ),
         ),
-        Effect.ensuring(
-          Effect.sync(() => {
-            lane.pending -= 1;
-            if (lane.pending === 0) lanes.delete(key);
-            Deferred.doneUnsafe(done, Effect.void);
-            active -= 1;
-            const completed = nextCompletion;
-            nextCompletion = Deferred.makeUnsafe<void>();
-            Deferred.doneUnsafe(completed, Effect.void);
-          }),
-        ),
-      ));
-      return FiberSet.run(handlers, task).pipe(
-        Effect.as(Deferred.await(result)),
       );
+      return FiberSet.run(handlers, task).pipe(Effect.as(Deferred.await(result)));
     });
 
   const drain = Effect.suspend(() => {
@@ -168,9 +168,7 @@ export const makeDispatcher = Effect.fn("makeDispatcher")(function* <Item, E, A>
 
   const cancel = Effect.suspend(() => {
     accepting = false;
-    return FiberSet.clear(handlers).pipe(
-      Effect.andThen(Scope.close(handlerScope, Exit.void)),
-    );
+    return FiberSet.clear(handlers).pipe(Effect.andThen(Scope.close(handlerScope, Exit.void)));
   });
 
   return {

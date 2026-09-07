@@ -6,10 +6,7 @@ import { fileURLToPath } from "node:url";
 import { Schema } from "effect";
 
 import { benchmarkEnvironment } from "./environment.ts";
-import type {
-  BenchmarkDocument,
-  FrameworkName,
-} from "./model.ts";
+import type { BenchmarkDocument, FrameworkName } from "./model.ts";
 import { measurePackageBytes } from "./package-cost.ts";
 import {
   assertRunnerResult,
@@ -209,10 +206,7 @@ function peakRss(results: ReadonlyArray<RunnerResultType>, framework: FrameworkN
     .map((result) => result.maxRssKiB);
 }
 
-async function startupSamples(options: {
-  readonly pin: number | null;
-  readonly rounds: number;
-}) {
+async function startupSamples(options: { readonly pin: number | null; readonly rounds: number }) {
   const samples: Record<string, Array<number>> = {
     grammy: [],
     "node-baseline": [],
@@ -241,13 +235,16 @@ async function startupSamples(options: {
     for (const name of order) {
       console.error(`🚦 startup ${name}`);
       const baselineCommand = baselineCommands[name];
-      const command = baselineCommand !== undefined
-        ? baselineCommand
-        : [...runnerCommand(name as FrameworkName), "--startup", "true"];
+      const command =
+        baselineCommand !== undefined
+          ? baselineCommand
+          : [...runnerCommand(name as FrameworkName), "--startup", "true"];
       const output = await spawnJson(command, options.pin);
       const result = Schema.decodeUnknownSync(StartupResult)(output.value);
       if (result.framework !== name) {
-        throw new Error(`Startup runner identity mismatch: expected ${name}, received ${result.framework}`);
+        throw new Error(
+          `Startup runner identity mismatch: expected ${name}, received ${result.framework}`,
+        );
       }
       samples[name]?.push(output.durationNs);
     }
@@ -298,22 +295,40 @@ try {
 
   for (let processIndex = 0; processIndex < preset.processes; processIndex += 1) {
     for (const framework of rotatedFrameworks(processIndex)) {
-      ingress.push(await runFramework(framework, {
-        mode: "ingress",
-        expected: measuredExpected,
-        operations: preset.operations,
-        pin: cli.pin,
-        rounds: preset.measuredRounds,
-        warmups: preset.warmupRounds,
-        warmupOperations: preset.operations,
-        workloadPath,
-      }));
+      ingress.push(
+        await runFramework(framework, {
+          mode: "ingress",
+          expected: measuredExpected,
+          operations: preset.operations,
+          pin: cli.pin,
+          rounds: preset.measuredRounds,
+          warmups: preset.warmupRounds,
+          warmupOperations: preset.operations,
+          workloadPath,
+        }),
+      );
     }
   }
   for (let processIndex = 0; processIndex < preset.processes; processIndex += 1) {
     for (const framework of rotatedFrameworks(processIndex + 1)) {
-      routing.push(await runFramework(framework, {
-        mode: "routing",
+      routing.push(
+        await runFramework(framework, {
+          mode: "routing",
+          expected: measuredExpected,
+          operations: preset.operations,
+          pin: cli.pin,
+          rounds: preset.measuredRounds,
+          warmups: preset.warmupRounds,
+          warmupOperations: preset.operations,
+          workloadPath,
+        }),
+      );
+    }
+  }
+  for (const framework of ["telly", "python-telegram-bot"] as const) {
+    decode.push(
+      await runFramework(framework, {
+        mode: "decode",
         expected: measuredExpected,
         operations: preset.operations,
         pin: cli.pin,
@@ -321,45 +336,37 @@ try {
         warmups: preset.warmupRounds,
         warmupOperations: preset.operations,
         workloadPath,
-      }));
-    }
+      }),
+    );
   }
   for (const framework of ["telly", "python-telegram-bot"] as const) {
-    decode.push(await runFramework(framework, {
-      mode: "decode",
-      expected: measuredExpected,
-      operations: preset.operations,
-      pin: cli.pin,
-      rounds: preset.measuredRounds,
-      warmups: preset.warmupRounds,
-      warmupOperations: preset.operations,
-      workloadPath,
-    }));
-  }
-  for (const framework of ["telly", "python-telegram-bot"] as const) {
-    heavyDecode.push(await runFramework(framework, {
-      mode: "decode",
-      expected: heavyExpected,
-      operations: preset.diagnosticOperations,
-      pin: cli.pin,
-      rounds: preset.measuredRounds,
-      warmups: preset.warmupRounds,
-      warmupOperations: preset.diagnosticOperations,
-      workloadPath: heavyWorkloadPath,
-    }));
+    heavyDecode.push(
+      await runFramework(framework, {
+        mode: "decode",
+        expected: heavyExpected,
+        operations: preset.diagnosticOperations,
+        pin: cli.pin,
+        rounds: preset.measuredRounds,
+        warmups: preset.warmupRounds,
+        warmupOperations: preset.diagnosticOperations,
+        workloadPath: heavyWorkloadPath,
+      }),
+    );
   }
   for (let processIndex = 0; processIndex < preset.processes; processIndex += 1) {
     for (const framework of rotatedFrameworks(processIndex + 2)) {
-      latencyResults.push(await runFramework(framework, {
-        mode: "latency",
-        expected: latencyExpected,
-        operations: preset.latencyOperations,
-        pin: cli.pin,
-        rounds: 1,
-        warmups: preset.warmupRounds,
-        warmupOperations: preset.operations,
-        workloadPath,
-      }));
+      latencyResults.push(
+        await runFramework(framework, {
+          mode: "latency",
+          expected: latencyExpected,
+          operations: preset.latencyOperations,
+          pin: cli.pin,
+          rounds: 1,
+          warmups: preset.warmupRounds,
+          warmupOperations: preset.operations,
+          workloadPath,
+        }),
+      );
     }
   }
   const nodeFloor = await runFramework("telly", {
@@ -387,8 +394,8 @@ try {
   const versions = {
     grammy: ingress.find((result) => result.framework === "grammy")?.version ?? "missing",
     puregram: ingress.find((result) => result.framework === "puregram")?.version ?? "missing",
-    "python-telegram-bot": ingress.find((result) => result.framework === "python-telegram-bot")
-      ?.version ?? "missing",
+    "python-telegram-bot":
+      ingress.find((result) => result.framework === "python-telegram-bot")?.version ?? "missing",
     telly: ingress.find((result) => result.framework === "telly")?.version ?? "missing",
   } as const;
   if (
@@ -416,17 +423,21 @@ try {
     telly: summarize(throughput(ingress, "telly")),
   };
   const qualityWarnings: Array<string> = [];
-  const highestVariation = Math.max(...frameworkOrder.map(
-    (framework) => throughputSummaries[framework].coefficientOfVariation,
-  ));
+  const highestVariation = Math.max(
+    ...frameworkOrder.map((framework) => throughputSummaries[framework].coefficientOfVariation),
+  );
   if (highestVariation > 0.05) {
-    qualityWarnings.push(`Highest throughput CV was ${Math.round(highestVariation * 1_000) / 10}%; target is 5% or less.`);
+    qualityWarnings.push(
+      `Highest throughput CV was ${Math.round(highestVariation * 1_000) / 10}%; target is 5% or less.`,
+    );
   }
   if (
     environment.machine.pinnedCoreIdlePercent !== null &&
     environment.machine.pinnedCoreIdlePercent < 90
   ) {
-    qualityWarnings.push(`Pinned physical core was only ${environment.machine.pinnedCoreIdlePercent.toFixed(1)}% idle before the run.`);
+    qualityWarnings.push(
+      `Pinned physical core was only ${environment.machine.pinnedCoreIdlePercent.toFixed(1)}% idle before the run.`,
+    );
   }
   const document: BenchmarkDocument = {
     diagnostics: {
@@ -489,8 +500,7 @@ try {
         total: summarize(startupNs["puregram"] ?? []),
       },
       "python-telegram-bot": {
-        deltaNs: summarize(startupNs["python-telegram-bot"] ?? []).median -
-          pythonBaseline.median,
+        deltaNs: summarize(startupNs["python-telegram-bot"] ?? []).median - pythonBaseline.median,
         total: summarize(startupNs["python-telegram-bot"] ?? []),
       },
       telly: {
@@ -509,9 +519,10 @@ try {
       operations: preset.operations,
     },
   };
-  const directory = cli.baseline && document.quality.publishable
-    ? path.join(repoRoot, "benchmarks/baselines")
-    : path.join(repoRoot, "benchmarks/results");
+  const directory =
+    cli.baseline && document.quality.publishable
+      ? path.join(repoRoot, "benchmarks/baselines")
+      : path.join(repoRoot, "benchmarks/results");
   await mkdir(directory, { recursive: true });
   const stamp = document.generatedAt.slice(0, 19).replaceAll(":", "-");
   const baseName = `${stamp}-${document.source.gitSha.slice(0, 8)}-${cli.preset}`;

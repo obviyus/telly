@@ -111,16 +111,10 @@ async function waitForPublicTunnel(url) {
 }
 
 function spawnWranglerTunnel(port) {
-  return spawn(
-    "bunx",
-    [
-      "wrangler@4.127.1",
-      "tunnel",
-      "quick-start",
-      `http://127.0.0.1:${port}`,
-    ],
-    { detached: true, stdio: ["ignore", "pipe", "pipe"] },
-  );
+  return spawn("bunx", ["wrangler@4.127.1", "tunnel", "quick-start", `http://127.0.0.1:${port}`], {
+    detached: true,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 }
 
 function signalTunnel(child, signal) {
@@ -137,10 +131,7 @@ async function stopTunnel(child) {
   signalTunnel(child, "SIGTERM");
   if (child.exitCode === null) {
     const exited = new Promise((resolve) => child.once("exit", resolve));
-    await Promise.race([
-      exited,
-      new Promise((resolve) => setTimeout(resolve, 5_000)),
-    ]);
+    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 5_000))]);
   }
   signalTunnel(child, "SIGKILL");
 }
@@ -163,10 +154,7 @@ async function startPublicTunnel(port) {
 
 async function writeProof(method, observation, timeline) {
   return publishMethodProof(
-    createMethodProof(method, observation, [
-      { kind: "bot_api_result", observation },
-      ...timeline,
-    ]),
+    createMethodProof(method, observation, [{ kind: "bot_api_result", observation }, ...timeline]),
     credential,
     { secrets: [secretToken] },
   );
@@ -178,7 +166,9 @@ try {
   app = Application.make({ apiRoot: proxy.apiRoot, token: credential.sutToken });
   const snapshot = await app.run(getWebhookInfo());
   if (snapshot.url !== "") {
-    throw new Error("Leased bot already has a webhook; its secret settings cannot be restored safely");
+    throw new Error(
+      "Leased bot already has a webhook; its secret settings cannot be restored safely",
+    );
   }
 
   const bot = defineBot({
@@ -186,11 +176,13 @@ try {
       respond(message, `echo:${incoming}`).pipe(
         Effect.tap((sent) =>
           incoming === text
-            ? Effect.sync(() => deliveryResolve({
-                sentMessageId: sent.messageId,
-                updateIdIsInteger: Number.isInteger(update.updateId),
-              }))
-            : Effect.void
+            ? Effect.sync(() =>
+                deliveryResolve({
+                  sentMessageId: sent.messageId,
+                  updateIdIsInteger: Number.isInteger(update.updateId),
+                }),
+              )
+            : Effect.void,
         ),
       ),
   });
@@ -213,12 +205,14 @@ try {
   tunnel = publicTunnel.child;
   const tunnelUrl = publicTunnel.url;
   const webhookUrl = `${tunnelUrl}/telegram`;
-  const setResult = await app.run(setWebhook({
-    allowedUpdates: ["message"],
-    dropPendingUpdates: true,
-    secretToken,
-    url: webhookUrl,
-  }));
+  const setResult = await app.run(
+    setWebhook({
+      allowedUpdates: ["message"],
+      dropPendingUpdates: true,
+      secretToken,
+      url: webhookUrl,
+    }),
+  );
   webhookSet = true;
   const active = await waitForWebhook(
     () => app.run(getWebhookInfo()),
@@ -245,7 +239,7 @@ try {
   const delivered = await Promise.race([
     delivery,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Telegram did not deliver the webhook update")), 30_000)
+      setTimeout(() => reject(new Error("Telegram did not deliver the webhook update")), 30_000),
     ),
   ]);
   const userObservedResponse = JSON.parse(probeResult.stdout).ok === true;
@@ -294,7 +288,7 @@ try {
 } finally {
   if (webhookSet) await app?.run(deleteWebhook({ dropPendingUpdates: true })).catch(() => {});
   await stopTunnel(tunnel);
-  server?.stop(true);
+  await server?.stop(true);
   await webhook?.stop().catch(() => {});
   await app?.close();
   await harness?.close();

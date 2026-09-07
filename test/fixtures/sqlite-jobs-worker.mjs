@@ -9,11 +9,13 @@ if (path === undefined || botIdText === undefined || fencingTokenText === undefi
 
 const store = await SqliteJobs.open(path);
 try {
-  const claimed = await Effect.runPromise(store.claim({
-    botId: Number(botIdText),
-    fencingToken: Number(fencingTokenText),
-    limit: 1,
-  }));
+  const claimed = await Effect.runPromise(
+    store.claim({
+      botId: Number(botIdText),
+      fencingToken: Number(fencingTokenText),
+      limit: 1,
+    }),
+  );
   console.log(JSON.stringify(claimed.map((job) => job.id)));
 } finally {
   store.close();

@@ -10,13 +10,10 @@ import {
 } from "./generator.ts";
 import { checkBotApiSchema } from "./spec.ts";
 
-class SchemaFileReadError extends Schema.TaggedError<SchemaFileReadError>()(
-  "SchemaFileReadError",
-  {
-    cause: Schema.Defect(),
-    path: Schema.String,
-  },
-) {}
+class SchemaFileReadError extends Schema.TaggedError<SchemaFileReadError>()("SchemaFileReadError", {
+  cause: Schema.Defect(),
+  path: Schema.String,
+}) {}
 
 class GeneratedSourceMismatch extends Schema.TaggedError<GeneratedSourceMismatch>()(
   "GeneratedSourceMismatch",
@@ -69,7 +66,7 @@ const result = await Effect.runPromise(
       Object.values(evidence).flatMap((item) =>
         item.status === "proven"
           ? [checkFile(new URL(`../../${item.artifact}`, import.meta.url))]
-          : []
+          : [],
       ),
     );
     const expected = generateSources(result.spec, overrides, evidence);

@@ -13,10 +13,12 @@ function save(
     readonly capacity?: number;
     readonly fingerprint?: string;
     readonly runAtMs?: number;
-    readonly schedule?: { readonly _tag: "Once" } | {
-      readonly _tag: "Repeat";
-      readonly intervalMs: number;
-    };
+    readonly schedule?:
+      | { readonly _tag: "Once" }
+      | {
+          readonly _tag: "Repeat";
+          readonly intervalMs: number;
+        };
   } = {},
 ) {
   return store.save({
@@ -46,13 +48,15 @@ test("memory jobs claim work only when its scheduled time arrives", async () => 
   const result = await Effect.runPromise(program);
 
   expect(result.early).toEqual([]);
-  expect(result.due).toEqual([{
-    attempts: 1,
-    id: "later",
-    name: "reminder",
-    payload: { chatId: 77, text: "later" },
-    scheduledTimeMs: 5_000,
-  }]);
+  expect(result.due).toEqual([
+    {
+      attempts: 1,
+      id: "later",
+      name: "reminder",
+      payload: { chatId: 77, text: "later" },
+      scheduledTimeMs: 5_000,
+    },
+  ]);
 });
 
 test("memory jobs preserve repeating cadence, coalesce missed runs, and reset attempts", async () => {
@@ -156,12 +160,14 @@ test("memory jobs reject former lease holders and reclaim their work", async () 
     yield* TestClock.adjust("1 second");
     const second = yield* store.acquire({ botId, leaseMs: 1_000 });
     if (second._tag !== "Acquired") throw new Error("Expected second job lease");
-    const stale = yield* Effect.result(store.settle({
-      botId,
-      fencingToken: first.fencingToken,
-      id: "fenced",
-      outcome: { _tag: "Done" },
-    }));
+    const stale = yield* Effect.result(
+      store.settle({
+        botId,
+        fencingToken: first.fencingToken,
+        id: "fenced",
+        outcome: { _tag: "Done" },
+      }),
+    );
     const reclaimed = yield* store.claim({
       botId,
       fencingToken: second.fencingToken,
@@ -180,13 +186,15 @@ test("memory jobs reject former lease holders and reclaim their work", async () 
 
 test("memory jobs make saves idempotent and reject conflicting identifiers at capacity", async () => {
   const store = MemoryJobs.make();
-  const results = await Effect.runPromise(Effect.gen(function* () {
-    const stored = yield* save(store, "stable", { capacity: 1 });
-    const existing = yield* save(store, "stable", { capacity: 1 });
-    const conflict = yield* save(store, "stable", { capacity: 1, fingerprint: "different" });
-    const full = yield* save(store, "other", { capacity: 1 });
-    return { conflict, existing, full, stored };
-  }));
+  const results = await Effect.runPromise(
+    Effect.gen(function* () {
+      const stored = yield* save(store, "stable", { capacity: 1 });
+      const existing = yield* save(store, "stable", { capacity: 1 });
+      const conflict = yield* save(store, "stable", { capacity: 1, fingerprint: "different" });
+      const full = yield* save(store, "other", { capacity: 1 });
+      return { conflict, existing, full, stored };
+    }),
+  );
 
   expect(results).toEqual({
     conflict: { _tag: "Conflict" },

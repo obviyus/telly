@@ -30,7 +30,7 @@
     "bench:full": "bun run build && bun benchmarks/orchestrator/run.ts --preset full",
     "bench:setup": "bun install --frozen-lockfile && bun install --cwd benchmarks/runners/grammy --frozen-lockfile && bun install --cwd benchmarks/runners/puregram --frozen-lockfile && uv sync --project benchmarks/runners/ptb --frozen",
     "build": "bun run ./scripts/build.ts && tsc --project ./tsconfig.build.json",
-    "check": "bun run typecheck && bun run test && bun run schema:check && bun run test:node",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run schema:check && bun run test:node",
     "e2e:read-only-methods": "bun run ./scripts/e2e/read-only-methods.mjs",
     "e2e:bot-profile-settings": "bun run ./scripts/e2e/bot-profile-settings.mjs",
     "e2e:beginner-bot": "bun run ./scripts/e2e/beginner-bot.mjs",
@@ -50,6 +50,10 @@
     "e2e:superseriousbot-sed": "bun run ./scripts/e2e/superseriousbot-sed.mjs",
     "e2e:sticker-set": "bun run ./scripts/e2e/sticker-set.mjs",
     "e2e:webhook": "bun run ./scripts/e2e/webhook.mjs",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "schema:check": "bun run ./bot-api/schema/check.ts",
     "schema:generate": "bun run ./bot-api/schema/generate.ts",
     "test": "bun test --pass-with-no-tests",
@@ -63,6 +67,9 @@
   "devDependencies": {
     "@types/bun": "1.4.0",
     "@types/node": "^22.0.0",
+    "oxfmt": "0.66.0",
+    "oxlint": "1.81.0",
+    "oxlint-tsgolint": "7.0.2001",
     "typescript": "7.0.2"
   }
 }

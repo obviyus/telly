@@ -16,19 +16,23 @@ test("InputFile does not claim Telegram file references are upload bodies", asyn
 });
 
 test("MessageOrigin uses its type field as a discriminator", async () => {
-  const origin = await Effect.runPromise(Schema.decodeUnknownEffect(MessageOrigin)({
-    chat: { id: -1001, type: "channel" },
-    date: 1_700_000_003,
-    future_field: "kept",
-    message_id: 53,
-    type: "channel",
-  }));
-  const wrongType = await Effect.runPromiseExit(Schema.decodeUnknownEffect(MessageOrigin)({
-    chat: { id: -1001, type: "channel" },
-    date: 1_700_000_003,
-    message_id: 53,
-    type: "user",
-  }));
+  const origin = await Effect.runPromise(
+    Schema.decodeUnknownEffect(MessageOrigin)({
+      chat: { id: -1001, type: "channel" },
+      date: 1_700_000_003,
+      future_field: "kept",
+      message_id: 53,
+      type: "channel",
+    }),
+  );
+  const wrongType = await Effect.runPromiseExit(
+    Schema.decodeUnknownEffect(MessageOrigin)({
+      chat: { id: -1001, type: "channel" },
+      date: 1_700_000_003,
+      message_id: 53,
+      type: "user",
+    }),
+  );
   const encoded = await Effect.runPromise(Schema.encodeEffect(MessageOrigin)(origin));
   const invalidPublicValue = await Effect.runPromiseExit(
     Schema.encodeUnknownEffect(MessageOrigin)({
@@ -56,18 +60,22 @@ test("MessageOrigin uses its type field as a discriminator", async () => {
 });
 
 test("WebhookInfo keeps the array around its UpdateType enum", async () => {
-  const webhook = await Effect.runPromise(Schema.decodeUnknownEffect(WebhookInfo)({
-    allowed_updates: ["message", "callback_query"],
-    has_custom_certificate: false,
-    pending_update_count: 3,
-    url: "",
-  }));
-  const invalid = await Effect.runPromiseExit(Schema.decodeUnknownEffect(WebhookInfo)({
-    allowed_updates: ["not_an_update"],
-    has_custom_certificate: false,
-    pending_update_count: 3,
-    url: "",
-  }));
+  const webhook = await Effect.runPromise(
+    Schema.decodeUnknownEffect(WebhookInfo)({
+      allowed_updates: ["message", "callback_query"],
+      has_custom_certificate: false,
+      pending_update_count: 3,
+      url: "",
+    }),
+  );
+  const invalid = await Effect.runPromiseExit(
+    Schema.decodeUnknownEffect(WebhookInfo)({
+      allowed_updates: ["not_an_update"],
+      has_custom_certificate: false,
+      pending_update_count: 3,
+      url: "",
+    }),
+  );
 
   expect(webhook.allowedUpdates).toEqual(["message", "callback_query"]);
   expect(invalid._tag).toBe("Failure");
@@ -75,10 +83,9 @@ test("WebhookInfo keeps the array around its UpdateType enum", async () => {
 
 test("RichText accepts Telegram plain text and recursive arrays", async () => {
   const plain = await Effect.runPromise(Schema.decodeUnknownEffect(RichText)("plain"));
-  const nested = await Effect.runPromise(Schema.decodeUnknownEffect(RichText)([
-    "first",
-    { text: "bold", type: "bold" },
-  ]));
+  const nested = await Effect.runPromise(
+    Schema.decodeUnknownEffect(RichText)(["first", { text: "bold", type: "bold" }]),
+  );
   const invalid = await Effect.runPromiseExit(Schema.decodeUnknownEffect(RichText)(42));
 
   expect(plain).toBe("plain");
@@ -109,22 +116,26 @@ test("Update rejects missing, primitive, and nested schema violations", () => {
   const decode = Schema.decodeUnknownExit(Update);
 
   expect(decode({})._tag).toBe("Failure");
-  expect(decode({
-    message: {
-      chat: { id: 71, type: "private" },
-      date: "not-an-integer",
-      message_id: 3,
-    },
-    update_id: 3,
-  })._tag).toBe("Failure");
-  expect(decode({
-    message: {
-      chat: { id: 71, type: "private" },
-      date: 1_700_000_000,
-      entities: [{ length: 6, offset: "zero", type: "bot_command" }],
-      message_id: 4,
-      text: "/bench",
-    },
-    update_id: 4,
-  })._tag).toBe("Failure");
+  expect(
+    decode({
+      message: {
+        chat: { id: 71, type: "private" },
+        date: "not-an-integer",
+        message_id: 3,
+      },
+      update_id: 3,
+    })._tag,
+  ).toBe("Failure");
+  expect(
+    decode({
+      message: {
+        chat: { id: 71, type: "private" },
+        date: 1_700_000_000,
+        entities: [{ length: 6, offset: "zero", type: "bot_command" }],
+        message_id: 4,
+        text: "/bench",
+      },
+      update_id: 4,
+    })._tag,
+  ).toBe("Failure");
 });

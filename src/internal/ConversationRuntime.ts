@@ -11,9 +11,7 @@ import {
 } from "./ConversationProtocol.js";
 
 export function conversationScopeFromMessage(message: Message): string | undefined {
-  return message.from === undefined
-    ? undefined
-    : `chat:${message.chat.id}:user:${message.from.id}`;
+  return message.from === undefined ? undefined : `chat:${message.chat.id}:user:${message.from.id}`;
 }
 
 export function conversationScopeFromUpdate(update: Update): string | undefined {
@@ -31,9 +29,7 @@ export function withConversations<
   definitions: Definitions,
   fallback: UpdateHandler<FallbackError>,
 ): UpdateHandler<
-  | ConversationProtocolError<Definitions[number]>
-  | ConversationStoreError
-  | FallbackError
+  ConversationProtocolError<Definitions[number]> | ConversationStoreError | FallbackError
 >;
 export function withConversations(
   definitions: ReadonlyArray<ConversationProtocol<unknown>>,

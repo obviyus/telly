@@ -80,10 +80,11 @@ try {
     },
     {
       name: "answerChatJoinRequestQuery",
-      operation: () => answerChatJoinRequestQuery({
-        chatJoinRequestQueryId: "missing-query",
-        result: "decline",
-      }),
+      operation: () =>
+        answerChatJoinRequestQuery({
+          chatJoinRequestQueryId: "missing-query",
+          result: "decline",
+        }),
       summarize: (result) => ({ result }),
     },
     {
@@ -98,24 +99,28 @@ try {
     },
     {
       name: "answerPreCheckoutQuery",
-      operation: () => answerPreCheckoutQuery({
-        errorMessage: "Missing query fixture",
-        ok: false,
-        preCheckoutQueryId: "missing-query",
-      }),
+      operation: () =>
+        answerPreCheckoutQuery({
+          errorMessage: "Missing query fixture",
+          ok: false,
+          preCheckoutQueryId: "missing-query",
+        }),
       summarize: (result) => ({ result }),
     },
     {
       name: "answerShippingQuery",
-      operation: () => answerShippingQuery({
-        ok: true,
-        shippingQueryId: "missing-query",
-        shippingOptions: [{
-          id: "missing-option",
-          prices: [{ amount: 1, label: "Missing fixture" }],
-          title: "Missing fixture",
-        }],
-      }),
+      operation: () =>
+        answerShippingQuery({
+          ok: true,
+          shippingQueryId: "missing-query",
+          shippingOptions: [
+            {
+              id: "missing-option",
+              prices: [{ amount: 1, label: "Missing fixture" }],
+              title: "Missing fixture",
+            },
+          ],
+        }),
       summarize: (result) => ({ result }),
     },
     {
@@ -150,17 +155,19 @@ try {
     },
     {
       name: "getBusinessAccountGifts",
-      operation: () => getBusinessAccountGifts({
-        businessConnectionId: "missing-connection",
-        limit: 1,
-      }),
+      operation: () =>
+        getBusinessAccountGifts({
+          businessConnectionId: "missing-connection",
+          limit: 1,
+        }),
       summarize: (result) => ({ giftCount: result.gifts.length, totalCount: result.totalCount }),
     },
     {
       name: "getBusinessAccountStarBalance",
-      operation: () => getBusinessAccountStarBalance({
-        businessConnectionId: "missing-connection",
-      }),
+      operation: () =>
+        getBusinessAccountStarBalance({
+          businessConnectionId: "missing-connection",
+        }),
       summarize: (result) => ({ amount: result.amount }),
     },
     {
@@ -205,11 +212,12 @@ try {
     },
     {
       name: "getGameHighScores",
-      operation: () => getGameHighScores({
-        chatId: testerUserId,
-        messageId: 1,
-        userId: testerUserId,
-      }),
+      operation: () =>
+        getGameHighScores({
+          chatId: testerUserId,
+          messageId: 1,
+          userId: testerUserId,
+        }),
       summarize: (result) => ({ scoreCount: result.length }),
     },
     {
@@ -236,10 +244,11 @@ try {
     },
     {
       name: "getMyCommands",
-      operation: () => getMyCommands({
-        languageCode: "en",
-        scope: { type: "default" },
-      }),
+      operation: () =>
+        getMyCommands({
+          languageCode: "en",
+          scope: { type: "default" },
+        }),
       summarize: (result) => ({ commandCount: result.length }),
     },
     {
@@ -317,13 +326,13 @@ try {
     "getFile",
     "getStickerSet",
   ]);
-  const needsFileSticker = requestedMethods === undefined ||
-    requestedMethods.some((name) => fileMethodNames.has(name));
+  const needsFileSticker =
+    requestedMethods === undefined || requestedMethods.some((name) => fileMethodNames.has(name));
   let fileMethods = [];
   if (needsFileSticker) {
     const stickers = await app.run(getForumTopicIconStickers());
-    const sticker = stickers.find((item) =>
-      item.customEmojiId !== undefined && item.setName !== undefined
+    const sticker = stickers.find(
+      (item) => item.customEmojiId !== undefined && item.setName !== undefined,
     );
     if (sticker === undefined) {
       throw new Error("Telegram returned no reusable forum icon sticker");
@@ -336,9 +345,10 @@ try {
       },
       {
         name: "getCustomEmojiStickers",
-        operation: () => getCustomEmojiStickers({
-          customEmojiIds: [sticker.customEmojiId],
-        }),
+        operation: () =>
+          getCustomEmojiStickers({
+            customEmojiIds: [sticker.customEmojiId],
+          }),
         summarize: (result) => ({ stickerCount: result.length }),
       },
       {
@@ -360,13 +370,14 @@ try {
     ];
   }
   const availableMethods = [...methods, ...fileMethods];
-  const selectedMethods = requestedMethods === undefined
-    ? availableMethods
-    : requestedMethods.map((name) => {
-        const method = availableMethods.find((candidate) => candidate.name === name);
-        if (method === undefined) throw new Error(`Unknown read-only method ${name}`);
-        return method;
-      });
+  const selectedMethods =
+    requestedMethods === undefined
+      ? availableMethods
+      : requestedMethods.map((name) => {
+          const method = availableMethods.find((candidate) => candidate.name === name);
+          if (method === undefined) throw new Error(`Unknown read-only method ${name}`);
+          return method;
+        });
   const verdicts = [];
 
   for (const method of selectedMethods) {
@@ -399,10 +410,12 @@ try {
 
   console.log(JSON.stringify({ ok: true, verdicts }));
 } catch (error) {
-  console.error(JSON.stringify({
-    error: error instanceof Error ? error.message : String(error),
-    ok: false,
-  }));
+  console.error(
+    JSON.stringify({
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+    }),
+  );
   throw error;
 } finally {
   await app?.close();

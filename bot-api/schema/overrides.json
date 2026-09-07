@@ -1266,145 +1266,79 @@
   },
   "fields": {
     "InputMediaAnimation.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaAnimation.thumbnail": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputMediaAudio.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaAudio.thumbnail": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputMediaDocument.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaDocument.thumbnail": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputMediaLivePhoto.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaLivePhoto.photo": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaPhoto.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaSticker.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaVideo.cover": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaVideo.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputMediaVideo.thumbnail": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputMediaVoiceNote.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaLivePhoto.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaLivePhoto.photo": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaPhoto.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaVideo.cover": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaVideo.media": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputPaidMediaVideo.thumbnail": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputProfilePhotoAnimated.animation": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputProfilePhotoStatic.photo": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputSticker.sticker": {
-      "types": [
-        "InputFile",
-        "String"
-      ]
+      "types": ["InputFile", "String"]
     },
     "InputStoryContentPhoto.photo": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     },
     "InputStoryContentVideo.video": {
-      "types": [
-        "InputFile"
-      ]
+      "types": ["InputFile"]
     }
   },
   "methods": {
@@ -2157,10 +2091,7 @@
       "typescript": "Blob"
     },
     "RichText": {
-      "additionalTypes": [
-        "String",
-        "Array of RichText"
-      ]
+      "additionalTypes": ["String", "Array of RichText"]
     }
   }
 }

@@ -1,10 +1,6 @@
 import { expect, test } from "bun:test";
 
-import {
-  expectedTotals,
-  makeHeavyWorkload,
-  makeWorkload,
-} from "../orchestrator/workload.ts";
+import { expectedTotals, makeHeavyWorkload, makeWorkload } from "../orchestrator/workload.ts";
 
 test("mixed workload is deterministic with the declared 70-20-10 shape", () => {
   const first = makeWorkload({ fixtureCount: 100, seed: 20260901 });

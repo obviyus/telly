@@ -12,9 +12,12 @@ import {
 } from "../../index.ts";
 
 export function makeOrderBot(store: ConversationStoreService) {
-  const confirmation = callbackData("order", Schema.Struct({
-    answer: Schema.Literals(["yes", "no"]),
-  }));
+  const confirmation = callbackData(
+    "order",
+    Schema.Struct({
+      answer: Schema.Literals(["yes", "no"]),
+    }),
+  );
   const order = conversation({
     name: "order",
     steps: {
@@ -39,9 +42,7 @@ export function makeOrderBot(store: ConversationStoreService) {
       note: Conversation.step({
         filter: text(),
         run: ({ message, text: note }, state) =>
-          respond(message, `Order ${state.orderId}: ${note}`).pipe(
-            Effect.as(Conversation.end()),
-          ),
+          respond(message, `Order ${state.orderId}: ${note}`).pipe(Effect.as(Conversation.end())),
         state: Schema.Struct({ orderId: Schema.Int }),
       }),
     },
@@ -49,20 +50,20 @@ export function makeOrderBot(store: ConversationStoreService) {
   });
   const bot = defineBot({
     commands: {
-      cancel: ({ message }) => respond(message, "Conversation cancelled.").pipe(
-        Effect.andThen(order.exit(message)),
-      ),
-      order: ({ message }) => respond(message, {
-        replyMarkup: {
-          inlineKeyboard: [[
-            confirmation.button("Yes", { answer: "yes" }),
-            confirmation.button("No", { answer: "no" }),
-          ]],
-        },
-        text: "Confirm order 42?",
-      }).pipe(
-        Effect.andThen(order.enter(message, "confirm", { orderId: 42 })),
-      ),
+      cancel: ({ message }) =>
+        respond(message, "Conversation cancelled.").pipe(Effect.andThen(order.exit(message))),
+      order: ({ message }) =>
+        respond(message, {
+          replyMarkup: {
+            inlineKeyboard: [
+              [
+                confirmation.button("Yes", { answer: "yes" }),
+                confirmation.button("No", { answer: "no" }),
+              ],
+            ],
+          },
+          text: "Confirm order 42?",
+        }).pipe(Effect.andThen(order.enter(message, "confirm", { orderId: 42 }))),
     },
     conversations: [order],
   });

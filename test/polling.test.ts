@@ -111,9 +111,7 @@ test("polling does not acknowledge past an incomplete update", async () => {
   try {
     app.startPolling(
       (item) =>
-        item.updateId === 31
-          ? Deferred.await(firstGate)
-          : Effect.sync(secondCompleted.resolve),
+        item.updateId === 31 ? Deferred.await(firstGate) : Effect.sync(secondCompleted.resolve),
       { acknowledgment: "on-complete", concurrency: 2 },
     );
     await secondCompleted.promise;
@@ -131,24 +129,25 @@ test("polling keeps updates from the same chat in order", async () => {
   const secondStarted = signal();
   const handled: Array<number> = [];
   const fake = FakeBotApi.make({
-    replies: [
-      FakeBotApiReply.ok([update(41, 401), update(42, 401)]),
-    ],
+    replies: [FakeBotApiReply.ok([update(41, 401), update(42, 401)])],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    app.startPolling((item) =>
-      Effect.gen(function* () {
-        handled.push(item.updateId);
-        if (item.updateId === 41) {
-          firstStarted.resolve();
-          yield* Deferred.await(firstGate);
-        } else {
-          secondStarted.resolve();
-        }
-      }), { concurrency: 2 });
+    app.startPolling(
+      (item) =>
+        Effect.gen(function* () {
+          handled.push(item.updateId);
+          if (item.updateId === 41) {
+            firstStarted.resolve();
+            yield* Deferred.await(firstGate);
+          } else {
+            secondStarted.resolve();
+          }
+        }),
+      { concurrency: 2 },
+    );
     await firstStarted.promise;
     const beforeRelease = [...handled];
     Effect.runSync(Deferred.succeed(firstGate, undefined));
@@ -165,19 +164,20 @@ test("polling handles different chats concurrently", async () => {
   const bothStarted = signal();
   const started = new Set<number>();
   const fake = FakeBotApi.make({
-    replies: [
-      FakeBotApiReply.ok([update(51, 501), update(52, 502)]),
-    ],
+    replies: [FakeBotApiReply.ok([update(51, 501), update(52, 502)])],
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    app.startPolling((item) =>
-      Effect.sync(() => {
-        started.add(item.updateId);
-        if (started.size === 2) bothStarted.resolve();
-      }).pipe(Effect.andThen(Deferred.await(gate))), { concurrency: 2 });
+    app.startPolling(
+      (item) =>
+        Effect.sync(() => {
+          started.add(item.updateId);
+          if (started.size === 2) bothStarted.resolve();
+        }).pipe(Effect.andThen(Deferred.await(gate))),
+      { concurrency: 2 },
+    );
     await bothStarted.promise;
     const observed = new Set(started);
     Effect.runSync(Deferred.succeed(gate, undefined));
@@ -204,19 +204,20 @@ test("polling never exceeds its concurrency limit", async () => {
   const app = Application.make({ httpClient: fake.layer, token });
 
   try {
-    app.startPolling((item) =>
-      Effect.gen(function* () {
-        active += 1;
-        maximumActive = Math.max(maximumActive, active);
-        if (active === 2) firstTwoStarted.resolve();
-        if (item.updateId === 63) thirdStarted.resolve();
-        yield* Deferred.await(item.updateId === 61 ? firstGate : remainingGate);
-        active -= 1;
-      }), { concurrency: 2 });
+    app.startPolling(
+      (item) =>
+        Effect.gen(function* () {
+          active += 1;
+          maximumActive = Math.max(maximumActive, active);
+          if (active === 2) firstTwoStarted.resolve();
+          if (item.updateId === 63) thirdStarted.resolve();
+          yield* Deferred.await(item.updateId === 61 ? firstGate : remainingGate);
+          active -= 1;
+        }),
+      { concurrency: 2 },
+    );
     await firstTwoStarted.promise;
-    const pollCountAtCapacity = fake.requests.filter(
-      (call) => call.method === "getUpdates"
-    ).length;
+    const pollCountAtCapacity = fake.requests.filter((call) => call.method === "getUpdates").length;
     Effect.runSync(Deferred.succeed(firstGate, undefined));
     await thirdStarted.promise;
     Effect.runSync(Deferred.succeed(remainingGate, undefined));
@@ -245,7 +246,7 @@ test("polling stop interrupts work after the grace period", async () => {
           Effect.sync(() => {
             wasInterrupted = true;
             interrupted.resolve();
-          })
+          }),
         ),
       ),
     { concurrency: 1, gracePeriodMs: 0 },
@@ -272,12 +273,16 @@ test("polling stop lets active work finish within the grace period", async () =>
     () =>
       Effect.sync(started.resolve).pipe(
         Effect.andThen(Deferred.await(gate)),
-        Effect.andThen(Effect.sync(() => {
-          completed = true;
-        })),
-        Effect.onInterrupt(() => Effect.sync(() => {
-          interrupted = true;
-        })),
+        Effect.andThen(
+          Effect.sync(() => {
+            completed = true;
+          }),
+        ),
+        Effect.onInterrupt(() =>
+          Effect.sync(() => {
+            interrupted = true;
+          }),
+        ),
       ),
     { concurrency: 1, gracePeriodMs: 1_000 },
   );
@@ -314,10 +319,9 @@ test("polling exposes handler failures through its completion", async () => {
     token,
   });
   const app = Application.make({ httpClient: fake.layer, token });
-  const polling = app.startPolling(
-    () => sendMessage({ chatId: 901, text: "reply" }),
-    { concurrency: 1 },
-  );
+  const polling = app.startPolling(() => sendMessage({ chatId: 901, text: "reply" }), {
+    concurrency: 1,
+  });
   let caught: unknown;
 
   try {
@@ -377,21 +381,20 @@ test("polling retries an overlapping poll with the same offset", async () => {
     replies: [FakeBotApiReply.ok([update(101, 1_001)]), conflict()],
     token,
   });
-  const retried = await Effect.runPromise(Effect.gen(function* () {
-    const polling = yield* pollUpdates(
-      () => Deferred.succeed(handled, undefined),
-    ).pipe(Effect.forkChild);
-    yield* Deferred.await(handled);
-    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
-    yield* Effect.yieldNow;
-    yield* TestClock.adjust("1 second");
-    const request = yield* Effect.promise(() => fake.whenCalled("getUpdates", 3));
-    yield* Fiber.interrupt(polling);
-    return request;
-  }).pipe(
-    Effect.provide(botLayer(fake)),
-    Effect.provide(TestClock.layer()),
-  ));
+  const retried = await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Deferred.succeed(handled, undefined)).pipe(
+        Effect.forkChild,
+      );
+      yield* Deferred.await(handled);
+      yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
+      yield* Effect.yieldNow;
+      yield* TestClock.adjust("1 second");
+      const request = yield* Effect.promise(() => fake.whenCalled("getUpdates", 3));
+      yield* Fiber.interrupt(polling);
+      return request;
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
 
   expect(retried.params).toMatchObject({ offset: 102 });
 });
@@ -401,22 +404,20 @@ test("polling stops retrying when the conflict budget expires", async () => {
     replies: [conflict(), webhookInfo(""), conflict(), webhookInfo("")],
     token,
   });
-  const caught = await Effect.runPromise(Effect.gen(function* () {
-    const polling = yield* pollUpdates(
-      () => Effect.void,
-      { conflictRetryBudgetMs: 3_000 },
-    ).pipe(Effect.forkChild);
-    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
-    yield* Effect.yieldNow;
-    yield* TestClock.adjust("1 second");
-    yield* Effect.promise(() => fake.whenCalled("getWebhookInfo", 2));
-    yield* Effect.yieldNow;
-    yield* TestClock.adjust("2 seconds");
-    return yield* Fiber.join(polling).pipe(Effect.flip);
-  }).pipe(
-    Effect.provide(botLayer(fake)),
-    Effect.provide(TestClock.layer()),
-  ));
+  const caught = await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Effect.void, { conflictRetryBudgetMs: 3_000 }).pipe(
+        Effect.forkChild,
+      );
+      yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
+      yield* Effect.yieldNow;
+      yield* TestClock.adjust("1 second");
+      yield* Effect.promise(() => fake.whenCalled("getWebhookInfo", 2));
+      yield* Effect.yieldNow;
+      yield* TestClock.adjust("2 seconds");
+      return yield* Fiber.join(polling).pipe(Effect.flip);
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
 
   expect(caught).toBeInstanceOf(PollingConflictError);
   if (!(caught instanceof PollingConflictError)) throw new Error("Expected polling conflict");
@@ -426,17 +427,11 @@ test("polling stops retrying when the conflict budget expires", async () => {
 
 test("polling preserves the original conflict when classification fails", async () => {
   const fake = FakeBotApi.make({
-    replies: [
-      conflict(),
-      FakeBotApiReply.reject({ description: "Not Found", errorCode: 404 }),
-    ],
+    replies: [conflict(), FakeBotApiReply.reject({ description: "Not Found", errorCode: 404 })],
     token,
   });
   const caught = await Effect.runPromise(
-    pollUpdates(() => Effect.void).pipe(
-      Effect.provide(botLayer(fake)),
-      Effect.flip,
-    ),
+    pollUpdates(() => Effect.void).pipe(Effect.provide(botLayer(fake)), Effect.flip),
   );
 
   expect(caught).toBeInstanceOf(BotApiError);

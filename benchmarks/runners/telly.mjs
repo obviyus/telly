@@ -1,18 +1,8 @@
 import { readFile } from "node:fs/promises";
 
-import {
-  Application,
-  defineBot,
-  Effect,
-  Schema,
-  Update,
-} from "../../dist/index.js";
+import { Application, defineBot, Effect, Schema, Update } from "../../dist/index.js";
 
-import {
-  makeMetrics,
-  record,
-  runFramework,
-} from "./js-common.mjs";
+import { makeMetrics, record, runFramework } from "./js-common.mjs";
 
 const packageJson = JSON.parse(await readFile(new URL("../../package.json", import.meta.url)));
 const token = "123456:telly-benchmark";
@@ -23,21 +13,28 @@ let current = makeMetrics();
 let sentinel = 0;
 
 const handler = defineBot({
-  callbackQuery: ({ callbackQuery, update }) => Effect.sync(() => {
-    record(current, "callback", callbackQuery.data ?? "", update.updateId);
-  }),
-  commands: {
-    bench: ({ argText, update }) => Effect.sync(() => {
-      record(current, "command", argText, update.updateId);
+  callbackQuery: ({ callbackQuery, update }) =>
+    Effect.sync(() => {
+      record(current, "callback", callbackQuery.data ?? "", update.updateId);
     }),
-  },
-  text: ({ text, update }) => text === "__await__"
-    ? Effect.yieldNow.pipe(Effect.tap(() => Effect.sync(() => {
-        sentinel += 1;
-      })))
-    : Effect.sync(() => {
-        record(current, "text", text, update.updateId);
+  commands: {
+    bench: ({ argText, update }) =>
+      Effect.sync(() => {
+        record(current, "command", argText, update.updateId);
       }),
+  },
+  text: ({ text, update }) =>
+    text === "__await__"
+      ? Effect.yieldNow.pipe(
+          Effect.tap(() =>
+            Effect.sync(() => {
+              sentinel += 1;
+            }),
+          ),
+        )
+      : Effect.sync(() => {
+          record(current, "text", text, update.updateId);
+        }),
 });
 
 function recordDecoded(update) {
@@ -70,16 +67,20 @@ await runFramework({
       if (entry === undefined) throw new Error(`Missing ${kind} preflight update`);
       await app.run(handler(decode(entry.update)));
     }
-    await app.run(handler(decode({
-      message: {
-        chat: { id: 71, type: "private" },
-        date: 1_700_000_000,
-        from: { first_name: "Benchmark", id: 17, is_bot: false },
-        message_id: 1,
-        text: "__await__",
-      },
-      update_id: 1,
-    })));
+    await app.run(
+      handler(
+        decode({
+          message: {
+            chat: { id: 71, type: "private" },
+            date: 1_700_000_000,
+            from: { first_name: "Benchmark", id: 17, is_bot: false },
+            message_id: 1,
+            text: "__await__",
+          },
+          update_id: 1,
+        }),
+      ),
+    );
     await app.run(handler(decode({ update_id: 2 })));
     for (const invalid of [
       {},
@@ -106,12 +107,7 @@ await runFramework({
         throw new Error("Telly validation preflight accepted an invalid update");
       }
     }
-    if (
-      current.text !== 1 ||
-      current.command !== 1 ||
-      current.callback !== 1 ||
-      sentinel !== 1
-    ) {
+    if (current.text !== 1 || current.command !== 1 || current.callback !== 1 || sentinel !== 1) {
       throw new Error("Telly routing preflight failed");
     }
   },

@@ -4,11 +4,7 @@ import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
 
 import { Bot, BotApiError } from "../BotApi.js";
-import {
-  getUpdates,
-  getWebhookInfo,
-  type GetUpdatesParams,
-} from "../methods.generated.js";
+import { getUpdates, getWebhookInfo, type GetUpdatesParams } from "../methods.generated.js";
 import type { Update } from "../types.generated.js";
 import { recordBotApiDelay } from "./Telemetry.js";
 
@@ -45,9 +41,11 @@ interface ConflictEpisode {
 }
 
 function isGetUpdatesConflict(error: BotApiError): boolean {
-  return error.method === "getUpdates" &&
+  return (
+    error.method === "getUpdates" &&
     error.reason._tag === "TelegramRejected" &&
-    error.reason.errorCode === 409;
+    error.reason.errorCode === 409
+  );
 }
 
 function flushTimeout() {
@@ -73,7 +71,7 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
 
     while (true) {
       const now = yield* Effect.clockWith((clock) =>
-        Effect.sync(() => clock.currentTimeMillisUnsafe())
+        Effect.sync(() => clock.currentTimeMillisUnsafe()),
       );
       if (episode !== undefined && now >= episode.deadlineMs) {
         return yield* new PollingConflictError({
@@ -90,9 +88,7 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
       }
 
       // Telegram does not document stable conflict descriptions. Webhook state is the safe classifier.
-      const webhook = yield* getWebhookInfo().pipe(
-        Effect.catch(() => Effect.fail(rejection)),
-      );
+      const webhook = yield* getWebhookInfo().pipe(Effect.catch(() => Effect.fail(rejection)));
       if (webhook.url !== "") {
         return yield* new PollingConflictError({
           conflict: "active-webhook",
@@ -101,7 +97,7 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
       }
 
       const classifiedAt = yield* Effect.clockWith((clock) =>
-        Effect.sync(() => clock.currentTimeMillisUnsafe())
+        Effect.sync(() => clock.currentTimeMillisUnsafe()),
       );
       const current = episode ?? {
         deadlineMs: classifiedAt + conflictRetryBudgetMs,
@@ -139,7 +135,7 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
     return yield* getUpdates({ limit: 1, offset, timeout: 0 }).pipe(
       Effect.asVoid,
       // Another consumer will receive anything this process could not confirm during shutdown.
-      Effect.catch((error) => isGetUpdatesConflict(error) ? Effect.void : Effect.fail(error)),
+      Effect.catch((error) => (isGetUpdatesConflict(error) ? Effect.void : Effect.fail(error))),
       Effect.timeoutOrElse({
         duration: acknowledgmentFlushTimeoutMs,
         orElse: () => Effect.fail(flushTimeout()),

@@ -48,7 +48,9 @@ function expected(entries, operations) {
 function assertMetrics(actual, wanted) {
   for (const key of ["callback", "checksum", "command", "text"]) {
     if (actual[key] !== wanted[key]) {
-      throw new Error(`Correctness failure for ${key}: expected ${wanted[key]}, received ${actual[key]}`);
+      throw new Error(
+        `Correctness failure for ${key}: expected ${wanted[key]}, received ${actual[key]}`,
+      );
     }
   }
 }
@@ -56,13 +58,15 @@ function assertMetrics(actual, wanted) {
 export async function runFramework(options) {
   const args = parseArguments(process.argv.slice(2));
   if (args.startup) {
-    console.log(JSON.stringify({
-      framework: options.framework,
-      ready: true,
-      runtime: `node ${process.version}`,
-      schemaVersion: 1,
-      version: options.version,
-    }));
+    console.log(
+      JSON.stringify({
+        framework: options.framework,
+        ready: true,
+        runtime: `node ${process.version}`,
+        schemaVersion: 1,
+        version: options.version,
+      }),
+    );
     return;
   }
   if (!Number.isSafeInteger(args.operations) || args.operations < 1) {
@@ -94,14 +98,13 @@ export async function runFramework(options) {
     return;
   }
 
-  const prepared = args.mode === "routing"
-    ? await options.prepareRouting(entries)
-    : entries;
-  const dispatch = args.mode === "decode"
-    ? options.decode
-    : args.mode === "routing"
-    ? options.dispatchRouting
-    : options.dispatchIngress;
+  const prepared = args.mode === "routing" ? await options.prepareRouting(entries) : entries;
+  const dispatch =
+    args.mode === "decode"
+      ? options.decode
+      : args.mode === "routing"
+        ? options.dispatchRouting
+        : options.dispatchIngress;
   if (dispatch === undefined) throw new Error(`Unsupported mode: ${args.mode}`);
 
   const runRound = async (measureLatency, operations = args.operations) => {
@@ -140,7 +143,9 @@ export async function runFramework(options) {
   }
   if (args.mode === "latency") {
     const measured = await runRound(true);
-    console.log(JSON.stringify(await result(options, args.mode, [measured.round], measured.latencyNs)));
+    console.log(
+      JSON.stringify(await result(options, args.mode, [measured.round], measured.latencyNs)),
+    );
   } else {
     const rounds = [];
     for (let round = 0; round < args.rounds; round += 1) {

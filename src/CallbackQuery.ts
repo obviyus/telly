@@ -1,10 +1,7 @@
 import * as Effect from "effect/Effect";
 
 import { Bot, type BotApiError } from "./BotApi.js";
-import {
-  answerCallbackQuery,
-  type AnswerCallbackQueryParams,
-} from "./methods.generated.js";
+import { answerCallbackQuery, type AnswerCallbackQueryParams } from "./methods.generated.js";
 import type { CallbackQuery, Message } from "./types.generated.js";
 
 export type AnswerCallbackOptions = Omit<AnswerCallbackQueryParams, "callbackQueryId">;
@@ -12,15 +9,15 @@ export type AnswerCallbackOptions = Omit<AnswerCallbackQueryParams, "callbackQue
 export type CallbackTarget =
   | { readonly inlineMessageId: string }
   | {
-    readonly businessConnectionId?: string;
-    readonly chatId: number;
-    readonly messageId: number;
-  }
+      readonly businessConnectionId?: string;
+      readonly chatId: number;
+      readonly messageId: number;
+    }
   | {
-    readonly chatId: number;
-    readonly ephemeralMessageId: number;
-    readonly receiverUserId: number;
-  };
+      readonly chatId: number;
+      readonly ephemeralMessageId: number;
+      readonly receiverUserId: number;
+    };
 
 /** Answers a callback query and closes the client's loading state. */
 export const answerCallback = Effect.fn("answerCallback")(function* (
@@ -39,7 +36,7 @@ export function callbackTarget(query: CallbackQuery): CallbackTarget {
   if (message === undefined) {
     throw new RangeError("CallbackQuery has neither message nor inlineMessageId");
   }
-  const accessible = message.date === 0 ? undefined : message as Message;
+  const accessible = message.date === 0 ? undefined : (message as Message);
   if (accessible?.ephemeralMessageId !== undefined) {
     return {
       chatId: accessible.chat.id,

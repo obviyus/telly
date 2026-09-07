@@ -14,10 +14,15 @@ const overrides = JSON.parse(
   await readFile(new URL("../bot-api/schema/overrides.json", import.meta.url), "utf8"),
 ) as {
   readonly fields: Readonly<Record<string, { readonly types: ReadonlyArray<string> }>>;
-  readonly types: Readonly<Record<string, {
-    readonly additionalTypes?: ReadonlyArray<string>;
-    readonly schema?: string;
-  }>>;
+  readonly types: Readonly<
+    Record<
+      string,
+      {
+        readonly additionalTypes?: ReadonlyArray<string>;
+        readonly schema?: string;
+      }
+    >
+  >;
 };
 const noFixture = Symbol("noFixture");
 
@@ -56,7 +61,7 @@ function fieldReferences(owner: string, name: string, references: ReadonlyArray<
     : resolved.map((reference) => enumReference(reference, enumName));
 }
 
-function wireReference(reference: string, stack: ReadonlySet<string>): unknown | typeof noFixture {
+function wireReference(reference: string, stack: ReadonlySet<string>): unknown {
   const item = arrayItem(reference);
   if (item !== undefined) {
     const value = wireReference(item, stack);
@@ -91,6 +96,14 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown |
     }
     return noFixture;
   }
+  return wireObject(reference, definition, nextStack);
+}
+
+function wireObject(
+  reference: string,
+  definition: (typeof spec.types)[string],
+  stack: ReadonlySet<string>,
+): unknown {
   const output: Record<string, unknown> = { future_field: `${reference}-future` };
   for (const field of definition.fields ?? []) {
     if (!field.required) continue;
@@ -99,9 +112,9 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown |
       output[field.name] = literal;
       continue;
     }
-    let value: unknown | typeof noFixture = noFixture;
+    let value: unknown = noFixture;
     for (const candidate of fieldReferences(reference, field.name, field.types)) {
-      value = wireReference(candidate, nextStack);
+      value = wireReference(candidate, stack);
       if (value !== noFixture) break;
     }
     if (value === noFixture) return noFixture;
@@ -111,7 +124,7 @@ function wireReference(reference: string, stack: ReadonlySet<string>): unknown |
 }
 
 for (const [name, definition] of Object.entries(spec.types).sort(([left], [right]) =>
-  left.localeCompare(right)
+  left.localeCompare(right),
 )) {
   if (name === "Update") continue;
   test(`compiled ${name} decoder agrees with its Effect Schema`, () => {
@@ -136,7 +149,9 @@ for (const [name, definition] of Object.entries(spec.types).sort(([left], [right
     delete missing[firstRequired.name as keyof typeof missing];
     const wrong = { ...wire, [firstRequired.name]: null };
 
-    expect(Schema.decodeUnknownExit(schema)(missing)._tag, `${name} missing reference`).toBe("Failure");
+    expect(Schema.decodeUnknownExit(schema)(missing)._tag, `${name} missing reference`).toBe(
+      "Failure",
+    );
     expect(Reflect.apply(decoder, undefined, [missing]), `${name} missing compiled`).toBe(
       Decoders.decodeFailure,
     );

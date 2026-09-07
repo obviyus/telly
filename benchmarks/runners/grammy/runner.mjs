@@ -2,13 +2,11 @@ import { readFile } from "node:fs/promises";
 
 import { Bot } from "grammy";
 
-import {
-  makeMetrics,
-  record,
-  runFramework,
-} from "../js-common.mjs";
+import { makeMetrics, record, runFramework } from "../js-common.mjs";
 
-const packageJson = JSON.parse(await readFile(new URL("./node_modules/grammy/package.json", import.meta.url)));
+const packageJson = JSON.parse(
+  await readFile(new URL("./node_modules/grammy/package.json", import.meta.url)),
+);
 const bot = new Bot("123456:grammy-benchmark", {
   botInfo: {
     first_name: "Benchmark",
@@ -63,12 +61,7 @@ await runFramework({
       update_id: 1,
     });
     await bot.handleUpdate({ update_id: 2 });
-    if (
-      current.text !== 1 ||
-      current.command !== 1 ||
-      current.callback !== 1 ||
-      sentinel !== 1
-    ) {
+    if (current.text !== 1 || current.command !== 1 || current.callback !== 1 || sentinel !== 1) {
       throw new Error("grammY routing preflight failed");
     }
   },

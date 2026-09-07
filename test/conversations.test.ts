@@ -32,7 +32,11 @@ function messageUpdate(body: string, updateId: number, asCommand = false): Updat
       chat: { id: chatId, type: "private" },
       date: 1_700_000_000,
       ...(asCommand
-        ? { entities: [{ length: body.split(" ")[0]?.length ?? body.length, offset: 0, type: "bot_command" }] }
+        ? {
+            entities: [
+              { length: body.split(" ")[0]?.length ?? body.length, offset: 0, type: "bot_command" },
+            ],
+          }
         : {}),
       from: { firstName: "Ada", id: userId, isBot: false },
       messageId: updateId,
@@ -60,9 +64,12 @@ function callbackUpdate(data: string, updateId: number): Update {
   };
 }
 
-const choice = callbackData("order", Schema.Struct({
-  answer: Schema.Literals(["yes", "no"]),
-}));
+const choice = callbackData(
+  "order",
+  Schema.Struct({
+    answer: Schema.Literals(["yes", "no"]),
+  }),
+);
 
 function orderConversation(store: ConversationStoreService) {
   return conversation({
@@ -82,9 +89,7 @@ function orderConversation(store: ConversationStoreService) {
       note: Conversation.step({
         filter: text(),
         run: ({ message, text: note }, state) =>
-          respond(message, `Order ${state.orderId}: ${note}`).pipe(
-            Effect.as(Conversation.end()),
-          ),
+          respond(message, `Order ${state.orderId}: ${note}`).pipe(Effect.as(Conversation.end())),
         state: Schema.Struct({ orderId: Schema.Int }),
       }),
     },
@@ -99,10 +104,11 @@ test("conversation advances from command through callback and text", async () =>
   const app = Application.make({ httpClient: fake.layer, rateLimit: false, token });
   const bot = defineBot({
     commands: {
-      order: ({ message }) => respond(message, {
-        replyMarkup: { inlineKeyboard: [[choice.button("Yes", { answer: "yes" })]] },
-        text: "Confirm order 42?",
-      }).pipe(Effect.andThen(order.enter(message, "confirm", { orderId: 42 }))),
+      order: ({ message }) =>
+        respond(message, {
+          replyMarkup: { inlineKeyboard: [[choice.button("Yes", { answer: "yes" })]] },
+          text: "Confirm order 42?",
+        }).pipe(Effect.andThen(order.enter(message, "confirm", { orderId: 42 }))),
     },
     conversations: [order],
   });
@@ -110,15 +116,19 @@ test("conversation advances from command through callback and text", async () =>
   try {
     await app.run(bot(messageUpdate("/order", 101, true)));
     await app.run(bot(callbackUpdate(choice.pack({ answer: "yes" }), 102)));
-    const waiting = await Effect.runPromise(store.load({
-      botId: 123456,
-      scope: conversationScope,
-    }));
+    const waiting = await Effect.runPromise(
+      store.load({
+        botId: 123456,
+        scope: conversationScope,
+      }),
+    );
     await app.run(bot(messageUpdate("No onions", 103)));
-    const ended = await Effect.runPromise(store.load({
-      botId: 123456,
-      scope: conversationScope,
-    }));
+    const ended = await Effect.runPromise(
+      store.load({
+        botId: 123456,
+        scope: conversationScope,
+      }),
+    );
 
     expect(waiting).toMatchObject({ conversation: "order", step: "note", version: 2 });
     expect(ended).toBeUndefined();
@@ -139,24 +149,29 @@ test("unmatched conversation updates fall through without changing state", async
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const bot = defineBot({
-    callbackQuery: ({ callbackQuery: query }) => Effect.sync(() => {
-      observed.push(query.data ?? "missing");
-    }),
+    callbackQuery: ({ callbackQuery: query }) =>
+      Effect.sync(() => {
+        observed.push(query.data ?? "missing");
+      }),
     conversations: [order],
   });
-  await Effect.runPromise(store.commit({
-    botId: 123456,
-    expected: "any",
-    scope: conversationScope,
-    next: { conversation: "order", state: { orderId: 42 }, step: "confirm" },
-  }));
+  await Effect.runPromise(
+    store.commit({
+      botId: 123456,
+      expected: "any",
+      scope: conversationScope,
+      next: { conversation: "order", state: { orderId: 42 }, step: "confirm" },
+    }),
+  );
 
   try {
     await app.run(bot(callbackUpdate("foreign:value", 104)));
-    const state = await Effect.runPromise(store.load({
-      botId: 123456,
-      scope: conversationScope,
-    }));
+    const state = await Effect.runPromise(
+      store.load({
+        botId: 123456,
+        scope: conversationScope,
+      }),
+    );
 
     expect(observed).toEqual(["foreign:value"]);
     expect(state).toMatchObject({ step: "confirm", version: 1 });
@@ -173,25 +188,30 @@ test("unknown and invalid persisted conversation states fall through", async () 
   const app = Application.make({ httpClient: fake.layer, token });
   const bot = defineBot({
     conversations: [order],
-    text: ({ text: value }) => Effect.sync(() => {
-      observed.push(value);
-    }),
+    text: ({ text: value }) =>
+      Effect.sync(() => {
+        observed.push(value);
+      }),
   });
 
   try {
-    await Effect.runPromise(store.commit({
-      botId: 123456,
-      expected: "any",
-      scope: conversationScope,
-      next: { conversation: "removed-flow", state: {}, step: "gone" },
-    }));
+    await Effect.runPromise(
+      store.commit({
+        botId: 123456,
+        expected: "any",
+        scope: conversationScope,
+        next: { conversation: "removed-flow", state: {}, step: "gone" },
+      }),
+    );
     await app.run(bot(messageUpdate("unknown flow", 108)));
-    await Effect.runPromise(store.commit({
-      botId: 123456,
-      expected: "any",
-      scope: conversationScope,
-      next: { conversation: "order", state: { orderId: "invalid" }, step: "note" },
-    }));
+    await Effect.runPromise(
+      store.commit({
+        botId: 123456,
+        expected: "any",
+        scope: conversationScope,
+        next: { conversation: "order", state: { orderId: "invalid" }, step: "note" },
+      }),
+    );
     await app.run(bot(messageUpdate("invalid state", 109)));
 
     expect(observed).toEqual(["unknown flow", "invalid state"]);
@@ -211,18 +231,21 @@ test("a command can exit an active conversation when its step does not match", a
     },
     conversations: [order],
   });
-  await Effect.runPromise(store.commit({
-    botId: 123456,
-    expected: "any",
-    scope: conversationScope,
-    next: { conversation: "order", state: { orderId: 42 }, step: "note" },
-  }));
+  await Effect.runPromise(
+    store.commit({
+      botId: 123456,
+      expected: "any",
+      scope: conversationScope,
+      next: { conversation: "order", state: { orderId: 42 }, step: "note" },
+    }),
+  );
 
   try {
     await app.run(bot(messageUpdate("/cancel", 105, true)));
 
-    expect(await Effect.runPromise(store.load({ botId: 123456, scope: conversationScope })))
-      .toBeUndefined();
+    expect(
+      await Effect.runPromise(store.load({ botId: 123456, scope: conversationScope })),
+    ).toBeUndefined();
   } finally {
     await app.close();
   }
@@ -244,17 +267,20 @@ test("conversation handler failure leaves its persisted version unchanged", asyn
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const bot = defineBot({ conversations: [failing] });
-  await Effect.runPromise(store.commit({
-    botId: 123456,
-    expected: "any",
-    scope: conversationScope,
-    next: { conversation: "failing", state: { value: 7 }, step: "active" },
-  }));
+  await Effect.runPromise(
+    store.commit({
+      botId: 123456,
+      expected: "any",
+      scope: conversationScope,
+      next: { conversation: "failing", state: { value: 7 }, step: "active" },
+    }),
+  );
 
   try {
     await expect(app.run(bot(messageUpdate("input", 106)))).rejects.toBe("handler failed");
-    expect(await Effect.runPromise(store.load({ botId: 123456, scope: conversationScope })))
-      .toMatchObject({ state: { value: 7 }, version: 1 });
+    expect(
+      await Effect.runPromise(store.load({ botId: 123456, scope: conversationScope })),
+    ).toMatchObject({ state: { value: 7 }, version: 1 });
   } finally {
     await app.close();
   }
@@ -264,26 +290,31 @@ test("conversation reports a compare-and-set conflict without overwriting state"
   const memory = MemoryConversations.make();
   const store = ConversationStore.of({
     ...memory,
-    commit: (options) => typeof options.expected === "number"
-      ? Effect.succeed("Conflict" as const)
-      : memory.commit(options),
+    commit: (options) =>
+      typeof options.expected === "number"
+        ? Effect.succeed("Conflict" as const)
+        : memory.commit(options),
   });
   const order = orderConversation(store);
   const fake = FakeBotApi.make({ token });
   const app = Application.make({ httpClient: fake.layer, token });
   const bot = defineBot({ conversations: [order] });
-  await Effect.runPromise(memory.commit({
-    botId: 123456,
-    expected: "any",
-    scope: conversationScope,
-    next: { conversation: "order", state: { orderId: 42 }, step: "confirm" },
-  }));
+  await Effect.runPromise(
+    memory.commit({
+      botId: 123456,
+      expected: "any",
+      scope: conversationScope,
+      next: { conversation: "order", state: { orderId: 42 }, step: "confirm" },
+    }),
+  );
 
   try {
-    await expect(app.run(bot(callbackUpdate(choice.pack({ answer: "yes" }), 107))))
-      .rejects.toBeInstanceOf(ConversationConflict);
-    expect(await Effect.runPromise(memory.load({ botId: 123456, scope: conversationScope })))
-      .toMatchObject({ step: "confirm", version: 1 });
+    await expect(
+      app.run(bot(callbackUpdate(choice.pack({ answer: "yes" }), 107))),
+    ).rejects.toBeInstanceOf(ConversationConflict);
+    expect(
+      await Effect.runPromise(memory.load({ botId: 123456, scope: conversationScope })),
+    ).toMatchObject({ step: "confirm", version: 1 });
   } finally {
     await app.close();
   }
@@ -320,11 +351,14 @@ test("SQLite conversation resumes its next step after an application restart", a
     await secondApp.run(secondBot(callbackUpdate(choice.pack({ answer: "yes" }), 111)));
     await secondApp.run(secondBot(messageUpdate("Extra spicy", 112)));
 
-    expect(await Effect.runPromise(secondStore.load({
-      botId: 123456,
-      scope: conversationScope,
-    })))
-      .toBeUndefined();
+    expect(
+      await Effect.runPromise(
+        secondStore.load({
+          botId: 123456,
+          scope: conversationScope,
+        }),
+      ),
+    ).toBeUndefined();
     expect(secondFake.requests.map((request) => request.params)).toMatchObject([
       { text: "Send a kitchen note." },
       { text: "Order 84: Extra spicy" },
@@ -337,18 +371,22 @@ test("SQLite conversation resumes its next step after an application restart", a
 });
 
 test("defineBot rejects conversations backed by different stores", () => {
-  expect(() => defineBot({
-    conversations: [
-      orderConversation(MemoryConversations.make()),
-      orderConversation(MemoryConversations.make()),
-    ],
-  })).toThrow("must share a store");
+  expect(() =>
+    defineBot({
+      conversations: [
+        orderConversation(MemoryConversations.make()),
+        orderConversation(MemoryConversations.make()),
+      ],
+    }),
+  ).toThrow("must share a store");
 });
 
 test("defineBot rejects duplicate conversation names", () => {
   const store = MemoryConversations.make();
 
-  expect(() => defineBot({
-    conversations: [orderConversation(store), orderConversation(store)],
-  })).toThrow("Duplicate conversation name: order");
+  expect(() =>
+    defineBot({
+      conversations: [orderConversation(store), orderConversation(store)],
+    }),
+  ).toThrow("Duplicate conversation name: order");
 });

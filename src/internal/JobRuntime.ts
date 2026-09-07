@@ -18,10 +18,7 @@ import { makeDispatcher } from "./Dispatch.js";
 import { recordSettlement } from "./Telemetry.js";
 
 function retryDelay(attempts: number, options: JobsState["options"]): number {
-  return Math.min(
-    options.retryMaxMs,
-    options.retryBaseMs * 2 ** Math.max(0, attempts - 1),
-  );
+  return Math.min(options.retryMaxMs, options.retryBaseMs * 2 ** Math.max(0, attempts - 1));
 }
 
 function failedSettlement(
@@ -54,27 +51,28 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
             doneAgeMs: doneRetentionMs,
           });
           const settle = (id: string, outcome: JobSettlement) =>
-            state.store.settle({
-              botId: bot.id,
-              fencingToken: token,
-              id,
-              outcome,
-            }).pipe(
-              Effect.tap(() => recordSettlement("jobs", outcome)),
-            );
+            state.store
+              .settle({
+                botId: bot.id,
+                fencingToken: token,
+                id,
+                outcome,
+              })
+              .pipe(Effect.tap(() => recordSettlement("jobs", outcome)));
           const handler = (claimed: ClaimedJob) => {
             const definition = state.definitions.get(claimed.name);
-            const execution = definition === undefined
-              ? Effect.fail("unknown-job")
-              : definition.execute(claimed.payload, {
-                  attempt: claimed.attempts,
-                  id: claimed.id,
-                  scheduledAt: new Date(claimed.scheduledTimeMs),
-                });
+            const execution =
+              definition === undefined
+                ? Effect.fail("unknown-job")
+                : definition.execute(claimed.payload, {
+                    attempt: claimed.attempts,
+                    id: claimed.id,
+                    scheduledAt: new Date(claimed.scheduledTimeMs),
+                  });
             return Effect.result(execution).pipe(
               Effect.flatMap((result) => {
                 const outcome = Result.isSuccess(result)
-                  ? { _tag: "Done" } as const
+                  ? ({ _tag: "Done" } as const)
                   : failedSettlement(
                       claimed,
                       options,
@@ -86,7 +84,7 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
                 settle(claimed.id, { _tag: "Interrupted" }).pipe(
                   Effect.catchTag("JobLeaseLost", () => Effect.void),
                   Effect.catchTag("JobStoreError", () => Effect.void),
-                )
+                ),
               ),
             );
           };
@@ -97,46 +95,52 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
             source: "jobs",
           });
 
-          const pump = Effect.forever(Effect.gen(function* () {
-            const available = yield* dispatcher.awaitCapacity;
-            const wakeVersion = state.wake.current();
-            const claimed = yield* state.store.claim({
-              botId: bot.id,
-              fencingToken: token,
-              limit: available,
-            });
-            if (claimed.length === 0) {
-              yield* state.wake.wait(wakeVersion).pipe(
-                Effect.raceFirst(Effect.sleep(jobDefaults.pollIntervalMs)),
-              );
-              return;
-            }
-            for (const item of claimed) {
-              if (item.attempts > maxAttempts) {
-                yield* settle(item.id, {
-                  _tag: "Parked",
-                  reason: "attempts-exhausted",
-                });
-                continue;
-              }
-              yield* dispatcher.submit(item, item.id).pipe(Effect.orDie, Effect.asVoid);
-            }
-          }));
-          const heartbeat = Effect.forever(
-            Effect.sleep(leaseMs / 3).pipe(
-              Effect.andThen(state.store.renew({
+          const pump = Effect.forever(
+            Effect.gen(function* () {
+              const available = yield* dispatcher.awaitCapacity;
+              const wakeVersion = state.wake.current();
+              const claimed = yield* state.store.claim({
                 botId: bot.id,
                 fencingToken: token,
-                leaseMs,
-              })),
+                limit: available,
+              });
+              if (claimed.length === 0) {
+                yield* state.wake
+                  .wait(wakeVersion)
+                  .pipe(Effect.raceFirst(Effect.sleep(jobDefaults.pollIntervalMs)));
+                return;
+              }
+              for (const item of claimed) {
+                if (item.attempts > maxAttempts) {
+                  yield* settle(item.id, {
+                    _tag: "Parked",
+                    reason: "attempts-exhausted",
+                  });
+                  continue;
+                }
+                yield* dispatcher.submit(item, item.id).pipe(Effect.orDie, Effect.asVoid);
+              }
+            }),
+          );
+          const heartbeat = Effect.forever(
+            Effect.sleep(leaseMs / 3).pipe(
+              Effect.andThen(
+                state.store.renew({
+                  botId: bot.id,
+                  fencingToken: token,
+                  leaseMs,
+                }),
+              ),
             ),
           );
           const maintenance = Effect.forever(
             Effect.sleep(3_600_000).pipe(
-              Effect.andThen(state.store.prune({
-                botId: bot.id,
-                doneAgeMs: doneRetentionMs,
-              })),
+              Effect.andThen(
+                state.store.prune({
+                  botId: bot.id,
+                  doneAgeMs: doneRetentionMs,
+                }),
+              ),
             ),
           );
 
@@ -154,13 +158,15 @@ export const runJobWorker = Effect.fn("runJobWorker")(function* (
               return dispatcher.drain;
             }),
             Effect.ensuring(
-              state.store.release({ botId: bot.id, fencingToken: token }).pipe(
-                Effect.catchTag("JobStoreError", (error) =>
-                  Effect.logError("Telegram job lease release failed").pipe(
-                    Effect.annotateLogs({ operation: error.operation }),
-                  )
+              state.store
+                .release({ botId: bot.id, fencingToken: token })
+                .pipe(
+                  Effect.catchTag("JobStoreError", (error) =>
+                    Effect.logError("Telegram job lease release failed").pipe(
+                      Effect.annotateLogs({ operation: error.operation }),
+                    ),
+                  ),
                 ),
-              ),
             ),
           );
         }).pipe(Effect.catchTag("JobLeaseLost", () => Effect.void));

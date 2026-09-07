@@ -48,16 +48,18 @@ describe("downloadFile", () => {
 
   test("rejects a getFile result without a path", async () => {
     const fake = FakeBotApi.make({
-      replies: [FakeBotApiReply.ok({
-        file_id: "file-79",
-        file_unique_id: "unique-79",
-      })],
+      replies: [
+        FakeBotApiReply.ok({
+          file_id: "file-79",
+          file_unique_id: "unique-79",
+        }),
+      ],
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      downloadFile({ fileId: "file-79" }).pipe(Effect.provide(botLayer(fake))),
-    ));
+    const error = await Effect.runPromise(
+      Effect.flip(downloadFile({ fileId: "file-79" }).pipe(Effect.provide(botLayer(fake)))),
+    );
 
     expect(error).toMatchObject({
       method: "downloadFile",
@@ -83,9 +85,9 @@ describe("downloadFile", () => {
       token,
     });
 
-    const error = await Effect.runPromise(Effect.flip(
-      downloadFile({ fileId: "file-83" }).pipe(Effect.provide(botLayer(fake))),
-    ));
+    const error = await Effect.runPromise(
+      Effect.flip(downloadFile({ fileId: "file-83" }).pipe(Effect.provide(botLayer(fake)))),
+    );
 
     expect(error).toMatchObject({
       method: "downloadFile",
@@ -121,9 +123,7 @@ describe("downloadFile", () => {
       token,
     });
     const program = Effect.gen(function* () {
-      const fiber = yield* Effect.flip(downloadFile({ fileId: "file-89" })).pipe(
-        Effect.forkChild,
-      );
+      const fiber = yield* Effect.flip(downloadFile({ fileId: "file-89" })).pipe(Effect.forkChild);
       yield* Effect.promise(() => fake.whenCalled("downloadFile"));
       yield* Effect.yieldNow;
       yield* TestClock.adjust("1 second");
@@ -131,16 +131,20 @@ describe("downloadFile", () => {
       return yield* Fiber.join(fiber);
     });
 
-    const error = await Effect.runPromise(program.pipe(
-      Effect.provide(botLayer(fake)),
-      Effect.provideService(Tracer.Tracer, tracer),
-      Effect.provide(TestClock.layer()),
-    ));
-    const serializedSpans = JSON.stringify(spans.map((span) => ({
-      attributes: Object.fromEntries(span.attributes),
-      exit: span.status._tag === "Ended" ? String(span.status.exit) : undefined,
-      name: span.name,
-    })));
+    const error = await Effect.runPromise(
+      program.pipe(
+        Effect.provide(botLayer(fake)),
+        Effect.provideService(Tracer.Tracer, tracer),
+        Effect.provide(TestClock.layer()),
+      ),
+    );
+    const serializedSpans = JSON.stringify(
+      spans.map((span) => ({
+        attributes: Object.fromEntries(span.attributes),
+        exit: span.status._tag === "Ended" ? String(span.status.exit) : undefined,
+        name: span.name,
+      })),
+    );
 
     expect(error.reason._tag).toBe("Transport");
     expect(error.retrySafe).toBe(true);
