@@ -6,7 +6,10 @@ import {
   Application,
   Bot,
   BotApiError,
+  InboxStore,
+  MemoryInbox,
   PollingConflictError,
+  pollInboxUpdates,
   pollUpdates,
   sendMessage,
 } from "../index.ts";
@@ -51,6 +54,232 @@ function signal() {
   const { promise, resolve } = Promise.withResolvers<void>();
   return { promise, resolve: () => resolve() };
 }
+
+for (const mode of ["on-complete", "on-receipt", "inbox"] as const) {
+  for (const [label, fault] of [
+    ["502", FakeBotApiReply.reject({ description: "Bad Gateway", errorCode: 502 })],
+    ["transport", FakeBotApiReply.transportFailure("connection reset")],
+    ["invalid response", FakeBotApiReply.body(502, "Bad Gateway")],
+  ] as const) {
+    test(`${mode} polling survives exhausted ${label} retries without losing its offset`, async () => {
+      const handled: Array<number> = [];
+      const firstHandled = Deferred.makeUnsafe<void>();
+      const fake = FakeBotApi.make({
+        token,
+        replies: [
+          FakeBotApiReply.ok([update(121, 1_201)]),
+          ...Array.from({ length: 6 }, () => fault),
+          FakeBotApiReply.ok([update(122, 1_202)]),
+        ],
+      });
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const handler = (item: { readonly updateId: number }) =>
+            Effect.sync(() => handled.push(item.updateId)).pipe(
+              Effect.andThen(Deferred.succeed(firstHandled, undefined)),
+            );
+          const polling = yield* (
+            mode === "inbox"
+              ? pollInboxUpdates(handler)
+              : pollUpdates(handler, { acknowledgment: mode, concurrency: 1 })
+          ).pipe(Effect.forkChild);
+          yield* Deferred.await(firstHandled);
+          yield* Effect.promise(() => fake.whenCalled("getUpdates", 2));
+          yield* TestClock.adjust("30 seconds");
+          try {
+            expect(handled).toEqual([121, 122]);
+            const retries = fake.requests
+              .filter((call) => call.method === "getUpdates")
+              .slice(1, 8);
+            expect(retries).toHaveLength(7);
+            for (const retry of retries) expect(retry.params).toMatchObject({ offset: 122 });
+            expect(fake.requests.some((call) => call.method === "getWebhookInfo")).toBe(false);
+          } finally {
+            yield* Fiber.interrupt(polling);
+          }
+        }).pipe(
+          Effect.provideService(InboxStore, MemoryInbox.make()),
+          Effect.provide(botLayer(fake)),
+          Effect.provide(TestClock.layer()),
+        ),
+      );
+    });
+  }
+}
+
+for (const errorCode of [400, 401, 403, 404]) {
+  test(`polling keeps Telegram ${errorCode} failures fatal`, async () => {
+    const fake = FakeBotApi.make({
+      token,
+      replies: [FakeBotApiReply.reject({ description: "Permanent rejection", errorCode })],
+    });
+    const caught = await Effect.runPromise(
+      pollUpdates(() => Effect.void).pipe(Effect.provide(botLayer(fake)), Effect.flip),
+    );
+    expect(caught).toBeInstanceOf(BotApiError);
+    if (!(caught instanceof BotApiError)) throw new Error("Expected BotApiError");
+    expect(caught.reason).toMatchObject({ errorCode });
+    expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(1);
+  });
+}
+
+test("polling caps outage backoff at one minute and resets it after success", async () => {
+  const fault = FakeBotApiReply.reject({ description: "Bad Gateway", errorCode: 502 });
+  const fake = FakeBotApi.make({
+    token,
+    replies: [
+      ...Array.from({ length: 27 }, () => fault),
+      FakeBotApiReply.ok([]),
+      fault,
+      fault,
+      fault,
+      FakeBotApiReply.hang(),
+    ],
+  });
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Effect.void).pipe(Effect.forkChild);
+      yield* Effect.promise(() => fake.whenCalled("getUpdates"));
+      try {
+        let requests = 0;
+        for (const seconds of [1, 2, 4, 8, 16, 32, 60, 60, 60]) {
+          yield* TestClock.adjust("3 seconds");
+          requests += 3;
+          expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(
+            requests,
+          );
+          yield* TestClock.adjust(`${seconds * 1_000 - 1} millis`);
+          expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(
+            requests,
+          );
+          yield* TestClock.adjust("1 millis");
+        }
+        yield* TestClock.adjust("3 seconds");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(31);
+        yield* TestClock.adjust("999 millis");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(31);
+        yield* TestClock.adjust("1 millis");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(32);
+      } finally {
+        yield* Fiber.interrupt(polling);
+      }
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
+});
+
+test("polling honors retryAfter longer than the outage backoff cap", async () => {
+  const fault = FakeBotApiReply.reject({
+    description: "Too Many Requests",
+    errorCode: 429,
+    parameters: { retryAfter: 90 },
+  });
+  const fake = FakeBotApi.make({ token, replies: [fault, fault, fault, FakeBotApiReply.hang()] });
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Effect.void).pipe(Effect.forkChild);
+      yield* Effect.promise(() => fake.whenCalled("getUpdates"));
+      try {
+        yield* TestClock.adjust("180 seconds");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(3);
+        yield* TestClock.adjust("89999 millis");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(3);
+        yield* TestClock.adjust("1 millis");
+        expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(4);
+      } finally {
+        yield* Fiber.interrupt(polling);
+      }
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
+});
+
+test("stopping polling interrupts outage recovery without another request", async () => {
+  const fault = FakeBotApiReply.reject({ description: "Bad Gateway", errorCode: 502 });
+  const fake = FakeBotApi.make({ token, replies: [fault, fault, fault] });
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Effect.void).pipe(Effect.forkChild);
+      yield* Effect.promise(() => fake.whenCalled("getUpdates"));
+      yield* TestClock.adjust("3 seconds");
+      yield* Fiber.interrupt(polling);
+      yield* TestClock.adjust("120 seconds");
+      expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(3);
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
+});
+
+test("a transient outage clears a previous polling conflict budget", async () => {
+  const handled: Array<number> = [];
+  const fault = FakeBotApiReply.reject({ description: "Bad Gateway", errorCode: 502 });
+  const fake = FakeBotApi.make({
+    token,
+    replies: [
+      conflict(),
+      webhookInfo(""),
+      ...Array.from({ length: 6 }, () => fault),
+      FakeBotApiReply.ok([update(131, 1_301)]),
+    ],
+  });
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates((item) => Effect.sync(() => handled.push(item.updateId)), {
+        conflictRetryBudgetMs: 3_000,
+      }).pipe(Effect.forkChild);
+      yield* Effect.promise(() => fake.whenCalled("getWebhookInfo"));
+      yield* TestClock.adjust("30 seconds");
+      try {
+        expect(handled).toEqual([131]);
+      } finally {
+        yield* Fiber.interrupt(polling);
+      }
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
+});
+
+test("shutdown acknowledgment stays bounded after receiving updates during an outage", async () => {
+  const handled = Deferred.makeUnsafe<void>();
+  const fault = FakeBotApiReply.reject({ description: "Bad Gateway", errorCode: 502 });
+  const fake = FakeBotApi.make({
+    token,
+    replies: [
+      FakeBotApiReply.ok([update(141, 1_401)]),
+      fault,
+      fault,
+      fault,
+      FakeBotApiReply.hang(),
+    ],
+  });
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const polling = yield* pollUpdates(() => Deferred.succeed(handled, undefined), {
+        concurrency: 1,
+      }).pipe(Effect.forkChild);
+      yield* Deferred.await(handled);
+      yield* Effect.promise(() => fake.whenCalled("getUpdates", 2));
+      yield* TestClock.adjust("3 seconds");
+      const stopping = yield* Fiber.interrupt(polling).pipe(Effect.forkChild);
+      const acknowledgment = yield* Effect.promise(() => fake.whenCalled("getUpdates", 5));
+      expect(acknowledgment.params).toMatchObject({ offset: 142, timeout: 0 });
+      yield* TestClock.adjust("5 seconds");
+      yield* Fiber.join(stopping);
+      expect(fake.abortedMethods).toContain("getUpdates");
+      expect(fake.requests.filter((call) => call.method === "getUpdates")).toHaveLength(5);
+    }).pipe(Effect.provide(botLayer(fake)), Effect.provide(TestClock.layer())),
+  );
+});
+
+test("polling does not retry locally invalid requests", async () => {
+  const fake = FakeBotApi.make({ token });
+  const caught = await Effect.runPromise(
+    pollUpdates(() => Effect.void, { batchSize: -1 }).pipe(
+      Effect.provide(botLayer(fake)),
+      Effect.flip,
+    ),
+  );
+  expect(caught).toBeInstanceOf(BotApiError);
+  if (!(caught instanceof BotApiError)) throw new Error("Expected BotApiError");
+  expect(caught.reason._tag).toBe("InvalidRequest");
+  expect(fake.requests.some((call) => call.method === "getUpdates")).toBe(false);
+});
 
 test("polling acknowledges a received update before its handler completes", async () => {
   const gate = Deferred.makeUnsafe<void>();

@@ -12,6 +12,8 @@ const defaultConflictRetryBudgetMs = 60_000;
 const acknowledgmentFlushTimeoutMs = 5_000;
 const conflictRetryBaseMs = 1_000;
 const conflictRetryMaxMs = 5_000;
+const transientRetryBaseMs = 1_000;
+const transientRetryMaxMs = 60_000;
 
 export class PollingConflictError extends Schema.TaggedError<PollingConflictError>()(
   "PollingConflictError",
@@ -48,6 +50,25 @@ function isGetUpdatesConflict(error: BotApiError): boolean {
   );
 }
 
+function transientRetryDelay(error: BotApiError, previousDelayMs: number): number | undefined {
+  const delayMs = Math.min(
+    Math.max(transientRetryBaseMs, previousDelayMs * 2),
+    transientRetryMaxMs,
+  );
+  switch (error.reason._tag) {
+    case "TelegramRejected":
+      if (error.reason.errorCode === 429) {
+        return Math.max(delayMs, (error.reason.retryAfter ?? 0) * 1_000);
+      }
+      return error.reason.errorCode >= 500 && error.reason.errorCode < 600 ? delayMs : undefined;
+    case "Transport":
+    case "InvalidResponse":
+      return error.retrySafe ? delayMs : undefined;
+    case "InvalidRequest":
+      return undefined;
+  }
+}
+
 function flushTimeout() {
   return new BotApiError({
     method: "getUpdates",
@@ -68,6 +89,7 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
     params: GetUpdatesParams,
   ): Effect.fn.Return<ReadonlyArray<Update>, BotApiError | PollingConflictError, Bot> {
     let episode: ConflictEpisode | undefined;
+    let transientDelayMs = 0;
 
     while (true) {
       const now = yield* Effect.clockWith((clock) =>
@@ -83,6 +105,17 @@ export function makePollingRequests(conflictRetryBudgetMs = defaultConflictRetry
       const result = yield* Effect.result(getUpdates(params));
       if (Result.isSuccess(result)) return result.success;
       const rejection = result.failure;
+      const transientDelay = transientRetryDelay(rejection, transientDelayMs);
+      if (transientDelay !== undefined) {
+        episode = undefined;
+        yield* recordBotApiDelay("retry", transientDelay).pipe(
+          Effect.andThen(Effect.logWarning("Telegram polling temporarily unavailable; retrying")),
+          Effect.annotateLogs({ delayMs: transientDelay, reason: rejection.reason._tag }),
+          Effect.andThen(Effect.sleep(Duration.millis(transientDelay))),
+        );
+        transientDelayMs = transientDelay;
+        continue;
+      }
       if (!isGetUpdatesConflict(rejection) || conflictRetryBudgetMs === 0) {
         return yield* rejection;
       }
