@@ -247,6 +247,8 @@ Secret-token verification is on by default and rejects bad requests before readi
 
 Polling is just as deliberate: after a `getUpdates` conflict, Telly asks `getWebhookInfo` who owns delivery instead of parsing error text. An overlapping poller gets a 60-second retry budget; an active webhook fails fast with `PollingConflictError`.
 
+Transient polling failures do not stop the application. After a request exhausts its three attempts, polling keeps retrying `429`, `5xx`, and safe transport or invalid-response failures with exponential backoff from one second to one minute, honoring longer `retryAfter` values. A successful poll resets the backoff. The same request offset is retained in every acknowledgment mode, including the durable inbox. Permanent rejections and local validation failures remain fatal; stopping interrupts recovery, and shutdown acknowledgment retains its five-second deadline.
+
 ## Rate limits and retries
 
 Message calls apply Telegram's documented limits by default: 30 messages per second overall, one per second per chat, 20 per minute per group, and the paid-broadcast 1000-per-second limit when `allowPaidBroadcast` is set. Every `429` with `retryAfter` pauses message calls bot-wide for at least the stated duration. Set `rateLimit: false` only when another system owns pacing.
